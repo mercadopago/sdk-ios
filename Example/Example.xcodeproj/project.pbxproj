@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D99B7A212CA4E49A0010B87C /* Bricks in Frameworks */ = {isa = PBXBuildFile; productRef = D99B7A202CA4E49A0010B87C /* Bricks */; };
 		EF7695732D149DCE006C9749 /* Bricks in Frameworks */ = {isa = PBXBuildFile; productRef = EF7695722D149DCE006C9749 /* Bricks */; };
+		EF86961B2D14BEB500A8DE05 /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF86961A2D14BEB500A8DE05 /* CoreMethods */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF7695732D149DCE006C9749 /* Bricks in Frameworks */,
+				EF86961B2D14BEB500A8DE05 /* CoreMethods in Frameworks */,
 				D99B7A212CA4E49A0010B87C /* Bricks in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -121,6 +123,7 @@
 			packageProductDependencies = (
 				D99B7A202CA4E49A0010B87C /* Bricks */,
 				EF7695722D149DCE006C9749 /* Bricks */,
+				EF86961A2D14BEB500A8DE05 /* CoreMethods */,
 			);
 			productName = Example;
 			productReference = D99B79E32CA4E2B30010B87C /* Example.app */;
@@ -205,7 +208,7 @@
 			mainGroup = D99B79DA2CA4E2B30010B87C;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				EF7695712D149DCE006C9749 /* XCLocalSwiftPackageReference "../../sdk-ios" */,
+				EF8696192D14BEB500A8DE05 /* XCLocalSwiftPackageReference "../../sdk-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D99B79E42CA4E2B30010B87C /* Products */;
@@ -420,7 +423,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mercadopago.bricks.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mercadopago.sdk.ios.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -448,7 +451,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mercadopago.bricks.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mercadopago.sdk.ios.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -566,7 +569,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		EF7695712D149DCE006C9749 /* XCLocalSwiftPackageReference "../../sdk-ios" */ = {
+		EF8696192D14BEB500A8DE05 /* XCLocalSwiftPackageReference "../../sdk-ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../sdk-ios";
 		};
@@ -580,6 +583,10 @@
 		EF7695722D149DCE006C9749 /* Bricks */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Bricks;
+		};
+		EF86961A2D14BEB500A8DE05 /* CoreMethods */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CoreMethods;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

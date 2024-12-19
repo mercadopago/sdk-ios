@@ -4,22 +4,27 @@
 import PackageDescription
 
 let package = Package(
-    name: "Bricks",
+    name: "MercadoPagoSDK-iOS",
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "Bricks",
-            targets: ["Bricks"]),
+            name: "CoreMethods",
+            targets: ["CoreMethods"]
+        )
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Bricks"
+            name: "CoreMethods",
+            dependencies: ["Core"]
+        ),
+        .target(
+            name: "Core"
         ),
         .testTarget(
-            name: "Core",
-            dependencies: ["Bricks"]
-        ),
+            name: "CoreTests",
+            dependencies: ["Core"]
+        )
     ]
 )
