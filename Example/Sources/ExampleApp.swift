@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 14.0, *)
 @main
 struct ExampleApp: App {
     var body: some Scene {

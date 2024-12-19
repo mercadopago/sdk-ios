@@ -6,15 +6,12 @@
 //
 
 import SwiftUI
-import Bricks
+import CoreMethods
 
 struct ContentView: View {
-    
-    let packageName = Core()
-    
     var body: some View {
         VStack(alignment: .center) {
-            Text("Scaffolding \(packageName.getName())")
+            Text("Scaffolding")
         }
     }
 }
