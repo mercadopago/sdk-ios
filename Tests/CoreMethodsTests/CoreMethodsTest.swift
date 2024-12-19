@@ -1,5 +1,5 @@
 import Testing
-@testable import Bricks
+@testable import CoreMethods
 
 @Test func example() async throws {
     let test = true
