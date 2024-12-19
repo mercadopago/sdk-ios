@@ -9,11 +9,23 @@
 import SwiftUI
 
 @available(iOS 14.0, *)
-@main
 struct ExampleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+        }
+    }
+}
+
+
+@main
+struct ExampleAppWrapper {
+    static func main() {
+        if #available(iOS 14.0, *) {
+            ExampleApp.main()
+        }
+        else {
+            UIApplicationMain(CommandLine.argc, CommandLine.unsafeArgv, nil, NSStringFromClass(SceneDelegate.self))
         }
     }
 }
