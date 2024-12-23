@@ -1,17 +1,13 @@
 .PHONY: setup
-setup: install-brew install-mint install-swiftformat setup-git-hooks
-
-.PHONY: install-brew
-install-brew:
-	@which brew > /dev/null || /bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+setup: install-mint bootstrap setup-git-hooks
 
 .PHONY: install-mint
 install-mint:
-	@which mint > /dev/null || brew install mint
+	@which mint > /dev/null || /bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/yonaskolb/Mint/master/install.sh)"
 
-.PHONY: install-swiftformat
-install-swiftformat:
-	@which swiftformat > /dev/null || brew install swiftformat
+.PHONY: bootstrap
+bootstrap:
+	@mint bootstrap
 
 .PHONY: setup-git-hooks
 setup-git-hooks:
