@@ -1,9 +1,11 @@
 #!/bin/sh
 
-RED="\e[31m"
-GREEN="\e[32m"
-MAGENTA="\e[35m"
-YELLOW="\e[33m"
+BLUE="\e[34m"      
+WHITE="\e[37m"     
+GRAY="\e[90m"      
+CORAL="\e[38;5;209m" 
+GREEN="\e[38;5;71m"  
+RED="\e[31m"      
 ENDCOLOR="\e[0m"
 
 set -e
@@ -32,7 +34,7 @@ staged_swift_files=`git diff --diff-filter=d --staged --name-only | grep -e '\(.
 
 if [ -z "$staged_swift_files" ]
 then
-  printf "🟣${MAGENTA} $script_name: No Swift file to format \n.${ENDCOLOR}"
+  printf "ℹ️ ${BLUE}$script_name:${ENDCOLOR} ${GRAY}No Swift file to format${ENDCOLOR}\n"
   printf "\n"
   exit 0
 fi
@@ -48,10 +50,10 @@ git add $staged_swift_files
 
 #4
 if [ $formatting_result -eq 0 ]; then
-    printf "🟢${GREEN} $script_name: The following files have been formatted with SwiftFormat:\n${ENDCOLOR}"
-    printf "${MAGENTA}$(cat files_to_format)${ENDCOLOR}\n"
+    printf "✅ ${BLUE}$script_name:${ENDCOLOR} ${WHITE}The following files have been formatted:${ENDCOLOR}\n"
+    printf "${GRAY}$(cat files_to_format)${ENDCOLOR}\n"
 else
-    printf "🔴${RED} $script_name: swift_format_pre_commit failed ${ENDCOLOR}"
+    printf "❌ ${RED}$script_name: swift_format_pre_commit failed${ENDCOLOR}\n"
 fi
 
 exit $formatting_result
