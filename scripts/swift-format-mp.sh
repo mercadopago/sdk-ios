@@ -42,7 +42,7 @@ fi
 printf "%s\n" "${staged_swift_files[@]}" > files_to_format
 
 #2
-swiftformat . --quiet --config $config --filelist files_to_format --exclude Pods,**/.build,**/Package.swift,vendor/bundle,scripts,fastlane,**/L10n.swift,**/Assets.swift,**/*.generated.swift,**/Generated,xcode-productivity/**/*.swift,**/Carthage/**/*.swift
+swiftformat . --config .swiftformat.yml
 formatting_result=$?
 
 #3

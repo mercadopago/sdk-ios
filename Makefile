@@ -38,3 +38,7 @@ clean:
 	@echo "Removing SwiftLint..."
 	@brew uninstall swiftlint || true
 	@echo "✅ Cleaned successfully!"
+
+.PHONY: format
+format:
+	@sh scripts/swift-format-mp.sh
