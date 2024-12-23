@@ -12,5 +12,5 @@ install-swiftformat:
 .PHONY: setup-git-hooks
 setup-git-hooks:
 	mkdir -p .git/hooks
-	echo '#!/bin/bash\nsh swift-format-mp.sh' > .git/hooks/pre-commit
+	echo '#!/bin/bash\nsh scripts/swift-format-mp.sh' > .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
