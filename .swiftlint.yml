@@ -1,0 +1,24 @@
+disabled_rules: 
+  - trailing_whitespace
+  - force_cast
+
+opt_in_rules: 
+  - empty_count
+  - first_where
+
+included:
+  - Source
+
+excluded:
+  - Carthage
+  - Pods
+  - Source/ExcludedFolder
+
+whitelist_rules:
+  - line_length
+
+line_length:
+  warning: 120
+  error: 150
+  ignores_comments: true
+  ignores_urls: true
