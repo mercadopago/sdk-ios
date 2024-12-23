@@ -8,13 +8,4 @@
 
 import Foundation
 
-public final actor CoreMethods: Sendable {
-    
-    func boo() {
-        dar()
-    }
-    
-    func dar() {
-        boo()
-    }
-}
+public final actor CoreMethods: Sendable {}
