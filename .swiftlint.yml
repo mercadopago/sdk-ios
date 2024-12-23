@@ -14,9 +14,6 @@ excluded:
   - Pods
   - Source/ExcludedFolder
 
-whitelist_rules:
-  - line_length
-
 line_length:
   warning: 120
   error: 150
