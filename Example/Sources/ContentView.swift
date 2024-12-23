@@ -6,8 +6,8 @@
 //  Copyright © 2024 Mercado Pago. All rights reserved.
 //
 
-import SwiftUI
 import CoreMethods
+import SwiftUI
 
 struct ContentView: View {
     var body: some View {

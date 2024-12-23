@@ -17,14 +17,12 @@ struct ExampleApp: App {
     }
 }
 
-
 @main
 struct ExampleAppWrapper {
     static func main() {
         if #available(iOS 14.0, *) {
             ExampleApp.main()
-        }
-        else {
+        } else {
             UIApplicationMain(CommandLine.argc, CommandLine.unsafeArgv, nil, NSStringFromClass(SceneDelegate.self))
         }
     }

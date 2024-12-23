@@ -8,5 +8,4 @@
 
 import Foundation
 
-public final actor CoreMethods: Sendable {
-}
+public final actor CoreMethods: Sendable {}

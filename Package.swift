@@ -13,7 +13,7 @@ let package = Package(
         .library(
             name: "CoreMethods",
             targets: ["CoreMethods"]
-        )
+        ),
     ],
     dependencies: [
         // SwiftLint plugin dependency
@@ -31,6 +31,6 @@ let package = Package(
         .testTarget(
             name: "CoreMethodsTests",
             dependencies: ["CoreMethods"]
-        )
+        ),
     ]
 )
