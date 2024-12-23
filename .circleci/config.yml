@@ -19,7 +19,7 @@ jobs:
           command: swiftlint
       - run:
           name: Run SwiftFormat
-          command: swiftformat . --lint
+          command: make format
       - run:
           name: Install xcbeautify
           command: brew install xcbeautify
