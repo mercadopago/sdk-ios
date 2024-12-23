@@ -1,9 +1,13 @@
 .PHONY: setup
-setup: check-brew install-swiftformat setup-git-hooks
+setup: install-brew install-mint install-swiftformat setup-git-hooks
 
-.PHONY: check-brew
-check-brew:
-	@which brew > /dev/null || (echo "Please install Homebrew first: https://brew.sh" && exit 1)
+.PHONY: install-brew
+install-brew:
+	@which brew > /dev/null || /bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+.PHONY: install-mint
+install-mint:
+	@which mint > /dev/null || brew install mint
 
 .PHONY: install-swiftformat
 install-swiftformat:
