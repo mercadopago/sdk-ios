@@ -1,0 +1,47 @@
+version: 2.1
+
+executors:
+  ios-executor:
+    macos:
+      xcode: "16.0.0"
+
+jobs:
+  build-and-test:
+    executor: ios-executor
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: |
+            make setup
+      - run:
+          name: Run SwiftLint
+          command: swiftlint
+      - run:
+          name: Run SwiftFormat
+          command: swiftformat . --lint
+      - run:
+          name: Install xcbeautify
+          command: brew install xcbeautify
+      - run:
+          name: Build
+          command: |
+            xcodebuild -scheme MercadoPagoSDK-iOS \
+              -sdk iphonesimulator \
+              -destination 'platform=iOS Simulator,name=iPhone 16' \
+              clean build | xcbeautify
+
+      - run:
+          name: Test
+          command: |
+            xcodebuild -scheme MercadoPagoSDK-iOS \
+              -sdk iphonesimulator \
+              -destination 'platform=iOS Simulator,name=iPhone 16' \
+              clean test | xcbeautify
+
+
+workflows:
+  version: 2
+  build-test:
+    jobs:
+      - build-and-test
