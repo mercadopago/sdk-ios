@@ -28,8 +28,10 @@ jobs:
           command: |
             xcodebuild -scheme MercadoPagoSDK-iOS \
               -sdk iphonesimulator \
+              -skipPackagePluginValidation \
+              -skipMacroValidation
               -destination 'platform=iOS Simulator,name=iPhone 16' \
-              clean build | xcbeautify
+              build | xcbeautify
 
       - run:
           name: Test
@@ -37,6 +39,8 @@ jobs:
             xcodebuild -scheme MercadoPagoSDK-iOS \
               -sdk iphonesimulator \
               -destination 'platform=iOS Simulator,name=iPhone 16' \
+              -skipPackagePluginValidation \ 
+              -skipMacroValidation \
               clean test | xcbeautify
 
 
