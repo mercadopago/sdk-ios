@@ -2,6 +2,7 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
+import Foundation
 
 let package = Package(
     name: "MercadoPagoSDK-iOS",
@@ -24,9 +25,9 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "CoreMethods",
-            plugins: [
+            plugins: ProcessInfo.processInfo.environment["CI"] == nil ? [
                 .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")
-            ]
+            ] : []
         ),
         .testTarget(
             name: "CoreMethodsTests",
