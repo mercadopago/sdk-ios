@@ -26,7 +26,6 @@ jobs:
       - run:
           name: Test
           command: |
-          command: |
             xcodebuild test \
               -scheme MercadoPagoSDK-iOS \
               -sdk iphonesimulator \
