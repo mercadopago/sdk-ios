@@ -11,12 +11,12 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Configure Ruby
-        command: |
-          echo 'export LANG=en_US.UTF-8' >> $BASH_ENV
-          echo 'export LC_ALL=en_US.UTF-8' >> $BASH_ENV
-          gem install bundler
-          bundle install
+          name: Configure Ruby
+          command: |
+            echo 'export LANG=en_US.UTF-8' >> $BASH_ENV
+            echo 'export LC_ALL=en_US.UTF-8' >> $BASH_ENV
+            gem install bundler
+            bundle install
       - run:
           name: Install Dependencies
           command: |
@@ -33,7 +33,6 @@ jobs:
             bundle exec fastlane test
       - store_test_results:
           path: fastlane/test_output
-          
       - store_artifacts:
           path: fastlane/test_output
           destination: test-result
