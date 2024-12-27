@@ -2,6 +2,7 @@
 import Testing
 
 @Test func example() async throws {
-    let test = true
-    #expect(test == true)
+    let core = CoreMethods()
+
+    await #expect(core.test == true)
 }
