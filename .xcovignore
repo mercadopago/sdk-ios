@@ -1,0 +1,11 @@
+# .xcovignore
+.*Tests.swift
+.*Spec.swift
+
+.*generated.swift
+
+.*Configuration.swift
+.*Resources.swift
+
+AppDelegate.swift
+SceneDelegate.swift

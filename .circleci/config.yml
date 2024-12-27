@@ -11,6 +11,13 @@ jobs:
     steps:
       - checkout
       - run:
+        name: Configure Ruby
+        command: |
+          echo 'export LANG=en_US.UTF-8' >> $BASH_ENV
+          echo 'export LC_ALL=en_US.UTF-8' >> $BASH_ENV
+          gem install bundler
+          bundle install
+      - run:
           name: Install Dependencies
           command: |
             make setup
@@ -21,38 +28,22 @@ jobs:
           name: Run SwiftFormat
           command: make format
       - run:
-          name: Install xcbeautify
-          command: brew install xcbeautify
-      - run:
-          name: Build and Test
+          name: Execute test and test coverage
           command: |
-            xcodebuild -scheme MercadoPagoSDK-iOS \
-              -sdk iphonesimulator \
-              -destination 'platform=iOS Simulator,name=iPhone 16' \
-              -enableCodeCoverage YES \
-              clean test | xcbeautify
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build/Logs/Test
-
-  coverage:
-    executor: ios-executor
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Check Test Coverage
-          command: |
-            xcrun xccov view --report build/Logs/Test/*.xcresult --only-targets | \
-            awk '/"lineCoverage"/ { coverage = $2 * 100; exit } END { if (coverage < 80) { print "Coverage: " coverage "% - Below minimum 80% requirement"; exit 1 } else { print "Coverage: " coverage "% - Passed" } }'
-
+            bundle exec fastlane test
+          when: always 
+      - store_test_results:
+          path: fastlane/test_output
+          
+      - store_artifacts:
+          path: fastlane/test_output
+          destination: test-results
+          
+      - store_artifacts:
+          path: fastlane/coverage_output
+          destination: code-coverage
 workflows:
   version: 2
   build-test:
     jobs:
       - build-and-test
-      - coverage:
-          requires:
-            - build-and-test
