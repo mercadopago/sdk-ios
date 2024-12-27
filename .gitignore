@@ -61,5 +61,8 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 fastlane/xcov_report/
+fastlane/xcov_output/
 *.xcresult/
 Gemfile.lock
+
+fastlane/README.md

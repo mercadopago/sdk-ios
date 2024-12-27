@@ -15,6 +15,7 @@ platform :ios do
 
     xcov(
       is_swift_package: true,
+      output_directory: "fastlane/xcov_output",
       minimum_coverage_percentage: 80.0
     )
   end
