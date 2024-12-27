@@ -21,7 +21,7 @@ jobs:
           name: Run SwiftFormat
           command: make format
       - run:
-          name: Execute test and test coverage
+          name: Execute test and coverage
           command: |
             bundle exec fastlane test
       - store_artifacts:
