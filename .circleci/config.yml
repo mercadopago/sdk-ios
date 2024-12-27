@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  macos: circleci/macos@2.4.1 
+
 executors:
   ios-executor:
     macos:
