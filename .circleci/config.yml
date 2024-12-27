@@ -24,19 +24,35 @@ jobs:
           name: Install xcbeautify
           command: brew install xcbeautify
       - run:
-          name: Test
+          name: Build and Test
           command: |
-            xcodebuild test \
-              -scheme MercadoPagoSDK-iOS \
+            xcodebuild -scheme MercadoPagoSDK-iOS \
               -sdk iphonesimulator \
               -destination 'platform=iOS Simulator,name=iPhone 16' \
-              -enableCodeCoverage YES | xcbeautify
+              -enableCodeCoverage YES \
+              clean test | xcbeautify
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/Logs/Test
+
+  coverage:
+    executor: ios-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check Test Coverage
+          command: |
             xcrun xccov view --report build/Logs/Test/*.xcresult --only-targets | \
             awk '/"lineCoverage"/ { coverage = $2 * 100; exit } END { if (coverage < 80) { print "Coverage: " coverage "% - Below minimum 80% requirement"; exit 1 } else { print "Coverage: " coverage "% - Passed" } }'
-
 
 workflows:
   version: 2
   build-test:
     jobs:
       - build-and-test
+      - coverage:
+          requires:
+            - build-and-test
