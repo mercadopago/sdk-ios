@@ -31,7 +31,6 @@ jobs:
           name: Execute test and test coverage
           command: |
             bundle exec fastlane test
-          when: always 
       - store_test_results:
           path: fastlane/test_output
           
