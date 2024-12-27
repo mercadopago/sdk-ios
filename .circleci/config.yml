@@ -1,16 +1,12 @@
 version: 2.1
 
 orbs:
-  macos: circleci/macos@2.4.1 
-
-executors:
-  ios-executor:
-    macos:
-      xcode: "16.0.0"
+  macos: circleci/macos@2.5.2 
 
 jobs:
   build-and-test:
-    executor: ios-executor
+    macos:
+      xcode: 16.0
     steps:
       - checkout
       - run:
