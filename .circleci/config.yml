@@ -24,13 +24,8 @@ jobs:
           name: Execute test and test coverage
           command: |
             bundle exec fastlane test
-      - store_test_results:
-          path: fastlane/test_output
       - store_artifacts:
-          path: fastlane/test_output
-          destination: test-result
-      - store_artifacts:
-          path: fastlane/coverage_output
+          path: xcov_output
           destination: code-coverage
 workflows:
   version: 2
