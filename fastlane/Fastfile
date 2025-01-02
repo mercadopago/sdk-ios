@@ -6,7 +6,6 @@ platform :ios do
     scan(
       scheme: "MercadoPagoSDK-iOS",
       package_path: ".",
-      skip_build: ["SnapshotTests"],
       skip_testing: ["SnapshotTests"],
       destination: "platform=iOS Simulator,name=iPhone 16",
       result_bundle: true,
