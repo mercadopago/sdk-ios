@@ -41,7 +41,7 @@ install-fastlane:
 		echo "Installing Bundler..." && \
 		gem install bundler; \
 	fi
-	@bundle install
+	@bundle install --path vendor/bundle
 
 # Run tests using Fastlane
 test:
