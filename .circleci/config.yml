@@ -1,19 +1,34 @@
 version: 2.1
 
 orbs:
-  macos: circleci/macos@2.5.2 
+  macos: circleci/macos@2.5.2
+
+executors:
+  default:
+    macos:
+      xcode: 16.0
+
+commands:
+  setup_environment:
+    steps:
+      - macos/install-rosetta
+      - restore_cache:
+          keys:
+            - deps-v1-{{ checksum "Gemfile.lock" }}
+      - run:
+          name: Install Dependencies
+          command: make setup
+      - save_cache:
+          key: deps-v1-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
 
 jobs:
   build-and-test:
-    macos:
-      xcode: 16.0
+    executor: default
     steps:
-      - macos/install-rosetta
       - checkout
-      - run:
-          name: Install Dependencies
-          command: |
-            make setup
+      - setup_environment
       - run:
           name: Run SwiftLint
           command: swiftlint
@@ -21,9 +36,9 @@ jobs:
           name: Run SwiftFormat
           command: make format
       - run:
-          name: Execute test and coverage
-          command: |
-            bundle exec fastlane test
+          name: Execute Tests and Coverage
+          command: bundle exec fastlane test
+          no_output_timeout: 20m
       - store_artifacts:
           path: fastlane/xcov_output
           destination: code-coverage
@@ -34,18 +49,14 @@ jobs:
             - vendor/bundle
 
   snapshot-tests:
-    macos:
-      xcode: 16.0
+    executor: default
     steps:
       - attach_workspace:
           at: .
       - run:
           name: Run Snapshot Tests
-          command: |
-            bundle exec fastlane snapshot_tests
-      - store_artifacts:
-          path: fastlane/screenshots
-          destination: snapshots
+          command: bundle exec fastlane snapshot_tests
+
 workflows:
   version: 2
   build-test:
