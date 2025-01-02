@@ -12,16 +12,9 @@ commands:
   setup_environment:
     steps:
       - macos/install-rosetta
-      - restore_cache:
-          keys:
-            - deps-v1-{{ checksum "Gemfile.lock" }}
       - run:
           name: Install Dependencies
           command: make setup
-      - save_cache:
-          key: deps-v1-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
 
 jobs:
   build-and-test:
@@ -38,7 +31,6 @@ jobs:
       - run:
           name: Execute Tests and Coverage
           command: bundle exec fastlane test
-          no_output_timeout: 20m
       - store_artifacts:
           path: fastlane/xcov_output
           destination: code-coverage
