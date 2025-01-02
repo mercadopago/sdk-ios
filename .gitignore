@@ -67,5 +67,7 @@ fastlane/test_output
 fastlane/snapshot_test_output
 *.xcresult/
 Gemfile.lock
+.bundle
+vendor/
 
 fastlane/README.md
