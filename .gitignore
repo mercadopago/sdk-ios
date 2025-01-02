@@ -62,6 +62,9 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 fastlane/xcov_report/
 fastlane/xcov_output/
+fastlane/screenshots
+fastlane/test_output
+fastlane/snapshot_test_output
 *.xcresult/
 Gemfile.lock
 
