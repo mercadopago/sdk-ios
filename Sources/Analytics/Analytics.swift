@@ -19,12 +19,12 @@ import Foundation
 /// ```swift
 /// struct PaymentEventData: AnalyticsEventData {
 ///     let amount: Decimal
-///     let currency: String
+///     let currencyType: String
 ///
-///     func toJSONData() -> [String: Any] {
+///     func toDictionary() -> [String: Any] {
 ///         return [
 ///             "amount": amount,
-///             "currency": currency
+///             "currency_type": currencyType
 ///         ]
 ///     }
 /// }
@@ -33,7 +33,7 @@ public protocol AnalyticsEventData: Sendable, Encodable {
     /// Converts event data into a JSON-compatible dictionary format
     ///
     /// - Returns: A dictionary containing the formatted event data for JSON serialization
-    func toJSONData() -> [String: Any]
+    func toDictionary() -> [String: Any]
 }
 
 /// Defines the core analytics tracking functionality.
@@ -97,8 +97,8 @@ package protocol AnalyticsInteface: Sendable {
 /// ```swift
 /// let analytics = Analytics()
 /// await analytics
-///     .setEventData(paymentData)
 ///     .trackEvent("payment/credit_card")
+///     .setEventData(paymentData)
 ///     .setSiteID("MLB")
 ///     .send()
 /// ```
@@ -227,6 +227,6 @@ private extension Analytics {
             return [String: Any]()
         }
 
-        return data.toJSONData()
+        return data.toDictionary()
     }
 }
