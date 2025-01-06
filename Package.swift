@@ -33,6 +33,10 @@ let package = Package(
             dependencies: ["CoreMethods"]
         ),
         .testTarget(
+            name: "AnalyticsTests",
+            dependencies: ["Analytics"]
+        ),
+        .testTarget(
             name: "SnapshotTests",
             dependencies: [
                 "CoreMethods",

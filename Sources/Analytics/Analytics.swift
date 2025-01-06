@@ -80,6 +80,13 @@ package protocol AnalyticsInteface: Sendable {
     @discardableResult
     func setSiteID(_ siteId: String) async -> AnalyticsInteface
 
+    /// Sets the SDK version for the next event
+    ///
+    /// - Parameter version: String containing the version (e.g., "1.0.0")
+    /// - Returns: Self instance for method chaining
+    @discardableResult
+    func setVersion(_ version: String) async -> AnalyticsInteface
+
     /// Sends the current event for processing
     func send() async
 }
@@ -104,22 +111,22 @@ package protocol AnalyticsInteface: Sendable {
 /// ```
 package final actor Analytics: AnalyticsInteface {
     /// Unique identifier for the current analytics session
-    private let sessionId: String
+    let sessionId: String
 
     /// Custom data for the current event
-    private var eventData: AnalyticsEventData?
+    var eventData: AnalyticsEventData?
 
     /// Path identifying the current event or view
-    private var path = ""
+    var path = ""
 
     /// Type of the current tracking (event or view)
-    private var type: TrackType = .event
+    var type: TrackType = .event
 
     /// SDK version
-    private var version = ""
+    var version = ""
 
     /// Site ID (e.g., MLB, MLA)
-    private var siteId = ""
+    var siteId = ""
 
     /// Service providing seller information
     package let sellerInfo = MPSellerInfo()
@@ -162,12 +169,8 @@ package final actor Analytics: AnalyticsInteface {
         return self
     }
 
-    /// Sets the SDK version for the next event
-    ///
-    /// - Parameter version: String containing the version (e.g., "1.0.0")
-    /// - Returns: Self instance for method chaining
     @discardableResult
-    package func setVersion(_ version: String) -> AnalyticsInteface {
+    package func setVersion(_ version: String) async -> AnalyticsInteface {
         self.version = version
         return self
     }
