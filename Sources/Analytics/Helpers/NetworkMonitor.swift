@@ -40,6 +40,10 @@ package final class NetworkMonitor: NetworkMonitoring {
             }
         }
 
+        return self.verifyCarrierType()
+    }
+
+    private func verifyCarrierType() -> String {
         let networkInfo = CTTelephonyNetworkInfo()
         let carrierType = networkInfo.serviceCurrentRadioAccessTechnology
 
@@ -50,7 +54,13 @@ package final class NetworkMonitor: NetworkMonitoring {
         switch carrierTypeName {
         case CTRadioAccessTechnologyGPRS, CTRadioAccessTechnologyEdge, CTRadioAccessTechnologyCDMA1x:
             return "2g"
-        case CTRadioAccessTechnologyWCDMA, CTRadioAccessTechnologyHSDPA, CTRadioAccessTechnologyHSUPA, CTRadioAccessTechnologyCDMAEVDORev0, CTRadioAccessTechnologyCDMAEVDORevA, CTRadioAccessTechnologyCDMAEVDORevB, CTRadioAccessTechnologyeHRPD:
+        case CTRadioAccessTechnologyWCDMA,
+             CTRadioAccessTechnologyHSDPA,
+             CTRadioAccessTechnologyHSUPA,
+             CTRadioAccessTechnologyCDMAEVDORev0,
+             CTRadioAccessTechnologyCDMAEVDORevA,
+             CTRadioAccessTechnologyCDMAEVDORevB,
+             CTRadioAccessTechnologyeHRPD:
             return "3g"
         case CTRadioAccessTechnologyLTE:
             return "4g"

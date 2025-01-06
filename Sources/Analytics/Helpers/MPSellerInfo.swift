@@ -14,11 +14,11 @@ package final class MPSellerInfo: Sendable {
     /// An enumeration defining the possible package managers used to distribute the app.
     package enum PackageManager: String {
         /// Represents the CocoaPods package manager.
-        case cocoapods = "cocoapods"
+        case cocoapods
         /// Represents the Swift Package Manager.
-        case spm = "spm"
+        case spm
         /// Represents an Xcode project without a package manager.
-        case xcode = "xcode"
+        case xcode
     }
 
     /// Initializes a new instance of `MPSellerInfo`.
