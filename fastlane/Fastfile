@@ -2,11 +2,13 @@ default_platform(:ios)
 
 platform :ios do
   desc "Execute Tests"
+  sh("rm -rf ../fastlane/xcov_output")
+
   lane :test do
     scan(
       scheme: "MercadoPagoSDK-iOS",
       package_path: ".",
-      only_testing: ["CoreMethodsTests"],
+      only_testing: ["CoreMethodsTests" , "AnalyticsTests"],
       destination: "platform=iOS Simulator,name=iPhone 16",
       result_bundle: true,
       code_coverage: true,

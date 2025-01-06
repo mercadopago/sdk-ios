@@ -5,16 +5,18 @@
 //  Created by Guilherme Prata Costa on 06/01/25.
 //
 
-@testable import Analytics
+@testable import MPAnalytics
 import XCTest
 
 // MARK: - Test Doubles
 
 private struct MockEventData: AnalyticsEventData {
     let value: String
+    let iosMinimium: String
+    let deviceInfo: String
 
     func toDictionary() -> [String: Any] {
-        return ["test_value": self.value]
+        return ["test_value": self.value, "deviceInfo": self.deviceInfo, "iosMinimium": self.iosMinimium]
     }
 }
 
@@ -60,12 +62,16 @@ final class AnalyticsTests: XCTestCase {
 
     func test_setEventData_ShouldStoreEventData() async {
         let sut = self.makeSUT()
-        let mockData = MockEventData(value: "test-123")
+        let mockData = await MockEventData(value: "test-123", iosMinimium: sut.sellerInfo.getTargetMinimum(), deviceInfo: sut.buyerInfo.getDeviceInfo())
 
         await sut.setEventData(mockData)
 
-        let storedData = await sut.eventData as? MockEventData
-        XCTAssertEqual(storedData?.value, "test-123")
+        guard let storedData = await sut.eventData as? MockEventData else {
+            return XCTFail("Event Data is not stored")
+        }
+        XCTAssertEqual(storedData.value, "test-123")
+        XCTAssertEqual(storedData.iosMinimium, "iOS 13.0")
+        XCTAssertEqual(storedData.deviceInfo, "arm64")
     }
 
     // MARK: - Configuration Tests
@@ -95,7 +101,7 @@ final class AnalyticsTests: XCTestCase {
     func test_methodChaining_ShouldReturnSelfAndUpdateValues() async {
         let sut = self.makeSUT()
         let eventPath = "payment/credit_card"
-        let mockData = MockEventData(value: "test-123")
+        let mockData = await MockEventData(value: "test-123", iosMinimium: sut.sellerInfo.getTargetMinimum(), deviceInfo: sut.buyerInfo.getDeviceInfo())
         let siteID = "MLB"
         let version = "1.0.0"
 
@@ -123,7 +129,7 @@ final class AnalyticsTests: XCTestCase {
     func test_send_ShouldNotCrash() async {
         let sut = self.makeSUT()
         let eventPath = "payment/credit_card"
-        let mockData = MockEventData(value: "test-123")
+        let mockData = await MockEventData(value: "test-123", iosMinimium: sut.sellerInfo.getTargetMinimum(), deviceInfo: sut.buyerInfo.getDeviceInfo())
 
         // Should not throw or crash
         await sut
