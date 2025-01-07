@@ -23,11 +23,10 @@ private struct MockEventData: AnalyticsEventData {
 // MARK: - Setup SUT
 
 private extension AnalyticsTests {
-    typealias SUT =
-        Analytics
+    typealias SUT = MPAnalytics
 
     func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
-        return Analytics()
+        return MPAnalytics()
     }
 }
 
@@ -62,7 +61,11 @@ final class AnalyticsTests: XCTestCase {
 
     func test_setEventData_ShouldStoreEventData() async {
         let sut = self.makeSUT()
-        let mockData = await MockEventData(value: "test-123", iosMinimium: sut.sellerInfo.getTargetMinimum(), deviceInfo: sut.buyerInfo.getDeviceInfo())
+        let mockData = await MockEventData(
+            value: "test-123",
+            iosMinimium: sut.sellerInfo.getTargetMinimum(),
+            deviceInfo: sut.buyerInfo.getDeviceInfo()
+        )
 
         await sut.setEventData(mockData)
 
@@ -101,7 +104,11 @@ final class AnalyticsTests: XCTestCase {
     func test_methodChaining_ShouldReturnSelfAndUpdateValues() async {
         let sut = self.makeSUT()
         let eventPath = "payment/credit_card"
-        let mockData = await MockEventData(value: "test-123", iosMinimium: sut.sellerInfo.getTargetMinimum(), deviceInfo: sut.buyerInfo.getDeviceInfo())
+        let mockData = await MockEventData(
+            value: "test-123",
+            iosMinimium: sut.sellerInfo.getTargetMinimum(),
+            deviceInfo: sut.buyerInfo.getDeviceInfo()
+        )
         let siteID = "MLB"
         let version = "1.0.0"
 
@@ -129,9 +136,12 @@ final class AnalyticsTests: XCTestCase {
     func test_send_ShouldNotCrash() async {
         let sut = self.makeSUT()
         let eventPath = "payment/credit_card"
-        let mockData = await MockEventData(value: "test-123", iosMinimium: sut.sellerInfo.getTargetMinimum(), deviceInfo: sut.buyerInfo.getDeviceInfo())
+        let mockData = await MockEventData(
+            value: "test-123",
+            iosMinimium: sut.sellerInfo.getTargetMinimum(),
+            deviceInfo: sut.buyerInfo.getDeviceInfo()
+        )
 
-        // Should not throw or crash
         await sut
             .trackEvent(eventPath)
             .setEventData(mockData)

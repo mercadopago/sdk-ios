@@ -21,19 +21,23 @@ package final class MPSellerInfo: Sendable {
         case xcode
     }
 
+    private let bundle: BundleProtocol
+
     /// Initializes a new instance of `MPSellerInfo`.
-    package init() {}
+    init(bundle: BundleProtocol = Bundle.main) {
+        self.bundle = bundle
+    }
 
     /// Retrieves the minimum target iOS version specified for the app.
     ///
     /// - Returns: A `String` formatted as "iOS X.Y" representing the minimum OS version,
-    ///            or an empty string if not specified.
+    ///            or an "unknown" if not specified.
     package func getTargetMinimum() -> String {
         if let minimumVersion = Bundle.main.object(forInfoDictionaryKey: "MinimumOSVersion") as? String {
             return "iOS \(minimumVersion)"
         }
 
-        return ""
+        return "unknown"
     }
 
     /// Determines the package manager used for app distribution.

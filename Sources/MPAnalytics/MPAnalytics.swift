@@ -1,5 +1,5 @@
 //
-//  Analytics.swift
+//  MPAnalytics.swift
 //  MercadoPagoSDK-iOS
 //
 //  Created by Guilherme Prata Costa on 03/01/25.
@@ -109,7 +109,7 @@ package protocol AnalyticsInteface: Sendable {
 ///     .setSiteID("MLB")
 ///     .send()
 /// ```
-package final actor Analytics: AnalyticsInteface {
+package final actor MPAnalytics: AnalyticsInteface {
     /// Unique identifier for the current analytics session
     let sessionId: String
 
@@ -221,7 +221,7 @@ package final actor Analytics: AnalyticsInteface {
 
 // MARK: - Private Helpers
 
-private extension Analytics {
+private extension MPAnalytics {
     /// Retrieves the current event data in JSON format
     ///
     /// - Returns: Dictionary containing event data or an empty dictionary if no data is present
