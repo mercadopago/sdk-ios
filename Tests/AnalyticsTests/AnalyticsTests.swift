@@ -77,6 +77,28 @@ final class AnalyticsTests: XCTestCase {
         XCTAssertEqual(storedData.deviceInfo, "arm64")
     }
 
+    // MARK: - Configuration Tests
+
+    func test_setSiteID_ShouldUpdateSiteID() async {
+        let sut = self.makeSUT()
+        let siteID = "MLB"
+
+        await sut.setSiteID(siteID)
+
+        let resultSiteId = await sut.siteId
+        XCTAssertEqual(resultSiteId, siteID)
+    }
+
+    func test_setVersion_ShouldUpdateVersion() async {
+        let sut = self.makeSUT()
+        let version = "1.0.0"
+
+        await sut.setVersion(version)
+
+        let resultVersion = await sut.version
+        XCTAssertEqual(resultVersion, version)
+    }
+
     // MARK: - Method Chaining Tests
 
     func test_methodChaining_ShouldReturnSelfAndUpdateValues() async {
@@ -93,14 +115,20 @@ final class AnalyticsTests: XCTestCase {
         await sut
             .trackEvent(eventPath)
             .setEventData(mockData)
+            .setSiteID(siteID)
+            .setVersion(version)
 
         let resultPath = await sut.path
         let resultType = await sut.type
         let resultEventData = await sut.eventData as? MockEventData
+        let resultSiteId = await sut.siteId
+        let resultVersion = await sut.version
 
         XCTAssertEqual(resultPath, eventPath)
         XCTAssertEqual(resultType, .event)
         XCTAssertEqual(resultEventData?.value, "test-123")
+        XCTAssertEqual(resultSiteId, siteID)
+        XCTAssertEqual(resultVersion, version)
     }
 
     // MARK: - Send Tests

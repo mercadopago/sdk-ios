@@ -36,6 +36,61 @@ public protocol AnalyticsEventData: Sendable, Encodable {
     func toDictionary() -> [String: Any]
 }
 
+/// Defines the core analytics tracking functionality.
+///
+/// This protocol provides methods for:
+/// - Tracking custom events
+/// - Tracking screen views
+/// - Configuring event data
+/// - Accessing seller and buyer information
+///
+/// All operations are asynchronous and thread-safe.
+package protocol AnalyticsInteface: Sendable {
+    /// Information related to the seller/merchant
+    var sellerInfo: MPSellerInfo { get }
+
+    /// Information related to the buyer and device
+    var buyerInfo: MPBuyerInfo { get }
+
+    /// Sets custom data for the next event
+    ///
+    /// - Parameter data: Object implementing `AnalyticsEventData` containing event data
+    /// - Returns: Self instance for method chaining
+    @discardableResult
+    func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInteface
+
+    /// Tracks a custom event
+    ///
+    /// - Parameter path: Path identifying the event (e.g., "payment/credit_card")
+    /// - Returns: Self instance for method chaining
+    @discardableResult
+    func trackEvent(_ path: String) async -> AnalyticsInteface
+
+    /// Tracks a screen view
+    ///
+    /// - Parameter path: Path identifying the screen (e.g., "checkout/review")
+    /// - Returns: Self instance for method chaining
+    @discardableResult
+    func trackView(_ path: String) async -> AnalyticsInteface
+
+    /// Sets the site ID for the next event
+    ///
+    /// - Parameter siteId: Site identifier (e.g., "MLB" )
+    /// - Returns: Self instance for method chaining
+    @discardableResult
+    func setSiteID(_ siteId: String) async -> AnalyticsInteface
+
+    /// Sets the SDK version for the next event
+    ///
+    /// - Parameter version: String containing the version (e.g., "1.0.0")
+    /// - Returns: Self instance for method chaining
+    @discardableResult
+    func setVersion(_ version: String) async -> AnalyticsInteface
+
+    /// Sends the current event for processing
+    func send() async
+}
+
 /// Core analytics implementation for the MercadoPago SDK.
 ///
 /// This class is responsible for:
@@ -54,7 +109,7 @@ public protocol AnalyticsEventData: Sendable, Encodable {
 ///     .setSiteID("MLB")
 ///     .send()
 /// ```
-package final actor MPAnalytics {
+package final actor MPAnalytics: AnalyticsInteface {
     /// Unique identifier for the current analytics session
     let sessionId: String
 
@@ -68,10 +123,10 @@ package final actor MPAnalytics {
     var type: TrackType = .event
 
     /// SDK version
-    static var version = ""
+    var version = ""
 
     /// Site ID (e.g., MLB, MLA)
-    static var siteId = ""
+    var siteId = ""
 
     /// Service providing seller information
     package let sellerInfo = MPSellerInfo()
@@ -89,22 +144,34 @@ package final actor MPAnalytics {
     // MARK: - Interface Implementation
 
     @discardableResult
-    public func setEventData(_ data: AnalyticsEventData) async -> MPAnalytics {
+    public func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInteface {
         self.eventData = data
         return self
     }
 
     @discardableResult
-    package func trackEvent(_ path: String) async -> MPAnalytics {
+    package func trackEvent(_ path: String) async -> AnalyticsInteface {
         self.type = .event
         self.path = path
         return self
     }
 
     @discardableResult
-    package func trackView(_ path: String) async -> MPAnalytics {
+    package func trackView(_ path: String) async -> AnalyticsInteface {
         self.type = .view
         self.path = path
+        return self
+    }
+
+    @discardableResult
+    package func setSiteID(_ siteId: String) async -> AnalyticsInteface {
+        self.siteId = siteId
+        return self
+    }
+
+    @discardableResult
+    package func setVersion(_ version: String) async -> AnalyticsInteface {
+        self.version = version
         return self
     }
 
@@ -131,8 +198,8 @@ package final actor MPAnalytics {
             "event_data": getEventData(),
             "application": [
                 "business": "mercadopago",
-                "site_id": MPAnalytics.siteId,
-                "version": MPAnalytics.version
+                "site_id": self.siteId,
+                "version": self.version
             ],
             "device": [
                 "platform": "iOS"

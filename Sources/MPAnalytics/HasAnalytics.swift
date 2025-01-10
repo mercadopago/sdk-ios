@@ -11,5 +11,5 @@
 /// The conforming type should provide access to an analytics interface implementation.
 package protocol HasAnalytics: Sendable {
     /// The analytics interface instance used for event tracking.
-    var analytics: MPAnalytics { get }
+    var analytics: AnalyticsInteface { get }
 }
