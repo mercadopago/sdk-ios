@@ -73,20 +73,6 @@ package protocol AnalyticsInteface: Sendable {
     @discardableResult
     func trackView(_ path: String) async -> AnalyticsInteface
 
-    /// Sets the site ID for the next event
-    ///
-    /// - Parameter siteId: Site identifier (e.g., "MLB" )
-    /// - Returns: Self instance for method chaining
-    @discardableResult
-    func setSiteID(_ siteId: String) async -> AnalyticsInteface
-
-    /// Sets the SDK version for the next event
-    ///
-    /// - Parameter version: String containing the version (e.g., "1.0.0")
-    /// - Returns: Self instance for method chaining
-    @discardableResult
-    func setVersion(_ version: String) async -> AnalyticsInteface
-
     /// Sends the current event for processing
     func send() async
 }
@@ -106,7 +92,6 @@ package protocol AnalyticsInteface: Sendable {
 /// await analytics
 ///     .trackEvent("payment/credit_card")
 ///     .setEventData(paymentData)
-///     .setSiteID("MLB")
 ///     .send()
 /// ```
 package final actor MPAnalytics: AnalyticsInteface {
@@ -121,12 +106,6 @@ package final actor MPAnalytics: AnalyticsInteface {
 
     /// Type of the current tracking (event or view)
     var type: TrackType = .event
-
-    /// SDK version
-    var version = ""
-
-    /// Site ID (e.g., MLB, MLA)
-    var siteId = ""
 
     /// Service providing seller information
     package let sellerInfo = MPSellerInfo()
@@ -163,18 +142,6 @@ package final actor MPAnalytics: AnalyticsInteface {
         return self
     }
 
-    @discardableResult
-    package func setSiteID(_ siteId: String) async -> AnalyticsInteface {
-        self.siteId = siteId
-        return self
-    }
-
-    @discardableResult
-    package func setVersion(_ version: String) async -> AnalyticsInteface {
-        self.version = version
-        return self
-    }
-
     /// Processes and sends the current event
     ///
     /// This method:
@@ -198,8 +165,8 @@ package final actor MPAnalytics: AnalyticsInteface {
             "event_data": getEventData(),
             "application": [
                 "business": "mercadopago",
-                "site_id": self.siteId,
-                "version": self.version
+                "site_id": MPAnalyticsConfiguration.siteID,
+                "version": MPAnalyticsConfiguration.version
             ],
             "device": [
                 "platform": "iOS"
