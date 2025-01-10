@@ -1,3 +1,10 @@
+//
+//  String+ApplyMask.swift
+//  MercadoPagoSDK-iOS
+//
+//  Created by Guilherme Prata Costa on 08/01/25.
+//
+
 import Foundation
 
 package extension String {

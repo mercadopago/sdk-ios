@@ -8,9 +8,9 @@
 import SwiftUI
 import UIKit
 
-/// Secure text field for handling sensitive data (PCI compliant).
+/// This class holds the input data of secure fields, safeguarding it against exposure and helping maintain a PCI Compliant environment.
 /// Internal use only.
-/// SECURITY: Direct access to field values is restricted to PCI-compliant components only
+/// SECURITY: Direct access to field values is restricted to  Secure fields components only (Card Number, Expiration Date and CVV)
 final class PCIFieldState: UIView {
     typealias Style = PCIFieldStateStyleProtocol
 
@@ -101,7 +101,7 @@ final class PCIFieldState: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Returns raw field value - RESTRICTED to PCI-compliant components only
+    /// Returns raw field value - RESTRICTED to Secure fields components only (Card Number, Expiration Date and CVV)
     /// SECURITY: This method should never be exposed to SDK integrators
     /// @warning: Do not expose this method through public interfaces
     func getValue() -> String {

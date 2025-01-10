@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  String+OnlyNumbers.swift
 //  MercadoPagoSDK-iOS
 //
 //  Created by Guilherme Prata Costa on 08/01/25.
