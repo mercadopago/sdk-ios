@@ -18,8 +18,8 @@ struct MockValidation: InputValidation {
 @MainActor
 final class PCIFieldStateSnapshotTests: XCTestCase {
     func simulateTyping(sut: PCIFieldState, text: String) {
-        for (index, char) in text.enumerated() {
-            let range = NSRange(location: index, length: 0)
+        for char in text {
+            let range = NSRange(location: sut.textField.text?.count ?? 0, length: 0)
             _ = sut.textField(
                 sut.textField,
                 shouldChangeCharactersIn: range,
@@ -103,7 +103,7 @@ final class PCIFieldStateSnapshotTests: XCTestCase {
             separator: " "
         )
 
-        let text = "1234567890123456"
+        let text = "5390287952984029"
 
         let sut = self.makeSUT(mask: mask)
 
