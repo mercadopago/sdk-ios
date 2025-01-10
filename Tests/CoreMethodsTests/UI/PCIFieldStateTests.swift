@@ -40,12 +40,6 @@ private extension PCIFieldStateTests {
             .placeholderColor(.gray)
             .clearButtonMode(.whileEditing)
             .clearButtonTintColor(.blue)
-            .disabledTextColor(.gray)
-            .disabledBackgroundColor(.lightGray)
-            .disabledOpacity(0.7)
-            .errorTextColor(.red)
-            .errorBackgroundColor(.red.withAlphaComponent(0.1))
-            .errorBorderColor(.red)
             .textAlignment(.center)
             .adjustsFontSizeToFitWidth(true)
     }
@@ -174,10 +168,10 @@ final class PCIFieldStateTests: XCTestCase {
         sut.isEnabled = false
 
         XCTAssertFalse(sut.isEnabled)
-        XCTAssertEqual(textField.textColor, style.disabledTextColor)
-        XCTAssertEqual(textField.backgroundColor, style.disabledBackgroundColor)
-        XCTAssertEqual(textField.layer.borderColor, style.disabledBorderColor.cgColor)
-        XCTAssertEqual(sut.alpha, style.disabledOpacity, accuracy: 0.0001)
+        XCTAssertEqual(textField.textColor, style.textColor)
+        XCTAssertEqual(textField.backgroundColor, style.backgroundColor)
+        XCTAssertEqual(textField.layer.borderColor, style.borderColor.cgColor)
+        XCTAssertEqual(textField.layer.opacity, style.opacity, accuracy: 0.0001)
     }
 
     // MARK: - Callback Tests

@@ -79,14 +79,12 @@ final class PCIFieldStateSnapshotTests: XCTestCase {
 
     func test_disabledState() {
         let style = TextFieldDefaultStyle()
-            .backgroundColor(.systemGray6)
-            .borderColor(.systemBlue)
+            .backgroundColor(.systemGray5)
+            .borderColor(.systemGray3)
             .borderWidth(1)
             .cornerRadius(8)
-            .disabledTextColor(.systemGray3)
-            .disabledBackgroundColor(.systemGray5)
-            .disabledBorderColor(.systemGray3)
-            .disabledOpacity(0.7)
+            .textColor(.systemGray3)
+            .opacity(0.7)
 
         let sut = self.makeSUT()
         sut.setPlaceholder("Disabled field")

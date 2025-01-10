@@ -45,23 +45,7 @@ class TextFieldDefaultStyle: PCIFieldStateStyleProtocol {
 
     var clearButtonTintColor: UIColor? = .blue
 
-    // MARK: - Error State
-
-    var errorBorderColor: UIColor = .systemRed
-
-    var errorTextColor: UIColor = .systemRed
-
-    var errorBackgroundColor: UIColor = .systemRed.withAlphaComponent(0.1)
-
-    // MARK: - Disabled State
-
-    var disabledTextColor: UIColor = .systemGray2
-
-    var disabledBackgroundColor: UIColor = .clear
-
-    var disabledBorderColor: UIColor = .clear
-
-    var disabledOpacity: CGFloat = 0.5
+    var opacity: Float = 1.0
 
     public init() {}
 }
@@ -153,47 +137,9 @@ extension TextFieldDefaultStyle {
         return self
     }
 
-    /// Error styles
     @discardableResult
-    func errorBorderColor(_ color: UIColor) -> Self {
-        self.errorBorderColor = color
-        return self
-    }
-
-    @discardableResult
-    func errorTextColor(_ color: UIColor) -> Self {
-        self.errorTextColor = color
-        return self
-    }
-
-    @discardableResult
-    func errorBackgroundColor(_ color: UIColor) -> Self {
-        self.errorBackgroundColor = color
-        return self
-    }
-
-    /// Disabled styles
-    @discardableResult
-    func disabledTextColor(_ color: UIColor) -> Self {
-        self.disabledTextColor = color
-        return self
-    }
-
-    @discardableResult
-    func disabledBackgroundColor(_ color: UIColor) -> Self {
-        self.disabledBackgroundColor = color
-        return self
-    }
-
-    @discardableResult
-    func disabledBorderColor(_ color: UIColor) -> Self {
-        self.disabledBorderColor = color
-        return self
-    }
-
-    @discardableResult
-    func disabledOpacity(_ opacity: CGFloat) -> Self {
-        self.disabledOpacity = opacity
+    func opacity(_ opacity: Float) -> Self {
+        self.opacity = opacity
         return self
     }
 }

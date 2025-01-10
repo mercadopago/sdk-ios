@@ -47,22 +47,6 @@ protocol PCIFieldStateStyleProtocol {
     var clearButtonMode: UITextField.ViewMode { get set }
     /// The tint color of the clear button
     var clearButtonTintColor: UIColor? { get set }
-
-    // MARK: - Error State
-
-    /// The border color when in error state
-    var errorBorderColor: UIColor { get set }
-    /// The text color when in error state
-    var errorTextColor: UIColor { get set }
-
-    // MARK: - Disabled State
-
-    /// The text color when disabled
-    var disabledTextColor: UIColor { get set }
-    /// The background color when disabled
-    var disabledBackgroundColor: UIColor { get set }
-    /// The border color when disabled
-    var disabledBorderColor: UIColor { get set }
-    /// The opacity applied to the field when disabled
-    var disabledOpacity: CGFloat { get set }
+    /// The opacity applied to the field
+    var opacity: Float { get set }
 }

@@ -172,18 +172,10 @@ private extension PCIFieldState {
     }
 
     func updateAppearanceForEnabledState() {
-        if self.textField.isEnabled {
-            self.textField.textColor = self.style.textColor
-            self.textField.backgroundColor = self.style.backgroundColor
-            self.textField.layer.borderColor = self.style.borderColor.cgColor
-            self.textField.layer.opacity = 1.0
-
-        } else {
-            self.textField.textColor = self.style.disabledTextColor
-            self.textField.backgroundColor = self.style.disabledBackgroundColor
-            self.textField.layer.borderColor = self.style.disabledBorderColor.cgColor
-            alpha = self.style.disabledOpacity
-        }
+        self.textField.textColor = self.style.textColor
+        self.textField.backgroundColor = self.style.backgroundColor
+        self.textField.layer.borderColor = self.style.borderColor.cgColor
+        self.textField.layer.opacity = self.style.opacity
     }
 
     func updateState(text: String?) {
