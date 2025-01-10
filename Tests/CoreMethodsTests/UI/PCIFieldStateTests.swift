@@ -284,7 +284,7 @@ final class PCIFieldStateTests: XCTestCase {
 private extension PCIFieldStateTests {
     func simulateTextInput(_ text: String, sut: PCIFieldState) {
         for char in text {
-            let range = NSRange(location: sut.textField.text?.count ?? 0, length: 0)
+            let range = NSRange(location: sut.count, length: 0)
             _ = sut.textField(
                 sut.textField,
                 shouldChangeCharactersIn: range,
