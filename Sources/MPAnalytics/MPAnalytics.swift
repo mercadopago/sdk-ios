@@ -104,7 +104,7 @@ package final class MPAnalytics: AnalyticsInterface {
     /// Unique identifier for the current analytics session.
     private let sessionId: String
 
-    private actor TrackEvent {
+    actor TrackEvent {
         /// Custom data for the current event.
         private var eventData: AnalyticsEventData?
 
@@ -139,7 +139,7 @@ package final class MPAnalytics: AnalyticsInterface {
         }
     }
 
-    private let track = TrackEvent()
+    let track = TrackEvent()
 
     /// Service providing seller information.
     package let sellerInfo = MPSellerInfo()
