@@ -6,7 +6,7 @@
 //
 
 package enum MPAnalyticsConfiguration {
-    static let version = ""
+    static var version = ""
 
-    static let siteID = ""
+    static var siteID = ""
 }

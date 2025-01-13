@@ -29,10 +29,10 @@ import Foundation
 ///     }
 /// }
 /// ```
-public protocol AnalyticsEventData: Sendable, Encodable {
-    /// Converts event data into a JSON-compatible dictionary format
+package protocol AnalyticsEventData: Sendable, Encodable {
+    /// Converts event data into a JSON-compatible dictionary format.
     ///
-    /// - Returns: A dictionary containing the formatted event data for JSON serialization
+    /// - Returns: A dictionary containing the formatted event data for JSON serialization.
     func toDictionary() -> [String: Any]
 }
 
@@ -45,35 +45,41 @@ public protocol AnalyticsEventData: Sendable, Encodable {
 /// - Accessing seller and buyer information
 ///
 /// All operations are asynchronous and thread-safe.
-package protocol AnalyticsInteface: Sendable {
-    /// Information related to the seller/merchant
+package protocol AnalyticsInterface: Sendable {
+    /// Information related to the seller/merchant.
     var sellerInfo: MPSellerInfo { get }
 
-    /// Information related to the buyer and device
+    /// Information related to the buyer and device.
     var buyerInfo: MPBuyerInfo { get }
 
-    /// Sets custom data for the next event
+    /// Initializes the analytics system.
     ///
-    /// - Parameter data: Object implementing `AnalyticsEventData` containing event data
-    /// - Returns: Self instance for method chaining
-    @discardableResult
-    func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInteface
+    /// - Parameter version: Version of SDK.
+    /// - Parameter siteID: Site ID of the app.
+    func initialize(version: String, siteID: String)
 
-    /// Tracks a custom event
+    /// Sets custom data for the next event.
     ///
-    /// - Parameter path: Path identifying the event (e.g., "payment/credit_card")
-    /// - Returns: Self instance for method chaining
+    /// - Parameter data: Object implementing `AnalyticsEventData` containing event data.
+    /// - Returns: Self instance for method chaining.
     @discardableResult
-    func trackEvent(_ path: String) async -> AnalyticsInteface
+    func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface
 
-    /// Tracks a screen view
+    /// Tracks a custom event.
     ///
-    /// - Parameter path: Path identifying the screen (e.g., "checkout/review")
-    /// - Returns: Self instance for method chaining
+    /// - Parameter path: Path identifying the event (e.g., "payment/credit_card").
+    /// - Returns: Self instance for method chaining.
     @discardableResult
-    func trackView(_ path: String) async -> AnalyticsInteface
+    func trackEvent(_ path: String) async -> AnalyticsInterface
 
-    /// Sends the current event for processing
+    /// Tracks a screen view.
+    ///
+    /// - Parameter path: Path identifying the screen (e.g., "checkout/review").
+    /// - Returns: Self instance for method chaining.
+    @discardableResult
+    func trackView(_ path: String) async -> AnalyticsInterface
+
+    /// Sends the current event for processing.
     func send() async
 }
 
@@ -88,78 +94,112 @@ package protocol AnalyticsInteface: Sendable {
 ///
 /// Example:
 /// ```swift
-/// let analytics = Analytics()
+/// let analytics = MPAnalytics()
 /// await analytics
 ///     .trackEvent("payment/credit_card")
 ///     .setEventData(paymentData)
 ///     .send()
 /// ```
-package final actor MPAnalytics: AnalyticsInteface {
-    /// Unique identifier for the current analytics session
-    let sessionId: String
+package final class MPAnalytics: AnalyticsInterface {
+    /// Unique identifier for the current analytics session.
+    private let sessionId: String
 
-    /// Custom data for the current event
-    var eventData: AnalyticsEventData?
+    private actor TrackEvent {
+        /// Custom data for the current event.
+        private var eventData: AnalyticsEventData?
 
-    /// Path identifying the current event or view
-    var path = ""
+        /// Path identifying the current event or view.
+        private var path = ""
 
-    /// Type of the current tracking (event or view)
-    var type: TrackType = .event
+        /// Type of the current tracking (event or view).
+        private var type: TrackType = .event
 
-    /// Service providing seller information
+        func setEventData(_ data: AnalyticsEventData) {
+            self.eventData = data
+        }
+
+        func getEventData() -> AnalyticsEventData? {
+            return self.eventData
+        }
+
+        func setType(_ type: TrackType) {
+            self.type = type
+        }
+
+        func getType() -> TrackType {
+            return self.type
+        }
+
+        func setPath(_ path: String) {
+            self.path = path
+        }
+
+        func getPath() -> String {
+            return self.path
+        }
+    }
+
+    private let track = TrackEvent()
+
+    /// Service providing seller information.
     package let sellerInfo = MPSellerInfo()
 
-    /// Service providing buyer and device information
+    /// Service providing buyer and device information.
     package let buyerInfo = MPBuyerInfo()
 
-    /// Initializes a new Analytics instance
+    /// Initializes a new Analytics instance.
     ///
-    /// Creates a new UUID session identifier
-    package init() {
+    /// Creates a new UUID session identifier.
+    init() {
         self.sessionId = UUID().uuidString
     }
 
     // MARK: - Interface Implementation
 
+    package func initialize(version: String, siteID: String) {
+        MPAnalyticsConfiguration.version = version
+        MPAnalyticsConfiguration.siteID = siteID
+    }
+
     @discardableResult
-    public func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInteface {
-        self.eventData = data
+    package func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface {
+        await self.track.setEventData(data)
+
         return self
     }
 
     @discardableResult
-    package func trackEvent(_ path: String) async -> AnalyticsInteface {
-        self.type = .event
-        self.path = path
+    package func trackEvent(_ path: String) async -> AnalyticsInterface {
+        await self.track.setType(.event)
+        await self.track.setPath(path)
+
         return self
     }
 
     @discardableResult
-    package func trackView(_ path: String) async -> AnalyticsInteface {
-        self.type = .view
-        self.path = path
+    package func trackView(_ path: String) async -> AnalyticsInterface {
+        await self.track.setType(.view)
+        await self.track.setPath(path)
+
         return self
     }
 
-    /// Processes and sends the current event
+    /// Processes and sends the current event.
     ///
     /// This method:
-    /// 1. Collects user information
-    /// 2. Builds the payload with all required data
-    /// 3. Serializes to JSON
-    /// 4. Sends the data (currently just prints to console)
+    /// 1. Collects user information,
+    /// 2. Builds the payload with all required data,
+    /// 3. Serializes to JSON,
+    /// 4. Sends the data (currently just prints to console).
     ///
-    /// - Note: Actual data sending implementation should be added in the future
+    /// - Note: Actual data sending implementation should be added in the future.
     package func send() async {
-        let idUser = await buyerInfo.getUID()
-
-        let payload: [String: Any] = [
-            "path": path,
+        let payload: [String: Any] = await [
+            "path": track.getPath(),
             "user": [
-                "uid": idUser
+                "uid": self.buyerInfo.getUID()
             ],
-            "type": type.rawValue,
+            "type": self.track.getType().rawValue,
             "id": self.sessionId,
             "user_time": Int64(Date().timeIntervalSince1970 * 1000),
             "event_data": getEventData(),
@@ -189,12 +229,12 @@ package final actor MPAnalytics: AnalyticsInteface {
 // MARK: - Private Helpers
 
 private extension MPAnalytics {
-    /// Retrieves the current event data in JSON format
+    /// Retrieves the current event data in JSON format.
     ///
-    /// - Returns: Dictionary containing event data or an empty dictionary if no data is present
-    func getEventData() -> [String: Any] {
-        guard let data = self.eventData else {
-            return [String: Any]()
+    /// - Returns: Dictionary containing event data or an empty dictionary if no data is present.
+    func getEventData() async -> [String: Any] {
+        guard let data = await track.getEventData() else {
+            return [:]
         }
 
         return data.toDictionary()
