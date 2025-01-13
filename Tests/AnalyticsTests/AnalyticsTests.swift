@@ -26,7 +26,10 @@ private extension AnalyticsTests {
     typealias SUT = MPAnalytics
 
     func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
-        return MPAnalytics()
+        let sut = MPAnalytics()
+        sut.initialize(version: "1.0.0", siteID: "MLB")
+
+        return sut
     }
 }
 
@@ -89,8 +92,8 @@ final class AnalyticsTests: XCTestCase {
             iosMinimium: sut.sellerInfo.getTargetMinimum(),
             deviceInfo: sut.buyerInfo.getDeviceInfo()
         )
-        let siteID = "MLB"
-        let version = "1.0.0"
+
+        sut.initialize(version: "1.0.0", siteID: "MLB")
 
         await sut
             .trackEvent(eventPath)

@@ -194,6 +194,16 @@ package final class MPAnalytics: AnalyticsInterface {
     ///
     /// - Note: Actual data sending implementation should be added in the future.
     package func send() async {
+        assert(
+            !MPAnalyticsConfiguration.version.isEmpty && !MPAnalyticsConfiguration.siteID.isEmpty,
+            "Analytics not initialized. You must call initialize(version:siteID:) before sending events."
+        )
+
+        guard !MPAnalyticsConfiguration.version.isEmpty,
+              !MPAnalyticsConfiguration.siteID.isEmpty else {
+            return
+        }
+
         let payload: [String: Any] = await [
             "path": track.getPath(),
             "user": [
