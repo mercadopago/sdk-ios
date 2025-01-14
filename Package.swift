@@ -23,11 +23,18 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "CoreMethods"
+            name: "MPCore",
+            dependencies: ["MPAnalytics"]
+        ),
+        .target(
+            name: "CoreMethods",
+            dependencies: ["MPCore"]
         ),
         .target(
             name: "MPAnalytics"
         ),
+        
+        //Tests
         .testTarget(
             name: "CoreMethodsTests",
             dependencies: ["CoreMethods"]
