@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol PCIFieldStateStyleProtocol {
+public protocol PCIFieldStateStyleProtocol {
     // MARK: - Text Configuration
 
     /// The color of the text

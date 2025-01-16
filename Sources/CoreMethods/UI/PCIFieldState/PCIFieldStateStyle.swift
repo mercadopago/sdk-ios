@@ -8,7 +8,7 @@
 import UIKit
 
 /// Default implementation of PCIFieldStateStyleProtocol matching UITextField defaults
-class TextFieldDefaultStyle: PCIFieldStateStyleProtocol {
+public class TextFieldDefaultStyle: PCIFieldStateStyleProtocol {
     // MARK: - Text Configuration
 
     var textColor: UIColor = .label

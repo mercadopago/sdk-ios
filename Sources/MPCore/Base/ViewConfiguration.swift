@@ -8,6 +8,7 @@
 import Foundation
 
 /// Protocol that defines the view configuration for Bricks components
+@MainActor
 package protocol ViewConfiguration: Sendable {
     /// Builds the view hierarchy.
     func buildViewHierarchy()

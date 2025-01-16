@@ -32,7 +32,7 @@ final class PCIFieldState: UIView {
     private(set) var isValid = false
 
     private var maxLength: Int
-    private let validation: InputValidation
+    private var validation: InputValidation
     private let formatter: Configuration.Mask?
     private var style: Style
 
