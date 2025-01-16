@@ -25,7 +25,7 @@ public class TextFieldDefaultStyle: PCIFieldStateStyleProtocol {
 
     public var placeholderColor: UIColor = .placeholderText
 
-    public var placeholderFont: UIFont? = nil
+    public var placeholderFont: UIFont?
 
     // MARK: - Background Configuration
 

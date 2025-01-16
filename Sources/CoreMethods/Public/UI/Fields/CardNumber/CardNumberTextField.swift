@@ -19,7 +19,7 @@ public final class CardNumberTextField: UIView {
     public var onBinChange: ((String) -> Void)?
 
     /// Callback triggered when a valid card number is completed
-    public var onCardNumberComplete: ((String) -> Void)?
+    public var onComplete: ((String) -> Void)?
 
     /// Callback triggered when the field focus state changes
     public var onFocusChange: ((Bool) -> Void)?
@@ -91,7 +91,7 @@ public final class CardNumberTextField: UIView {
             guard let self else { return }
             let error = self.validation.error
             if error == .valid {
-                self.onCardNumberComplete?(self.getLastFourDigits())
+                self.onComplete?(self.getLastFourDigits())
             } else {
                 self.onError?(error)
             }
@@ -188,5 +188,10 @@ extension CardNumberTextField {
     public func setRightImage(view: UIView, mode: UITextField.ViewMode = .always) -> Self {
         self.input.setRightView(view, mode: mode)
         return self
+    }
+
+    /// Clear text field
+    public func clear() {
+        self.input.clear()
     }
 }

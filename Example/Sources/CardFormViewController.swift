@@ -18,12 +18,16 @@ final class CardFormViewController: UIViewController {
             print("BIN changed: \(bin)")
         }
 
-        field.onCardNumberComplete = { [weak self] lastFourDigits in
+        field.onComplete = { [weak self] lastFourDigits in
             print("Card Number complete: \(lastFourDigits)")
         }
 
         field.onFocusChange = { [weak self] isFocused in
             print("Focus changed: \(isFocused)")
+        }
+
+        field.onError = { [weak self] _ in
+            print("Error: \(isFocused)")
         }
 
         return field

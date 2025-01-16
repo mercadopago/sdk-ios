@@ -19,13 +19,7 @@ class CardNumberValidation: InputValidation {
             return false
         }
 
-        let isValidLuhn = isValidLuhn(cleanNumber)
-
-        if !isValidLuhn {
-            self.error = .invalidLuhn
-        }
-
-        return isValidLuhn
+        return self.isValidLuhn(cleanNumber)
     }
 
     private func isValidLuhn(_ number: String) -> Bool {
@@ -53,6 +47,7 @@ class CardNumberValidation: InputValidation {
                 return false
             }
         }
+
         guard sum % 10 == 0 else {
             self.error = .invalidLuhn
             return false
