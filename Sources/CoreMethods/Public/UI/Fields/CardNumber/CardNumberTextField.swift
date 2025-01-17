@@ -16,13 +16,13 @@ public final class CardNumberTextField: UIView {
     public var style: Style
 
     /// Callback triggered when the BIN (first 8 digits) changes
-    public var onBinChange: ((String) -> Void)?
+    public var onBinChanged: ((String) -> Void)?
 
     /// Callback triggered when a valid card number is completed
-    public var onComplete: ((String) -> Void)?
+    public var onLastFourDigitsFilled: ((String) -> Void)?
 
     /// Callback triggered when the field focus state changes
-    public var onFocusChange: ((Bool) -> Void)?
+    public var onFocusChanged: ((Bool) -> Void)?
 
     /// Callback triggered when a validation error occurs
     public var onError: ((CardNumberError) -> Void)?
@@ -69,6 +69,7 @@ public final class CardNumberTextField: UIView {
             )
         )
         self.input = PCIFieldState(configuration: configuration)
+        self.input.setStyle(style)
         super.init(frame: .zero)
         buildLayout()
         self.setupCallbacks()
@@ -83,27 +84,38 @@ public final class CardNumberTextField: UIView {
 
     private func setupCallbacks() {
         self.input.onChange = { [weak self] text in
+            guard let self else { return }
+
             if text.count >= 8 {
-                self?.onBinChange?(String(text.prefix(8)))
+                self.onBinChanged?(self.getBin(text))
             }
         }
         self.input.onComplete = { [weak self] in
             guard let self else { return }
+
             let error = self.validation.error
             if error == .valid {
-                self.onComplete?(self.getLastFourDigits())
+                self.onLastFourDigitsFilled?(self.getLastFourDigits())
             } else {
                 self.onError?(error)
             }
         }
 
         self.input.onFocusChange = { [weak self] focus in
-            self?.onFocusChange?(focus)
+            guard let self else { return }
+
+            let error = self.validation.error
+            self.onError?(error)
+            self.onFocusChanged?(focus)
         }
     }
 
     func getLastFourDigits() -> String {
         return String(self.input.getValue().suffix(4))
+    }
+
+    func getBin(_ text: String) -> String {
+        return String(text.prefix(8))
     }
 }
 

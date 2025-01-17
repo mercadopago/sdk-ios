@@ -10,24 +10,29 @@ import UIKit
 
 final class CardFormViewController: UIViewController {
     private lazy var cardNumberField: CardNumberTextField = {
-        let field = CardNumberTextField()
+        let style = TextFieldDefaultStyle()
+            .borderColor(.systemGray)
+            .borderWidth(2)
+            .cornerRadius(8)
+
+        let field = CardNumberTextField(style: style)
         field.translatesAutoresizingMaskIntoConstraints = false
 
-        // Configurando callbacks
-        field.onBinChange = { [weak self] bin in
+        field.onBinChanged = { [weak self] bin in
             print("BIN changed: \(bin)")
         }
 
-        field.onComplete = { [weak self] lastFourDigits in
+        field.onLastFourDigitsFilled = { [weak self] lastFourDigits in
+            print("Length: ", field.count)
             print("Card Number complete: \(lastFourDigits)")
         }
 
-        field.onFocusChange = { [weak self] isFocused in
+        field.onFocusChanged = { [weak self] isFocused in
             print("Focus changed: \(isFocused)")
         }
 
-        field.onError = { [weak self] _ in
-            print("Error: \(isFocused)")
+        field.onError = { [weak self] error in
+            print("Error: \(error)")
         }
 
         return field
