@@ -15,10 +15,10 @@ import UIKit
 /// Example usage:
 /// ```swift
 /// let cardField = CardNumberTextField()
-/// cardField.onBinChanged = { bin in
+/// cardField.onBinChanged = { [weak self] bin in
 ///     // Handle BIN changes
 /// }
-/// cardField.onError = { error in
+/// cardField.onError = { [weak self] error in
 ///     // Handle validation errors
 /// }
 /// ```
@@ -109,7 +109,7 @@ public final class CardNumberTextField: UIView {
         self.input.onChange = { [weak self] text in
             guard let self else { return }
 
-            if self.binLength <= self.count || text.isEmpty {
+            if self.binLength >= self.count || text.isEmpty {
                 self.onBinChanged?(self.getBin(text))
             }
         }
