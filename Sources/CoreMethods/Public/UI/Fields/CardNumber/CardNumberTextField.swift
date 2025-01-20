@@ -14,7 +14,10 @@ import UIKit
 ///
 /// Example usage:
 /// ```swift
-/// let cardField = CardNumberTextField()
+/// let field = CardNumberTextField(style: style)
+///    .setMaxLength(19)
+///    .setMask(pattern: "#### ##### ####")
+///    
 /// cardField.onBinChanged = { [weak self] bin in
 ///     // Handle BIN changes
 /// }
@@ -81,7 +84,11 @@ public final class CardNumberTextField: UIView {
 
     // MARK: - Initialization
 
-    public init(style: Style = TextFieldDefaultStyle(), maxLength: Int = 16) {
+    public init(
+        style: Style = TextFieldDefaultStyle(),
+        maxLength: Int = 19,
+        mask: String = "#### #### #### #### ###"
+    ) {
         self.style = style
         self.validation.maxLength = maxLength
         let configuration = PCIFieldState.Configuration(
@@ -89,7 +96,7 @@ public final class CardNumberTextField: UIView {
             validation: self.validation,
             style: style,
             mask: PCIFieldState.Configuration.Mask(
-                pattern: "#### #### #### ####",
+                pattern: mask,
                 separator: " "
             )
         )
@@ -207,6 +214,23 @@ extension CardNumberTextField {
     @discardableResult
     public func setPlaceholder(_ text: String) -> Self {
         self.input.setPlaceholder(text)
+        return self
+    }
+    
+    /// Updates the mask pattern used for formatting the card number.
+    /// - Parameters:
+    ///   - pattern: The new mask pattern where '#' represents a digit
+    ///   - separator: The character used to separate digit groups
+    /// - Returns: Self for method chaining
+    @discardableResult
+    public func setMask(pattern: String, separator: Character = " ") -> Self {
+        input
+            .setMask(
+                with: PCIFieldState.Configuration.Mask(
+                    pattern: pattern,
+                    separator: separator
+                )
+            )
         return self
     }
 
