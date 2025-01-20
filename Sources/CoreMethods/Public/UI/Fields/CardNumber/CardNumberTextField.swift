@@ -40,10 +40,12 @@ public final class CardNumberTextField: UIView {
     /// - Parameter isFocused: True when field gains focus, false when it loses focus
     public var onFocusChanged: ((Bool) -> Void)?
 
+    ///
     /// Callback triggered when a validation error occurs.
-    /// - Note: This callback is triggered in two scenarios:
-    ///   - When the field loses focus and contains an invalid card number
-    ///   - When the maximum length is reached but validation fails
+    ///
+    /// # This callback is triggered in two scenarios
+    /// * When the field loses focus and contains an invalid card number.
+    /// * When the maximum length is reached but validation fails.
     /// - Parameter error: The type of validation error that occurred
     public var onError: ((CardNumberError) -> Void)?
 
