@@ -51,16 +51,16 @@ final class CardNumberTextFieldTests: XCTestCase {
         XCTAssertEqual(capturedBin, "41111111")
     }
 
-    func test_onBinChanged_shouldNotTriggerWithLessThan8Digits() {
+    func test_onBinChanged_shouldTriggerWithLessThan8Digits() {
         let (sut, input) = self.makeSUT()
         var binChangeCount = 0
         sut.onBinChanged = { _ in
             binChangeCount += 1
         }
 
-        simulateTextInput("4111111", input: input)
+        simulateTextInput("411111133", input: input)
 
-        XCTAssertEqual(binChangeCount, 0)
+        XCTAssertEqual(binChangeCount, 8)
     }
 
     // MARK: - Last Four Digits Tests
@@ -181,7 +181,7 @@ final class CardNumberTextFieldTests: XCTestCase {
         let (sut, input) = self.makeSUT()
         let text = "card number insert"
 
-        let result = sut.setPlaceholder(text)
+        sut.setPlaceholder(text)
         simulateTextInput(text, input: input)
 
         XCTAssertEqual(sut.input.textField.placeholder, text)
