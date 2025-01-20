@@ -168,8 +168,9 @@ extension CardNumberTextField: ViewConfiguration {
 
     package func configureAccessibility() {
         isAccessibilityElement = false
-        self.input.isAccessibilityElement = true
-        accessibilityElements = [self.input]
+        self.input.textField.isAccessibilityElement = true
+        self.input.textField.textContentType = .creditCardNumber
+        accessibilityElements = [self.input.textField]
     }
 }
 
