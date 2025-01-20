@@ -186,7 +186,7 @@ private extension PCIFieldState {
         self.isValid = self.validation.isValid(numbersOnly)
         self.onChange?(numbersOnly)
 
-        if isValid {
+        if self.isValid {
             self.onComplete?()
         } else {
             self.isValid = false
@@ -214,7 +214,7 @@ extension PCIFieldState {
         self.textField.rightView = view
         self.textField.rightViewMode = mode
     }
-    
+
     /// Updates the mask pattern used for formatting the card number.
     /// - Note: Automatically reformats existing input to match the new pattern
     /// - Parameters:

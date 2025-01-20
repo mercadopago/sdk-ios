@@ -17,7 +17,7 @@ class CardNumberValidation: InputValidation {
     func isValid(_ text: String) -> Bool {
         let cleanNumber = text.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
 
-        guard cleanNumber.count >= 13, cleanNumber.count <= maxLength else {
+        guard cleanNumber.count >= 13, cleanNumber.count <= self.maxLength else {
             self.error = .invalidLength
             return false
         }

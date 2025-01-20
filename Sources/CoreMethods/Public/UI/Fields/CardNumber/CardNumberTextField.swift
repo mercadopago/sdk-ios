@@ -17,7 +17,7 @@ import UIKit
 /// let field = CardNumberTextField(style: style)
 ///    .setMaxLength(19)
 ///    .setMask(pattern: "#### ##### ####")
-///    
+///
 /// cardField.onBinChanged = { [weak self] bin in
 ///     // Handle BIN changes
 /// }
@@ -216,7 +216,7 @@ extension CardNumberTextField {
         self.input.setPlaceholder(text)
         return self
     }
-    
+
     /// Updates the mask pattern used for formatting the card number.
     /// - Parameters:
     ///   - pattern: The new mask pattern where '#' represents a digit
@@ -224,7 +224,7 @@ extension CardNumberTextField {
     /// - Returns: Self for method chaining
     @discardableResult
     public func setMask(pattern: String, separator: Character = " ") -> Self {
-        input
+        self.input
             .setMask(
                 with: PCIFieldState.Configuration.Mask(
                     pattern: pattern,
