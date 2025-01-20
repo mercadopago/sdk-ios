@@ -9,30 +9,50 @@ import MPCore
 import UIKit
 
 /// A secure text field specialized for handling credit card numbers.
-/// This component handles formatting, validation and security requirements for credit card input.
+/// The field automatically formats card numbers with proper spacing and validates input in real-time.
+/// For security compliance, raw card data is handled internally through secure components.
+///
+/// Example usage:
+/// ```swift
+/// let cardField = CardNumberTextField()
+/// cardField.onBinChanged = { bin in
+///     // Handle BIN changes
+/// }
+/// cardField.onError = { error in
+///     // Handle validation errors
+/// }
+/// ```
 public final class CardNumberTextField: UIView {
     public typealias Style = PCIFieldStateStyleProtocol
 
     public var style: Style
 
-    /// Callback triggered when the BIN (first 8 digits) changes
+    /// Callback triggered when the BIN (Bank Identification Number) changes.
+    /// - Note: BIN consists of the first 8 digits of the card number.
+    /// - Parameter bin: The current BIN value
     public var onBinChanged: ((String) -> Void)?
 
-    /// Callback triggered when a valid card number is completed
+    /// Callback triggered when a valid card number is completed.
+    /// - Parameter lastFour: The last four digits of the validated card number
     public var onLastFourDigitsFilled: ((String) -> Void)?
 
-    /// Callback triggered when the field focus state changes
+    /// Callback triggered when the field focus state changes.
+    /// - Parameter isFocused: True when field gains focus, false when it loses focus
     public var onFocusChanged: ((Bool) -> Void)?
 
-    /// Callback triggered when a validation error occurs
+    /// Callback triggered when a validation error occurs.
+    /// - Note: This callback is triggered in two scenarios:
+    ///   - When the field loses focus and contains an invalid card number
+    ///   - When the maximum length is reached but validation fails
+    /// - Parameter error: The type of validation error that occurred
     public var onError: ((CardNumberError) -> Void)?
 
-    /// Returns whether the current input is a valid card number
+    /// Returns whether the current input represents a valid card number.
     public var isValid: Bool {
         return self.input.isValid
     }
 
-    /// Returns the current number of digits entered
+    /// The current number of digits entered in the field.
     public var count: Int {
         return self.input.count
     }
@@ -52,6 +72,8 @@ public final class CardNumberTextField: UIView {
     }
 
     private let validation = CardNumberValidation()
+
+    private let binLength = 8
 
     let input: PCIFieldState
 
@@ -87,7 +109,7 @@ public final class CardNumberTextField: UIView {
         self.input.onChange = { [weak self] text in
             guard let self else { return }
 
-            if text.count >= 8 {
+            if self.binLength <= self.count || text.isEmpty {
                 self.onBinChanged?(self.getBin(text))
             }
         }
@@ -106,7 +128,7 @@ public final class CardNumberTextField: UIView {
             guard let self else { return }
 
             let error = self.validation.error
-            if !self.isValid {
+            if !self.isValid, !focus {
                 self.onError?(error)
             }
             self.onFocusChanged?(focus)
@@ -118,7 +140,7 @@ public final class CardNumberTextField: UIView {
     }
 
     func getBin(_ text: String) -> String {
-        return String(text.prefix(8))
+        return String(text.prefix(self.binLength))
     }
 }
 
@@ -154,9 +176,10 @@ extension CardNumberTextField: ViewConfiguration {
 // MARK: - Public Methods
 
 extension CardNumberTextField {
-    /// Sets the visual style of the text field
+    /// Sets the visual style of the text field.
     /// - Parameter style: The style configuration to be applied
     /// - Returns: Self for method chaining
+    /// - Note: Style changes are applied immediately and will trigger a layout update
     @discardableResult
     public func setStyle(_ style: Style) -> Self {
         self.style = style

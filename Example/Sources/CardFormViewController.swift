@@ -32,7 +32,7 @@ final class CardFormViewController: UIViewController {
                 field.setStyle(style)
             }
             print("Length: ", field.count)
-            print("Card Number complete: \(lastFourDigits)")
+            print("onLastFourDigitsFilled: \(lastFourDigits)")
         }
 
         field.onFocusChanged = { [weak self] isFocused in
@@ -45,6 +45,15 @@ final class CardFormViewController: UIViewController {
         }
 
         return field
+    }()
+
+    private lazy var stackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 16
+        stack.alignment = .fill
+        stack.distribution = .fill
+        return stack
     }()
 
     override func viewDidLoad() {
@@ -63,14 +72,18 @@ final class CardFormViewController: UIViewController {
 
 extension CardFormViewController {
     func buildViewHierarchy() {
-        view.addSubview(self.cardNumberField)
+        view.addSubview(self.stackView)
+        self.stackView.addArrangedSubview(self.cardNumberField)
     }
 
     func setupConstraints() {
+        self.stackView.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
-            self.cardNumberField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            self.cardNumberField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            self.cardNumberField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            self.stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            self.stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            self.stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+
             self.cardNumberField.heightAnchor.constraint(equalToConstant: 56)
         ])
     }

@@ -85,7 +85,6 @@ final class CardNumberTextFieldTests: XCTestCase {
         }
 
         simulateTextInput("5181163347419299", input: input)
-        print("TESTE => ", sut.input.getValue())
 
         XCTAssertEqual(capturedLastFour, "9299")
         XCTAssertTrue(sut.isValid)
