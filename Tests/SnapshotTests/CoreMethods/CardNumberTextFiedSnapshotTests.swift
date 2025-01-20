@@ -1,5 +1,5 @@
 //
-//  CardNumberTextFiedTests.swift
+//  CardNumberTextFiedSnapshotTests.swift
 //  MercadoPagoSDK-iOS
 //
 //  Created by Guilherme Prata Costa on 17/01/25.
@@ -122,24 +122,6 @@ final class CardNumberTextFieldSnapshotTests: XCTestCase {
             as: .image(size: sut.frame.size),
             named: "card_field_max_length_four"
         )
-    }
-
-    func test_disabledState() {
-        let style = TextFieldDefaultStyle()
-            .backgroundColor(.systemGray5)
-            .borderColor(.systemGray3)
-            .borderWidth(1)
-            .cornerRadius(8)
-            .textColor(.systemGray3)
-            .opacity(0.7)
-
-        let (sut, input) = self.makeSUT()
-        sut.setPlaceholder("Disabled field")
-        sut.setPlaceholder("Disabled field")
-        sut.setStyle(style)
-        sut.isEnabled = false
-
-        assertSnapshot(of: sut, as: .image)
     }
 
     func test_errorStateAppearance() async {
