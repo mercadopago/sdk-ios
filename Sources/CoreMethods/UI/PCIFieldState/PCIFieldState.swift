@@ -183,10 +183,10 @@ private extension PCIFieldState {
         let numbersOnly = text?.onlyNumbers() ?? ""
         self.count = numbersOnly.count
 
+        self.isValid = self.validation.isValid(numbersOnly)
         self.onChange?(numbersOnly)
 
         if numbersOnly.count == self.maxLength {
-            self.isValid = self.validation.isValid(numbersOnly)
             self.onComplete?()
         } else {
             self.isValid = false

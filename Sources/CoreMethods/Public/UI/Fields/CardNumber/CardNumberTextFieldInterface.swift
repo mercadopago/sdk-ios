@@ -12,10 +12,12 @@ public enum CardNumberError {
 class CardNumberValidation: InputValidation {
     var error: CardNumberError = .empty
 
+    var maxLength = 16
+
     func isValid(_ text: String) -> Bool {
         let cleanNumber = text.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
 
-        guard cleanNumber.count >= 13, cleanNumber.count <= 19 else {
+        guard self.maxLength <= cleanNumber.count else {
             self.error = .invalidLength
             return false
         }

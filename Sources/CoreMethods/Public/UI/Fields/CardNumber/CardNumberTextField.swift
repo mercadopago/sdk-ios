@@ -59,6 +59,7 @@ public final class CardNumberTextField: UIView {
 
     public init(style: Style = TextFieldDefaultStyle(), maxLength: Int = 16) {
         self.style = style
+        self.validation.maxLength = maxLength
         let configuration = PCIFieldState.Configuration(
             maxLength: maxLength,
             validation: self.validation,
@@ -170,6 +171,7 @@ extension CardNumberTextField {
     @discardableResult
     public func setMaxLength(_ length: Int) -> Self {
         self.input.setMaxLenght(length)
+        self.validation.maxLength = length
         return self
     }
 
