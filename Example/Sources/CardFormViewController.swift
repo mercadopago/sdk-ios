@@ -15,6 +15,11 @@ final class CardFormViewController: UIViewController {
             .borderWidth(2)
             .cornerRadius(8)
 
+        let errorStyle = TextFieldDefaultStyle()
+            .borderColor(.red)
+            .borderWidth(2)
+            .cornerRadius(8)
+
         let field = CardNumberTextField(style: style)
         field.translatesAutoresizingMaskIntoConstraints = false
 
@@ -23,6 +28,9 @@ final class CardFormViewController: UIViewController {
         }
 
         field.onLastFourDigitsFilled = { [weak self] lastFourDigits in
+            if field.isValid {
+                field.setStyle(style)
+            }
             print("Length: ", field.count)
             print("Card Number complete: \(lastFourDigits)")
         }
@@ -32,6 +40,7 @@ final class CardFormViewController: UIViewController {
         }
 
         field.onError = { [weak self] error in
+            field.setStyle(errorStyle)
             print("Error: \(error)")
         }
 

@@ -94,7 +94,7 @@ public final class CardNumberTextField: UIView {
             guard let self else { return }
 
             let error = self.validation.error
-            if error == .valid {
+            if self.isValid {
                 self.onLastFourDigitsFilled?(self.getLastFourDigits())
             } else {
                 self.onError?(error)
@@ -105,7 +105,9 @@ public final class CardNumberTextField: UIView {
             guard let self else { return }
 
             let error = self.validation.error
-            self.onError?(error)
+            if !self.isValid {
+                self.onError?(error)
+            }
             self.onFocusChanged?(focus)
         }
     }

@@ -5,11 +5,12 @@ public enum CardNumberError {
     case invalidCharacters
     case invalidLuhn
     case invalidLength
-    case valid
+    case empty
+    case none
 }
 
 class CardNumberValidation: InputValidation {
-    var error: CardNumberError = .valid
+    var error: CardNumberError = .empty
 
     func isValid(_ text: String) -> Bool {
         let cleanNumber = text.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
@@ -53,7 +54,8 @@ class CardNumberValidation: InputValidation {
             return false
         }
 
-        self.error = .valid
+        self.error = .none
+
         return true
     }
 }
