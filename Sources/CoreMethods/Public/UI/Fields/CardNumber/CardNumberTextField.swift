@@ -86,7 +86,7 @@ public final class CardNumberTextField: UIView {
 
     public init(
         style: Style = TextFieldDefaultStyle(),
-        maxLength: Int = 19,
+        maxLength: Int = 16,
         mask: String = "#### #### #### #### ###"
     ) {
         self.style = style
