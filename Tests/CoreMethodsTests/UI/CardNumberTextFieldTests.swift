@@ -18,7 +18,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Factory Methods
 
     private func makeSUT(
-        maxLength: Int = 16,
+        maxLength: Int = 19,
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
@@ -92,13 +92,13 @@ final class CardNumberTextFieldTests: XCTestCase {
 
     // MARK: - Luhn Validation Tests
 
-    func test_onLastFourDigitsFilled_When19Digits_shouldValidateLuhn() {
+    func test_onLastFourDigitsFilled_When19Digits_shouldValidateLuhn() async {
         let (sut, input) = self.makeSUT()
+
         var capturedLastFour: String?
         sut.onLastFourDigitsFilled = { lastFour in
             capturedLastFour = lastFour
         }
-
         simulateTextInput("5993199916395529539", input: input)
 
         XCTAssertEqual(capturedLastFour, "9539")
