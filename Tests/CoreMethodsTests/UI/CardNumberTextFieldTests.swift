@@ -149,6 +149,18 @@ final class CardNumberTextFieldTests: XCTestCase {
         XCTAssertEqual(capturedError, .invalidLength)
     }
 
+    func test_onError_When19Digits_shouldNotValidateLuhn() async {
+        let (sut, input) = self.makeSUT()
+
+        var capturedError: CardNumberError?
+        sut.onError = { error in
+            capturedError = error
+        }
+        simulateTextInput("5993199916395529", input: input)
+
+        XCTAssertEqual(capturedError, .invalidLuhn)
+    }
+
     // MARK: - Focus Tests
 
     func test_onFocusChanged_shouldTrackFocusState() {

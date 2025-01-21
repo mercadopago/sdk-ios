@@ -37,13 +37,13 @@ final class CardFormViewController: UIViewController {
         }
 
         field.onFocusChanged = { [weak self] isFocused in
-            print("Focus changed: \(isFocused)")
+            print("CardNumberField Focus changed: \(isFocused)")
         }
 
         field.onError = { [weak self] error in
             guard let self else { return }
             field.setStyle(self.errorStyle)
-            print("Error: \(error)")
+            print("CardNumberField Error: \(error)")
         }
 
         return field
@@ -66,14 +66,14 @@ final class CardFormViewController: UIViewController {
         }
 
         field.onFocusChanged = { [weak self] isFocused in
-            print("Focus changed: \(isFocused)")
+            print("SecurityCodeField Focus changed: \(isFocused)")
         }
 
         field.onError = { [weak self] error in
             guard let self else { return }
 
             field.setStyle(self.errorStyle)
-            print("Error: \(error)")
+            print("SecurityCodeField Error: \(error)")
         }
 
         return field

@@ -27,7 +27,13 @@ class CardNumberValidation: InputValidation {
             return false
         }
 
-        return self.isValidLuhn(cleanNumber)
+        if self.isValidLuhn(cleanNumber) {
+            self.error = .none
+            return true
+        } else {
+            self.error = .invalidLuhn
+            return false
+        }
     }
 
     private func isValidLuhn(_ number: String) -> Bool {
@@ -36,6 +42,7 @@ class CardNumberValidation: InputValidation {
             return false
         }
         var sum = 0
+
         let digitStrings = number.reversed().map { String($0) }
 
         for tuple in digitStrings.enumerated() {
@@ -56,13 +63,6 @@ class CardNumberValidation: InputValidation {
             }
         }
 
-        guard sum % 10 == 0 else {
-            self.error = .invalidLuhn
-            return false
-        }
-
-        self.error = .none
-
-        return true
+        return sum % 10 == 0
     }
 }
