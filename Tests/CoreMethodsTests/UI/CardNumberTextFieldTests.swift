@@ -90,6 +90,37 @@ final class CardNumberTextFieldTests: XCTestCase {
         XCTAssertTrue(sut.isValid)
     }
 
+    // MARK: - Luhn Validation Tests
+
+    func test_onLastFourDigitsFilled_When19Digits_shouldValidateLuhn() {
+        let (sut, input) = self.makeSUT()
+        var capturedLastFour: String?
+        sut.onLastFourDigitsFilled = { lastFour in
+            capturedLastFour = lastFour
+        }
+
+        simulateTextInput("5993199916395529539", input: input)
+
+        XCTAssertEqual(capturedLastFour, "9539")
+        XCTAssertTrue(sut.isValid)
+    }
+
+    func test_onLastFourDigitsFilled_When15Digitis_shouldValidateLuhn() {
+        let (sut, input) = self.makeSUT(maxLength: 15)
+
+        sut.setMask(pattern: "#### ###### #####")
+
+        var capturedLastFour: String?
+        sut.onLastFourDigitsFilled = { lastFour in
+            capturedLastFour = lastFour
+        }
+
+        simulateTextInput("341369256028272", input: input)
+
+        XCTAssertEqual(capturedLastFour, "8272")
+        XCTAssertTrue(sut.isValid)
+    }
+
     // MARK: - Error Handling Tests
 
     func test_onError_shouldTriggerWithInvalidLuhn() {

@@ -181,6 +181,34 @@ final class CardNumberTextFieldSnapshotTests: XCTestCase {
             named: "card_field_right_icon"
         )
     }
+
+    // MARK: - Masks
+
+    func test_customMask() {
+        let (sut, input) = self.makeSUT()
+        sut.setMaxLength(15)
+        sut.setMask(pattern: "#### ###### #####")
+
+        simulateTextInput("341369256028272", input: input)
+
+        assertSnapshot(
+            of: sut,
+            as: .image(size: sut.frame.size),
+            named: "card_field_mask_america_express_max_length_15"
+        )
+    }
+
+    func test_with19Digits() {
+        let (sut, input) = self.makeSUT()
+
+        simulateTextInput("5993199916395529539", input: input)
+
+        assertSnapshot(
+            of: sut,
+            as: .image(size: sut.frame.size),
+            named: "card_field_with_19_digits"
+        )
+    }
 }
 
 // MARK: - Helpers
