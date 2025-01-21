@@ -119,13 +119,7 @@ public final class SecurityCodeTextField: UIView {
         self.input.onComplete = { [weak self] in
             guard let self else { return }
 
-            if self.isValid {
-                self.onInputFilled?()
-            } else {
-                let error = self.validation.error
-
-                self.onError?(error)
-            }
+            self.onInputFilled?()
         }
 
         self.input.onFocusChange = { [weak self] focus in
