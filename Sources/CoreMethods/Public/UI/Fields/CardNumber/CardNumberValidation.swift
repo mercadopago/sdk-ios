@@ -10,14 +10,19 @@ public enum CardNumberError {
 }
 
 class CardNumberValidation: InputValidation {
-    var error: CardNumberError = .empty
+    var error: CardNumberError
 
-    var maxLength = 16
+    var maxLength: Int
+
+    init(error: CardNumberError = .empty, maxLength: Int) {
+        self.error = error
+        self.maxLength = maxLength
+    }
 
     func isValid(_ text: String) -> Bool {
         let cleanNumber = text.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
 
-        guard cleanNumber.count >= 13, cleanNumber.count <= self.maxLength else {
+        guard cleanNumber.count >= 8, cleanNumber.count <= self.maxLength else {
             self.error = .invalidLength
             return false
         }
@@ -61,5 +66,3 @@ class CardNumberValidation: InputValidation {
         return true
     }
 }
-
-protocol CardNumberTextFieldInterface {}

@@ -76,7 +76,7 @@ public final class CardNumberTextField: UIView {
         set { self.input.keyboardAppearance = newValue }
     }
 
-    private let validation = CardNumberValidation()
+    private let validation: CardNumberValidation
 
     private let binLength = 8
 
@@ -86,11 +86,11 @@ public final class CardNumberTextField: UIView {
 
     public init(
         style: Style = TextFieldDefaultStyle(),
-        maxLength: Int = 16,
-        mask: String = "#### #### #### #### ###"
+        maxLength: Int = 19,
+        mask: String = "#### #### #### #######"
     ) {
         self.style = style
-        self.validation.maxLength = maxLength
+        self.validation = CardNumberValidation(maxLength: maxLength)
         let configuration = PCIFieldState.Configuration(
             maxLength: maxLength,
             validation: self.validation,
