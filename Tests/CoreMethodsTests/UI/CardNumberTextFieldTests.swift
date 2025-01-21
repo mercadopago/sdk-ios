@@ -156,7 +156,9 @@ final class CardNumberTextFieldTests: XCTestCase {
         sut.onError = { error in
             capturedError = error
         }
+
         simulateTextInput("5993199916395529", input: input)
+        input.onFocusChange?(false)
 
         XCTAssertEqual(capturedError, .invalidLuhn)
     }
