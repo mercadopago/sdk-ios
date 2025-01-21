@@ -9,17 +9,17 @@ import CoreMethods
 import UIKit
 
 final class CardFormViewController: UIViewController {
+    let style = TextFieldDefaultStyle()
+        .borderColor(.systemGray)
+        .borderWidth(2)
+        .cornerRadius(8)
+
+    let errorStyle = TextFieldDefaultStyle()
+        .borderColor(.red)
+        .borderWidth(2)
+        .cornerRadius(8)
+
     private lazy var cardNumberField: CardNumberTextField = {
-        let style = TextFieldDefaultStyle()
-            .borderColor(.systemGray)
-            .borderWidth(2)
-            .cornerRadius(8)
-
-        let errorStyle = TextFieldDefaultStyle()
-            .borderColor(.red)
-            .borderWidth(2)
-            .cornerRadius(8)
-
         let field = CardNumberTextField(style: style)
         field.translatesAutoresizingMaskIntoConstraints = false
 
@@ -28,8 +28,9 @@ final class CardFormViewController: UIViewController {
         }
 
         field.onLastFourDigitsFilled = { [weak self] lastFourDigits in
+            guard let self else { return }
             if field.isValid {
-                field.setStyle(style)
+                field.setStyle(self.style)
             }
             print("Length: ", field.count)
             print("onLastFourDigitsFilled: \(lastFourDigits)")
@@ -40,7 +41,38 @@ final class CardFormViewController: UIViewController {
         }
 
         field.onError = { [weak self] error in
-            field.setStyle(errorStyle)
+            guard let self else { return }
+            field.setStyle(self.errorStyle)
+            print("Error: \(error)")
+        }
+
+        return field
+    }()
+
+    private lazy var securityCodeField: SecurityCodeTextField = {
+        let field = SecurityCodeTextField(style: style)
+            .setPlaceholder("Insert security code")
+        field.translatesAutoresizingMaskIntoConstraints = false
+
+        field.onInputFilled = { [weak self] in
+            guard let self else { return }
+            field.setStyle(self.style)
+
+            print("Security code completed")
+        }
+
+        field.onLengthChanged = { [weak self] length in
+            print("onLengthChanged: \(length)")
+        }
+
+        field.onFocusChanged = { [weak self] isFocused in
+            print("Focus changed: \(isFocused)")
+        }
+
+        field.onError = { [weak self] error in
+            guard let self else { return }
+
+            field.setStyle(self.errorStyle)
             print("Error: \(error)")
         }
 
@@ -74,6 +106,7 @@ extension CardFormViewController {
     func buildViewHierarchy() {
         view.addSubview(self.stackView)
         self.stackView.addArrangedSubview(self.cardNumberField)
+        self.stackView.addArrangedSubview(self.securityCodeField)
     }
 
     func setupConstraints() {
@@ -84,7 +117,9 @@ extension CardFormViewController {
             self.stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             self.stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
 
-            self.cardNumberField.heightAnchor.constraint(equalToConstant: 56)
+            self.cardNumberField.heightAnchor.constraint(equalToConstant: 56),
+            self.securityCodeField.heightAnchor.constraint(equalToConstant: 56)
+
         ])
     }
 
