@@ -121,6 +121,10 @@ public final class CardNumberTextField: UIView {
             if self.binLength >= self.count || text.isEmpty {
                 self.onBinChanged?(self.getBin(text))
             }
+
+            if self.count == self.validation.maxLength, !self.isValid {
+                self.onError?(self.validation.error)
+            }
         }
         self.input.onComplete = { [weak self] in
             guard let self else { return }
