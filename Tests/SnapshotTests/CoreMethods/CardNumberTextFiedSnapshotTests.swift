@@ -125,7 +125,7 @@ final class CardNumberTextFieldSnapshotTests: XCTestCase {
     }
 
     func test_errorStateAppearance() async {
-        let (sut, input) = self.makeSUT(style: self.makeCustomStyle())
+        let (sut, _) = self.makeSUT(style: self.makeCustomStyle())
 
         sut.setStyle(self.makeErrorCustomStyle())
 
@@ -206,7 +206,19 @@ final class CardNumberTextFieldSnapshotTests: XCTestCase {
         assertSnapshot(
             of: sut,
             as: .image(size: sut.frame.size),
-            named: "card_field_with_19_digits"
+            named: "card_field"
+        )
+    }
+
+    func test_with16Digits() {
+        let (sut, input) = self.makeSUT()
+
+        simulateTextInput("5993199916395529", input: input)
+
+        assertSnapshot(
+            of: sut,
+            as: .image(size: sut.frame.size),
+            named: "card_field"
         )
     }
 }
