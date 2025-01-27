@@ -298,6 +298,8 @@ private extension PCIFieldStateTests {
 
 private class MockCardValidation: InputValidation {
     func isValid(_ input: String) -> Bool {
-        input.count == 16
+        let cleanNumber = input.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+
+        return cleanNumber.count == 16
     }
 }
