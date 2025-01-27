@@ -56,7 +56,7 @@ final class CardFormViewController: UIViewController {
 
         field.onInputFilled = { [weak self] in
             guard let self else { return }
-            field.setStyle(self.style)
+            self.setSecurityInputStyleDefault()
 
             print("Security code completed")
         }
@@ -72,7 +72,37 @@ final class CardFormViewController: UIViewController {
         field.onError = { [weak self] error in
             guard let self else { return }
 
-            field.setStyle(self.errorStyle)
+            self.setSecurityInputStyleError()
+            print("SecurityCodeField Error: \(error)")
+        }
+
+        return field
+    }()
+
+    private lazy var expirationDateField: ExpirationDateTextfield = {
+        let field = ExpirationDateTextfield(style: style)
+            .setPlaceholder("Insert date")
+        field.translatesAutoresizingMaskIntoConstraints = false
+
+        field.onInputFilled = { [weak self] in
+            guard let self else { return }
+            self.setDateInputStyleDefault()
+
+            print("Date completed")
+        }
+
+        field.onLengthChanged = { [weak self] length in
+            print("onLengthChanged: \(length)")
+        }
+
+        field.onFocusChanged = { [weak self] isFocused in
+            print("SecurityCodeField Focus changed: \(isFocused)")
+        }
+
+        field.onError = { [weak self] error in
+            guard let self else { return }
+
+            self.setDateInputStyleError()
             print("SecurityCodeField Error: \(error)")
         }
 
@@ -98,6 +128,26 @@ final class CardFormViewController: UIViewController {
         setupConstraints()
         configureStyles()
     }
+
+    func setCardInputStyleError() {
+        self.cardNumberField.setStyle(self.errorStyle)
+    }
+
+    func setSecurityInputStyleError() {
+        self.securityCodeField.setStyle(self.errorStyle)
+    }
+
+    func setSecurityInputStyleDefault() {
+        self.securityCodeField.setStyle(self.style)
+    }
+
+    func setDateInputStyleError() {
+        self.expirationDateField.setStyle(self.errorStyle)
+    }
+
+    func setDateInputStyleDefault() {
+        self.expirationDateField.setStyle(self.style)
+    }
 }
 
 // MARK: - ViewConfiguration
@@ -107,6 +157,7 @@ extension CardFormViewController {
         view.addSubview(self.stackView)
         self.stackView.addArrangedSubview(self.cardNumberField)
         self.stackView.addArrangedSubview(self.securityCodeField)
+        self.stackView.addArrangedSubview(self.expirationDateField)
     }
 
     func setupConstraints() {
@@ -118,8 +169,8 @@ extension CardFormViewController {
             self.stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
 
             self.cardNumberField.heightAnchor.constraint(equalToConstant: 56),
-            self.securityCodeField.heightAnchor.constraint(equalToConstant: 56)
-
+            self.securityCodeField.heightAnchor.constraint(equalToConstant: 56),
+            self.expirationDateField.heightAnchor.constraint(equalToConstant: 56)
         ])
     }
 

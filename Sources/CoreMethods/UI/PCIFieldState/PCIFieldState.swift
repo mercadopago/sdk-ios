@@ -113,7 +113,7 @@ final class PCIFieldState: UIView {
 
     func clear() {
         self.textField.text = nil
-        updateState(text: nil)
+        updateState(text: "")
     }
 
     func setPlaceholder(_ text: String) {
@@ -179,11 +179,11 @@ private extension PCIFieldState {
         self.textField.layer.opacity = self.style.opacity
     }
 
-    func updateState(text: String?) {
-        let numbersOnly = text?.onlyNumbers() ?? ""
+    func updateState(text: String) {
+        let numbersOnly = text.onlyNumbers()
         self.count = numbersOnly.count
 
-        self.isValid = self.validation.isValid(numbersOnly)
+        self.isValid = self.validation.isValid(text)
         self.onChange?(numbersOnly)
 
         if self.isValid {
@@ -246,7 +246,7 @@ extension PCIFieldState: UITextFieldDelegate {
             textField.text = numbersOnly
         }
 
-        self.updateState(text: numbersOnly)
+        self.updateState(text: updatedText)
 
         return false
     }
