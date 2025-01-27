@@ -27,10 +27,26 @@ import UIKit
 ///     // Handle complete field
 /// }
 /// ```
+///
+///
 public final class ExpirationDateTextfield: UIView {
     public typealias Style = PCIFieldStateStyleProtocol
 
     public var style: Style
+
+    public enum Format: String {
+        case shortFormat = "## ##"
+        case longFormat = "## ####"
+
+        func getMaxLength() -> Int {
+            switch self {
+            case .shortFormat:
+                return 4
+            case .longFormat:
+                return 6
+            }
+        }
+    }
 
     /// Callback triggered when the length of security change
     /// - Parameter length: Length of security code
@@ -78,24 +94,26 @@ public final class ExpirationDateTextfield: UIView {
 
     private let validation: ExpirationDateValidation
 
-    private let maxLength = 4
+    private let format: Format
 
     let input: PCIFieldState
 
     // MARK: - Initialization
 
     public init(
-        style: Style = TextFieldDefaultStyle()
+        style: Style = TextFieldDefaultStyle(),
+        format: Format = .shortFormat
     ) {
         self.style = style
         self.validation = ExpirationDateValidation()
+        self.format = format
 
         let configuration = PCIFieldState.Configuration(
-            maxLength: self.maxLength,
+            maxLength: format.getMaxLength(),
             validation: self.validation,
             style: style,
             mask: PCIFieldState.Configuration.Mask(
-                pattern: "## ##",
+                pattern: format.rawValue,
                 separator: "/"
             )
         )
@@ -122,7 +140,7 @@ public final class ExpirationDateTextfield: UIView {
             guard let self else { return }
             self.onLengthChanged?(self.count)
 
-            if self.count == self.maxLength, !self.isValid {
+            if self.count == self.format.getMaxLength(), !self.isValid {
                 let error = self.validation.error
                 self.onError?(error)
             }

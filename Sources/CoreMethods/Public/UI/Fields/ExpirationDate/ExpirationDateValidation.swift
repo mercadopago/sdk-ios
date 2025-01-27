@@ -34,7 +34,12 @@ class ExpirationDateValidation: InputValidation {
             return false
         }
 
-        let fullYear = 2000 + year
+        let fullYear: Int
+        if yearStr.count == 2 {
+            fullYear = 2000 + year
+        } else {
+            fullYear = year
+        }
 
         let currentDate = Date()
         let calendar = Calendar.current
