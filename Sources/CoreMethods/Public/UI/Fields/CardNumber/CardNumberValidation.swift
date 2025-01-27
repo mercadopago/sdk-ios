@@ -14,6 +14,10 @@ class CardNumberValidation: InputValidation {
 
     var maxLength: Int
 
+    enum Constant {
+        static let minLength = 8
+    }
+
     init(error: CardNumberError = .empty, maxLength: Int) {
         self.error = error
         self.maxLength = maxLength
@@ -22,7 +26,7 @@ class CardNumberValidation: InputValidation {
     func isValid(_ text: String) -> Bool {
         let cleanNumber = text.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
 
-        guard cleanNumber.count >= 8, cleanNumber.count <= self.maxLength else {
+        guard cleanNumber.count >= Constant.minLength, cleanNumber.count <= self.maxLength else {
             self.error = .invalidLength
             return false
         }

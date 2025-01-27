@@ -118,7 +118,7 @@ public final class CardNumberTextField: UIView {
         self.input.onChange = { [weak self] text in
             guard let self else { return }
 
-            if self.binLength >= self.count || text.isEmpty {
+            if self.count >= self.binLength || text.isEmpty {
                 self.onBinChanged?(self.getBin(text))
             }
 
@@ -126,6 +126,7 @@ public final class CardNumberTextField: UIView {
                 self.onError?(self.validation.error)
             }
         }
+
         self.input.onComplete = { [weak self] in
             guard let self else { return }
 
