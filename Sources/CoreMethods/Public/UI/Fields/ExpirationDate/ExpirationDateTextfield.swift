@@ -43,7 +43,7 @@ public final class ExpirationDateTextfield: PCITextField {
         }
     }
 
-    /// Callback triggered when the length of security change
+    /// Callback triggered when the length of input change
     /// - Parameter length: Length of security code
     public var onLengthChanged: ((Int) -> Void)?
 

@@ -13,7 +13,7 @@ public class PCITextField: UIView {
 
     public var style: Style
 
-    /// Returns whether the current input represents a valid card number.
+    /// Returns whether the current input represents a valid field
     public var isValid: Bool {
         return self.input.isValid
     }
