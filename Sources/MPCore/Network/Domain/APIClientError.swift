@@ -12,7 +12,7 @@ import Foundation
 /// - `urlRequestIsEmpty`: The URLRequest could not be created.
 /// - `statusCode(Int)`: The status code from the server response is provided.
 /// - `networkError(any Error)`: A network error occurred, with the underlying error provided.
-enum APIClientError: Error {
+package enum APIClientError: Error {
     case invalidURL
     case invalidResponse(_ data: Data)
     case requestFailed(_ error: any Error)
@@ -21,4 +21,5 @@ enum APIClientError: Error {
     case urlRequestIsEmpty
     case statusCode(Int)
     case networkError(any Error)
+    case apiError(APIErrorResponse)
 }

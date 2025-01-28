@@ -7,7 +7,7 @@ package final class APIClient: APIClientProtocol {
 
     // MARK: - Initialization
 
-    init(session: URLSession = .shared) {
+    init(session: URLSession = URLSession(configuration: .default)) {
         self.session = session
     }
 
@@ -52,18 +52,25 @@ private extension APIClient {
             log("Received HTTP response: \(httpResponse)")
 
             guard (200 ... 299).contains(httpResponse.statusCode) else {
-                throw APIClientError.statusCode(httpResponse.statusCode)
+                if let apiError = decodeAPIError(from: data) {
+                    throw APIClientError.apiError(apiError)
+                } else {
+                    throw APIClientError.statusCode(httpResponse.statusCode)
+                }
             }
 
             return data
         } catch {
-            // Handle specific errors
             if let urlError = error as? URLError {
                 throw APIClientError.networkError(urlError)
             } else {
                 throw APIClientError.requestFailed(error)
             }
         }
+    }
+
+    private func decodeAPIError(from data: Data) -> APIErrorResponse? {
+        return try? JSONDecoder().decode(APIErrorResponse.self, from: data)
     }
 }
 
