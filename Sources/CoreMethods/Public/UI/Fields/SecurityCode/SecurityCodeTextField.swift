@@ -64,7 +64,14 @@ public final class SecurityCodeTextField: PCITextField {
             style: style,
             mask: nil
         )
-        super.init(style: style, configuration: configuration)
+
+        var contentType: UITextContentType?
+
+        if #available(iOS 17.0, *) {
+            contentType = .creditCardSecurityCode
+        }
+
+        super.init(style: style, configuration: configuration, contentType: contentType)
         buildLayout()
         self.setupCallbacks()
     }
