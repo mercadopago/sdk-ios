@@ -20,11 +20,11 @@ final class ExpirationDateTextfieldSnapshotTests: XCTestCase {
 
     private func makeSUT(
         style: PCIFieldStateStyleProtocol = TextFieldDefaultStyle(),
-        format: ExpirationDateTextfield.Format = .short,
+        format _: ExpirationDateTextfield.Format = .short,
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
-        let sut = ExpirationDateTextfield(style: style, format: format)
+        let sut = ExpirationDateTextfield(style: style)
         sut.frame = CGRect(x: 0, y: 0, width: 300, height: 56)
         sut.backgroundColor = .white
         sut.setPlaceholder("Insert security code")
@@ -113,19 +113,8 @@ final class ExpirationDateTextfieldSnapshotTests: XCTestCase {
     // MARK: - Validation State Tests
 
     func test_longFormat() {
-        let (sut, input) = self.makeSUT(format: .long)
-
-        simulateTextInput("122032", input: input)
-
-        assertSnapshot(
-            of: sut,
-            as: .image(size: sut.frame.size),
-            named: "expiration_field_long_format"
-        )
-    }
-
-    func test_setFormatToLong() {
         let (sut, input) = self.makeSUT()
+
         sut.setFormat(.long)
 
         simulateTextInput("122032", input: input)

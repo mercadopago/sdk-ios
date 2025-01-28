@@ -65,23 +65,21 @@ public final class ExpirationDateTextfield: PCITextField {
 
     private let validation: ExpirationDateValidation
 
-    private var format: Format
+    private var format: Format = .short
 
     // MARK: - Initialization
 
     public init(
-        style: Style = TextFieldDefaultStyle(),
-        format: Format = .short
+        style: Style = TextFieldDefaultStyle()
     ) {
         self.validation = ExpirationDateValidation()
-        self.format = format
 
         let configuration = PCIFieldState.Configuration(
-            maxLength: format.getMaxLength(),
+            maxLength: self.format.getMaxLength(),
             validation: self.validation,
             style: style,
             mask: PCIFieldState.Configuration.Mask(
-                pattern: format.rawValue,
+                pattern: self.format.rawValue,
                 separator: "/"
             )
         )

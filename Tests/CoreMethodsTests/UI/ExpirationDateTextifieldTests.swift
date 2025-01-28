@@ -18,11 +18,10 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Factory Methods
 
     private func makeSUT(
-        format: ExpirationDateTextfield.Format = .short,
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
-        let sut = ExpirationDateTextfield(format: format)
+        let sut = ExpirationDateTextfield()
         return (sut, sut.input)
     }
 
@@ -40,7 +39,9 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Format Tests
 
     func test_shortFormat_shouldLimitToFourDigits() {
-        let (sut, input) = self.makeSUT(format: .short)
+        let (sut, input) = self.makeSUT()
+
+        sut.setFormat(.short)
 
         simulateTextInput("12345", input: input)
 
@@ -49,7 +50,8 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     }
 
     func test_longFormat_shouldLimitToSixDigits() {
-        let (sut, input) = self.makeSUT(format: .long)
+        let (sut, input) = self.makeSUT()
+        sut.setFormat(.long)
 
         simulateTextInput("123456", input: input)
 
