@@ -83,6 +83,7 @@ final class CardFormViewController: UIViewController {
         let field = ExpirationDateTextfield(style: style)
             .setPlaceholder("Insert date")
         field.translatesAutoresizingMaskIntoConstraints = false
+        field.setFormat(.long)
 
         field.onInputFilled = { [weak self] in
             guard let self else { return }
@@ -96,14 +97,14 @@ final class CardFormViewController: UIViewController {
         }
 
         field.onFocusChanged = { [weak self] isFocused in
-            print("SecurityCodeField Focus changed: \(isFocused)")
+            print("ExpirationDateTextfield Focus changed: \(isFocused)")
         }
 
         field.onError = { [weak self] error in
             guard let self else { return }
 
             self.setDateInputStyleError()
-            print("SecurityCodeField Error: \(error)")
+            print("ExpirationDateTextfield Error: \(error)")
         }
 
         return field

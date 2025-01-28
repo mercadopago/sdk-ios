@@ -124,6 +124,19 @@ final class ExpirationDateTextfieldSnapshotTests: XCTestCase {
         )
     }
 
+    func test_setFormatToLong() {
+        let (sut, input) = self.makeSUT()
+        sut.setFormat(.long)
+
+        simulateTextInput("122032", input: input)
+
+        assertSnapshot(
+            of: sut,
+            as: .image(size: sut.frame.size),
+            named: "expiration_field_long_format"
+        )
+    }
+
     func test_errorStateAppearance() async {
         let (sut, input) = self.makeSUT(style: self.makeCustomStyle())
 

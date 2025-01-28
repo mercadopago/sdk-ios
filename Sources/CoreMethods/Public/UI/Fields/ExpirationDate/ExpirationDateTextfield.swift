@@ -145,6 +145,13 @@ extension ExpirationDateTextfield {
     @discardableResult
     public func setFormat(_ format: ExpirationDateTextfield.Format) -> Self {
         self.format = format
+        self.input.setMaxLenght(format.getMaxLength())
+        self.input.setMask(
+            with: PCIFieldState.Configuration.Mask(
+                pattern: format.rawValue,
+                separator: "/"
+            )
+        )
         return self
     }
 }

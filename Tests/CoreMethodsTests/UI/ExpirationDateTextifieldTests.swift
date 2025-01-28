@@ -57,6 +57,16 @@ final class ExpirationDateTextfieldTests: XCTestCase {
         XCTAssertEqual(input.textField.text, "12/3456")
     }
 
+    func test_setFormat_WhenSelectLong_shouldLimitToSixDigits() {
+        let (sut, input) = self.makeSUT()
+        sut.setFormat(.long)
+
+        simulateTextInput("123456", input: input)
+
+        XCTAssertEqual(sut.count, 6)
+        XCTAssertEqual(input.textField.text, "12/3456")
+    }
+
     // MARK: - Validation Tests
 
     func test_validation_shouldRejectInvalidMonth() {
