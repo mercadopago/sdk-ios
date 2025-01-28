@@ -30,14 +30,14 @@ import UIKit
 ///
 public final class ExpirationDateTextfield: PCITextField {
     public enum Format: String {
-        case shortFormat = "## ##"
-        case longFormat = "## ####"
+        case short = "## ##"
+        case long = "## ####"
 
         func getMaxLength() -> Int {
             switch self {
-            case .shortFormat:
+            case .short:
                 return 4
-            case .longFormat:
+            case .long:
                 return 6
             }
         }
@@ -65,13 +65,13 @@ public final class ExpirationDateTextfield: PCITextField {
 
     private let validation: ExpirationDateValidation
 
-    private let format: Format
+    private var format: Format
 
     // MARK: - Initialization
 
     public init(
         style: Style = TextFieldDefaultStyle(),
-        format: Format = .shortFormat
+        format: Format = .short
     ) {
         self.validation = ExpirationDateValidation()
         self.format = format
@@ -133,5 +133,18 @@ public final class ExpirationDateTextfield: PCITextField {
             }
             self.onFocusChanged?(focus)
         }
+    }
+}
+
+// MARK: - Public Methods
+
+extension ExpirationDateTextfield {
+    /// Sets the format of expiration date
+    /// - Parameter format: Type of format (short or long)
+    /// - Returns: Self for method chaining
+    @discardableResult
+    public func setFormat(_ format: ExpirationDateTextfield.Format) -> Self {
+        self.format = format
+        return self
     }
 }

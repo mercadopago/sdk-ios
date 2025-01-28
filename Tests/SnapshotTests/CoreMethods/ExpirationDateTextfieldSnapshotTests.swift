@@ -20,7 +20,7 @@ final class ExpirationDateTextfieldSnapshotTests: XCTestCase {
 
     private func makeSUT(
         style: PCIFieldStateStyleProtocol = TextFieldDefaultStyle(),
-        format: ExpirationDateTextfield.Format = .shortFormat,
+        format: ExpirationDateTextfield.Format = .short,
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
@@ -113,7 +113,7 @@ final class ExpirationDateTextfieldSnapshotTests: XCTestCase {
     // MARK: - Validation State Tests
 
     func test_longFormat() {
-        let (sut, input) = self.makeSUT(format: .longFormat)
+        let (sut, input) = self.makeSUT(format: .long)
 
         simulateTextInput("122032", input: input)
 
