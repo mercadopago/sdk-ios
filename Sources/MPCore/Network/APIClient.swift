@@ -1,4 +1,4 @@
-package import Foundation
+import Foundation
 
 package final class APIClient: APIClientProtocol {
     // MARK: - Properties

@@ -5,8 +5,6 @@
 //  Created by Guilherme Prata Costa on 14/01/25.
 //
 
-import Foundation
-
 /// Protocol that defines the view configuration for Bricks components
 @MainActor
 package protocol ViewConfiguration: Sendable {

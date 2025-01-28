@@ -1,4 +1,4 @@
-package import Foundation
+import Foundation
 
 /// An enumeration representing errors that can occur during API client operations.
 ///
@@ -12,7 +12,7 @@ package import Foundation
 /// - `urlRequestIsEmpty`: The URLRequest could not be created.
 /// - `statusCode(Int)`: The status code from the server response is provided.
 /// - `networkError(any Error)`: A network error occurred, with the underlying error provided.
-package enum APIClientError: Error {
+enum APIClientError: Error {
     case invalidURL
     case invalidResponse(_ data: Data)
     case requestFailed(_ error: any Error)

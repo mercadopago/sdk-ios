@@ -1,4 +1,4 @@
-package import Foundation
+import Foundation
 
 package protocol HasAPIClient: Sendable {
     var networkService: APIClientProtocol { get }

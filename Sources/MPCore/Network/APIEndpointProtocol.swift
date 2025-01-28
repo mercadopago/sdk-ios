@@ -1,4 +1,4 @@
-package import Foundation
+import Foundation
 
 /// A protocol defining the requirements for an API endpoint.
 ///
