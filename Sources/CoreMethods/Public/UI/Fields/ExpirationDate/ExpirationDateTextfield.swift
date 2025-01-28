@@ -28,12 +28,7 @@ import UIKit
 /// }
 /// ```
 ///
-///
-public final class ExpirationDateTextfield: UIView {
-    public typealias Style = PCIFieldStateStyleProtocol
-
-    public var style: Style
-
+public final class ExpirationDateTextfield: PCITextField {
     public enum Format: String {
         case shortFormat = "## ##"
         case longFormat = "## ####"
@@ -68,35 +63,9 @@ public final class ExpirationDateTextfield: UIView {
     /// - Parameter error: The type of validation error that occurred
     public var onError: ((ExpirationDateError) -> Void)?
 
-    /// Returns whether the current input represents a valid card number.
-    public var isValid: Bool {
-        return self.input.isValid
-    }
-
-    /// The current number of digits entered in the field.
-    public var count: Int {
-        return self.input.count
-    }
-
-    // MARK: - Input Configuration
-
-    /// A Boolean value indicating whether the field is enabled
-    public var isEnabled: Bool {
-        get { self.input.isEnabled }
-        set { self.input.isEnabled = newValue }
-    }
-
-    /// The appearance of the keyboard that is associated with the text field
-    public var keyboardAppearance: UIKeyboardAppearance {
-        get { self.input.keyboardAppearance }
-        set { self.input.keyboardAppearance = newValue }
-    }
-
     private let validation: ExpirationDateValidation
 
     private let format: Format
-
-    let input: PCIFieldState
 
     // MARK: - Initialization
 
@@ -104,7 +73,6 @@ public final class ExpirationDateTextfield: UIView {
         style: Style = TextFieldDefaultStyle(),
         format: Format = .shortFormat
     ) {
-        self.style = style
         self.validation = ExpirationDateValidation()
         self.format = format
 
@@ -117,20 +85,23 @@ public final class ExpirationDateTextfield: UIView {
                 separator: "/"
             )
         )
-        self.input = PCIFieldState(configuration: configuration)
-        self.input.setStyle(style)
-        super.init(frame: .zero)
-        buildLayout()
+        var contentType: UITextContentType?
+
+        if #available(iOS 17.0, *) {
+            contentType = .creditCardExpiration
+        }
+
+        super.init(
+            style: style,
+            configuration: configuration,
+            contentType: contentType
+        )
         self.setupCallbacks()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    deinit {
-        print("expiration date deinit")
     }
 
     // MARK: - Private Methods
@@ -162,87 +133,5 @@ public final class ExpirationDateTextfield: UIView {
             }
             self.onFocusChanged?(focus)
         }
-    }
-}
-
-// MARK: - ViewConfiguration Extensions
-
-extension ExpirationDateTextfield: ViewConfiguration {
-    package func buildViewHierarchy() {
-        addSubview(self.input)
-    }
-
-    package func setupConstraints() {
-        self.input.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            self.input.topAnchor.constraint(equalTo: topAnchor),
-            self.input.leadingAnchor.constraint(equalTo: leadingAnchor),
-            self.input.trailingAnchor.constraint(equalTo: trailingAnchor),
-            self.input.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-    }
-
-    package func configureStyles() {
-        self.input.setStyle(self.style)
-    }
-
-    package func configureAccessibility() {
-        isAccessibilityElement = false
-        self.input.textField.isAccessibilityElement = true
-        self.input.textField.textContentType = .creditCardNumber
-        accessibilityElements = [self.input.textField]
-    }
-}
-
-// MARK: - Public Methods
-
-extension ExpirationDateTextfield {
-    /// Sets the visual style of the text field.
-    /// - Parameter style: The style configuration to be applied
-    /// - Returns: Self for method chaining
-    /// - Note: Style changes are applied immediately and will trigger a layout update
-    @discardableResult
-    public func setStyle(_ style: Style) -> Self {
-        self.style = style
-        self.input.setStyle(style)
-        updateView()
-        return self
-    }
-
-    /// Sets the placeholder text for the field
-    /// - Parameter text: The placeholder text to display
-    /// - Returns: Self for method chaining
-    @discardableResult
-    public func setPlaceholder(_ text: String) -> Self {
-        self.input.setPlaceholder(text)
-        return self
-    }
-
-    /// Sets a view to be displayed on the left side of the text field
-    /// - Parameters:
-    ///   - view: The view to be displayed
-    ///   - mode: The mode determining when the view is visible
-    /// - Returns: Self for method chaining
-    @discardableResult
-    public func setLeftImage(view: UIView, mode: UITextField.ViewMode = .always) -> Self {
-        self.input.setLeftView(view, mode: mode)
-        return self
-    }
-
-    /// Sets a view to be displayed on the right side of the text field
-    /// - Parameters:
-    ///   - view: The view to be displayed
-    ///   - mode: The mode determining when the view is visible
-    /// - Returns: Self for method chaining
-    @discardableResult
-    public func setRightImage(view: UIView, mode: UITextField.ViewMode = .always) -> Self {
-        self.input.setRightView(view, mode: mode)
-        return self
-    }
-
-    /// Clear text field
-    public func clear() {
-        self.input.clear()
     }
 }
