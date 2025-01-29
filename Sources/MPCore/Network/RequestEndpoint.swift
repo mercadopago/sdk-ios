@@ -15,7 +15,7 @@ import Foundation
 ///
 ///
 ///
-package protocol APIEndpointProtocol {
+package protocol RequestEndpoint {
     /// HTTP method used by the endpoint.
     var method: HTTPMethod { get }
 
@@ -41,7 +41,7 @@ package protocol APIEndpointProtocol {
     var apiVersion: APIVersion { get }
 }
 
-package extension APIEndpointProtocol {
+package extension RequestEndpoint {
     /// A computed property that constructs and returns a `URLRequest` for the endpoint.
     ///
     /// This property assembles a `URLRequest` by combining the base URL, API version, and path. It adds any query parameters and sets the HTTP method, headers, and body as specified by the endpoint.

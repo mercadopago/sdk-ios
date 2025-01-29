@@ -1,11 +1,11 @@
 import Foundation
 
-package protocol HasAPIClient: Sendable {
-    var networkService: APIClientProtocol { get }
+package protocol HasNetworkService: Sendable {
+    var networkService: NetworkServiceProtocol { get }
 }
 
 /// A protocol defining the methods for making API requests.
-package protocol APIClientProtocol: Sendable {
+package protocol NetworkServiceProtocol: Sendable {
     /// Sends a request to the specified endpoint and decodes the response into a given type.
     ///
     /// - Parameters:
@@ -16,14 +16,14 @@ package protocol APIClientProtocol: Sendable {
     /// - Note: The type `T` must conform to `Codable` and `Sendable`.
     ///
     func request<T: Codable & Sendable>(
-        _ endpoint: any APIEndpointProtocol,
+        _ endpoint: any RequestEndpoint,
         decoder: JSONDecoder
     ) async throws -> T
 }
 
-package extension APIClientProtocol {
+package extension NetworkServiceProtocol {
     @discardableResult
-    func request<T: Codable & Sendable>(_ endpoint: any APIEndpointProtocol) async throws -> T {
+    func request<T: Codable & Sendable>(_ endpoint: any RequestEndpoint) async throws -> T {
         try await self.request(endpoint, decoder: JSONDecoder())
     }
 }

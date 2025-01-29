@@ -1,6 +1,6 @@
 import Foundation
 
-package final class APIClient: APIClientProtocol {
+package final class NetworkService: NetworkServiceProtocol {
     // MARK: - Properties
 
     private let session: URLSession
@@ -14,7 +14,7 @@ package final class APIClient: APIClientProtocol {
     // MARK: - Methods
 
     package func request<T: Decodable & Sendable>(
-        _ endpoint: any APIEndpointProtocol,
+        _ endpoint: any RequestEndpoint,
         decoder: JSONDecoder
     ) async throws -> T {
         guard let request = endpoint.urlRequest else {
@@ -32,7 +32,7 @@ package final class APIClient: APIClientProtocol {
 
 // MARK: - Private extensions -
 
-private extension APIClient {
+private extension NetworkService {
     @discardableResult
     private func performRequest(
         _ request: URLRequest
@@ -76,7 +76,7 @@ private extension APIClient {
 
 // MARK: - Log extension -
 
-private extension APIClient {
+private extension NetworkService {
     private func log(_ string: String) {
         #if DEBUG
             print(string)
