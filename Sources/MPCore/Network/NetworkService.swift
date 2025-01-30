@@ -7,7 +7,7 @@ package final class NetworkService: NetworkServiceProtocol {
 
     // MARK: - Initialization
 
-    init(session: URLSession = URLSession(configuration: .default)) {
+    init(session: URLSession = URLSession.shared) {
         self.session = session
     }
 
@@ -37,14 +37,11 @@ private extension NetworkService {
     private func performRequest(
         _ request: URLRequest
     ) async throws -> Data {
-        // Configure session
         let session: URLSession = self.session
 
         do {
-            // Perform the network request
             let (data, response) = try await session.data(for: request)
 
-            // Ensure the response is an HTTP URL response
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw APIClientError.invalidResponse(data)
             }

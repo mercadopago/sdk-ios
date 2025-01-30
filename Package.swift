@@ -44,6 +44,10 @@ let package = Package(
             dependencies: ["MPAnalytics"]
         ),
         .testTarget(
+            name: "MPCoreTests",
+            dependencies: ["MPCore"]
+        ),
+        .testTarget(
             name: "SnapshotTests",
             dependencies: [
                 "CoreMethods",
