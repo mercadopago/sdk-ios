@@ -23,7 +23,7 @@ package protocol NetworkServiceProtocol: Sendable {
 
 package extension NetworkServiceProtocol {
     @discardableResult
-    func request<T: Codable & Sendable>(_ endpoint: any RequestEndpoint) async throws -> T {
+    func request<T: Codable & Sendable>(_ endpoint: RequestEndpoint) async throws -> T {
         try await self.request(endpoint, decoder: JSONDecoder())
     }
 }

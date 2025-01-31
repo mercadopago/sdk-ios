@@ -1,13 +1,19 @@
 import Foundation
 
+protocol URLSessionProtocol: Sendable {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+}
+
+extension URLSession: URLSessionProtocol {}
+
 package final class NetworkService: NetworkServiceProtocol {
     // MARK: - Properties
 
-    private let session: URLSession
+    private let session: URLSessionProtocol
 
     // MARK: - Initialization
 
-    init(session: URLSession = URLSession.shared) {
+    init(session: URLSessionProtocol = URLSession.shared) {
         self.session = session
     }
 
@@ -37,7 +43,7 @@ private extension NetworkService {
     private func performRequest(
         _ request: URLRequest
     ) async throws -> Data {
-        let session: URLSession = self.session
+        let session: URLSessionProtocol = self.session
 
         do {
             let (data, response) = try await session.data(for: request)
@@ -57,12 +63,12 @@ private extension NetworkService {
             }
 
             return data
+        } catch let error as URLError {
+            throw APIClientError.networkError(error)
+        } catch let error as APIClientError {
+            throw error
         } catch {
-            if let urlError = error as? URLError {
-                throw APIClientError.networkError(urlError)
-            } else {
-                throw APIClientError.requestFailed(error)
-            }
+            throw APIClientError.requestFailed(error)
         }
     }
 
