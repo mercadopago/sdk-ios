@@ -150,7 +150,7 @@ package final class MPAnalytics: AnalyticsInterface {
     /// Initializes a new Analytics instance.
     ///
     /// Creates a new UUID session identifier.
-    init() {
+    package init() {
         self.sessionId = UUID().uuidString
     }
 
