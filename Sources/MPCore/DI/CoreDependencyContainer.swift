@@ -1,5 +1,5 @@
 //
-//  DependencyContainer.swift
+//  CoreDependencyContainer.swift
 //  MercadoPagoSDK-iOS
 //
 //  Created by Guilherme Prata Costa on 05/02/25.
