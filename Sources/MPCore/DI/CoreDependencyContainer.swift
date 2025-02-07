@@ -16,10 +16,10 @@ typealias DI = Sendable & HasAnalytics & HasNetwork
 /// Example usage:
 /// ```swift
 /// class Example {
-///     typealias Dependency = HasAPIClient
+///     typealias Dependency = HasNetwork
 ///     let dependencies: Dependency
 ///
-///     init(dependencies: Dependency = DependencyContainer.shared) {
+///     init(dependencies: Dependency = CoreDependencyContainer.shared) {
 ///         self.dependencies = dependencies
 ///     }
 ///
