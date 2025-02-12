@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EF0925BC2D5BDC6600B08775 /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF0925BB2D5BDC6600B08775 /* CoreMethods */; };
 		EF4754E52D14C35D00E9619F /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF4754E42D14C35D00E9619F /* CoreMethods */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF0925BC2D5BDC6600B08775 /* CoreMethods in Frameworks */,
 				EF4754E52D14C35D00E9619F /* CoreMethods in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -120,6 +122,7 @@
 			name = Example;
 			packageProductDependencies = (
 				EF4754E42D14C35D00E9619F /* CoreMethods */,
+				EF0925BB2D5BDC6600B08775 /* CoreMethods */,
 			);
 			productName = Example;
 			productReference = D99B79E32CA4E2B30010B87C /* Example.app */;
@@ -204,7 +207,7 @@
 			mainGroup = D99B79DA2CA4E2B30010B87C;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				EF4754E32D14C35D00E9619F /* XCLocalSwiftPackageReference "../../sdk-ios" */,
+				EF0925BA2D5BDC6600B08775 /* XCLocalSwiftPackageReference "../../sdk-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D99B79E42CA4E2B30010B87C /* Products */;
@@ -575,13 +578,17 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		EF4754E32D14C35D00E9619F /* XCLocalSwiftPackageReference "../../sdk-ios" */ = {
+		EF0925BA2D5BDC6600B08775 /* XCLocalSwiftPackageReference "../../sdk-ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../sdk-ios";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		EF0925BB2D5BDC6600B08775 /* CoreMethods */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CoreMethods;
+		};
 		EF4754E42D14C35D00E9619F /* CoreMethods */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CoreMethods;
