@@ -14,14 +14,21 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     private let lock = NSLock()
     private var isInitialized = false
 
-    public struct Configuration {
+    let siteIDUseCase: FetchSiteIDUseCaseProtocol = FetchSiteIDUseCase()
+
+    public struct Configuration: Sendable {
         let publicKey: String
-        let locale: String = Locale.current.identifier
+        let locale: String
+
+        public init(publicKey: String, locale: String = Locale.current.identifier) {
+            self.publicKey = publicKey
+            self.locale = locale
+        }
     }
 
     var configuration: Configuration?
 
-    typealias Dependency = HasAnalytics & HasNetwork
+    typealias Dependency = HasAnalytics
 
     private let dependencies: Dependency
 
@@ -38,22 +45,22 @@ public final class MercadoPagoSDK: @unchecked Sendable {
             throw SDKError.invalidPublicKey
         }
 
-        Task {
-            // TODO: Fazer use case, cachear retorno do site (guardar na keychain ?) se der tudo errado retorna unknown
-            let data: SiteIDEntry = try await dependencies.networkService.request(CoreAPIEndpoint.getSiteID)
+        self.configuration = configuration
+        self.isInitialized = true
+
+        Task(priority: .background) {
+            let siteID = await siteIDUseCase.getSiteID(by: configuration.publicKey)
 
             self.dependencies.analytics.initialize(
                 version: MPSDKVersion.version,
-                siteID: data.siteID
+                siteID: siteID
             )
 
             await sendInitializeAnalytics()
         }
-        self.configuration = configuration
-        self.isInitialized = true
     }
 
-    func getPublicKey() throws -> String {
+    package func getPublicKey() throws -> String {
         guard let key = configuration?.publicKey else {
             throw SDKError.notInitialized
         }

@@ -1,9 +1,5 @@
 import Foundation
 
-package protocol HasNetworkService: Sendable {
-    var networkService: NetworkServiceProtocol { get }
-}
-
 /// A protocol defining the methods for making API requests.
 package protocol NetworkServiceProtocol: Sendable {
     /// Sends a request to the specified endpoint and decodes the response into a given type.

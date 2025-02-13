@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mercado Pago. All rights reserved.
 //
 
+import CoreMethods
 import MPCore
 import SwiftUI
 
@@ -20,10 +21,13 @@ struct ExampleApp: App {
 
 @main
 struct ExampleAppWrapper {
+    let coreMethods = CoreMethods()
+
     static func main() {
         if #available(iOS 14.0, *) {
             do {
-                try MercadoPagoSDK.shared.initialize("1234")
+                let configuration = MercadoPagoSDK.Configuration(publicKey: "1234_public_key")
+                try MercadoPagoSDK.shared.initialize(configuration)
             } catch {
                 print("Error initializing MP SDK: \(error)")
             }

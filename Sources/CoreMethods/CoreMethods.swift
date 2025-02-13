@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MPCore
 
 public final actor CoreMethods: Sendable {
     public let test = true

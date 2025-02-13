@@ -9,7 +9,7 @@ import Foundation
 import MPAnalytics
 
 /// Protocol combining core SDK dependencies for analytics and networking
-typealias DI = Sendable & HasAnalytics & HasNetwork
+typealias DI = Sendable & HasAnalytics & HasNetwork & HasKeyChain
 
 /// Main dependency container managing SDK services
 ///
@@ -35,6 +35,8 @@ package final class CoreDependencyContainer: DI {
     /// Analytics service for tracking SDK events
     package let analytics: AnalyticsInterface
 
+    package let keyChainService: KeyChainManagerProtocol
+
     /// Shared singleton instance of the container
     package static let shared = CoreDependencyContainer()
 
@@ -42,5 +44,6 @@ package final class CoreDependencyContainer: DI {
     private init() {
         self.networkService = NetworkService()
         self.analytics = MPAnalytics()
+        self.keyChainService = KeychainManager()
     }
 }

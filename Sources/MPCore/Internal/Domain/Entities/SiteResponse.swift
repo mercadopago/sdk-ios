@@ -1,14 +1,14 @@
 //
-//  SiteIDEntry.swift
+//  SiteResponse.swift
 //  MercadoPagoSDK-iOS
 //
 //  Created by Guilherme Prata Costa on 12/02/25.
 //
 
-struct SiteIDEntry: Codable, Sendable {
-    let siteID: String
+struct SiteResponse: Codable, Sendable {
+    let id: String
 
     enum CodingKeys: String, CodingKey {
-        case siteID = "site_id"
+        case id = "site_id"
     }
 }
