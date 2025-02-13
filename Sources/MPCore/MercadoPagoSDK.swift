@@ -12,9 +12,6 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     public static let shared = MercadoPagoSDK()
 
     private let lock = NSLock()
-    private var isInitialized = false
-
-    let siteIDUseCase: FetchSiteIDUseCaseProtocol = FetchSiteIDUseCase()
 
     public struct Configuration: Sendable {
         let publicKey: String
@@ -26,7 +23,10 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         }
     }
 
-    var configuration: Configuration?
+    private(set) var isInitialized = false
+    private(set) var configuration: Configuration?
+
+    let siteIDUseCase: FetchSiteIDUseCaseProtocol = FetchSiteIDUseCase()
 
     typealias Dependency = HasAnalytics
 
@@ -50,7 +50,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
                 siteID: siteID
             )
 
-            await sendInitializeAnalytics()
+            await sendInitializeAnalyticsEvent()
         }
     }
 
@@ -77,7 +77,7 @@ private extension MercadoPagoSDK {
         )
     }
 
-    func sendInitializeAnalytics() async {
+    func sendInitializeAnalyticsEvent() async {
         let eventData = MPInicializationEventData(
             locale: self.configuration?.locale ?? "",
             distribution: self.dependencies.analytics.sellerInfo.getDistribution().rawValue,
