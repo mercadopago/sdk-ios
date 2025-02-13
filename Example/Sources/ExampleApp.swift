@@ -21,16 +21,10 @@ struct ExampleApp: App {
 
 @main
 struct ExampleAppWrapper {
-    let coreMethods = CoreMethods()
-
     static func main() {
         if #available(iOS 14.0, *) {
-            do {
-                let configuration = MercadoPagoSDK.Configuration(publicKey: "1234_public_key")
-                try MercadoPagoSDK.shared.initialize(configuration)
-            } catch {
-                print("Error initializing MP SDK: \(error)")
-            }
+            let configuration = MercadoPagoSDK.Configuration(publicKey: "")
+            MercadoPagoSDK.shared.initialize(configuration)
 
             ExampleApp.main()
         } else {

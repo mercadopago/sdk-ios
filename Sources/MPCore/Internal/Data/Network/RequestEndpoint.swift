@@ -59,12 +59,8 @@ package extension RequestEndpoint {
             URLQueryItem(name: key, value: String(describing: value))
         }
 
-        do {
-            let publicKey = try MercadoPagoSDK.shared.getPublicKey()
-            components?.queryItems?.append(URLQueryItem(name: "public_key", value: publicKey))
-        } catch {
-            debugPrint("Error: \(error)")
-        }
+        let publicKey = MercadoPagoSDK.shared.getPublicKey()
+        components?.queryItems?.append(URLQueryItem(name: "public_key", value: publicKey))
 
         guard let url = components?.url else { return nil }
 

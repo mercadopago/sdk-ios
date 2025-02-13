@@ -36,14 +36,8 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         self.dependencies = dependencies
     }
 
-    public func initialize(_ configuration: Configuration) throws {
-        if self.isInitialized {
-            throw SDKError.alreadyInitialized
-        }
-
-        guard !configuration.publicKey.isEmpty else {
-            throw SDKError.invalidPublicKey
-        }
+    public func initialize(_ configuration: Configuration) {
+        verifyCanBeInitialized(configuration)
 
         self.configuration = configuration
         self.isInitialized = true
@@ -60,9 +54,10 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         }
     }
 
-    package func getPublicKey() throws -> String {
+    package func getPublicKey() -> String {
         guard let key = configuration?.publicKey else {
-            throw SDKError.notInitialized
+            assert(self.configuration?.publicKey.isEmpty ?? true, SDKError.notInitialized.rawValue)
+            return ""
         }
 
         return key
@@ -70,6 +65,18 @@ public final class MercadoPagoSDK: @unchecked Sendable {
 }
 
 private extension MercadoPagoSDK {
+    func verifyCanBeInitialized(_ configuration: Configuration) {
+        assert(
+            !self.isInitialized,
+            SDKError.alreadyInitialized.rawValue
+        )
+
+        assert(
+            !configuration.publicKey.isEmpty,
+            SDKError.invalidPublicKey.rawValue
+        )
+    }
+
     func sendInitializeAnalytics() async {
         let eventData = MPInicializationEventData(
             locale: self.configuration?.locale ?? "",
