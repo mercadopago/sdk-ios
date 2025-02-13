@@ -10,6 +10,7 @@ import MPAnalytics
 
 public final class MercadoPagoSDK: @unchecked Sendable {
     public static let shared = MercadoPagoSDK()
+    private let siteIDUseCase: FetchSiteIDUseCaseProtocol
 
     private let lock = NSLock()
 
@@ -26,14 +27,13 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     private(set) var isInitialized = false
     private(set) var configuration: Configuration?
 
-    let siteIDUseCase: FetchSiteIDUseCaseProtocol = FetchSiteIDUseCase()
-
     typealias Dependency = HasAnalytics
 
     private let dependencies: Dependency
 
-    private init(dependencies: Dependency = CoreDependencyContainer.shared) {
+    private init(dependencies: CoreDependencyContainer = CoreDependencyContainer.shared) {
         self.dependencies = dependencies
+        self.siteIDUseCase = FetchSiteIDUseCaseFactory.make(dependencies: dependencies)
     }
 
     public func initialize(_ configuration: Configuration) {

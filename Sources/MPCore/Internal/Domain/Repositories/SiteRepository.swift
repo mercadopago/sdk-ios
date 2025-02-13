@@ -10,7 +10,7 @@ final class SiteRepository: SiteRepositoryProtocol {
 
     let dependencies: Dependency
 
-    init(dependencies: Dependency = CoreDependencyContainer.shared) {
+    init(dependencies: Dependency) {
         self.dependencies = dependencies
     }
 

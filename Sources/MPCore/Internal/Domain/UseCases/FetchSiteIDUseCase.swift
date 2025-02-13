@@ -9,8 +9,15 @@ protocol FetchSiteIDUseCaseProtocol {
     func getSiteID(by publicKey: String) async -> String
 }
 
+enum FetchSiteIDUseCaseFactory {
+    static func make(dependencies: CoreDependencyContainer) -> FetchSiteIDUseCase {
+        let repository = SiteRepository(dependencies: dependencies)
+        return FetchSiteIDUseCase(dependencies: dependencies, repository: repository)
+    }
+}
+
 final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
-    private let repository: SiteRepositoryProtocol = SiteRepository()
+    private let repository: SiteRepositoryProtocol
 
     typealias Dependency = HasKeyChain
 
@@ -19,8 +26,9 @@ final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
     var currentRetry = 0
     let maxRetry = 3
 
-    init(dependencies: Dependency = CoreDependencyContainer.shared) {
+    init(dependencies: Dependency, repository: SiteRepositoryProtocol) {
         self.dependencies = dependencies
+        self.repository = repository
     }
 
     func getSiteID(by publicKey: String) async -> String {
@@ -34,11 +42,11 @@ final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
 
             return response.id
 
-        } catch let error as APIClientError {
-            if currentRetry < maxRetry {
-                currentRetry += 1
+        } catch _ as APIClientError {
+            if self.currentRetry < self.maxRetry {
+                self.currentRetry += 1
 
-                return await getSiteID(by: publicKey)
+                return await self.getSiteID(by: publicKey)
             }
 
             return "unknown"
