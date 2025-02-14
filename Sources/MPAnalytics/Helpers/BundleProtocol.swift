@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol BundleProtocol: Sendable {
+package protocol BundleProtocol: Sendable {
     func object(forInfoDictionaryKey key: String) -> Any?
 }
 

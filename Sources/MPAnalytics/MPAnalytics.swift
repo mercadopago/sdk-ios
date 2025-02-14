@@ -56,7 +56,7 @@ package protocol AnalyticsInterface: Sendable {
     ///
     /// - Parameter version: Version of SDK.
     /// - Parameter siteID: Site ID of the app.
-    func initialize(version: String, siteID: String)
+    func initialize(version: String, siteID: String) async
 
     /// Sets custom data for the next event.
     ///
@@ -156,7 +156,7 @@ package final class MPAnalytics: AnalyticsInterface {
 
     // MARK: - Interface Implementation
 
-    package func initialize(version: String, siteID: String) {
+    package func initialize(version: String, siteID: String) async {
         MPAnalyticsConfiguration.version = version
         MPAnalyticsConfiguration.siteID = siteID
     }

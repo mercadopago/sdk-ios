@@ -25,9 +25,9 @@ private struct MockEventData: AnalyticsEventData {
 private extension AnalyticsTests {
     typealias SUT = MPAnalytics
 
-    func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
+    func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) async -> SUT {
         let sut = MPAnalytics()
-        sut.initialize(version: "1.0.0", siteID: "MLB")
+        await sut.initialize(version: "1.0.0", siteID: "MLB")
 
         return sut
     }
@@ -37,7 +37,7 @@ final class AnalyticsTests: XCTestCase {
     // MARK: - Event Tracking Tests
 
     func test_trackEvent_ShouldSetCorrectPathAndType() async {
-        let sut = self.makeSUT()
+        let sut = await self.makeSUT()
         let eventPath = "payment/credit_card"
 
         await sut.trackEvent(eventPath)
@@ -50,7 +50,7 @@ final class AnalyticsTests: XCTestCase {
     }
 
     func test_trackView_ShouldSetCorrectPathAndType() async {
-        let sut = self.makeSUT()
+        let sut = await self.makeSUT()
         let viewPath = "checkout/review"
 
         await sut.trackView(viewPath)
@@ -65,7 +65,7 @@ final class AnalyticsTests: XCTestCase {
     // MARK: - Event Data Tests
 
     func test_setEventData_ShouldStoreEventData() async {
-        let sut = self.makeSUT()
+        let sut = await self.makeSUT()
         let mockData = MockEventData(
             value: "test-123",
             iosMinimium: sut.sellerInfo.getTargetMinimum(),
@@ -85,15 +85,13 @@ final class AnalyticsTests: XCTestCase {
     // MARK: - Method Chaining Tests
 
     func test_methodChaining_ShouldReturnSelfAndUpdateValues() async {
-        let sut = self.makeSUT()
+        let sut = await self.makeSUT()
         let eventPath = "payment/credit_card"
         let mockData = MockEventData(
             value: "test-123",
             iosMinimium: sut.sellerInfo.getTargetMinimum(),
             deviceInfo: sut.buyerInfo.getDeviceInfo()
         )
-
-        sut.initialize(version: "1.0.0", siteID: "MLB")
 
         await sut
             .trackEvent(eventPath)
@@ -111,7 +109,7 @@ final class AnalyticsTests: XCTestCase {
     // MARK: - Send Tests
 
     func test_send_ShouldNotCrash() async {
-        let sut = self.makeSUT()
+        let sut = await self.makeSUT()
         let eventPath = "payment/credit_card"
         let mockData = MockEventData(
             value: "test-123",
@@ -126,13 +124,13 @@ final class AnalyticsTests: XCTestCase {
     }
 
     func test_sendWithoutEventData_ShouldNotCrash() async {
-        let sut = self.makeSUT()
+        let sut = await self.makeSUT()
 
         await sut.send()
     }
 
     func test_multipleSends_ShouldNotCrash() async {
-        let sut = self.makeSUT()
+        let sut = await self.makeSUT()
         let eventPath = "test/path"
 
         await sut.trackEvent(eventPath).send()

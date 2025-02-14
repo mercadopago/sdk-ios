@@ -7,93 +7,24 @@
 @testable import MPCore
 import XCTest
 
-// MARK: - Test Doubles
-
-private final class MockKeyChainService: KeyChainManagerProtocol {
-    actor Mock {
-        enum Messages {
-            case callSave
-            case callRetrieve
-        }
-
-        var messages: [Messages] = []
-
-        var savedData: [String: String] = [:]
-        var shouldThrowError = false
-
-        func insert(value: String, account: String) {
-            self.savedData[account] = value
-        }
-
-        func get(account: String) -> String? {
-            return self.savedData[account]
-        }
-
-        func insertMesseges(_ message: Messages) {
-            self.messages.append(message)
-        }
-
-        func getMessages() -> [Messages] {
-            return self.messages
-        }
-
-        func insertShouldThrowError(_ value: Bool) {
-            self.shouldThrowError = value
-        }
-    }
-
-    let mock = Mock()
-
-    func save(_ value: String, account: String) async throws {
-        if await self.mock.shouldThrowError {
-            throw NSError(domain: "KeyChainError", code: -1)
-        }
-        await self.mock.insertMesseges(.callSave)
-
-        await self.mock.insert(value: value, account: account)
-    }
-
-    func retrieve(account: String) async throws -> String? {
-        await self.mock.insertMesseges(.callRetrieve)
-
-        if await self.mock.shouldThrowError {
-            throw NSError(domain: "KeyChainError", code: -1)
-        }
-
-        return await self.mock.get(account: account)
-    }
-
-    func delete(account _: String) async throws {
-        print("error teste")
-    }
-}
-
-private struct MockDependencyContainer: Sendable, HasKeyChain, HasNetwork {
-    let keyChainService: KeyChainManagerProtocol
-
-    let networkService: NetworkServiceProtocol
-
-    init(
-        session: URLSessionProtocol,
-        keyChainService: KeyChainManagerProtocol = MockKeyChainService()
-    ) {
-        self.networkService = NetworkService(session: session)
-        self.keyChainService = keyChainService
-    }
-}
-
 // MARK: - Setup SUT
 
 private extension FetchSiteIDUseCaseTests {
-    typealias SUT = (sut: FetchSiteIDUseCase, session: MockURLSession, keyChain: MockKeyChainService)
+    typealias SUT = (
+        sut: FetchSiteIDUseCase,
+        session: MockURLSession,
+        keyChain: MockKeyChainService
+    )
 
     func makeSUT(
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
-        let session = MockURLSession()
-        let keyChain = MockKeyChainService()
-        let dependencies = MockDependencyContainer(session: session, keyChainService: keyChain)
+        let dependencies = MockDependencyContainer()
+
+        let session = dependencies.mockSession
+        let keyChain = dependencies.mockKeyChainService
+
         let repository = SiteRepository(dependencies: dependencies)
         let sut = FetchSiteIDUseCase(dependencies: dependencies, repository: repository)
 
@@ -159,7 +90,7 @@ extension FetchSiteIDUseCaseTests {
 
         XCTAssertEqual(result, "unknown")
         XCTAssertEqual(messages, [.callRetrieve])
-        XCTAssertEqual(sut.currentRetry, 0) // Não deve ter feito retry
+        XCTAssertEqual(sut.currentRetry, 0)
     }
 
     func test_getSiteID_WithEmptyKeyChain_ShouldFetchFromRepository() async {
@@ -167,7 +98,6 @@ extension FetchSiteIDUseCaseTests {
         let publicKey = "test_key"
         let (sut, session, keyChain) = self.makeSUT()
 
-        // Setup successful repository response
         let data = try! JSONEncoder().encode(SiteResponse(id: expectedSiteID))
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
@@ -185,7 +115,6 @@ extension FetchSiteIDUseCaseTests {
     func test_getSiteID_WithEmptyKeychainAndPersistentNetworkError_ShouldReturnUnknown() async {
         let (sut, session, keyChain) = self.makeSUT()
 
-        // Simulate persistent network error
         let networkError = NSError(domain: "NetworkError", code: -1)
         await session.mock.setError(networkError)
 
@@ -204,7 +133,6 @@ extension FetchSiteIDUseCaseTests {
         let publicKey = "test_public_key"
         let (sut, session, keyChain) = self.makeSUT()
 
-        // Primeira chamada - keychain vazio, busca do repository
         let data = try! JSONEncoder().encode(SiteResponse(id: expectedSiteID))
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
@@ -227,7 +155,6 @@ extension FetchSiteIDUseCaseTests {
     func test_getSiteID_WithEmptyKeychainAndInvalidJSON_ShouldRetryAndEventuallyReturnUnknown() async {
         let (sut, session, keyChain) = self.makeSUT()
 
-        // Set invalid JSON response
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData("invalid json".data(using: .utf8)!)
 

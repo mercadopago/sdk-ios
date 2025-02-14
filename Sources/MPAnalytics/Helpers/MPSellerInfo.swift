@@ -24,7 +24,7 @@ package final class MPSellerInfo: Sendable {
     private let bundle: BundleProtocol
 
     /// Initializes a new instance of `MPSellerInfo`.
-    init(bundle: BundleProtocol = Bundle.main) {
+    package init(bundle: BundleProtocol = Bundle.main) {
         self.bundle = bundle
     }
 

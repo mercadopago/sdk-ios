@@ -41,9 +41,13 @@ package final class CoreDependencyContainer: DI {
     package static let shared = CoreDependencyContainer()
 
     /// Private initializer configuring default services
-    private init() {
-        self.networkService = NetworkService()
-        self.analytics = MPAnalytics()
-        self.keyChainService = KeychainManager()
+    package init(
+        networkService: NetworkServiceProtocol = NetworkService(),
+        analytics: AnalyticsInterface = MPAnalytics(),
+        keyChainService: KeyChainManagerProtocol = KeychainManager()
+    ) {
+        self.networkService = networkService
+        self.analytics = analytics
+        self.keyChainService = keyChainService
     }
 }
