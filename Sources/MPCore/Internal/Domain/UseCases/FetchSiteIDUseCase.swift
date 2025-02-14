@@ -33,12 +33,16 @@ final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
 
     func getSiteID(by publicKey: String) async -> String {
         do {
-            if let siteCache = try await dependencies.keyChainService.retrieve(account: publicKey) {
+            if let siteCache = try await dependencies
+                .keyChainService
+                .retrieve(account: publicKey) {
                 return siteCache
             }
 
             let response = try await repository.getID()
-            try await self.dependencies.keyChainService.save(response.id, account: publicKey)
+            try await self.dependencies
+                .keyChainService
+                .save(response.id, account: publicKey)
 
             return response.id
 

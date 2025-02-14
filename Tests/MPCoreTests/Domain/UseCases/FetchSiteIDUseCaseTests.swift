@@ -36,6 +36,10 @@ private final class MockKeyChainService: KeyChainManagerProtocol {
         func getMessages() -> [Messages] {
             return self.messages
         }
+
+        func insertShouldThrowError(_ value: Bool) {
+            self.shouldThrowError = value
+        }
     }
 
     let mock = Mock()
@@ -50,10 +54,11 @@ private final class MockKeyChainService: KeyChainManagerProtocol {
     }
 
     func retrieve(account: String) async throws -> String? {
+        await self.mock.insertMesseges(.callRetrieve)
+
         if await self.mock.shouldThrowError {
             throw NSError(domain: "KeyChainError", code: -1)
         }
-        await self.mock.insertMesseges(.callRetrieve)
 
         return await self.mock.get(account: account)
     }
@@ -101,8 +106,8 @@ private extension FetchSiteIDUseCaseTests {
 }
 
 final class FetchSiteIDUseCaseTests: XCTestCase {
-    ///    // MARK: - Cache Tests
-    ///
+    // MARK: - Cache Tests
+
     func test_getSiteID_WithCachedValue_ShouldReturnCachedValue() async {
         let publicKey = "test_public_key"
         let expectedSiteID = "MLA"
@@ -137,5 +142,100 @@ final class FetchSiteIDUseCaseTests: XCTestCase {
         let result = await sut.getSiteID(by: "test_key")
 
         XCTAssertEqual(result, expectedSiteID)
+    }
+}
+
+extension FetchSiteIDUseCaseTests {
+    // MARK: - Error Handling Tests
+
+    func test_getSiteID_WithKeyChainError_ShouldReturnUnknown() async {
+        let (sut, _, keyChain) = self.makeSUT()
+
+        // Force keychain error
+        await keyChain.mock.insertShouldThrowError(true)
+
+        let result = await sut.getSiteID(by: "test_key")
+        let messages = await keyChain.mock.getMessages()
+
+        XCTAssertEqual(result, "unknown")
+        XCTAssertEqual(messages, [.callRetrieve])
+        XCTAssertEqual(sut.currentRetry, 0) // Não deve ter feito retry
+    }
+
+    func test_getSiteID_WithEmptyKeyChain_ShouldFetchFromRepository() async {
+        let expectedSiteID = "MCO"
+        let publicKey = "test_key"
+        let (sut, session, keyChain) = self.makeSUT()
+
+        // Setup successful repository response
+        let data = try! JSONEncoder().encode(SiteResponse(id: expectedSiteID))
+        await session.mock.setResponse(self.makeSuccessResponse())
+        await session.mock.setData(data)
+
+        let result = await sut.getSiteID(by: publicKey)
+        let messages = await keyChain.mock.getMessages()
+
+        XCTAssertEqual(result, expectedSiteID)
+        XCTAssertEqual(messages, [.callRetrieve, .callSave])
+        XCTAssertEqual(sut.currentRetry, 0)
+    }
+
+    // MARK: - Network Error Tests
+
+    func test_getSiteID_WithEmptyKeychainAndPersistentNetworkError_ShouldReturnUnknown() async {
+        let (sut, session, keyChain) = self.makeSUT()
+
+        // Simulate persistent network error
+        let networkError = NSError(domain: "NetworkError", code: -1)
+        await session.mock.setError(networkError)
+
+        let result = await sut.getSiteID(by: "test_key")
+        let messages = await keyChain.mock.getMessages()
+
+        XCTAssertEqual(result, "unknown")
+        XCTAssertEqual(messages, [.callRetrieve, .callRetrieve, .callRetrieve, .callRetrieve])
+        XCTAssertEqual(sut.currentRetry, 3)
+    }
+
+    // MARK: - Cache Storage Tests
+
+    func test_getSiteID_SuccessfulFetch_ShouldStoreAndRetrieveFromCache() async {
+        let expectedSiteID = "MPE"
+        let publicKey = "test_public_key"
+        let (sut, session, keyChain) = self.makeSUT()
+
+        // Primeira chamada - keychain vazio, busca do repository
+        let data = try! JSONEncoder().encode(SiteResponse(id: expectedSiteID))
+        await session.mock.setResponse(self.makeSuccessResponse())
+        await session.mock.setData(data)
+
+        let firstCallResult = await sut.getSiteID(by: publicKey)
+        let secondCallResult = await sut.getSiteID(by: publicKey)
+        let messages = await keyChain.mock.getMessages()
+
+        XCTAssertEqual(firstCallResult, expectedSiteID)
+        XCTAssertEqual(secondCallResult, expectedSiteID)
+        XCTAssertEqual(messages, [
+            .callRetrieve, // First call checks empty cache
+            .callSave, // First call saves to cache
+            .callRetrieve // Second call gets from cache
+        ])
+    }
+
+    // MARK: - Invalid Response Tests
+
+    func test_getSiteID_WithEmptyKeychainAndInvalidJSON_ShouldRetryAndEventuallyReturnUnknown() async {
+        let (sut, session, keyChain) = self.makeSUT()
+
+        // Set invalid JSON response
+        await session.mock.setResponse(self.makeSuccessResponse())
+        await session.mock.setData("invalid json".data(using: .utf8)!)
+
+        let result = await sut.getSiteID(by: "test_key")
+        let messages = await keyChain.mock.getMessages()
+
+        XCTAssertEqual(result, "unknown")
+        XCTAssertEqual(messages, [.callRetrieve, .callRetrieve, .callRetrieve, .callRetrieve])
+        XCTAssertEqual(sut.currentRetry, 3)
     }
 }
