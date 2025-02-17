@@ -5,9 +5,8 @@ orbs:
 
 executors:
   default:
-    docker:
-      - image: cimg/macos:2024.01 
-    resource_class: medium
+    macos:
+      xcode: 16.0
 
 commands:
   setup_environment:
@@ -19,7 +18,6 @@ commands:
 
 jobs:
   build-and-test:
-    circleci_ip_ranges: true
     executor: default
     steps:
       - checkout
@@ -43,7 +41,6 @@ jobs:
             - vendor/bundle
 
   snapshot-tests:
-    circleci_ip_ranges: true
     executor: default
     steps:
       - attach_workspace:
