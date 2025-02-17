@@ -55,10 +55,8 @@ final class MockAnalytics: AnalyticsInterface {
     let sellerInfo = MPSellerInfo()
     let buyerInfo = MPBuyerInfo()
 
-    func initialize(version: String, siteID: String) {
-        Task {
-            await self.mock.insert(.initialize(version: version, siteID: siteID))
-        }
+    func initialize(version: String, siteID: String) async {
+        await self.mock.insert(.initialize(version: version, siteID: siteID))
     }
 
     @discardableResult
