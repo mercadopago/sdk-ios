@@ -8,6 +8,7 @@
 import Foundation
 import MPAnalytics
 
+/// Main entry point for MercadoPago SDK
 public final class MercadoPagoSDK: @unchecked Sendable {
     public static let shared: MercadoPagoSDK = {
         let container = CoreDependencyContainer.shared
@@ -20,10 +21,15 @@ public final class MercadoPagoSDK: @unchecked Sendable {
 
     private let lock = NSLock()
 
+    /// Configuration options for MercadoPagoSDK
     public struct Configuration: Sendable {
         let publicKey: String
         let locale: String
 
+        /// Initialize SDK configuration
+        /// - Parameters:
+        ///   - publicKey: Your MercadoPago public key
+        ///   - locale: Locale identifier (defaults to system locale)
         public init(publicKey: String, locale: String = Locale.current.identifier) {
             self.publicKey = publicKey
             self.locale = locale
@@ -42,6 +48,8 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         self.siteIDUseCase = useCase
     }
 
+    /// Initialize the SDK with required configuration
+    /// - Parameter configuration: SDK configuration options
     public func initialize(_ configuration: Configuration) {
         verifyCanBeInitialized(configuration)
 
@@ -60,6 +68,8 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         }
     }
 
+    /// Get the configured public key
+    /// - Returns: The public key string
     package func getPublicKey() -> String {
         guard let key = configuration?.publicKey else {
             assert(self.configuration?.publicKey.isEmpty ?? true, SDKError.notInitialized.rawValue)
