@@ -5,8 +5,9 @@ orbs:
 
 executors:
   default:
-    macos:
-      xcode: 16.0
+    docker:
+      - image: cimg/macos:2024.01 
+    resource_class: medium
 
 commands:
   setup_environment:
