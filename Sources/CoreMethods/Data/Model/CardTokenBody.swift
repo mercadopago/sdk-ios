@@ -10,6 +10,12 @@ struct CardTokenBody: Codable {
     let cardNumber: String
     let expirationMonth: String
     let expirationYear: String
+    let securityCode: String
+
+    let cardId: String? = nil
+    let esc: String? = nil
+    let requireEsc = false
+    let buyerIdentification: BuyerIdentification? = nil
 }
 
 extension CardTokenBody {
@@ -20,8 +26,19 @@ extension CardTokenBody {
         let jsonObject: [String: Any] = [
             "card_number": cardNumber,
             "expiration_month": expirationMonth,
-            "expiration_year": expirationYear
+            "expiration_year": expirationYear,
+            "securityCode": securityCode,
+            "card_id": cardId,
+            "esc": esc,
+            "require_esc": requireEsc,
+            "buyer_identification": buyerIdentification
         ]
         return try? JSONSerialization.data(withJSONObject: jsonObject, options: [])
     }
+}
+
+struct BuyerIdentification: Codable {
+    let name: String
+    let number: String
+    let type: String
 }

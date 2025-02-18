@@ -22,7 +22,7 @@ public final class CoreMethods: Sendable {
         return try await self.generateTokenUseCase.tokenize(
             cardNumber: cardNumber,
             expirationDate: expirationDate,
-            securityCode: securityCode
+            securityCodeInput: securityCode
         )
     }
 }
