@@ -15,7 +15,7 @@ public final class CoreMethods: Sendable {
     public init() {
         self.generateTokenUseCase = GenerateCardTokenUseCase()
     }
-    
+
     init(generateTokenUseCase: GenerateCardTokenUseCaseProtocol) {
         self.generateTokenUseCase = generateTokenUseCase
     }

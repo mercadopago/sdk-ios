@@ -19,7 +19,7 @@ protocol GenerateCardTokenUseCaseProtocol: Sendable {
 
 final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
     private let repository: CoreMethodsRepositoryProtocol
-    
+
     init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {
         self.repository = repository
     }

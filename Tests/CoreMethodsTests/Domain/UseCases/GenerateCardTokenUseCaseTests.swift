@@ -4,10 +4,10 @@
 //
 //  Created by Guilherme Prata Costa on 18/02/25.
 //
+import CommonTests
 @testable import CoreMethods
 import MPCoreTests
 import XCTest
-import CommonTests
 
 // MARK: - Setup SUT
 
@@ -26,14 +26,13 @@ private extension GenerateCardTokenUseCaseTests {
 
         return (sut, session)
     }
-    
+
     private func makeSuccessResponse(url: URL = URL(string: "http://example.com")!) -> HTTPURLResponse {
         HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
     }
 }
 
 final class GenerateCardTokenUseCaseTests: XCTestCase {
-    
     func test_tokenize_WhenNetworkReturnSucessful_ShouldReturnCardToken() async {
         let (sut, session) = self.makeSUT()
 
@@ -41,7 +40,7 @@ final class GenerateCardTokenUseCaseTests: XCTestCase {
 
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
-        
+
         do {
             let result = try await sut.tokenize(
                 cardNumber: "411111111111",
@@ -49,13 +48,11 @@ final class GenerateCardTokenUseCaseTests: XCTestCase {
                 expirationDateYear: "2032",
                 securityCodeInput: "123"
             )
-            
+
             XCTAssertEqual(result.token, "1234")
 
         } catch {
             XCTFail("Should not throw error")
         }
-
-
     }
 }
