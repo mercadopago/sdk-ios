@@ -17,7 +17,7 @@ enum KeychainError: Error {
 }
 
 package protocol HasKeyChain: Sendable {
-    /// The analytics interface instance used for event tracking.
+    /// The key chain interface instance used for save safelty
     var keyChainService: KeyChainManagerProtocol { get }
 }
 
