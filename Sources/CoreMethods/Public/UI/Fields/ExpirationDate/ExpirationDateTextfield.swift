@@ -132,6 +132,29 @@ public final class ExpirationDateTextfield: PCITextField {
             self.onFocusChanged?(focus)
         }
     }
+
+    func getMonth() -> String {
+        guard let expirationDate = getDate() else { return "" }
+        return String(Calendar.current.component(.month, from: expirationDate))
+    }
+
+    func getYear() -> String {
+        guard let expirationDate = getDate() else { return "" }
+        return String(Calendar.current.component(.year, from: expirationDate))
+    }
+
+    private func getDate() -> Date? {
+        var text = input.getValue()
+
+        if !text.isEmpty {
+            text.insert(contentsOf: Calendar.current.firstTwoDigitsOfYear(), at: text.index(text.startIndex, offsetBy: 3))
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MM/yyyy"
+            return dateFormatter.date(from: text)
+        } else {
+            return nil
+        }
+    }
 }
 
 // MARK: - Public Methods
