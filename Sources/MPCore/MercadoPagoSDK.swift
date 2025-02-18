@@ -50,6 +50,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     }
 
     /// Initialize the SDK with required configuration
+    /// Should call only once, when app open (AppDelegate, SceneDelegate or @main
     /// - Parameter configuration: SDK configuration options
     public func initialize(_ configuration: Configuration) {
         verifyCanBeInitialized(configuration)
