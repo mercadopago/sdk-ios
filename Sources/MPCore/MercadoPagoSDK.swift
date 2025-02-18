@@ -38,6 +38,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
 
     private(set) var isInitialized = false
     private(set) var configuration: Configuration?
+    private(set) var analyticsMonitoringTask: Task<Void, Never>?
 
     typealias Dependency = HasAnalytics
 
@@ -56,7 +57,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         self.configuration = configuration
         self.isInitialized = true
 
-        Task(priority: .background) {
+        self.analyticsMonitoringTask = Task(priority: .background) {
             let siteID = await siteIDUseCase.getSiteID(by: configuration.publicKey)
 
             await self.dependencies.analytics.initialize(
