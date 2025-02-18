@@ -12,31 +12,9 @@ final class MockAnalytics: AnalyticsInterface {
         enum Messages: Equatable {
             case initialize(version: String, siteID: String)
             case track(path: String)
-            case setEventData
+            case setEventData([String: String])
             case send
             case trackView(_ path: String)
-
-            static func == (lhs: Messages, rhs: Messages) -> Bool {
-                switch (lhs, rhs) {
-                case let (.initialize(lVersion, lSiteID), .initialize(rVersion, rSiteID)):
-                    return lVersion == rVersion && lSiteID == rSiteID
-
-                case let (.track(lPath), .track(rPath)):
-                    return lPath == rPath
-
-                case (.setEventData, .setEventData):
-                    return true
-
-                case (.send, .send):
-                    return true
-
-                case let (.trackView(lPath), .trackView(rPath)):
-                    return lPath == rPath
-
-                default:
-                    return false
-                }
-            }
         }
 
         var messages: [Messages] = []
@@ -72,8 +50,8 @@ final class MockAnalytics: AnalyticsInterface {
     }
 
     @discardableResult
-    func setEventData(_: AnalyticsEventData) async -> AnalyticsInterface {
-        await self.mock.insert(.setEventData)
+    func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface {
+        await self.mock.insert(.setEventData(data.toDictionary()))
         return self
     }
 

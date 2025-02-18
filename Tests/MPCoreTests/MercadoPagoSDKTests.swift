@@ -41,7 +41,12 @@ final class MercadoPagoSDKTests: XCTestCase {
 
     func test_initialize_WithValidConfiguration_ShouldSetPropertiesCorrectly() async {
         let (sut, analytics, _) = self.makeSUT()
-        let config = MercadoPagoSDK.Configuration(publicKey: "test_key")
+        let config = MercadoPagoSDK.Configuration(publicKey: "test_key", locale: "pt-BR")
+        let expectEventData = MPInicializationEventData(
+            locale: "pt-BR",
+            distribution: analytics.sellerInfo.getDistribution().rawValue,
+            minimumVersionApp: analytics.sellerInfo.getTargetMinimum()
+        )
 
         sut.initialize(config)
 
@@ -57,7 +62,7 @@ final class MercadoPagoSDKTests: XCTestCase {
             [
                 .initialize(version: MPSDKVersion.version, siteID: "MLB"),
                 .track(path: "/sdk-native"),
-                .setEventData,
+                .setEventData(expectEventData.toDictionary()),
                 .send
             ]
         )

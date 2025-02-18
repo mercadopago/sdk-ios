@@ -12,7 +12,7 @@ struct MPInicializationEventData: AnalyticsEventData {
     let distribution: String
     let minimumVersionApp: String
 
-    func toDictionary() -> [String: Any] {
+    func toDictionary() -> [String: String] {
         return [
             "locale": self.locale,
             "distribution": self.distribution,

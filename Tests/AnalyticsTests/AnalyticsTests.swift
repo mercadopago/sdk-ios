@@ -15,7 +15,7 @@ private struct MockEventData: AnalyticsEventData {
     let iosMinimium: String
     let deviceInfo: String
 
-    func toDictionary() -> [String: Any] {
+    func toDictionary() -> [String: String] {
         return ["test_value": self.value, "deviceInfo": self.deviceInfo, "iosMinimium": self.iosMinimium]
     }
 }
