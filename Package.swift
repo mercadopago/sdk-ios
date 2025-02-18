@@ -35,6 +35,11 @@ let package = Package(
         ),
         
         //Tests
+        .target(
+            name: "CommonTests",
+            dependencies: ["MPCore"],
+            path: "Tests/Common"
+        ),
         .testTarget(
             name: "CoreMethodsTests",
             dependencies: ["CoreMethods"]
@@ -45,7 +50,7 @@ let package = Package(
         ),
         .testTarget(
             name: "MPCoreTests",
-            dependencies: ["MPCore"]
+            dependencies: ["MPCore", "CommonTests"]
         ),
         .testTarget(
             name: "SnapshotTests",

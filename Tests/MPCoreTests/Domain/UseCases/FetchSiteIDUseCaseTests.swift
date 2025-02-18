@@ -4,6 +4,7 @@
 //
 //  Created by Guilherme Prata Costa on 13/02/25.
 //
+import CommonTests
 @testable import MPCore
 import XCTest
 

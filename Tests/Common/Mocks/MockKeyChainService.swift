@@ -9,8 +9,8 @@
 import XCTest
 
 package final class MockKeyChainService: KeyChainManagerProtocol {
-    actor Mock {
-        enum Messages {
+    package actor Mock {
+        package enum Messages {
             case callSave
             case callRetrieve
             case delete
@@ -21,28 +21,28 @@ package final class MockKeyChainService: KeyChainManagerProtocol {
         var savedData: [String: String] = [:]
         var shouldThrowError = false
 
-        func insert(value: String, account: String) {
+        package func insert(value: String, account: String) {
             self.savedData[account] = value
         }
 
-        func get(account: String) -> String? {
+        package func get(account: String) -> String? {
             return self.savedData[account]
         }
 
-        func insertMesseges(_ message: Messages) {
+        package func insertMesseges(_ message: Messages) {
             self.messages.append(message)
         }
 
-        func getMessages() -> [Messages] {
+        package func getMessages() -> [Messages] {
             return self.messages
         }
 
-        func insertShouldThrowError(_ value: Bool) {
+        package func insertShouldThrowError(_ value: Bool) {
             self.shouldThrowError = value
         }
     }
 
-    let mock = Mock()
+    package let mock = Mock()
 
     package func save(_ value: String, account: String) async throws {
         if await self.mock.shouldThrowError {

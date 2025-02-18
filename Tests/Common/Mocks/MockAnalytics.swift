@@ -8,8 +8,8 @@
 import MPAnalytics
 
 package final class MockAnalytics: AnalyticsInterface {
-    actor Mock {
-        enum Messages: Equatable {
+    package actor Mock {
+        package enum Messages: Equatable {
             case initialize(version: String, siteID: String)
             case track(path: String)
             case setEventData([String: String])
@@ -19,16 +19,16 @@ package final class MockAnalytics: AnalyticsInterface {
 
         var messages: [Messages] = []
 
-        func insert(_ message: Messages) {
+        package func insert(_ message: Messages) {
             self.messages.append(message)
         }
 
-        func getMessages() -> [Messages] {
+        package func getMessages() -> [Messages] {
             self.messages
         }
     }
 
-    let mock = Mock()
+    package let mock = Mock()
 
     package let sellerInfo = MPSellerInfo()
     package let buyerInfo = MPBuyerInfo()

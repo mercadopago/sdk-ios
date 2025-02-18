@@ -8,25 +8,27 @@ import Foundation
 @testable import MPCore
 
 package final class MockURLSession: URLSessionProtocol {
-    actor Mock {
+    package actor Mock {
         var data: Data?
         var response: URLResponse?
         var error: Error?
 
-        func setData(_ data: Data) {
+        package func setData(_ data: Data) {
             self.data = data
         }
 
-        func setResponse(_ response: URLResponse) {
+        package func setResponse(_ response: URLResponse) {
             self.response = response
         }
 
-        func setError(_ error: Error) {
+        package func setError(_ error: Error) {
             self.error = error
         }
     }
 
-    let mock = Mock()
+    package init() {}
+
+    package let mock = Mock()
 
     package func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         if let error = await mock.error {
