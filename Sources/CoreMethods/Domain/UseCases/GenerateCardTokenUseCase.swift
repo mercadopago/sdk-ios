@@ -18,7 +18,11 @@ protocol GenerateCardTokenUseCaseProtocol: Sendable {
 }
 
 final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
-    private let repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()
+    private let repository: CoreMethodsRepositoryProtocol
+    
+    init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {
+        self.repository = repository
+    }
 
     func tokenize(
         cardNumber: String,

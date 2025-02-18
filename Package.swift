@@ -42,7 +42,7 @@ let package = Package(
         ),
         .testTarget(
             name: "CoreMethodsTests",
-            dependencies: ["CoreMethods"]
+            dependencies: ["CoreMethods", "CommonTests"]
         ),
         .testTarget(
             name: "AnalyticsTests",

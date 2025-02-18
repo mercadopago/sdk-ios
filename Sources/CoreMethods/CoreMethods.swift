@@ -10,9 +10,15 @@ import Foundation
 import MPCore
 
 public final class CoreMethods: Sendable {
-    private let generateTokenUseCase: GenerateCardTokenUseCaseProtocol = GenerateCardTokenUseCase()
+    private let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
 
-    public init() {}
+    public init() {
+        self.generateTokenUseCase = GenerateCardTokenUseCase()
+    }
+    
+    init(generateTokenUseCase: GenerateCardTokenUseCaseProtocol) {
+        self.generateTokenUseCase = generateTokenUseCase
+    }
 
     public func createToken(
         cardNumber: CardNumberTextField,
