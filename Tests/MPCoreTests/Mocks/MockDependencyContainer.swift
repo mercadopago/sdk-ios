@@ -8,18 +8,18 @@ import MPAnalytics
 @testable import MPCore
 import XCTest
 
-struct MockDependencyContainer: Sendable, HasKeyChain, HasNetwork, HasAnalytics {
-    let keyChainService: KeyChainManagerProtocol
+package struct MockDependencyContainer: Sendable, HasKeyChain, HasNetwork, HasAnalytics {
+    package let keyChainService: KeyChainManagerProtocol
 
-    let networkService: NetworkServiceProtocol
+    package let networkService: NetworkServiceProtocol
 
-    var analytics: AnalyticsInterface
+    package var analytics: AnalyticsInterface
 
-    let mockSession: MockURLSession
-    let mockKeyChainService: MockKeyChainService
-    let mockAnalytics: MockAnalytics
+    package let mockSession: MockURLSession
+    package let mockKeyChainService: MockKeyChainService
+    package let mockAnalytics: MockAnalytics
 
-    init(
+    package init(
         session: MockURLSession = MockURLSession(),
         keyChainService: MockKeyChainService = MockKeyChainService(),
         analytics: MockAnalytics = MockAnalytics()

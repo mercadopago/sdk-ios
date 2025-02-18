@@ -8,11 +8,12 @@
 @testable import MPCore
 import XCTest
 
-final class MockKeyChainService: KeyChainManagerProtocol {
+package final class MockKeyChainService: KeyChainManagerProtocol {
     actor Mock {
         enum Messages {
             case callSave
             case callRetrieve
+            case delete
         }
 
         var messages: [Messages] = []
@@ -43,7 +44,7 @@ final class MockKeyChainService: KeyChainManagerProtocol {
 
     let mock = Mock()
 
-    func save(_ value: String, account: String) async throws {
+    package func save(_ value: String, account: String) async throws {
         if await self.mock.shouldThrowError {
             throw NSError(domain: "KeyChainError", code: -1)
         }
@@ -52,7 +53,7 @@ final class MockKeyChainService: KeyChainManagerProtocol {
         await self.mock.insert(value: value, account: account)
     }
 
-    func retrieve(account: String) async throws -> String? {
+    package func retrieve(account: String) async throws -> String? {
         await self.mock.insertMesseges(.callRetrieve)
 
         if await self.mock.shouldThrowError {
@@ -62,7 +63,7 @@ final class MockKeyChainService: KeyChainManagerProtocol {
         return await self.mock.get(account: account)
     }
 
-    func delete(account _: String) async throws {
-        print("error teste")
+    package func delete(account _: String) async throws {
+        await self.mock.insertMesseges(.delete)
     }
 }

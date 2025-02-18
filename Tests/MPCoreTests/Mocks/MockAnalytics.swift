@@ -7,7 +7,7 @@
 
 import MPAnalytics
 
-final class MockAnalytics: AnalyticsInterface {
+package final class MockAnalytics: AnalyticsInterface {
     actor Mock {
         enum Messages: Equatable {
             case initialize(version: String, siteID: String)
@@ -30,32 +30,32 @@ final class MockAnalytics: AnalyticsInterface {
 
     let mock = Mock()
 
-    let sellerInfo = MPSellerInfo()
-    let buyerInfo = MPBuyerInfo()
+    package let sellerInfo = MPSellerInfo()
+    package let buyerInfo = MPBuyerInfo()
 
-    func initialize(version: String, siteID: String) async {
+    package func initialize(version: String, siteID: String) async {
         await self.mock.insert(.initialize(version: version, siteID: siteID))
     }
 
     @discardableResult
-    func trackView(_ path: String) async -> AnalyticsInterface {
+    package func trackView(_ path: String) async -> AnalyticsInterface {
         await self.mock.insert(.trackView(path))
         return self
     }
 
     @discardableResult
-    func trackEvent(_ path: String) async -> AnalyticsInterface {
+    package func trackEvent(_ path: String) async -> AnalyticsInterface {
         await self.mock.insert(.track(path: path))
         return self
     }
 
     @discardableResult
-    func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface {
+    package func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface {
         await self.mock.insert(.setEventData(data.toDictionary()))
         return self
     }
 
-    func send() async {
+    package func send() async {
         await self.mock.insert(.send)
     }
 }

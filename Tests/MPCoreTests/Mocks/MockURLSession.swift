@@ -7,7 +7,7 @@
 import Foundation
 @testable import MPCore
 
-final class MockURLSession: URLSessionProtocol {
+package final class MockURLSession: URLSessionProtocol {
     actor Mock {
         var data: Data?
         var response: URLResponse?
@@ -28,7 +28,7 @@ final class MockURLSession: URLSessionProtocol {
 
     let mock = Mock()
 
-    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+    package func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         if let error = await mock.error {
             throw error
         }
