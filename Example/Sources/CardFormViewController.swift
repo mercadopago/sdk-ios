@@ -119,6 +119,17 @@ final class CardFormViewController: UIViewController {
         return stack
     }()
 
+    private lazy var payButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Pay", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(self.handlePayButtonTapped), for: .touchUpInside)
+
+        return button
+    }()
+
+    private let coreMethods = CoreMethods()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupView()
@@ -149,6 +160,25 @@ final class CardFormViewController: UIViewController {
     func setDateInputStyleDefault() {
         self.expirationDateField.setStyle(self.style)
     }
+
+    @objc
+    func handlePayButtonTapped() {
+        Task {
+            let token = try await coreMethods.createToken(
+                cardNumber: self.cardNumberField,
+                expirationDate: self.expirationDateField,
+                securityCode: self.securityCodeField
+            )
+
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.text = """
+                Token response => \(token.token)
+            """
+
+            self.stackView.addArrangedSubview(label)
+        }
+    }
 }
 
 // MARK: - ViewConfiguration
@@ -159,6 +189,7 @@ extension CardFormViewController {
         self.stackView.addArrangedSubview(self.cardNumberField)
         self.stackView.addArrangedSubview(self.securityCodeField)
         self.stackView.addArrangedSubview(self.expirationDateField)
+        self.stackView.addArrangedSubview(self.payButton)
     }
 
     func setupConstraints() {
@@ -171,7 +202,9 @@ extension CardFormViewController {
 
             self.cardNumberField.heightAnchor.constraint(equalToConstant: 56),
             self.securityCodeField.heightAnchor.constraint(equalToConstant: 56),
-            self.expirationDateField.heightAnchor.constraint(equalToConstant: 56)
+            self.expirationDateField.heightAnchor.constraint(equalToConstant: 56),
+
+            self.payButton.heightAnchor.constraint(equalToConstant: 48)
         ])
     }
 

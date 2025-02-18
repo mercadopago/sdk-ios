@@ -12,7 +12,7 @@ protocol GenerateCardTokenUseCaseProtocol: Sendable {
     func tokenize(
         cardNumber: CardNumberTextField,
         expirationDate: ExpirationDateTextfield,
-        cvc: SecurityCodeTextField
+        securityCode: SecurityCodeTextField
     ) async throws -> CardToken
 }
 
@@ -22,7 +22,7 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
     func tokenize(
         cardNumber: CardNumberTextField,
         expirationDate: ExpirationDateTextfield,
-        cvc _: SecurityCodeTextField
+        securityCode _: SecurityCodeTextField
     ) async throws -> CardToken {
         let cardData = await CardTokenBody(
             cardNumber: cardNumber.input.getValue(),
