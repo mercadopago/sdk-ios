@@ -19,10 +19,17 @@ public final class CoreMethods: Sendable {
         expirationDate: ExpirationDateTextfield,
         securityCode: SecurityCodeTextField
     ) async throws -> CardToken {
-        return try await self.generateTokenUseCase.tokenize(
-            cardNumber: cardNumber,
-            expirationDate: expirationDate,
-            securityCodeInput: securityCode
-        )
+        let cardNumber = await cardNumber.input.getValue()
+        let expirationDateYear = await expirationDate.getYear()
+        let expirationDateMonth = await expirationDate.getMonth()
+        let securityCode = await securityCode.input.getValue()
+
+        return try await self.generateTokenUseCase
+            .tokenize(
+                cardNumber: cardNumber,
+                expirationDateMonth: expirationDateMonth,
+                expirationDateYear: expirationDateYear,
+                securityCodeInput: securityCode
+            )
     }
 }
