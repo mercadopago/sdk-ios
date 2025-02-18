@@ -18,6 +18,7 @@ commands:
 
 jobs:
   build-and-test:
+    circleci_ip_ranges: false
     executor: default
     steps:
       - checkout
@@ -41,6 +42,7 @@ jobs:
             - vendor/bundle
 
   snapshot-tests:
+    circleci_ip_ranges: false
     executor: default
     steps:
       - attach_workspace:
