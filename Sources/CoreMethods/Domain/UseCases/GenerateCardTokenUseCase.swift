@@ -1,5 +1,5 @@
 //
-//  GenerateCardTokenUseCasePort.swift
+//  GenerateCardTokenUseCase.swift
 //  MercadoPagoSDK-iOS
 //
 //  Created by Guilherme Prata Costa on 18/02/25.
