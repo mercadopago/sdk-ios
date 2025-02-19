@@ -10,7 +10,7 @@ import MPCore
 
 package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
     typealias Dependency = HasNetwork
-    private typealias endpoint = CoreMethodsEndpoint
+    private typealias Endpoint = CoreMethodsEndpoint
 
     let dependencies: Dependency
 
@@ -20,7 +20,7 @@ package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
 
     func generateCardToken(_ data: CardTokenBody) async throws -> CardTokenResponse {
         return try await self.dependencies.networkService.request(
-            endpoint.postCardToken(body: data)
+            Endpoint.postCardToken(body: data)
         )
     }
 }
