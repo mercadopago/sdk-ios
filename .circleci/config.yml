@@ -18,6 +18,7 @@ commands:
 
 jobs:
   build-and-test:
+    circleci_ip_ranges: false
     executor: default
     steps:
       - checkout
