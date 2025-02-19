@@ -62,7 +62,6 @@ final class MercadoPagoSDKTests: XCTestCase {
         XCTAssertEqual(sut.getPublicKey(), "test_key")
 
         await sut.analyticsMonitoringTask?.value
-        await analytics.analyticsTask?.value
 
         let messages = await analytics.mock.getMessages()
 

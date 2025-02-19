@@ -7,7 +7,7 @@
 
 import MPAnalytics
 
-package final class MockAnalytics: AnalyticsInterface, @unchecked Sendable {
+package final class MockAnalytics: AnalyticsInterface {
     package actor Mock {
         package enum Messages: Equatable {
             case initialize(version: String, siteID: String)
@@ -30,15 +30,11 @@ package final class MockAnalytics: AnalyticsInterface, @unchecked Sendable {
 
     package let mock = Mock()
 
-    package var analyticsTask: Task<Void, Never>?
-
     package let sellerInfo = MPSellerInfo()
     package let buyerInfo = MPBuyerInfo()
 
-    package func initialize(version: String, siteID: String) {
-        self.analyticsTask = Task {
-            await self.mock.insert(.initialize(version: version, siteID: siteID))
-        }
+    package func initialize(version: String, siteID: String) async {
+        await self.mock.insert(.initialize(version: version, siteID: siteID))
     }
 
     @discardableResult
