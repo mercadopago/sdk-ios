@@ -25,14 +25,20 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     public struct Configuration: Sendable {
         let publicKey: String
         let locale: String
+        let country: MercadoPagoSDK.Country
 
         /// Initialize SDK configuration
         /// - Parameters:
         ///   - publicKey: Your MercadoPago public key
         ///   - locale: Locale identifier (defaults to system locale)
-        public init(publicKey: String, locale: String = Locale.current.identifier) {
+        public init(
+            publicKey: String,
+            locale: String = Locale.current.identifier,
+            country: Country
+        ) {
             self.publicKey = publicKey
             self.locale = locale
+            self.country = country
         }
     }
 
@@ -58,10 +64,18 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         self.configuration = configuration
         self.isInitialized = true
 
-        self.analyticsMonitoringTask = Task(priority: .background) {
-            let siteID = await siteIDUseCase.getSiteID(by: configuration.publicKey)
+        self.dependencies.analytics.initialize(
+            version: MPSDKVersion.version,
+            siteID: configuration.country.getSiteId()
+        )
 
-            await self.dependencies.analytics.initialize(
+        self.analyticsMonitoringTask = Task(priority: .background) {
+            let siteID = await siteIDUseCase.getSiteID(
+                with: configuration.publicKey,
+                and: configuration.country
+            )
+
+            self.dependencies.analytics.initialize(
                 version: MPSDKVersion.version,
                 siteID: siteID
             )

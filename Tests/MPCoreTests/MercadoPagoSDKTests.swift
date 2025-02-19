@@ -12,8 +12,8 @@ import XCTest
 private class MockFetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
     var result = "MLB"
 
-    func getSiteID(by _: String) async -> String {
-        return self.result
+    func getSiteID(with _: String, and _: MPCore.MercadoPagoSDK.Country) async -> String {
+        self.result
     }
 }
 
@@ -42,9 +42,16 @@ final class MercadoPagoSDKTests: XCTestCase {
 
     func test_initialize_WithValidConfiguration_ShouldSetPropertiesCorrectly() async {
         let (sut, analytics, _) = self.makeSUT()
-        let config = MercadoPagoSDK.Configuration(publicKey: "test_key", locale: "pt-BR")
+        let locale = "pt-BR"
+
+        let config = MercadoPagoSDK.Configuration(
+            publicKey: "test_key",
+            locale: locale,
+            country: .BRA
+        )
+
         let expectEventData = MPInicializationEventData(
-            locale: "pt-BR",
+            locale: locale,
             distribution: analytics.sellerInfo.getDistribution().rawValue,
             minimumVersionApp: analytics.sellerInfo.getTargetMinimum()
         )
@@ -62,6 +69,7 @@ final class MercadoPagoSDKTests: XCTestCase {
             messages,
             [
                 .initialize(version: MPSDKVersion.version, siteID: "MLB"),
+                .initialize(version: MPSDKVersion.version, siteID: "MLB"),
                 .track(path: "/sdk-native"),
                 .setEventData(expectEventData.toDictionary()),
                 .send
@@ -71,7 +79,7 @@ final class MercadoPagoSDKTests: XCTestCase {
 
     func test_getPublicKey_Initialized_SDK_ShouldReturnCorrectKey() {
         let (sut, _, _) = self.makeSUT()
-        let config = MercadoPagoSDK.Configuration(publicKey: "test_key")
+        let config = MercadoPagoSDK.Configuration(publicKey: "test_key", country: .ARG)
 
         sut.initialize(config)
 
