@@ -60,13 +60,14 @@ public final class CoreMethods: Sendable {
     /// - Note: This method performs asynchronous operations to retrieve values from the text fields
     ///         and to communicate with the Mercado Pago API
     public func createToken(
-        cardNumber: CardNumberTextField,
-        expirationDate: ExpirationDateTextfield,
-        securityCode: SecurityCodeTextField
+        cardNumber: CardNumberTextField? = nil,
+        expirationDate: ExpirationDateTextfield? = nil,
+        securityCode: SecurityCodeTextField,
+        cardID: String? = nil
     ) async throws -> CardToken {
-        let cardNumber = await cardNumber.input.getValue()
-        let expirationDateYear = await expirationDate.getYear()
-        let expirationDateMonth = await expirationDate.getMonth()
+        let cardNumber = await cardNumber?.input.getValue()
+        let expirationDateYear = await expirationDate?.getYear()
+        let expirationDateMonth = await expirationDate?.getMonth()
         let securityCode = await securityCode.input.getValue()
 
         return try await self.generateTokenUseCase
@@ -74,7 +75,8 @@ public final class CoreMethods: Sendable {
                 cardNumber: cardNumber,
                 expirationDateMonth: expirationDateMonth,
                 expirationDateYear: expirationDateYear,
-                securityCodeInput: securityCode
+                securityCodeInput: securityCode,
+                cardID: cardID
             )
     }
 }

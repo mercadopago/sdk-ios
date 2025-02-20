@@ -7,15 +7,15 @@
 import Foundation
 
 struct CardTokenBody: Codable {
-    let cardNumber: String
-    let expirationMonth: String
-    let expirationYear: String
+    let cardNumber: String?
+    let expirationMonth: String?
+    let expirationYear: String?
     let securityCode: String
 
-    let cardId: String? = nil
-    let esc: String? = nil
-    let requireEsc = false
-    let buyerIdentification: BuyerIdentification? = nil
+    var cardId: String? = nil
+    var esc: String? = nil
+    var requireEsc = false
+    var buyerIdentification: BuyerIdentification? = nil
 }
 
 extension CardTokenBody {
@@ -24,14 +24,14 @@ extension CardTokenBody {
     /// - Returns: A `Data` object representing the post data in JSON format, or `nil` if the conversion fails.
     func toJSONData() -> Data? {
         let jsonObject: [String: Any] = [
-            "card_number": cardNumber,
-            "expiration_month": expirationMonth,
-            "expiration_year": expirationYear,
+            "card_number": cardNumber as Any,
+            "expiration_month": expirationMonth ?? "",
+            "expiration_year": expirationYear ?? "",
             "securityCode": securityCode,
-            "card_id": cardId,
-            "esc": esc,
+            "card_id": cardId as Any,
+            "esc": esc as Any,
             "require_esc": requireEsc,
-            "buyer_identification": buyerIdentification
+            "buyer_identification": buyerIdentification as Any
         ]
         return try? JSONSerialization.data(withJSONObject: jsonObject, options: [])
     }

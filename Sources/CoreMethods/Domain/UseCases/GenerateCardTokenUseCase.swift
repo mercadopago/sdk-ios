@@ -10,10 +10,11 @@ import MPCore
 
 protocol GenerateCardTokenUseCaseProtocol: Sendable {
     func tokenize(
-        cardNumber: String,
-        expirationDateMonth: String,
-        expirationDateYear: String,
-        securityCodeInput: String
+        cardNumber: String?,
+        expirationDateMonth: String?,
+        expirationDateYear: String?,
+        securityCodeInput: String,
+        cardID: String?
     ) async throws -> CardToken
 }
 
@@ -25,16 +26,18 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
     }
 
     func tokenize(
-        cardNumber: String,
-        expirationDateMonth: String,
-        expirationDateYear: String,
-        securityCodeInput: String
+        cardNumber: String?,
+        expirationDateMonth: String?,
+        expirationDateYear: String?,
+        securityCodeInput: String,
+        cardID: String?
     ) async throws -> CardToken {
         let cardData = CardTokenBody(
             cardNumber: cardNumber,
             expirationMonth: expirationDateMonth,
             expirationYear: expirationDateYear,
-            securityCode: securityCodeInput
+            securityCode: securityCodeInput,
+            cardId: cardID
         )
 
         let response = try await repository.generateCardToken(cardData)
