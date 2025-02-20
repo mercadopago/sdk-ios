@@ -132,8 +132,8 @@ final class CoreMethodsTests: XCTestCase {
         do {
             let result = try await sut
                 .createToken(
-                    securityCode: securityCodeField,
-                    cardID: cardID
+                    cardID: cardID,
+                    securityCode: securityCodeField
                 )
 
             XCTAssertEqual(result.token, "1234")

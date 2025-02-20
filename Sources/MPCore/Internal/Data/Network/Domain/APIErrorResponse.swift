@@ -5,7 +5,7 @@
 //  Created by Guilherme Prata Costa on 28/01/25.
 //
 
-package struct APIErrorResponse: Codable, Equatable {
+public struct APIErrorResponse: Codable, Equatable, Sendable {
     let code: String
     let message: String
 
