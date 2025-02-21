@@ -51,10 +51,11 @@ final class FetchSiteIDUseCaseTests: XCTestCase {
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
 
-
+        let result = await sut.getSiteID(with: publicKey, and: .ARG)
         let resultCache = await sut.getSiteID(with: publicKey, and: .ARG)
         let messages = await keyChain.mock.getMessages()
 
+        XCTAssertEqual(result, expectedSiteID)
         XCTAssertEqual(resultCache, expectedSiteID)
         XCTAssertEqual(messages, [.callRetrieve, .callSave, .callRetrieve])
     }
@@ -117,7 +118,6 @@ extension FetchSiteIDUseCaseTests {
 
         let networkError = NSError(domain: "NetworkError", code: -1)
         await session.mock.setError(networkError)
-
 
         let result = await sut.getSiteID(with: "public_key", and: .ARG)
         let messages = await keyChain.mock.getMessages()
