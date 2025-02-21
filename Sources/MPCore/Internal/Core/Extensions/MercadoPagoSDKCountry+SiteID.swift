@@ -18,6 +18,34 @@ extension MercadoPagoSDK.Country {
             return "MLM"
         case .CHL:
             return "MLC"
+        case .NIC:
+            return "MNI"
+        case .PAN:
+            return "MPA"
+        case .ECU:
+            return "MEC"
+        case .HND:
+            return "MHN"
+        case .GTM:
+            return "MGT"
+        case .SLV:
+            return "MSV"
+        case .CUB:
+            return "MCU"
+        case .PRY:
+            return "MPY"
+        case .DOM:
+            return "MRD"
+        case .PER:
+            return "MPE"
+        case .BOL:
+            return "MBO"
+        case .CRI:
+            return "MCR"
+        case .VEN:
+            return "MLV"
+        case .URY:
+            return "MLU"
         }
     }
 }

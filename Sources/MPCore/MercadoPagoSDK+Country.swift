@@ -13,5 +13,19 @@ extension MercadoPagoSDK {
         case COL
         case MEX
         case CHL
+        case NIC
+        case PAN
+        case ECU
+        case HND
+        case GTM
+        case SLV
+        case CUB
+        case PRY
+        case DOM
+        case PER
+        case BOL
+        case CRI
+        case VEN
+        case URY
     }
 }
