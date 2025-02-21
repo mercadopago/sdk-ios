@@ -6,7 +6,7 @@
 //
 
 protocol FetchSiteIDUseCaseProtocol {
-    func getSiteID(by publicKey: String) async -> String
+    func getSiteID(with publicKey: String, and country: MercadoPagoSDK.Country) async -> String
 }
 
 enum FetchSiteIDUseCaseFactory {
@@ -31,7 +31,7 @@ final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
         self.repository = repository
     }
 
-    func getSiteID(by publicKey: String) async -> String {
+    func getSiteID(with publicKey: String, and country: MercadoPagoSDK.Country) async -> String {
         do {
             if let siteCache = try await dependencies
                 .keyChainService
@@ -40,6 +40,7 @@ final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
             }
 
             let response = try await repository.getID()
+
             try await self.dependencies
                 .keyChainService
                 .save(response.id, account: publicKey)
@@ -49,13 +50,12 @@ final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
         } catch _ as APIClientError {
             if self.currentRetry < self.maxRetry {
                 self.currentRetry += 1
-
                 return await self.getSiteID(by: publicKey)
             }
 
-            return "unknown"
+            return country.getSiteId()        
         } catch {
-            return "unknown"
+            return country.getSiteId()
         }
     }
 }

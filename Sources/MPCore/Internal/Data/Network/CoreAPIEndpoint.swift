@@ -16,7 +16,7 @@ enum CoreAPIEndpoint {
     case getSiteID
 }
 
-/// Extension to conform to `APIEndpointProtocol`.
+/// Extension to conform to `RequestEndpoint`.
 extension CoreAPIEndpoint: RequestEndpoint {
     /// API version used by endpoints.
     var apiVersion: APIVersion {

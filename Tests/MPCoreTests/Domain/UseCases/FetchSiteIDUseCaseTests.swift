@@ -51,11 +51,10 @@ final class FetchSiteIDUseCaseTests: XCTestCase {
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
 
-        let result = await sut.getSiteID(by: publicKey)
-        let resultCache = await sut.getSiteID(by: publicKey)
+
+        let resultCache = await sut.getSiteID(with: publicKey, and: .ARG)
         let messages = await keyChain.mock.getMessages()
 
-        XCTAssertEqual(result, expectedSiteID)
         XCTAssertEqual(resultCache, expectedSiteID)
         XCTAssertEqual(messages, [.callRetrieve, .callSave, .callRetrieve])
     }
@@ -71,7 +70,7 @@ final class FetchSiteIDUseCaseTests: XCTestCase {
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
 
-        let result = await sut.getSiteID(by: "test_key")
+        let result = await sut.getSiteID(with: "teste_a", and: .ARG)
 
         XCTAssertEqual(result, expectedSiteID)
     }
@@ -86,10 +85,10 @@ extension FetchSiteIDUseCaseTests {
         // Force keychain error
         await keyChain.mock.insertShouldThrowError(true)
 
-        let result = await sut.getSiteID(by: "test_key")
+        let result = await sut.getSiteID(with: "teste_key", and: .ARG)
         let messages = await keyChain.mock.getMessages()
 
-        XCTAssertEqual(result, "unknown")
+        XCTAssertEqual(result, "MLA")
         XCTAssertEqual(messages, [.callRetrieve])
         XCTAssertEqual(sut.currentRetry, 0)
     }
@@ -103,7 +102,7 @@ extension FetchSiteIDUseCaseTests {
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
 
-        let result = await sut.getSiteID(by: publicKey)
+        let result = await sut.getSiteID(with: publicKey, and: .ARG)
         let messages = await keyChain.mock.getMessages()
 
         XCTAssertEqual(result, expectedSiteID)
@@ -119,10 +118,11 @@ extension FetchSiteIDUseCaseTests {
         let networkError = NSError(domain: "NetworkError", code: -1)
         await session.mock.setError(networkError)
 
-        let result = await sut.getSiteID(by: "test_key")
+
+        let result = await sut.getSiteID(with: "public_key", and: .ARG)
         let messages = await keyChain.mock.getMessages()
 
-        XCTAssertEqual(result, "unknown")
+        XCTAssertEqual(result, "MLA")
         XCTAssertEqual(messages, [.callRetrieve, .callRetrieve, .callRetrieve, .callRetrieve])
         XCTAssertEqual(sut.currentRetry, 3)
     }
@@ -138,8 +138,9 @@ extension FetchSiteIDUseCaseTests {
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
 
-        let firstCallResult = await sut.getSiteID(by: publicKey)
-        let secondCallResult = await sut.getSiteID(by: publicKey)
+        let firstCallResult = await sut.getSiteID(with: publicKey, and: .ARG)
+        let secondCallResult = await sut.getSiteID(with: publicKey, and: .ARG)
+
         let messages = await keyChain.mock.getMessages()
 
         XCTAssertEqual(firstCallResult, expectedSiteID)
@@ -159,10 +160,10 @@ extension FetchSiteIDUseCaseTests {
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData("invalid json".data(using: .utf8)!)
 
-        let result = await sut.getSiteID(by: "test_key")
+        let result = await sut.getSiteID(with: "test_key", and: .ARG)
         let messages = await keyChain.mock.getMessages()
 
-        XCTAssertEqual(result, "unknown")
+        XCTAssertEqual(result, "MLA")
         XCTAssertEqual(messages, [.callRetrieve, .callRetrieve, .callRetrieve, .callRetrieve])
         XCTAssertEqual(sut.currentRetry, 3)
     }
