@@ -1,21 +1,93 @@
-@testable import CoreMethods
-import Testing
-
 import CommonTests
 @testable import CoreMethods
 import MPCore
+import Testing
 import XCTest
 
-// MARK: - Setup SUT
+// MARK: - CoreMethodsTests
 
-private extension CoreMethodsTests {
+final class CoreMethodsTests: XCTestCase {
+    // MARK: - Types
+
     typealias SUT = (
-        sut: CoreMethods,
+        coreMethodsService: CoreMethods,
         session: MockURLSession,
         analytics: MockAnalytics
     )
 
-    func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
+    // MARK: - Stubs and Factories
+
+    /// Card token response model
+    private enum CardTokenStub {
+        static let validTokenID = "1234"
+
+        static var validResponse: Data {
+            try! JSONEncoder().encode(CardTokenResponse(id: validTokenID))
+        }
+    }
+
+    /// Identification type response model
+    private enum IdentificationTypeStub {
+        static let validDNI = IdentificationType(
+            id: "DNI",
+            name: "DNI",
+            type: "number",
+            minLenght: 7,
+            maxLenght: 8
+        )
+
+        static var validResponse: Data {
+            let response = """
+            [
+              {
+                "id": "DNI",
+                "name": "DNI",
+                "type": "number",
+                "min_length": 7,
+                "max_length": 8
+              }
+            ]
+            """
+            return Data(response.utf8)
+        }
+
+        static var expectedTypes: [IdentificationType] {
+            [validDNI]
+        }
+    }
+
+    /// API error response model
+    private enum APIErrorStub {
+        static let badRequest = APIErrorResponse(code: "400", message: "Bad Request")
+
+        static var badRequestData: Data {
+            try! JSONEncoder().encode(badRequest)
+        }
+    }
+
+    // MARK: - HTTPURLResponse Factory
+
+    private func makeHTTPResponse(statusCode: Int, url: URL = URL(string: "http://example.com")!) -> HTTPURLResponse {
+        HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+    }
+
+    // MARK: - Card Fields Factory
+
+    private func makeCardFields() async -> (
+        cardNumber: CardNumberTextField,
+        expirationDate: ExpirationDateTextfield,
+        securityCode: SecurityCodeTextField
+    ) {
+        let cardNumberField = await CardNumberTextField()
+        let expirationDateField = await ExpirationDateTextfield()
+        let securityCodeField = await SecurityCodeTextField()
+
+        return (cardNumberField, expirationDateField, securityCodeField)
+    }
+
+    // MARK: - Setup SUT
+
+    private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
         let container = MockDependencyContainer()
         let session = container.mockSession
         let analytics = container.mockAnalytics
@@ -25,82 +97,78 @@ private extension CoreMethodsTests {
         let generateTokenUseCase = GenerateCardTokenUseCase(repository: repository)
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
 
-        let sut = CoreMethods(
+        let coreMethodsService = CoreMethods(
             dependencies: container,
             generateTokenUseCase: generateTokenUseCase,
             identificationTypeUseCase: identificationTypeUseCase
         )
 
-        return (sut, session, analytics)
+        return (coreMethodsService, session, analytics)
     }
 
-    private func makeSuccessResponse(url: URL = URL(string: "http://example.com")!) -> HTTPURLResponse {
-        HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
-    }
+    // MARK: - Error assertion helpers
 
-    private func makeFailureResponse(url: URL = URL(string: "http://example.com")!) -> HTTPURLResponse {
-        HTTPURLResponse(url: url, statusCode: 400, httpVersion: nil, headerFields: nil)!
-    }
-
-    private func makeIdentificationTypeResponse() -> Data {
-        let response = """
-        [
-          {
-            "id": "DNI",
-            "name": "DNI",
-            "type": "number",
-            "min_length": 7,
-            "max_length": 8
-          }
-        ]
-        """
-
-        return try! JSONEncoder().encode(response)
-    }
-}
-
-final class CoreMethodsTests: XCTestCase {
-    func test_createToken_WhenNetworkReturnSucessful_ShouldReturnCardToken() async {
-        let (sut, session, _) = self.makeSUT()
-        let cardNumberField = await CardNumberTextField()
-        let expirationDateField = await ExpirationDateTextfield()
-        let securityCodeField = await SecurityCodeTextField()
-
-        let data = try! JSONEncoder().encode(CardTokenResponse(id: "1234"))
-
-        await session.mock.setResponse(self.makeSuccessResponse())
-        await session.mock.setData(data)
-
+    private func assertThrowsAPIError(
+        _ expression: @autoclosure () async throws -> Any,
+        expectedError: APIErrorResponse,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async {
         do {
-            let result = try await sut
-                .createToken(
-                    cardNumber: cardNumberField,
-                    expirationDate: expirationDateField,
-                    securityCode: securityCodeField
-                )
-
-            XCTAssertEqual(result.token, "1234")
-
+            let _ = try await expression()
+            XCTFail("Should have thrown an error, but succeeded", file: file, line: line)
+        } catch let error as APIClientError {
+            if case let .apiError(errorResponse) = error {
+                XCTAssertEqual(errorResponse, expectedError, "API error does not match expected", file: file, line: line)
+            } else {
+                XCTFail("Expected .apiError but got \(error)", file: file, line: line)
+            }
         } catch {
-            XCTFail("Should not throw error")
+            XCTFail("Expected APIClientError but got \(error)", file: file, line: line)
         }
     }
 
-    func test_createToken_WhenNetworkReturnFailure_ShouldReturnDecodingError() async throws {
-        let (sut, session, _) = self.makeSUT()
-        let cardNumberField = await CardNumberTextField()
-        let expirationDateField = await ExpirationDateTextfield()
-        let securityCodeField = await SecurityCodeTextField()
+    // MARK: - Tests for createToken with complete card data
 
-        await session.mock.setResponse(self.makeFailureResponse())
+    func test_createToken_whenNetworkReturnsSuccess_shouldReturnCardToken() async {
+        // Arrange
+        let (coreMethodsService, session, _) = self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
 
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(CardTokenStub.validResponse)
+
+        // Act
         do {
-            let _ = try await sut.createToken(
-                cardNumber: cardNumberField,
-                expirationDate: expirationDateField,
-                securityCode: securityCodeField
+            let result = try await coreMethodsService.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode
             )
-            XCTFail("Expected to throw APIClientError.decodingFailed error")
+
+            // Assert
+            XCTAssertEqual(result.token, CardTokenStub.validTokenID)
+        } catch {
+            XCTFail("Should not throw error: \(error)")
+        }
+    }
+
+    func test_createToken_whenNetworkReturnsError_shouldThrowDecodingError() async {
+        // Arrange
+        let (coreMethodsService, session, _) = self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(Data()) // Empty data to force decoding error
+
+        // Act & Assert
+        do {
+            let _ = try await coreMethodsService.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode
+            )
+            XCTFail("Expected APIClientError.decodingFailed error")
         } catch let error as APIClientError {
             guard case .decodingFailed = error else {
                 XCTFail("Expected APIClientError.decodingFailed error but got \(error)")
@@ -111,79 +179,82 @@ final class CoreMethodsTests: XCTestCase {
         }
     }
 
-    func test_createToken_WhenNetworkReturnFailure_ShouldReturnAPIResponse() async {
-        let (sut, session, _) = self.makeSUT()
-        let cardNumberField = await CardNumberTextField()
-        let expirationDateField = await ExpirationDateTextfield()
-        let securityCodeField = await SecurityCodeTextField()
-        let expectedResponse = APIErrorResponse(code: "400", message: "Bad Request")
+    func test_createToken_whenNetworkReturnsFormattedError_shouldThrowAPIErrorResponse() async {
+        // Arrange
+        let (coreMethodsService, session, _) = self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
 
-        let data = try! JSONEncoder().encode(expectedResponse)
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
+        await session.mock.setData(APIErrorStub.badRequestData)
 
-        await session.mock.setResponse(self.makeFailureResponse())
-        await session.mock.setData(data)
-
-        do {
-            let _ = try await sut
-                .createToken(
-                    cardNumber: cardNumberField,
-                    expirationDate: expirationDateField,
-                    securityCode: securityCodeField
-                )
-
-            XCTFail("Expected to throw DecodingError but succeeded")
-        } catch let error as APIClientError {
-            if case let .apiError(errorResponse) = error {
-                XCTAssertEqual(errorResponse, expectedResponse)
-            } else {
-                XCTFail("Expected .apiError but got \(error)")
-            }
-        } catch {
-            XCTFail("Expected .apiError but got \(error)")
-        }
+        // Act & Assert
+        try await self.assertThrowsAPIError(
+            await coreMethodsService.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode
+            ),
+            expectedError: APIErrorStub.badRequest
+        )
     }
 
-    func test_createToken_WhenPassingCardID_ShouldReturnCardToken() async {
-        let (sut, session, _) = self.makeSUT()
+    // MARK: - Tests for createToken with cardID
+
+    func test_createToken_withValidCardID_shouldReturnCardToken() async {
+        // Arrange
+        let (coreMethodsService, session, _) = self.makeSUT()
         let cardID = "123"
-        let securityCodeField = await SecurityCodeTextField()
+        let securityCode = await SecurityCodeTextField()
 
-        let data = try! JSONEncoder().encode(CardTokenResponse(id: "1234"))
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(CardTokenStub.validResponse)
 
-        await session.mock.setResponse(self.makeSuccessResponse())
-        await session.mock.setData(data)
-
+        // Act
         do {
-            let result = try await sut
-                .createToken(
-                    cardID: cardID,
-                    securityCode: securityCodeField
-                )
+            let result = try await coreMethodsService.createToken(
+                cardID: cardID,
+                securityCode: securityCode
+            )
 
-            XCTAssertEqual(result.token, "1234")
-
+            // Assert
+            XCTAssertEqual(result.token, CardTokenStub.validTokenID)
         } catch {
-            XCTFail("Expected sucess but got \(error)")
+            XCTFail("Expected success but got \(error)")
         }
     }
 
-    func test_identificationType_WhenNetworkReturnSucessful_ShouldReturnOneIdentification() async {
-        let (sut, session, analytics) = self.makeSUT()
-        let expectReturn = [
-            IdentificationType(id: "DNI", name: "DNI", type: "number", minLenght: 7, maxLenght: 8)
-        ]
+    // MARK: - Tests for identificationType
 
-        await session.mock.setResponse(self.makeSuccessResponse())
-        await session.mock.setData(self.makeIdentificationTypeResponse())
+    func test_identificationType_whenNetworkReturnsSuccess_shouldReturnIdentificationTypes() async {
+        // Arrange
+        let (coreMethodsService, session, _) = self.makeSUT()
 
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(IdentificationTypeStub.validResponse)
+
+        // Act
         do {
-            let result = try await sut.identificationType()
+            let result = try await coreMethodsService.identificationType()
 
+            // Assert
             XCTAssertEqual(result.count, 1)
-            XCTAssertEqual(result, expectReturn)
-
+            XCTAssertEqual(result, IdentificationTypeStub.expectedTypes)
         } catch {
-            XCTFail("Should not throw error")
+            XCTFail("Should not throw error: \(error)")
         }
+    }
+
+    func test_identificationType_whenNetworkReturnsFormattedError_shouldThrowAPIErrorResponse() async {
+        // Arrange
+        let (coreMethodsService, session, _) = self.makeSUT()
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
+        await session.mock.setData(APIErrorStub.badRequestData)
+
+        // Act & Assert
+        try await self.assertThrowsAPIError(
+            await coreMethodsService.identificationType(),
+            expectedError: APIErrorStub.badRequest
+        )
     }
 }
