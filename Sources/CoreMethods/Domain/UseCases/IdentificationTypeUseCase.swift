@@ -10,7 +10,11 @@ protocol IdentificationTypesUseCaseProtocol: Sendable {
 }
 
 final class IdentificationTypesUseCase: IdentificationTypesUseCaseProtocol {
-    private let repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()
+    private let repository: CoreMethodsRepositoryProtocol
+
+    init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {
+        self.repository = repository
+    }
 
     func getIdentification() async throws -> [IdentificationType] {
         let response = try await repository.getIdentificationTypes()

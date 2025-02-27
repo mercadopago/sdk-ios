@@ -11,19 +11,27 @@ import XCTest
 private extension CoreMethodsTests {
     typealias SUT = (
         sut: CoreMethods,
-        session: MockURLSession
+        session: MockURLSession,
+        analytics: MockAnalytics
     )
 
     func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
         let container = MockDependencyContainer()
         let session = container.mockSession
+        let analytics = container.mockAnalytics
+
         let repository = CoreMethodsRepository(dependencies: container)
 
         let generateTokenUseCase = GenerateCardTokenUseCase(repository: repository)
+        let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
 
-        let sut = CoreMethods(generateTokenUseCase: generateTokenUseCase)
+        let sut = CoreMethods(
+            dependencies: container,
+            generateTokenUseCase: generateTokenUseCase,
+            identificationTypeUseCase: identificationTypeUseCase
+        )
 
-        return (sut, session)
+        return (sut, session, analytics)
     }
 
     private func makeSuccessResponse(url: URL = URL(string: "http://example.com")!) -> HTTPURLResponse {
@@ -33,11 +41,27 @@ private extension CoreMethodsTests {
     private func makeFailureResponse(url: URL = URL(string: "http://example.com")!) -> HTTPURLResponse {
         HTTPURLResponse(url: url, statusCode: 400, httpVersion: nil, headerFields: nil)!
     }
+
+    private func makeIdentificationTypeResponse() -> Data {
+        let response = """
+        [
+          {
+            "id": "DNI",
+            "name": "DNI",
+            "type": "number",
+            "min_length": 7,
+            "max_length": 8
+          }
+        ]
+        """
+
+        return try! JSONEncoder().encode(response)
+    }
 }
 
 final class CoreMethodsTests: XCTestCase {
     func test_createToken_WhenNetworkReturnSucessful_ShouldReturnCardToken() async {
-        let (sut, session) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let cardNumberField = await CardNumberTextField()
         let expirationDateField = await ExpirationDateTextfield()
         let securityCodeField = await SecurityCodeTextField()
@@ -63,7 +87,7 @@ final class CoreMethodsTests: XCTestCase {
     }
 
     func test_createToken_WhenNetworkReturnFailure_ShouldReturnDecodingError() async throws {
-        let (sut, session) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let cardNumberField = await CardNumberTextField()
         let expirationDateField = await ExpirationDateTextfield()
         let securityCodeField = await SecurityCodeTextField()
@@ -88,7 +112,7 @@ final class CoreMethodsTests: XCTestCase {
     }
 
     func test_createToken_WhenNetworkReturnFailure_ShouldReturnAPIResponse() async {
-        let (sut, session) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let cardNumberField = await CardNumberTextField()
         let expirationDateField = await ExpirationDateTextfield()
         let securityCodeField = await SecurityCodeTextField()
@@ -120,7 +144,7 @@ final class CoreMethodsTests: XCTestCase {
     }
 
     func test_createToken_WhenPassingCardID_ShouldReturnCardToken() async {
-        let (sut, session) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let cardID = "123"
         let securityCodeField = await SecurityCodeTextField()
 
@@ -140,6 +164,26 @@ final class CoreMethodsTests: XCTestCase {
 
         } catch {
             XCTFail("Expected sucess but got \(error)")
+        }
+    }
+
+    func test_identificationType_WhenNetworkReturnSucessful_ShouldReturnOneIdentification() async {
+        let (sut, session, analytics) = self.makeSUT()
+        let expectReturn = [
+            IdentificationType(id: "DNI", name: "DNI", type: "number", minLenght: 7, maxLenght: 8)
+        ]
+
+        await session.mock.setResponse(self.makeSuccessResponse())
+        await session.mock.setData(self.makeIdentificationTypeResponse())
+
+        do {
+            let result = try await sut.identificationType()
+
+            XCTAssertEqual(result.count, 1)
+            XCTAssertEqual(result, expectReturn)
+
+        } catch {
+            XCTFail("Should not throw error")
         }
     }
 }
