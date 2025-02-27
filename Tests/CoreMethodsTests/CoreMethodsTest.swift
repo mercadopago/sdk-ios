@@ -289,4 +289,18 @@ final class CoreMethodsTests: XCTestCase {
             ]
         )
     }
+
+    func test_identificationType_whenNetworkReturnsFormattedError_shouldThrowAPIErrorResponse() async {
+        // Arrange
+        let (coreMethodsService, session, _) = self.makeSUT()
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
+        await session.mock.setData(APIErrorStub.badRequestData)
+
+        // Act & Assert
+        try await self.assertThrowsAPIError(
+            await coreMethodsService.identificationType(),
+            expectedError: APIErrorStub.badRequest
+        )
+    }
 }
