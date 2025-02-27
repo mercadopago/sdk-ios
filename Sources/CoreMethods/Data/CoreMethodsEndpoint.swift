@@ -10,11 +10,13 @@ import MPCore
 
 private enum Constants {
     static let baseURLToken = "https://api.mercadopago.com"
+    static let baseURLBricks = "https://api.mercadopago.com"
 }
 
 /// Endpoints
 enum CoreMethodsEndpoint {
     case postCardToken(body: CardTokenBody)
+    case getIdentificationTypes
 }
 
 /// Extension to conform to `RequestEndpoint`.
@@ -29,6 +31,8 @@ extension CoreMethodsEndpoint: RequestEndpoint {
         switch self {
         case .postCardToken:
             return Constants.baseURLToken
+        case .getIdentificationTypes:
+            return Constants.baseURLBricks
         }
     }
 
@@ -37,6 +41,8 @@ extension CoreMethodsEndpoint: RequestEndpoint {
         switch self {
         case .postCardToken:
             return .post
+        case .getIdentificationTypes:
+            return .get
         }
     }
 
@@ -45,21 +51,20 @@ extension CoreMethodsEndpoint: RequestEndpoint {
         switch self {
         case .postCardToken:
             return "card_tokens"
+        case .getIdentificationTypes:
+            return "identification_types"
         }
     }
 
     /// Request headers.
     var headers: [String: String] {
-        switch self {
-        case .postCardToken:
-            return [:]
-        }
+        return [:]
     }
 
     /// Request URL parameters.
     var urlParams: [String: any CustomStringConvertible] {
         switch self {
-        case .postCardToken:
+        case .postCardToken, .getIdentificationTypes:
             return [:]
         }
     }
@@ -69,6 +74,8 @@ extension CoreMethodsEndpoint: RequestEndpoint {
         switch self {
         case let .postCardToken(body):
             return body.toJSONData()
+        default:
+            return nil
         }
     }
 }

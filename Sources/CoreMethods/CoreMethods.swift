@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MPAnalytics
 import MPCore
 
 /// CoreMethods provides access to Mercado Pago's public API functionality.
@@ -25,6 +26,11 @@ import MPCore
 /// ```
 public final class CoreMethods: Sendable {
     private let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
+    private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
+
+    typealias Dependency = HasAnalytics
+
+    let dependencies: Dependency
 
     /// Initializes a new instance of CoreMethods with default dependencies.
     ///
@@ -32,6 +38,8 @@ public final class CoreMethods: Sendable {
     /// Use this initializer for production code.
     public init() {
         self.generateTokenUseCase = GenerateCardTokenUseCase()
+        self.identificationTypeUseCase = IdentificationTypesUseCase()
+        self.dependencies = CoreDependencyContainer.shared
     }
 
     /// Initializes a new instance of CoreMethods with custom dependencies.
@@ -39,8 +47,14 @@ public final class CoreMethods: Sendable {
     /// This initializer allows injection of a custom implementation of the use cases.
     /// - Parameter generateTokenUseCase: A custom implementation of the card token generation protocol
     /// - Note: This initializer is intended for testing purposes only
-    init(generateTokenUseCase: GenerateCardTokenUseCaseProtocol) {
+    init(
+        dependencies: Dependency,
+        generateTokenUseCase: GenerateCardTokenUseCaseProtocol,
+        identificationTypeUseCase: IdentificationTypesUseCaseProtocol
+    ) {
+        self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
+        self.identificationTypeUseCase = identificationTypeUseCase
     }
 
     /// Creates a card token using the provided card details.
@@ -91,8 +105,7 @@ public final class CoreMethods: Sendable {
     ///   - expirationDate: ExpirationDateTextfield containing the card's expiration date in MM/YY format
     ///   - securityCode: SecurityCodeTextField  containing the card's 3-4 digit security code (CVV)
     ///
-    /// - Returns: A CardToken object containing:
-    ///   - token: The generated payment token
+    /// - Returns: A CardToken object containing the generated payment token
     ///
     /// - Throws:
     ///   - .invalidURL: If the API endpoint URL is malformed
@@ -117,5 +130,47 @@ public final class CoreMethods: Sendable {
                 securityCodeInput: securityCode,
                 cardID: cardID
             )
+    }
+
+    /// Gets the identification document types accepted by the Mercado Pago API
+    ///
+    /// - Returns: An array of ``IdentificationType`` objects representing the available
+    ///   document types for user identification
+    ///
+    /// - Throws:
+    ///   - .invalidURL: If the API endpoint URL is malformed
+    ///   - .decodingFailed(Error): If the response cannot be decoded
+    ///
+    public func identificationType() async throws -> [IdentificationType] {
+        do {
+            let result = try await self.identificationTypeUseCase.getIdentification()
+
+            Task(priority: .low) {
+                await trackIdentificationTypeEvent()
+            }
+
+            return result
+        } catch {
+            Task(priority: .low) {
+                await trackIdentificationTypeEvent(error: "\(error)")
+            }
+
+            throw error
+        }
+    }
+}
+
+extension CoreMethods {
+    private func trackIdentificationTypeEvent(error: String? = nil) async {
+        let event = await dependencies.analytics
+            .trackEvent("/sdk-native/core-methods/identification-type")
+
+        if let error {
+            await event
+                .setEventData(IdentificationTypeEventData(error: error))
+                .send()
+        } else {
+            await event.send()
+        }
     }
 }

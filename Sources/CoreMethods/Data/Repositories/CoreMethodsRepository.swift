@@ -23,4 +23,10 @@ package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
             Endpoint.postCardToken(body: data)
         )
     }
+
+    func getIdentificationTypes() async throws -> [IdentificationTypesResponse] {
+        return try await self.dependencies.networkService.request(
+            Endpoint.getIdentificationTypes
+        )
+    }
 }

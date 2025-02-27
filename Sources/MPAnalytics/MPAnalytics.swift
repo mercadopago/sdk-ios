@@ -36,6 +36,16 @@ package protocol AnalyticsEventData: Sendable, Encodable {
     func toDictionary() -> [String: String]
 }
 
+package extension AnalyticsEventData {
+    var isDevelopment: Bool {
+        #if DEBUG
+            return true
+        #else
+            return false
+        #endif
+    }
+}
+
 /// Defines the core analytics tracking functionality.
 ///
 /// This protocol provides methods for:
@@ -114,7 +124,7 @@ package final class MPAnalytics: AnalyticsInterface {
         /// Type of the current tracking (event or view).
         private var type: TrackType = .event
 
-        func setEventData(_ data: AnalyticsEventData) {
+        func setEventData(_ data: AnalyticsEventData?) {
             self.eventData = data
         }
 
@@ -229,6 +239,8 @@ package final class MPAnalytics: AnalyticsInterface {
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 print("Tracking event:", jsonString)
             }
+
+            await self.track.setEventData(nil)
 
         } catch {
             print("Error converting to JSON:", error)
