@@ -132,7 +132,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsSuccess_shouldReturnCardToken() async {
         // Arrange
-        let (coreMethodsService, session, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
@@ -140,7 +140,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act
         do {
-            let result = try await coreMethodsService.createToken(
+            let result = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
                 securityCode: securityCode
@@ -155,7 +155,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsError_shouldThrowDecodingError() async {
         // Arrange
-        let (coreMethodsService, session, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
@@ -163,7 +163,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act & Assert
         do {
-            let _ = try await coreMethodsService.createToken(
+            let _ = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
                 securityCode: securityCode
@@ -181,7 +181,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsFormattedError_shouldThrowAPIErrorResponse() async {
         // Arrange
-        let (coreMethodsService, session, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
@@ -189,7 +189,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act & Assert
         try await self.assertThrowsAPIError(
-            await coreMethodsService.createToken(
+            await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
                 securityCode: securityCode
@@ -202,7 +202,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withValidCardID_shouldReturnCardToken() async {
         // Arrange
-        let (coreMethodsService, session, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let cardID = "123"
         let securityCode = await SecurityCodeTextField()
 
@@ -211,7 +211,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act
         do {
-            let result = try await coreMethodsService.createToken(
+            let result = try await sut.createToken(
                 cardID: cardID,
                 securityCode: securityCode
             )
@@ -227,16 +227,22 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_identificationType_whenNetworkReturnsSuccess_shouldReturnIdentificationTypes() async {
         // Arrange
-        let (coreMethodsService, session, analytics) = self.makeSUT()
+        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, session, analytics) = self.makeSUT()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
         await session.mock.setData(IdentificationTypeStub.validResponse)
 
-        let messages = await analytics.mock.getMessages()
-
         // Act
         do {
-            let result = try await coreMethodsService.identificationType()
+            let result = try await sut.identificationType()
+
+            await analytics.mock.updateSendCallback {
+                expectation.fulfill()
+            }
+
+            await fulfillment(of: [expectation], timeout: 1.0)
+            let messages = await analytics.mock.getMessages()
 
             // Assert
             XCTAssertEqual(result.count, 1)
