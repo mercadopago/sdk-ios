@@ -262,17 +262,14 @@ final class CoreMethodsTests: XCTestCase {
     func test_identificationType_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (coreMethodsService, session, analytics) = self.makeSUT()
-        let expectEvenData = IdentificationTypeEventData(
-            error: "\(APIClientError.apiError(APIErrorStub.badRequest))"
-        )
+        let (sut, session, analytics) = self.makeSUT()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
         await session.mock.setData(APIErrorStub.badRequestData)
 
         // Act & Assert
         try await self.assertThrowsAPIError(
-            await coreMethodsService.identificationType(),
+            await sut.identificationType(),
             expectedError: APIErrorStub.badRequest
         )
 
@@ -287,7 +284,7 @@ final class CoreMethodsTests: XCTestCase {
             messages,
             [
                 .track(path: "/sdk-native/core-methods/identification-type"),
-                .setEventData(expectEvenData.toDictionary()),
+                .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
                 .send
             ]
         )

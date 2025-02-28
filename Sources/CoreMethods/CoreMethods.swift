@@ -167,7 +167,7 @@ extension CoreMethods {
 
         if let error {
             await event
-                .setEventData(IdentificationTypeEventData(error: error))
+                .setError(error)
                 .send()
         } else {
             await event.send()

@@ -75,6 +75,13 @@ package protocol AnalyticsInterface: Sendable {
     @discardableResult
     func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface
 
+    /// Sets error in event data for the next event.
+    ///
+    /// - Parameter error: String of error
+    /// - Returns: Self instance for method chaining.
+    @discardableResult
+    func setError(_ error: String) async -> AnalyticsInterface
+
     /// Tracks a custom event.
     ///
     /// - Parameter path: Path identifying the event (e.g., "payment/credit_card").
@@ -123,6 +130,16 @@ package final class MPAnalytics: AnalyticsInterface {
 
         /// Type of the current tracking (event or view).
         private var type: TrackType = .event
+
+        private var error: String?
+
+        func setError(_ error: String?) {
+            self.error = error
+        }
+
+        func getError() -> String? {
+            return self.error
+        }
 
         func setEventData(_ data: AnalyticsEventData?) {
             self.eventData = data
@@ -174,6 +191,13 @@ package final class MPAnalytics: AnalyticsInterface {
     @discardableResult
     package func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface {
         await self.track.setEventData(data)
+
+        return self
+    }
+
+    @discardableResult
+    package func setError(_ error: String) async -> AnalyticsInterface {
+        await self.track.setError(error)
 
         return self
     }
@@ -259,6 +283,14 @@ private extension MPAnalytics {
             return [:]
         }
 
-        return data.toDictionary()
+        var eventData = data.toDictionary()
+
+        eventData["date"] = "\(Date())"
+
+        if let error = await track.getError() {
+            eventData["error"] = error
+        }
+
+        return eventData
     }
 }

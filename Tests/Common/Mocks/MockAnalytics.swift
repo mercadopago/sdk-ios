@@ -17,6 +17,7 @@ package final class MockAnalytics: AnalyticsInterface {
             case setEventData([String: String])
             case send
             case trackView(_ path: String)
+            case setError(String)
         }
 
         var messages: [Messages] = []
@@ -62,6 +63,13 @@ package final class MockAnalytics: AnalyticsInterface {
     @discardableResult
     package func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface {
         await self.mock.insert(.setEventData(data.toDictionary()))
+        return self
+    }
+
+    @discardableResult
+    package func setError(_ error: String) async -> AnalyticsInterface {
+        await self.mock.insert(.setError(error))
+
         return self
     }
 

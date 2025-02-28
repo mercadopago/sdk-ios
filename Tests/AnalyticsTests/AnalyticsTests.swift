@@ -106,6 +106,18 @@ final class AnalyticsTests: XCTestCase {
         XCTAssertEqual(resultEventData?.value, "test-123")
     }
 
+    func test_setError_ShouldStoreError() async {
+        let sut = await self.makeSUT()
+        let expectError = "Error in line 123"
+
+        await sut.setError(expectError)
+
+        guard let storedError = await sut.track.getError() else {
+            return XCTFail("Event Data is not stored")
+        }
+        XCTAssertEqual(storedError, expectError)
+    }
+
     // MARK: - Send Tests
 
     func test_send_ShouldNotCrash() async {
