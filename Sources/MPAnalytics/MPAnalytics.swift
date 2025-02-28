@@ -279,11 +279,7 @@ private extension MPAnalytics {
     ///
     /// - Returns: Dictionary containing event data or an empty dictionary if no data is present.
     func getEventData() async -> [String: Any] {
-        guard let data = await track.getEventData() else {
-            return [:]
-        }
-
-        var eventData = data.toDictionary()
+        var eventData = await track.getEventData()?.toDictionary() ?? [:]
 
         eventData["date"] = "\(Date())"
 
