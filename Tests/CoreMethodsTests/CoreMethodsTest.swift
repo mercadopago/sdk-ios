@@ -233,8 +233,6 @@ final class CoreMethodsTests: XCTestCase {
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
         await session.mock.setData(IdentificationTypeStub.validResponse)
 
-        let messages = await analytics.mock.getMessages()
-
         // Act
         do {
             let result = try await sut.identificationTypes()
