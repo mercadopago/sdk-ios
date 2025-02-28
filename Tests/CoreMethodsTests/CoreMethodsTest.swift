@@ -303,7 +303,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act & Assert
         try await self.assertThrowsAPIError(
-            await coreMethodsService.identificationType(),
+            await sut.identificationType(),
             expectedError: APIErrorStub.badRequest
         )
 
@@ -318,7 +318,7 @@ final class CoreMethodsTests: XCTestCase {
             messages,
             [
                 .track(path: "/sdk-native/core-methods/identification-type"),
-                .setEventData(expectEvenData.toDictionary()),
+                .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
                 .send
             ]
         )
