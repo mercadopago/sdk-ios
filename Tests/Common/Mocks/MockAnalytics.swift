@@ -9,6 +9,8 @@ import MPAnalytics
 
 package final class MockAnalytics: AnalyticsInterface {
     package actor Mock {
+        package var sendCallback: (() -> Void)?
+
         package enum Messages: Equatable {
             case initialize(version: String, siteID: String)
             case track(path: String)
@@ -21,10 +23,18 @@ package final class MockAnalytics: AnalyticsInterface {
 
         package func insert(_ message: Messages) {
             self.messages.append(message)
+
+            if message == .send {
+                self.sendCallback?()
+            }
         }
 
         package func getMessages() -> [Messages] {
             self.messages
+        }
+
+        package func updateSendCallback(_ callback: @escaping () -> Void) {
+            self.sendCallback = callback
         }
     }
 
