@@ -253,4 +253,14 @@ private extension CoreMethods {
             throw error
         }
     }
+
+    public func installments(amount: Double, bin: String) async throws -> [Installment] {
+        let params = InstallmentsParams(amount: amount, bin: bin)
+        do {
+            return try await self.installmentsUseCase.getInstallments(params: params)
+        } catch {
+            print("Error => \(error)")
+            throw error
+        }
+    }
 }
