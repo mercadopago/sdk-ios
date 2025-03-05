@@ -10,9 +10,9 @@ import MPCore
 
 private enum Constants {
     static let baseURLToken = "https://api.mercadopago.com"
-    static let baseURLBricks = "https://api.mercadopago.com/cho-off"
+    static let baseURLBricks = "https://api.mercadopago.com/cho-off/beta"
 
-    static let productID = ""
+    static let productID = "CHQBUNESFQCVF58JFECG"
 }
 
 /// Endpoints
