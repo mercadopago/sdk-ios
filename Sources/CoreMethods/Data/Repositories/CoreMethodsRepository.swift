@@ -14,8 +14,14 @@ package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
 
     let dependencies: Dependency
 
-    init(dependencies: Dependency = CoreDependencyContainer.shared) {
+    private let installmentMapper: InstallmentsMapperProtocol
+
+    init(
+        dependencies: Dependency = CoreDependencyContainer.shared,
+        installmentMapper: InstallmentsMapperProtocol = InstallmentsMapper()
+    ) {
         self.dependencies = dependencies
+        self.installmentMapper = installmentMapper
     }
 
     func generateCardToken(_ data: CardTokenBody) async throws -> CardTokenResponse {
@@ -28,5 +34,13 @@ package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
         return try await self.dependencies.networkService.request(
             Endpoint.getIdentificationTypes
         )
+    }
+
+    func getInstallments(params: InstallmentsParams) async throws -> [Installment] {
+        let response: [InstallmentsResponse] = try await self.dependencies.networkService.request(
+            Endpoint.getInstallments(params: params)
+        )
+
+        return self.installmentMapper.map(responses: response)
     }
 }
