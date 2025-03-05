@@ -56,6 +56,75 @@ final class CoreMethodsTests: XCTestCase {
         }
     }
 
+    /// Identification type response model
+    private enum InstallmentsStub {
+        static var expectResponse: [Installment] {
+            [
+                .init(
+                    paymentMethodId: "master",
+                    paymentTypeId: "credit_card",
+                    thumbnail: "www.google.com",
+                    issuer: Installment.Issuer(id: "1", thumbnail: "www.google.com"),
+                    processingMode: "aggregator",
+                    merchantAccountId: "",
+                    payerCosts: [
+                        Installment.PayerCost(
+                            installments: 1,
+                            installmentAmount: 5000,
+                            installmentRate: 0,
+                            installmentRateCollector: ["MP"],
+                            totalAmount: 5000,
+                            minAllowedAmount: 0.5,
+                            maxAllowedAmount: 60000,
+                            discountRate: 0,
+                            reimbursementRate: 0,
+                            labels: [],
+                            paymentMethodOptionId: "000000"
+                        )
+                    ],
+                    agreements: []
+                )
+            ]
+        }
+
+        static var validResponse: Data {
+            let response = """
+            [
+                {
+                  "payment_method_id": "master",
+                  "payment_type_id": "credit_card",
+                  "thumbnail": "www.google.com",
+                  "issuer": {
+                    "id": "1",
+                    "thumbnail": "www.google.com"
+                  },
+                  "processing_mode": "aggregator",
+                  "merchant_account_id": "",
+                  "payer_costs": [
+                    {
+                      "installments": 1,
+                      "installment_amount": 5000,
+                      "installment_rate": 0,
+                      "installment_rate_collector": [
+                        "MP"
+                      ],
+                      "total_amount": 5000,
+                      "min_allowed_amount": 0.5,
+                      "max_allowed_amount": 60000,
+                      "discount_rate": 0,
+                      "reimbursement_rate": 0,
+                      "labels": [],
+                      "payment_method_option_id": "000000"
+                    }
+                  ],
+                  "agreements": []
+                }
+            ]
+            """
+            return Data(response.utf8)
+        }
+    }
+
     /// API error response model
     private enum APIErrorStub {
         static let badRequest = APIErrorResponse(code: "400", message: "Bad Request")
@@ -96,11 +165,13 @@ final class CoreMethodsTests: XCTestCase {
 
         let generateTokenUseCase = GenerateCardTokenUseCase(repository: repository)
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
+        let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
 
         let coreMethodsService = CoreMethods(
             dependencies: container,
             generateTokenUseCase: generateTokenUseCase,
-            identificationTypeUseCase: identificationTypeUseCase
+            identificationTypeUseCase: identificationTypeUseCase,
+            innstallmentsUseCase: installmentsUseCase
         )
 
         return (coreMethodsService, session, analytics)
@@ -318,6 +389,71 @@ final class CoreMethodsTests: XCTestCase {
             messages,
             [
                 .track(path: "/sdk-native/core-methods/identification_type/error"),
+                .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
+                .send
+            ]
+        )
+    }
+
+    func test_installments_whenNetworkReturnsSuccess_shouldReturnInstallment() async {
+        // Arrange
+        let (sut, session, analytics) = self.makeSUT()
+        let expectation = expectation(description: "Analytics event should be sent")
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(InstallmentsStub.validResponse)
+
+        // Act
+        do {
+            let result = try await sut.installments(amount: 5000, bin: "12345678")
+
+            await analytics.mock.updateSendCallback {
+                expectation.fulfill()
+            }
+
+            await fulfillment(of: [expectation], timeout: 1.0)
+            let messages = await analytics.mock.getMessages()
+
+            // Assert
+            XCTAssertEqual(result, InstallmentsStub.expectResponse)
+
+            XCTAssertEqual(
+                messages,
+                [
+                    .track(path: "/sdk-native/core-methods/installments"),
+                    .send
+                ]
+            )
+        } catch {
+            XCTFail("Should not throw error: \(error)")
+        }
+    }
+
+    func test_installment_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
+        // Arrange
+        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, session, analytics) = self.makeSUT()
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
+        await session.mock.setData(APIErrorStub.badRequestData)
+
+        // Act & Assert
+        try await self.assertThrowsAPIError(
+            await sut.installments(amount: 500, bin: "1234"),
+            expectedError: APIErrorStub.badRequest
+        )
+
+        await analytics.mock.updateSendCallback {
+            expectation.fulfill()
+        }
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+        let messages = await analytics.mock.getMessages()
+
+        XCTAssertEqual(
+            messages,
+            [
+                .track(path: "/sdk-native/core-methods/installments"),
                 .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
                 .send
             ]

@@ -5,7 +5,7 @@
 //  Created by Guilherme Prata Costa on 05/03/25.
 //
 
-public struct Installment: Sendable {
+public struct Installment: Sendable, Equatable {
     public let paymentMethodId: String
     public let paymentTypeId: String
     public let thumbnail: String
@@ -15,12 +15,12 @@ public struct Installment: Sendable {
     public let payerCosts: [PayerCost]
     public let agreements: [Agreement]
 
-    public struct Issuer: Sendable {
+    public struct Issuer: Sendable, Equatable {
         public let id: String
         public let thumbnail: String
     }
 
-    public struct PayerCost: Sendable {
+    public struct PayerCost: Sendable, Equatable {
         public let installments: Int
         public let installmentAmount: Double
         public let installmentRate: Double
@@ -34,16 +34,16 @@ public struct Installment: Sendable {
         public let paymentMethodOptionId: String
     }
 
-    public struct Agreement: Sendable {
+    public struct Agreement: Sendable, Equatable {
         public let merchantAccounts: [MerchantAccount]
         public let timeFrame: TimeFrame
 
-        public struct MerchantAccount: Sendable {
+        public struct MerchantAccount: Sendable, Equatable {
             public let id: String
             public let paymentMethodOptionId: String
         }
 
-        public struct TimeFrame: Sendable {
+        public struct TimeFrame: Sendable, Equatable {
             public let startDate: String
             public let endDate: String
         }
