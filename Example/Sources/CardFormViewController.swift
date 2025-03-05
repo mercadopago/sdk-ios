@@ -39,7 +39,7 @@ final class CardFormViewController: UIViewController {
         field.translatesAutoresizingMaskIntoConstraints = false
 
         field.onBinChanged = { [weak self] bin in
-            print("BIN changed: \(bin)")
+            self?.searchInstallment(bin: bin)
         }
 
         field.onLastFourDigitsFilled = { [weak self] lastFourDigits in
@@ -218,6 +218,12 @@ final class CardFormViewController: UIViewController {
         return label
     }()
 
+    private lazy var installmentPicker: InstallmentPickerView = {
+        let picker = InstallmentPickerView()
+        picker.delegate = self
+        return picker
+    }()
+
     private lazy var payButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Pay", for: .normal)
@@ -234,6 +240,7 @@ final class CardFormViewController: UIViewController {
 
     var documents: [IdentificationType] = []
     var selectedDocumentType: IdentificationType?
+    private let amount: Double = 5000
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -312,6 +319,17 @@ final class CardFormViewController: UIViewController {
             }
         }
     }
+
+    func searchInstallment(bin: String) {
+        Task {
+            do {
+                let installment = try await coreMethods.installments(amount: self.amount, bin: bin)
+                self.installmentPicker.updateInstallments(installment)
+            } catch {
+                print("Error installments: \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - ViewConfiguration
@@ -331,6 +349,8 @@ extension CardFormViewController {
 
         self.stackView.addArrangedSubview(self.documentSectionStackView)
 
+        self.stackView.addArrangedSubview(self.installmentPicker)
+
         self.stackView.addArrangedSubview(self.payButton)
     }
 
@@ -347,6 +367,8 @@ extension CardFormViewController {
             self.expirationDateField.heightAnchor.constraint(equalToConstant: 56),
             self.documentTypeTextField.heightAnchor.constraint(equalToConstant: 56),
             self.documentNumberField.heightAnchor.constraint(equalToConstant: 56),
+
+            self.installmentPicker.heightAnchor.constraint(equalToConstant: 56),
 
             self.payButton.heightAnchor.constraint(equalToConstant: 48)
         ])
@@ -379,5 +401,11 @@ extension CardFormViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 
             self.documentNumberField.placeholder = "Enter \(self.documents[row].name) number"
         }
+    }
+}
+
+extension CardFormViewController: InstallmentPickerDelegate {
+    func installmentPicker(_: InstallmentPickerView, didSelectPayerCost payerCost: Installment.PayerCost) {
+        print("Installment: \(payerCost.installments)")
     }
 }
