@@ -420,7 +420,7 @@ final class CoreMethodsTests: XCTestCase {
             XCTAssertEqual(
                 messages,
                 [
-                    .track(path: "/sdk-native/core-methods/installments"),
+                    .track(path: "/sdk-native/core-methods/installments_call"),
                     .send
                 ]
             )
@@ -453,7 +453,7 @@ final class CoreMethodsTests: XCTestCase {
         XCTAssertEqual(
             messages,
             [
-                .track(path: "/sdk-native/core-methods/installments"),
+                .track(path: "/sdk-native/core-methods/installments_call"),
                 .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
                 .send
             ]
