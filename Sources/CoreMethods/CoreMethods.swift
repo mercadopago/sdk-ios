@@ -257,9 +257,18 @@ private extension CoreMethods {
     public func installments(amount: Double, bin: String) async throws -> [Installment] {
         let params = InstallmentsParams(amount: amount, bin: bin)
         do {
-            return try await self.installmentsUseCase.getInstallments(params: params)
+            let installment = try await self.installmentsUseCase.getInstallments(params: params)
+
+            Task(priority: .low) {
+                await trackInstallmentEvent()
+            }
+
+            return installment
         } catch {
-            print("Error => \(error)")
+            Task(priority: .low) {
+                await trackInstallmentEvent(error: "\(error)")
+            }
+
             throw error
         }
     }
