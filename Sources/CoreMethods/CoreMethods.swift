@@ -27,6 +27,7 @@ import MPCore
 public final class CoreMethods: Sendable {
     private let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
     private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
+    private let installmentsUseCase: InstallmentsUseCaseProtocol
 
     typealias Dependency = HasAnalytics
 
@@ -39,6 +40,7 @@ public final class CoreMethods: Sendable {
     public init() {
         self.generateTokenUseCase = GenerateCardTokenUseCase()
         self.identificationTypeUseCase = IdentificationTypesUseCase()
+        self.installmentsUseCase = InstallmentsUseCase()
         self.dependencies = CoreDependencyContainer.shared
     }
 
@@ -50,11 +52,13 @@ public final class CoreMethods: Sendable {
     init(
         dependencies: Dependency,
         generateTokenUseCase: GenerateCardTokenUseCaseProtocol,
-        identificationTypeUseCase: IdentificationTypesUseCaseProtocol
+        identificationTypeUseCase: IdentificationTypesUseCaseProtocol,
+        innstallmentsUseCase: InstallmentsUseCaseProtocol
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
         self.identificationTypeUseCase = identificationTypeUseCase
+        self.installmentsUseCase = innstallmentsUseCase
     }
 
     /// Creates a card token using the provided card details.
@@ -206,6 +210,16 @@ private extension CoreMethods {
                     .send()
             }
 
+            throw error
+        }
+    }
+
+    public func installments(amount: Double, bin: String) async throws -> [Installment] {
+        let params = InstallmentsParams(amount: amount, bin: bin)
+        do {
+            return try await self.installmentsUseCase.getInstallments(params: params)
+        } catch {
+            print("Error => \(error)")
             throw error
         }
     }
