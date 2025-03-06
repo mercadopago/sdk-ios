@@ -12,7 +12,7 @@ private enum Constants {
     static let baseURLToken = "https://api.mercadopago.com"
     static let baseURLBricks = "https://api.mercadopago.com/cho-off/beta"
 
-    static let productID = "CHQBUNESFQCVF58JFECG"
+    static let productID = ""
 }
 
 /// Endpoints
@@ -75,7 +75,8 @@ extension CoreMethodsEndpoint: RequestEndpoint {
             return [
                 "bin": params.bin,
                 "amount": "\(params.amount)",
-                "product_id": Constants.productID
+                "product_id": Constants.productID,
+                "processing_mode": params.processingMode
             ]
         }
     }

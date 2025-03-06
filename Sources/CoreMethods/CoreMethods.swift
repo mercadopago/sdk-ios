@@ -214,8 +214,12 @@ private extension CoreMethods {
         }
     }
 
-    public func installments(amount: Double, bin: String) async throws -> [Installment] {
-        let params = InstallmentsParams(amount: amount, bin: bin)
+    public func installments(
+        amount: Double,
+        bin: String,
+        mode: ProcessingMode = .agreggator
+    ) async throws -> [Installment] {
+        let params = InstallmentsParams(amount: amount, bin: bin, processingMode: mode.rawValue)
         do {
             let installment = try await self.installmentsUseCase.getInstallments(params: params)
 

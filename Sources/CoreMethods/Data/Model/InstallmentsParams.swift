@@ -8,4 +8,5 @@
 struct InstallmentsParams: Sendable {
     let amount: Double
     let bin: String
+    let processingMode: String
 }
