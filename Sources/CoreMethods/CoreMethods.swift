@@ -259,17 +259,9 @@ private extension CoreMethods {
         do {
             let installment = try await self.installmentsUseCase.getInstallments(params: params)
 
-            Task(priority: .low) {
-                await trackInstallmentEvent()
-            }
-
-            return installment
-        } catch {
-            Task(priority: .low) {
-                await trackInstallmentEvent(error: "\(error)")
-            }
-
-            throw error
-        }
+        return try await executeWithTracking(
+            operation: { try await self.installmentsUseCase.getInstallments(params: params) },
+            trackingPath: "/sdk-native/core-methods/installments_call"
+        )
     }
 }
