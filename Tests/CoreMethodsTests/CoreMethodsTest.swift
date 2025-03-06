@@ -171,7 +171,7 @@ final class CoreMethodsTests: XCTestCase {
             dependencies: container,
             generateTokenUseCase: generateTokenUseCase,
             identificationTypeUseCase: identificationTypeUseCase,
-            innstallmentsUseCase: installmentsUseCase
+            installmentsUseCase: installmentsUseCase
         )
 
         return (coreMethodsService, session, analytics)

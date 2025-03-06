@@ -53,12 +53,12 @@ public final class CoreMethods: Sendable {
         dependencies: Dependency,
         generateTokenUseCase: GenerateCardTokenUseCaseProtocol,
         identificationTypeUseCase: IdentificationTypesUseCaseProtocol,
-        innstallmentsUseCase: InstallmentsUseCaseProtocol
+        installmentsUseCase: InstallmentsUseCaseProtocol
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
         self.identificationTypeUseCase = identificationTypeUseCase
-        self.installmentsUseCase = innstallmentsUseCase
+        self.installmentsUseCase = installmentsUseCase
     }
 
     /// Creates a card token using the provided card details.
@@ -83,17 +83,17 @@ public final class CoreMethods: Sendable {
         expirationDate: ExpirationDateTextfield,
         securityCode: SecurityCodeTextField
     ) async throws -> CardToken {
-        let cardNumber = await cardNumber.input.getValue()
-        let expirationDateYear = await expirationDate.getYear()
-        let expirationDateMonth = await expirationDate.getMonth()
-        let securityCode = await securityCode.input.getValue()
+        async let cardNumber = cardNumber.input.getValue()
+        async let expirationDateYear = expirationDate.getYear()
+        async let expirationDateMonth = expirationDate.getMonth()
+        async let securityCode = securityCode.input.getValue()
 
         return try await self.generateTokenUseCase
             .tokenize(
-                cardNumber: cardNumber,
-                expirationDateMonth: expirationDateMonth,
-                expirationDateYear: expirationDateYear,
-                securityCodeInput: securityCode,
+                cardNumber: await cardNumber,
+                expirationDateMonth: await expirationDateMonth,
+                expirationDateYear: await expirationDateYear,
+                securityCodeInput: await securityCode,
                 cardID: nil
             )
     }
@@ -220,17 +220,42 @@ private extension CoreMethods {
         mode: ProcessingMode = .agreggator
     ) async throws -> [Installment] {
         let params = InstallmentsParams(amount: amount, bin: bin, processingMode: mode.rawValue)
+
+        return try await executeWithTracking(
+            operation: { try await self.installmentsUseCase.getInstallments(params: params) },
+            trackingPath: "/sdk-native/core-methods/installments_call"
+        )
+    }
+}
+
+private extension CoreMethods {
+    func trackEventWithError(_ path: String, error: Error? = nil) async {
+        let event = await dependencies.analytics.trackEvent(path)
+
+        if let error {
+            await event
+                .setError("\(error)")
+                .send()
+        } else {
+            await event.send()
+        }
+    }
+
+    func executeWithTracking<T>(
+        operation: () async throws -> T,
+        trackingPath: String
+    ) async throws -> T {
         do {
-            let installment = try await self.installmentsUseCase.getInstallments(params: params)
+            let result = try await operation()
 
             Task(priority: .low) {
-                await trackInstallmentEvent()
+                await self.trackEventWithError(trackingPath)
             }
 
-            return installment
+            return result
         } catch {
             Task(priority: .low) {
-                await trackInstallmentEvent(error: "\(error)")
+                await self.trackEventWithError(trackingPath, error: error)
             }
 
             throw error
