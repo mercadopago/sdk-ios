@@ -17,7 +17,7 @@ struct PaymentMethodResponse: Codable {
     let minAccreditationDays: Int
     let maxAccreditationDays: Int
     let totalFinancialCost: Double
-    let financialInstitutions: FinancialInstitutionResponse?
+    let financialInstitutions: [FinancialInstitutionResponse]?
     let issuer: IssuerResponse?
     let card: CardInfoResponse?
     let bins: [Int]?

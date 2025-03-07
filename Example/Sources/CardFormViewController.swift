@@ -40,6 +40,7 @@ final class CardFormViewController: UIViewController {
 
         field.onBinChanged = { [weak self] bin in
             self?.searchInstallment(bin: bin)
+            self?.searchPaymentMethod(bin: bin)
         }
 
         field.onLastFourDigitsFilled = { [weak self] lastFourDigits in
@@ -327,6 +328,17 @@ final class CardFormViewController: UIViewController {
                 self.installmentPicker.updateInstallments(installment)
             } catch {
                 print("Error installments: \(error)")
+            }
+        }
+    }
+
+    func searchPaymentMethod(bin: String) {
+        Task {
+            do {
+                let paymentMethod = try await coreMethods.paymentMethods(bin: bin)
+                print("Payment methods: \(paymentMethod)")
+            } catch {
+                print("Error paymentMethod: \(error)")
             }
         }
     }

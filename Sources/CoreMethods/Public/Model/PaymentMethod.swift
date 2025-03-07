@@ -6,7 +6,7 @@
 //
 import Foundation
 
-public struct PaymentMethod {
+public struct PaymentMethod: Sendable {
     public let id: String
     public let paymentTypeId: String
     public let status: String
@@ -18,7 +18,7 @@ public struct PaymentMethod {
     public let minAccreditationDays: Int
     public let maxAccreditationDays: Int
     public let totalFinancialCost: Double
-    public let financialInstitution: FinancialInstitution?
+    public let financialInstitution: [FinancialInstitution]?
     public let issuer: Issuer?
     public let card: CardInfo?
     public let bins: [Int]?
@@ -41,7 +41,7 @@ public struct PaymentMethod {
         minAccreditationDays: Int,
         maxAccreditationDays: Int,
         totalFinancialCost: Double,
-        financialInstitution: FinancialInstitution?,
+        financialInstitution: [FinancialInstitution]?,
         issuer: Issuer?,
         card: CardInfo?,
         bins: [Int]?,
@@ -75,7 +75,7 @@ public struct PaymentMethod {
         self.additionalInfoNeeded = additionalInfoNeeded
     }
 
-    public struct FinancialInstitution {
+    public struct FinancialInstitution: Sendable {
         public let id: String
         public let description: String
 
@@ -85,7 +85,7 @@ public struct PaymentMethod {
         }
     }
 
-    public struct Issuer {
+    public struct Issuer: Sendable {
         public let id: Int
         public let isDefault: Bool
         public let thumbnail: String?
@@ -97,7 +97,7 @@ public struct PaymentMethod {
         }
     }
 
-    public struct CardInfo {
+    public struct CardInfo: Sendable {
         public let bin: Int
         public let length: CardLength
         public let validation: String
@@ -110,7 +110,7 @@ public struct PaymentMethod {
             self.securityCode = securityCode
         }
 
-        public struct CardLength {
+        public struct CardLength: Sendable {
             public let min: Int
             public let max: Int
 
@@ -120,7 +120,7 @@ public struct PaymentMethod {
             }
         }
 
-        public struct SecurityCode {
+        public struct SecurityCode: Sendable {
             public let mode: String
             public let location: String
             public let length: Int
@@ -133,7 +133,7 @@ public struct PaymentMethod {
         }
     }
 
-    public struct PayerCost {
+    public struct PayerCost: Sendable {
         public let installments: Int
         public let installmentRate: Double
         public let discountRate: Double
@@ -164,7 +164,7 @@ public struct PaymentMethod {
         }
     }
 
-    public struct Agreement {
+    public struct Agreement: Sendable {
         public let timeFrame: TimeFrame
         public let merchantAccounts: [MerchantAccount]
 
@@ -173,7 +173,7 @@ public struct PaymentMethod {
             self.merchantAccounts = merchantAccounts
         }
 
-        public struct TimeFrame {
+        public struct TimeFrame: Sendable {
             public let startDate: Date
             public let endDate: Date
 
@@ -183,7 +183,7 @@ public struct PaymentMethod {
             }
         }
 
-        public struct MerchantAccount {
+        public struct MerchantAccount: Sendable {
             public let id: String
             public let paymentMethodOptionId: String
 

@@ -35,7 +35,7 @@ struct PaymentMethodMapper: PaymentMethodMapperProtocol {
             minAccreditationDays: response.minAccreditationDays,
             maxAccreditationDays: response.maxAccreditationDays,
             totalFinancialCost: response.totalFinancialCost,
-            financialInstitution: response.financialInstitutions.map { self.mapFinancialInstitution($0)
+            financialInstitution: response.financialInstitutions?.map { self.mapFinancialInstitution($0)
             },
             issuer: response.issuer.map { self.mapIssuer($0) },
             card: response.card.map { self.mapCardInfo($0) },

@@ -28,6 +28,7 @@ public final class CoreMethods: Sendable {
     private let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
     private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
     private let installmentsUseCase: InstallmentsUseCaseProtocol
+    private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
 
     typealias Dependency = HasAnalytics
 
@@ -41,6 +42,7 @@ public final class CoreMethods: Sendable {
         self.generateTokenUseCase = GenerateCardTokenUseCase()
         self.identificationTypeUseCase = IdentificationTypesUseCase()
         self.installmentsUseCase = InstallmentsUseCase()
+        self.paymentMethodUseCase = PaymentMethodUseCase()
         self.dependencies = CoreDependencyContainer.shared
     }
 
@@ -53,12 +55,14 @@ public final class CoreMethods: Sendable {
         dependencies: Dependency,
         generateTokenUseCase: GenerateCardTokenUseCaseProtocol,
         identificationTypeUseCase: IdentificationTypesUseCaseProtocol,
-        installmentsUseCase: InstallmentsUseCaseProtocol
+        installmentsUseCase: InstallmentsUseCaseProtocol,
+        paymentMethodUseCase: PaymentMethodUseCaseProtocol
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
         self.identificationTypeUseCase = identificationTypeUseCase
         self.installmentsUseCase = installmentsUseCase
+        self.paymentMethodUseCase = paymentMethodUseCase
     }
 
     /// Creates a card token using the provided card details.
@@ -173,7 +177,7 @@ public final class CoreMethods: Sendable {
     public func installments(
         amount: Double,
         bin: String,
-        mode: ProcessingMode = .agreggator
+        mode: ProcessingMode = .aggregator
     ) async throws -> [Installment] {
         let params = InstallmentsParams(amount: amount, bin: bin, processingMode: mode.rawValue)
 
@@ -189,6 +193,18 @@ public final class CoreMethods: Sendable {
                     paymentType: result[0].paymentTypeId
                 )
             }
+        )
+    }
+
+    public func paymentMethods(
+        bin: String,
+        mode: ProcessingMode = .aggregator
+    ) async throws -> [PaymentMethod] {
+        let params = PaymentMethodsParams(bin: bin, processingMode: mode.rawValue)
+
+        return try await executeWithTracking(
+            operation: { try await self.paymentMethodUseCase.getPayment(params: params) },
+            trackingPath: "/sdk-native/core-methods/payment_methods"
         )
     }
 }
