@@ -20,6 +20,7 @@ enum CoreMethodsEndpoint {
     case postCardToken(body: CardTokenBody)
     case getIdentificationTypes
     case getInstallments(params: InstallmentsParams)
+    case getPaymentMethods(params: PaymentMethodsParams)
 }
 
 /// Extension to conform to `RequestEndpoint`.
@@ -44,7 +45,7 @@ extension CoreMethodsEndpoint: RequestEndpoint {
         switch self {
         case .postCardToken:
             return .post
-        case .getIdentificationTypes, .getInstallments:
+        case .getIdentificationTypes, .getInstallments, .getPaymentMethods:
             return .get
         }
     }
@@ -58,6 +59,8 @@ extension CoreMethodsEndpoint: RequestEndpoint {
             return "identification_types"
         case .getInstallments:
             return "installments"
+        case .getPaymentMethods:
+            return "payment_methods"
         }
     }
 
@@ -76,6 +79,12 @@ extension CoreMethodsEndpoint: RequestEndpoint {
                 "bin": params.bin,
                 "amount": "\(params.amount)",
                 "product_id": Constants.productID
+            ]
+        case let .getPaymentMethods(params):
+            return [
+                "bin": params.bin,
+                "product_id": Constants.productID,
+                "processing_mode": params.processingMode
             ]
         }
     }

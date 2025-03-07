@@ -16,12 +16,16 @@ package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
 
     private let installmentMapper: InstallmentsMapperProtocol
 
+    private let paymentMethodMapper: PaymentMethodMapperProtocol
+
     init(
         dependencies: Dependency = CoreDependencyContainer.shared,
-        installmentMapper: InstallmentsMapperProtocol = InstallmentsMapper()
+        installmentMapper: InstallmentsMapperProtocol = InstallmentsMapper(),
+        paymentMethodMapper: PaymentMethodMapperProtocol = PaymentMethodMapper()
     ) {
         self.dependencies = dependencies
         self.installmentMapper = installmentMapper
+        self.paymentMethodMapper = paymentMethodMapper
     }
 
     func generateCardToken(_ data: CardTokenBody) async throws -> CardTokenResponse {
@@ -42,5 +46,13 @@ package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
         )
 
         return self.installmentMapper.map(responses: response)
+    }
+
+    func getPaymentMethods(params: PaymentMethodsParams) async throws -> [PaymentMethod] {
+        let response: [PaymentMethodResponse] = try await self.dependencies.networkService.request(
+            Endpoint.getPaymentMethods(params: params)
+        )
+
+        return self.paymentMethodMapper.map(responses: response)
     }
 }
