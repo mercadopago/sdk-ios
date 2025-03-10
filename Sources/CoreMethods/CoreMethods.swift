@@ -142,17 +142,68 @@ public final class CoreMethods: Sendable {
     ///   - .decodingFailed(Error): If the response cannot be decoded
     ///
     public func identificationType() async throws -> [IdentificationType] {
+        return try await executeWithTracking(
+            operation: { try await self.identificationTypeUseCase.getIdentification() },
+            path: "/sdk-native/core-methods/identification_type"
+        )
+    }
+}
+
+// MARK: Execute Operation of Core Methods
+
+private extension CoreMethods {
+    func executeWithTracking<T: Sendable>(
+        operation: @Sendable () async throws -> T,
+        path: String,
+        extractEventData: (@Sendable (T) async -> (some AnalyticsEventData)?)? = nil
+    ) async throws -> T {
         do {
-            let result = try await self.identificationTypeUseCase.getIdentification()
+            let result = try await operation()
 
             Task(priority: .low) {
-                await trackIdentificationTypeEvent()
+                let event = await self.dependencies.analytics.trackEvent(path)
+
+                if let extractEventData,
+                   let eventData = await extractEventData(result) {
+                    await event.setEventData(eventData)
+                }
+
+                await event.send()
             }
 
             return result
         } catch {
             Task(priority: .low) {
-                await trackIdentificationTypeEvent(error: "\(error)")
+                await self.dependencies.analytics
+                    .trackEvent(path + "/error")
+                    .setError("\(error)")
+                    .send()
+            }
+
+            throw error
+        }
+    }
+
+    func executeWithTracking<T: Sendable>(
+        operation: @Sendable () async throws -> T,
+        path: String
+    ) async throws -> T {
+        do {
+            let result = try await operation()
+
+            Task(priority: .low) {
+                await self.dependencies.analytics
+                    .trackEvent(path)
+                    .send()
+            }
+
+            return result
+        } catch {
+            Task(priority: .low) {
+                await self.dependencies.analytics
+                    .trackEvent(path + "/error")
+                    .setError("\(error)")
+                    .send()
             }
 
             throw error
