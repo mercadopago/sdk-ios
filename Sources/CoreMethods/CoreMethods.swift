@@ -151,6 +151,46 @@ public final class CoreMethods: Sendable {
             path: "/sdk-native/core-methods/identification_types"
         )
     }
+
+    /// Gets available installment options for a payment amount and card BIN
+    ///
+    /// Retrieves a list of installment plans available for a specified payment amount
+    /// and card BIN (first 6-8 digits of the card number). This allows merchants to
+    /// present financing options to customers during checkout.
+    ///
+    /// - Parameters:
+    ///   - amount: The payment amount to calculate installment options for
+    ///   - bin: Bank Identification Number (first 6-8 digits of card number)
+    ///   - mode: The processing mode to use (default: .agreggator)
+    ///
+    /// - Returns: An array of ``Installment`` objects containing available payment plans
+    ///
+    /// - Throws:
+    ///   - .invalidURL: If the API endpoint URL is malformed
+    ///   - .networkError: If a connection to the API cannot be established
+    ///   - .decodingFailed(Error): If the response cannot be decoded
+    ///
+    public func installments(
+        amount: Double,
+        bin: String,
+        mode: ProcessingMode = .agreggator
+    ) async throws -> [Installment] {
+        let params = InstallmentsParams(amount: amount, bin: bin, processingMode: mode.rawValue)
+
+        return try await executeWithTracking(
+            operation: { try await self.installmentsUseCase.getInstallments(params: params) },
+            path: "/sdk-native/core-methods/installments",
+            extractEventData: { result -> InstallmentEventData? in
+                guard !result.isEmpty else { return nil }
+
+                return InstallmentEventData(
+                    amount: amount,
+                    paymentType: bin,
+                    bin: result[0].paymentTypeId
+                )
+            }
+        )
+    }
 }
 
 // MARK: Execute Operation of Core Methods
@@ -208,54 +248,6 @@ private extension CoreMethods {
                     .trackEvent(path + "/error")
                     .setError("\(error)")
                     .send()
-            }
-
-            throw error
-        }
-    }
-
-    public func installments(
-        amount: Double,
-        bin: String,
-        mode: ProcessingMode = .agreggator
-    ) async throws -> [Installment] {
-        let params = InstallmentsParams(amount: amount, bin: bin, processingMode: mode.rawValue)
-
-        return try await executeWithTracking(
-            operation: { try await self.installmentsUseCase.getInstallments(params: params) },
-            trackingPath: "/sdk-native/core-methods/installments_call"
-        )
-    }
-}
-
-private extension CoreMethods {
-    func trackEventWithError(_ path: String, error: Error? = nil) async {
-        let event = await dependencies.analytics.trackEvent(path)
-
-        if let error {
-            await event
-                .setError("\(error)")
-                .send()
-        } else {
-            await event.send()
-        }
-    }
-
-    func executeWithTracking<T>(
-        operation: () async throws -> T,
-        trackingPath: String
-    ) async throws -> T {
-        do {
-            let result = try await operation()
-
-            Task(priority: .low) {
-                await self.trackEventWithError(trackingPath)
-            }
-
-            return result
-        } catch {
-            Task(priority: .low) {
-                await self.trackEventWithError(trackingPath, error: error)
             }
 
             throw error
