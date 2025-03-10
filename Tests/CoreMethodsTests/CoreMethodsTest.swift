@@ -235,7 +235,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act
         do {
-            let result = try await sut.identificationType()
+            let result = try await sut.identificationTypes()
 
             await analytics.mock.updateSendCallback {
                 expectation.fulfill()
@@ -250,7 +250,7 @@ final class CoreMethodsTests: XCTestCase {
             XCTAssertEqual(
                 messages,
                 [
-                    .track(path: "/sdk-native/core-methods/identification_type"),
+                    .track(path: "/sdk-native/core-methods/identification_types"),
                     .send
                 ]
             )
@@ -269,7 +269,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act & Assert
         try await self.assertThrowsAPIError(
-            await sut.identificationType(),
+            await sut.identificationTypes(),
             expectedError: APIErrorStub.badRequest
         )
 
@@ -283,7 +283,7 @@ final class CoreMethodsTests: XCTestCase {
         XCTAssertEqual(
             messages,
             [
-                .track(path: "/sdk-native/core-methods/identification_type/error"),
+                .track(path: "/sdk-native/core-methods/identification_types/error"),
                 .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
                 .send
             ]

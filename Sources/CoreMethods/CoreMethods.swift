@@ -141,10 +141,10 @@ public final class CoreMethods: Sendable {
     ///   - .invalidURL: If the API endpoint URL is malformed
     ///   - .decodingFailed(Error): If the response cannot be decoded
     ///
-    public func identificationType() async throws -> [IdentificationType] {
+    public func identificationTypes() async throws -> [IdentificationType] {
         return try await executeWithTracking(
-            operation: { try await self.identificationTypeUseCase.getIdentification() },
-            path: "/sdk-native/core-methods/identification_type"
+            operation: { try await self.identificationTypeUseCase.getIdentificationTypes() },
+            path: "/sdk-native/core-methods/identification_types"
         )
     }
 }
