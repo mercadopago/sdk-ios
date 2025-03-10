@@ -441,11 +441,12 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, session, analytics) = self.makeSUT()
 
         let data = PaymentMethodStub.expectedResponse[0]
-        var expectEventData = PaymentMethodEventData()
-        expectEventData.cardBrand = data.id
-        expectEventData.paymentType = data.paymentTypeId
-        expectEventData.issuer = data.issuer?.id
-        expectEventData.sizeSecurityCode = data.card?.securityCode.length
+        let expectEventData = PaymentMethodEventData(
+            issuer: data.issuer?.id,
+            paymentType: data.paymentTypeId,
+            sizeSecurityCode: data.card?.securityCode.length,
+            cardBrand: data.id
+        )
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
         await session.mock.setData(PaymentMethodStub.validResponse)
@@ -516,7 +517,12 @@ final class CoreMethodsTests: XCTestCase {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
         let (sut, session, analytics) = self.makeSUT()
-        let expectEventData = PaymentMethodEventData()
+        let expectEventData = PaymentMethodEventData(
+            issuer: nil,
+            paymentType: nil,
+            sizeSecurityCode: nil,
+            cardBrand: nil
+        )
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
         await session.mock.setData("[]".data(using: .utf8)!)

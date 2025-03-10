@@ -7,10 +7,22 @@
 import MPAnalytics
 
 struct PaymentMethodEventData: AnalyticsEventData {
-    var issuer: Int?
-    var paymentType: String?
-    var sizeSecurityCode: Int?
-    var cardBrand: String?
+    let issuer: Int?
+    let paymentType: String?
+    let sizeSecurityCode: Int?
+    let cardBrand: String?
+
+    init(
+        issuer: Int? = nil,
+        paymentType: String? = nil,
+        sizeSecurityCode: Int? = nil,
+        cardBrand: String? = nil
+    ) {
+        self.issuer = issuer
+        self.paymentType = paymentType
+        self.sizeSecurityCode = sizeSecurityCode
+        self.cardBrand = cardBrand
+    }
 
     func toDictionary() -> [String: String] {
         return [

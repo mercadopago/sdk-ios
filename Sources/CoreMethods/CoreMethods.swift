@@ -217,33 +217,23 @@ public final class CoreMethods: Sendable {
         mode: ProcessingMode = .aggregator
     ) async throws -> [PaymentMethod] {
         let params = PaymentMethodsParams(bin: bin, processingMode: mode.rawValue)
-        var eventData = PaymentMethodEventData()
 
-        do {
-            let result = try await self.paymentMethodUseCase.getPayment(params: params)
-            if let data = result.first {
-                eventData.cardBrand = data.id
-                eventData.paymentType = data.paymentTypeId
-                eventData.issuer = data.issuer?.id
-                eventData.sizeSecurityCode = data.card?.securityCode.length
+        return try await executeWithTracking(
+            operation: { try await self.paymentMethodUseCase.getPayment(params: params) },
+            path: "/sdk-native/core-methods/payment_methods",
+            extractEventData: { result -> PaymentMethodEventData? in
+                guard let data = result.first else {
+                    return PaymentMethodEventData()
+                }
+
+                return PaymentMethodEventData(
+                    issuer: data.issuer?.id,
+                    paymentType: data.paymentTypeId,
+                    sizeSecurityCode: data.card?.securityCode.length,
+                    cardBrand: data.id
+                )
             }
-
-            Task(priority: .low) {
-                await self.dependencies.analytics.trackEvent("/sdk-native/core-methods/payment_methods")
-                    .setEventData(eventData)
-                    .send()
-            }
-
-            return result
-        } catch {
-            Task(priority: .low) {
-                await self.dependencies.analytics.trackEvent("/sdk-native/core-methods/payment_methods/error")
-                    .setError("\(error)")
-                    .send()
-            }
-
-            throw error
-        }
+        )
     }
 }
 
