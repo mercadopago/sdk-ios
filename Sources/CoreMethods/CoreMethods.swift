@@ -184,9 +184,9 @@ public final class CoreMethods: Sendable {
                 guard !result.isEmpty else { return nil }
 
                 return InstallmentEventData(
+                    bin: bin,
                     amount: amount,
-                    paymentType: bin,
-                    bin: result[0].paymentTypeId
+                    paymentType: result[0].paymentTypeId
                 )
             }
         )

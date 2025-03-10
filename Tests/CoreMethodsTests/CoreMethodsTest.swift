@@ -365,6 +365,12 @@ final class CoreMethodsTests: XCTestCase {
         // Arrange
         let (sut, session, analytics) = self.makeSUT()
         let expectation = expectation(description: "Analytics event should be sent")
+        let expectResponse = InstallmentsStub.expectResponse
+        let expectEventData = InstallmentEventData(
+            bin: "12345678",
+            amount: 5000,
+            paymentType: expectResponse[0].paymentTypeId
+        )
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
         await session.mock.setData(InstallmentsStub.validResponse)
@@ -386,7 +392,8 @@ final class CoreMethodsTests: XCTestCase {
             XCTAssertEqual(
                 messages,
                 [
-                    .track(path: "/sdk-native/core-methods/installments_call"),
+                    .track(path: "/sdk-native/core-methods/installments"),
+                    .setEventData(expectEventData.toDictionary()),
                     .send
                 ]
             )
@@ -419,7 +426,7 @@ final class CoreMethodsTests: XCTestCase {
         XCTAssertEqual(
             messages,
             [
-                .track(path: "/sdk-native/core-methods/installments_call"),
+                .track(path: "/sdk-native/core-methods/installments/error"),
                 .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
                 .send
             ]
