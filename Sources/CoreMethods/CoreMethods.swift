@@ -297,15 +297,4 @@ private extension CoreMethods {
             throw error
         }
     }
-
-    public func installments(amount: Double, bin: String) async throws -> [Installment] {
-        let params = InstallmentsParams(amount: amount, bin: bin)
-        do {
-            let installment = try await self.installmentsUseCase.getInstallments(params: params)
-
-        return try await executeWithTracking(
-            operation: { try await self.installmentsUseCase.getInstallments(params: params) },
-            trackingPath: "/sdk-native/core-methods/installments_call"
-        )
-    }
 }
