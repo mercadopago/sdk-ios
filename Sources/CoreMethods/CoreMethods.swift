@@ -210,18 +210,3 @@ private extension CoreMethods {
         }
     }
 }
-
-extension CoreMethods {
-    private func trackIdentificationTypeEvent(error: String? = nil) async {
-        let event = await dependencies.analytics
-            .trackEvent("/sdk-native/core-methods/identification-type")
-
-        if let error {
-            await event
-                .setError(error)
-                .send()
-        } else {
-            await event.send()
-        }
-    }
-}
