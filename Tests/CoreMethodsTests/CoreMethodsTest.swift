@@ -250,7 +250,7 @@ final class CoreMethodsTests: XCTestCase {
             XCTAssertEqual(
                 messages,
                 [
-                    .track(path: "/sdk-native/core-methods/identification-type"),
+                    .track(path: "/sdk-native/core-methods/identification_type"),
                     .send
                 ]
             )
@@ -283,7 +283,7 @@ final class CoreMethodsTests: XCTestCase {
         XCTAssertEqual(
             messages,
             [
-                .track(path: "/sdk-native/core-methods/identification-type"),
+                .track(path: "/sdk-native/core-methods/identification_type/error"),
                 .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
                 .send
             ]
