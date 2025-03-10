@@ -23,7 +23,7 @@ extension CoreMethodsTests {
                     accreditationTime: 2880,
                     merchantAccountId: "",
                     siteId: "MLB",
-                    thumbnail: "https://http2.mlstatic.com/storage/mobile-on-demand-resources/image/cho_off-master_mdpi",
+                    thumbnail: "www.google.com",
                     minAccreditationDays: 0,
                     maxAccreditationDays: 2,
                     totalFinancialCost: 0,
@@ -31,7 +31,7 @@ extension CoreMethodsTests {
                     issuer: PaymentMethod.Issuer(
                         id: 24,
                         isDefault: true,
-                        thumbnail: "https://http2.mlstatic.com/storage/mobile-on-demand-resources/image/cho_off-master_mdpi"
+                        thumbnail: "www.google.com"
                     ),
                     card: PaymentMethod.CardInfo(
                         bin: 502_432,
@@ -55,7 +55,7 @@ extension CoreMethodsTests {
                             reimbursementRate: 0,
                             minAllowedAmount: 0.5,
                             maxAllowedAmount: 60000,
-                            paymentMethodOptionId: "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg",
+                            paymentMethodOptionId: "123",
                             labels: []
                         ),
                         PaymentMethod.PayerCost(
@@ -65,7 +65,7 @@ extension CoreMethodsTests {
                             reimbursementRate: 0,
                             minAllowedAmount: 10,
                             maxAllowedAmount: 60000,
-                            paymentMethodOptionId: "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg",
+                            paymentMethodOptionId: "123",
                             labels: []
                         )
                     ],
@@ -89,7 +89,7 @@ extension CoreMethodsTests {
                     "discount_rate": 0,
                     "reimbursement_rate": 0,
                     "labels": [],
-                    "payment_method_option_id": "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg"
+                    "payment_method_option_id": "123"
                   },
                   {
                     "installment_rate": 8.14,
@@ -99,14 +99,14 @@ extension CoreMethodsTests {
                     "discount_rate": 0,
                     "reimbursement_rate": 0,
                     "labels": [],
-                    "payment_method_option_id": "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg"
+                    "payment_method_option_id": "123"
                   }
                 ],
                 "agreements": [],
                 "issuer": {
                   "default": true,
                   "id": 24,
-                  "thumbnail": "https://http2.mlstatic.com/storage/mobile-on-demand-resources/image/cho_off-master_mdpi"
+                  "thumbnail": "www.google.com"
                 },
                 "card": {
                   "bin": 502432,
@@ -141,7 +141,7 @@ extension CoreMethodsTests {
                 "marketplace": "NONE",
                 "id": "master",
                 "payment_type_id": "credit_card",
-                "thumbnail": "https://http2.mlstatic.com/storage/mobile-on-demand-resources/image/cho_off-master_mdpi"
+                "thumbnail": "www.google.com"
               }
             ]
             """
