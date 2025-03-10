@@ -219,7 +219,9 @@ public final class CoreMethods: Sendable {
         let params = PaymentMethodsParams(bin: bin, processingMode: mode.rawValue)
 
         return try await executeWithTracking(
-            operation: { try await self.paymentMethodUseCase.getPayment(params: params) },
+            operation: {
+                try await self.paymentMethodUseCase.getPaymentMethods(params: params)
+            },
             path: "/sdk-native/core-methods/payment_methods",
             extractEventData: { result -> PaymentMethodEventData? in
                 guard let data = result.first else {

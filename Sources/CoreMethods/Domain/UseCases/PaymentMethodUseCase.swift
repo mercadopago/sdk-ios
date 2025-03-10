@@ -6,7 +6,7 @@
 //
 
 protocol PaymentMethodUseCaseProtocol: Sendable {
-    func getPayment(params: PaymentMethodsParams) async throws -> [PaymentMethod]
+    func getPaymentMethods(params: PaymentMethodsParams) async throws -> [PaymentMethod]
 }
 
 final class PaymentMethodUseCase: PaymentMethodUseCaseProtocol {
@@ -16,7 +16,7 @@ final class PaymentMethodUseCase: PaymentMethodUseCaseProtocol {
         self.repository = repository
     }
 
-    func getPayment(params: PaymentMethodsParams) async throws -> [PaymentMethod] {
+    func getPaymentMethods(params: PaymentMethodsParams) async throws -> [PaymentMethod] {
         return try await self.repository.getPaymentMethods(params: params)
     }
 }
