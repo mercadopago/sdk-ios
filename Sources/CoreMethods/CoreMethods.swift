@@ -196,6 +196,22 @@ public final class CoreMethods: Sendable {
         )
     }
 
+    /// Gets available payment methods for a card BIN
+    ///
+    /// Retrieves a list of payment methods available for a specified card BIN
+    /// (first 6-8 digits of the card number).
+    ///
+    /// - Parameters:
+    ///   - bin: Bank Identification Number (first 6-8 digits of card number)
+    ///   - mode: The processing mode to use (default: .aggregator)
+    ///
+    /// - Returns: An array of ``PaymentMethod`` objects containing available payment methods
+    ///
+    /// - Throws:
+    ///   - .invalidURL: If the API endpoint URL is malformed
+    ///   - .networkError: If a connection to the API cannot be established
+    ///   - .decodingFailed(Error): If the response cannot be decoded
+    ///
     public func paymentMethods(
         bin: String,
         mode: ProcessingMode = .aggregator
@@ -205,11 +221,12 @@ public final class CoreMethods: Sendable {
 
         do {
             let result = try await self.paymentMethodUseCase.getPayment(params: params)
-            let data = result[0]
-            eventData.cardBrand = data.id
-            eventData.paymentType = data.paymentTypeId
-            eventData.issuer = data.issuer?.id
-            eventData.sizeSecurityCode = data.card?.securityCode.length
+            if let data = result.first {
+                eventData.cardBrand = data.id
+                eventData.paymentType = data.paymentTypeId
+                eventData.issuer = data.issuer?.id
+                eventData.sizeSecurityCode = data.card?.securityCode.length
+            }
 
             Task(priority: .low) {
                 await self.dependencies.analytics.trackEvent("/sdk-native/core-methods/payment_methods")
