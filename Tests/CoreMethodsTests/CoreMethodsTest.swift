@@ -166,12 +166,14 @@ final class CoreMethodsTests: XCTestCase {
         let generateTokenUseCase = GenerateCardTokenUseCase(repository: repository)
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
+        let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
 
         let coreMethodsService = CoreMethods(
             dependencies: container,
             generateTokenUseCase: generateTokenUseCase,
             identificationTypeUseCase: identificationTypeUseCase,
-            installmentsUseCase: installmentsUseCase
+            installmentsUseCase: installmentsUseCase,
+            paymentMethodUseCase: paymentMethodUseCase
         )
 
         return (coreMethodsService, session, analytics)
@@ -431,5 +433,118 @@ final class CoreMethodsTests: XCTestCase {
                 .send
             ]
         )
+    }
+
+    func test_paymentMethods_whenNetworkReturnsSuccess_shouldReturnPaymentMethodsAndSendEventData() async {
+        // Arrange
+        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, session, analytics) = self.makeSUT()
+
+        let data = PaymentMethodStub.expectedResponse[0]
+        var expectEventData = PaymentMethodEventData()
+        expectEventData.cardBrand = data.id
+        expectEventData.paymentType = data.paymentTypeId
+        expectEventData.issuer = data.issuer?.id
+        expectEventData.sizeSecurityCode = data.card?.securityCode.length
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(PaymentMethodStub.validResponse)
+
+        // Act
+        do {
+            let result = try await sut.paymentMethods(bin: "502432")
+
+            await analytics.mock.updateSendCallback {
+                expectation.fulfill()
+            }
+
+            await fulfillment(of: [expectation], timeout: 1.0)
+            let messages = await analytics.mock.getMessages()
+
+            // Assert
+            XCTAssertEqual(result.count, 1)
+            XCTAssertEqual(result[0].id, "master")
+            XCTAssertEqual(result[0].paymentTypeId, "credit_card")
+            XCTAssertEqual(result[0].issuer?.id, 24)
+            XCTAssertEqual(result[0].card?.securityCode.length, 3)
+
+            XCTAssertEqual(
+                messages,
+                [
+                    .track(path: "/sdk-native/core-methods/payment_methods"),
+                    .setEventData(expectEventData.toDictionary()),
+                    .send
+                ]
+            )
+        } catch {
+            XCTFail("Should not throw error: \(error)")
+        }
+    }
+
+    func test_paymentMethods_whenNetworkReturnsFormattedError_shouldCallAnalyticsWithError() async {
+        // Arrange
+        let expectation = expectation(description: "Analytics error event should be sent")
+        let (sut, session, analytics) = self.makeSUT()
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
+        await session.mock.setData(APIErrorStub.badRequestData)
+
+        // Act & Assert
+        try await self.assertThrowsAPIError(
+            await sut.paymentMethods(bin: "502432"),
+            expectedError: APIErrorStub.badRequest
+        )
+
+        await analytics.mock.updateSendCallback {
+            expectation.fulfill()
+        }
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+        let messages = await analytics.mock.getMessages()
+
+        XCTAssertEqual(
+            messages,
+            [
+                .track(path: "/sdk-native/core-methods/payment_methods/error"),
+                .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
+                .send
+            ]
+        )
+    }
+
+    func test_paymentMethods_whenEmptyArrayReturned_shouldNotSendEventData() async {
+        // Arrange
+        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, session, analytics) = self.makeSUT()
+        let expectEventData = PaymentMethodEventData()
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData("[]".data(using: .utf8)!)
+
+        // Act
+        do {
+            let result = try await sut.paymentMethods(bin: "502432")
+
+            await analytics.mock.updateSendCallback {
+                expectation.fulfill()
+            }
+
+            await fulfillment(of: [expectation], timeout: 1.0)
+            let messages = await analytics.mock.getMessages()
+
+            // Assert
+            XCTAssertTrue(result.isEmpty)
+
+            XCTAssertEqual(
+                messages,
+                [
+                    .track(path: "/sdk-native/core-methods/payment_methods"),
+                    .setEventData(expectEventData.toDictionary()),
+                    .send
+                ]
+            )
+        } catch {
+            XCTFail("Should not throw error: \(error)")
+        }
     }
 }
