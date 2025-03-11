@@ -76,15 +76,14 @@ extension CoreMethodsEndpoint: RequestEndpoint {
             return [
                 "bin": params.bin,
                 "amount": "\(params.amount)",
-                "product_id": Constants.productID
+                "product_id": MPSDKProduct.id
             ]
         case let .getPaymentMethods(params):
             return [
                 "bin": params.bin,
-                "product_id": Constants.productID,
+                "product_id": MPSDKProduct.id,
                 "processing_mode": params.processingMode
             ]
-            "product_id": MPSDKProduct.id,
         }
     }
 

@@ -6,7 +6,7 @@
 //
 
 protocol IdentificationTypesUseCaseProtocol: Sendable {
-    func getIdentification() async throws -> [IdentificationType]
+    func getIdentificationTypes() async throws -> [IdentificationType]
 }
 
 final class IdentificationTypesUseCase: IdentificationTypesUseCaseProtocol {
@@ -16,7 +16,7 @@ final class IdentificationTypesUseCase: IdentificationTypesUseCaseProtocol {
         self.repository = repository
     }
 
-    func getIdentification() async throws -> [IdentificationType] {
+    func getIdentificationTypes() async throws -> [IdentificationType] {
         let response = try await repository.getIdentificationTypes()
 
         return response.map { data in
