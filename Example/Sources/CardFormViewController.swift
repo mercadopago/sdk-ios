@@ -305,7 +305,7 @@ final class CardFormViewController: UIViewController {
     func getDocuments() {
         Task {
             do {
-                self.documents = try await self.coreMethods.identificationType()
+                self.documents = try await self.coreMethods.identificationTypes()
 
                 await MainActor.run {
                     self.documentTypePicker.reloadAllComponents()
