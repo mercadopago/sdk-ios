@@ -173,7 +173,7 @@ public final class CoreMethods: Sendable {
     public func installments(
         amount: Double,
         bin: String,
-        mode: ProcessingMode = .agreggator
+        mode: ProcessingMode = .aggregator
     ) async throws -> [Installment] {
         let params = InstallmentsParams(amount: amount, bin: bin, processingMode: mode.rawValue)
 

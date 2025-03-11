@@ -7,6 +7,6 @@
 
 @frozen
 public enum ProcessingMode: String {
-    case agreggator
+    case aggregator
     case gateway
 }
