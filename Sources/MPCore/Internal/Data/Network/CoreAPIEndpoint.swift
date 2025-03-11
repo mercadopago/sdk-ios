@@ -7,8 +7,8 @@
 
 import Foundation
 
-private enum Constants {
-    static let baseURL = "https://api.mercadopago.com"
+package enum Constants {
+    static let baseURL = "https://api.mercadopago.com/cho-off/beta"
 }
 
 /// Endpoints
@@ -54,7 +54,9 @@ extension CoreAPIEndpoint: RequestEndpoint {
 
     /// Request URL parameters.
     var urlParams: [String: any CustomStringConvertible] {
-        return [:]
+        return [
+            "product_id": MPSDKProduct.id
+        ]
     }
 
     /// Request body data.
