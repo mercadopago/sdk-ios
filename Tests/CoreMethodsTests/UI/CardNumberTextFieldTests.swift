@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 20/01/25.
 //
 
+import CommonTests
 @testable import CoreMethods
 import XCTest
 
@@ -22,7 +23,11 @@ final class CardNumberTextFieldTests: XCTestCase {
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
-        let sut = CardNumberTextField(maxLength: maxLength)
+        let container = MockDependencyContainer()
+        let analytics = container.mockAnalytics
+
+        let sut = CardNumberTextField(maxLength: maxLength, dependencies: container)
+
         return (sut, sut.input)
     }
 

@@ -127,7 +127,7 @@ final class ExpirationDateTextfieldSnapshotTests: XCTestCase {
     }
 
     func test_errorStateAppearance() async {
-        let (sut, input) = self.makeSUT(style: self.makeCustomStyle())
+        let (sut, _) = self.makeSUT(style: self.makeCustomStyle())
 
         sut.setStyle(self.makeErrorCustomStyle())
 

@@ -369,7 +369,6 @@ final class CoreMethodsTests: XCTestCase {
         let expectation = expectation(description: "Analytics event should be sent")
         let expectResponse = InstallmentsStub.expectResponse
         let expectEventData = InstallmentEventData(
-            bin: "12345678",
             amount: 5000,
             paymentType: expectResponse[0].paymentTypeId
         )

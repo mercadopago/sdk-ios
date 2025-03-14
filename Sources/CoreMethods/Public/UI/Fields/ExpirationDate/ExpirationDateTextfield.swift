@@ -70,9 +70,12 @@ public final class ExpirationDateTextfield: PCITextField {
 
     typealias Dependency = HasAnalytics
 
+    /// Internal property for dependency injection in tests
     var dependencies: Dependency = CoreDependencyContainer.shared
 
     var framework: FrameworkType = .uikit
+
+    private var analyticsHasBeenSent = false
 
     // MARK: - Initialization
 
@@ -103,6 +106,35 @@ public final class ExpirationDateTextfield: PCITextField {
         )
         self.setupCallbacks()
 
+        self.sendAnalyticsLoadEvent()
+    }
+
+    convenience init(
+        style: Style = TextFieldDefaultStyle(),
+        dependencies: Dependency,
+        framework: FrameworkType = .uikit
+    ) {
+        self.init(style: style)
+
+        self.analyticsHasBeenSent = false
+
+        self.dependencies = dependencies
+        self.framework = framework
+
+        self.sendAnalyticsLoadEvent()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Analytics
+
+    private func sendAnalyticsLoadEvent() {
+        guard !self.analyticsHasBeenSent else { return }
+        self.analyticsHasBeenSent = true
+
         Task {
             let eventData = SecureFieldEventData(
                 field: .expirationDate,
@@ -114,11 +146,6 @@ public final class ExpirationDateTextfield: PCITextField {
                 .setEventData(eventData)
                 .send()
         }
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: - Private Methods

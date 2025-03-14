@@ -55,9 +55,13 @@ public final class CardNumberTextField: PCITextField {
 
     typealias Dependency = HasAnalytics
 
+    /// Internal property for dependency injection in tests
     var dependencies: Dependency = CoreDependencyContainer.shared
 
     var framework: FrameworkType = .uikit
+
+    /// Flag to track if analytics have been sent
+    private var analyticsHasBeenSent = false
 
     // MARK: - Initialization
 
@@ -66,6 +70,7 @@ public final class CardNumberTextField: PCITextField {
         maxLength: Int = 19,
         mask: String = "#### #### #### #######"
     ) {
+        self.dependencies = CoreDependencyContainer.shared
         self.validation = CardNumberValidation(maxLength: maxLength)
         let configuration = PCIFieldState.Configuration(
             maxLength: maxLength,
@@ -79,6 +84,44 @@ public final class CardNumberTextField: PCITextField {
         super.init(style: style, configuration: configuration, contentType: .creditCardNumber)
         buildLayout()
         self.setupCallbacks()
+        self.sendAnalyticsEvent()
+    }
+
+    /// Internal initializer for testing purposes
+    /// Allows injection of custom dependencies
+    ///
+    /// - Parameters:
+    ///   - style: The styling configuration for the text field
+    ///   - dependencies: Custom dependency container for testing
+    ///   - framework: UI framework type being used
+    convenience init(
+        style: Style = TextFieldDefaultStyle(),
+        maxLength: Int = 19,
+        mask: String = "#### #### #### #######",
+        dependencies: Dependency,
+        framework: FrameworkType = .uikit
+    ) {
+        self.init(style: style, maxLength: maxLength, mask: mask)
+
+        self.analyticsHasBeenSent = false
+
+        self.dependencies = dependencies
+        self.framework = framework
+
+        self.sendAnalyticsEvent()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Private Methods
+
+    private func sendAnalyticsEvent() {
+        // Only send once
+        guard !self.analyticsHasBeenSent else { return }
+        self.analyticsHasBeenSent = true
 
         Task {
             let eventData = SecureFieldEventData(
@@ -92,13 +135,6 @@ public final class CardNumberTextField: PCITextField {
                 .send()
         }
     }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Private Methods
 
     private func setupCallbacks() {
         self.input.onChange = { [weak self] text in

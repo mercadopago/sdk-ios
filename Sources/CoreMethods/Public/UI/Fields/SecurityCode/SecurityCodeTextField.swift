@@ -52,11 +52,14 @@ public final class SecurityCodeTextField: PCITextField {
 
     private let validation: SecurityCodeValidation
 
+    /// Internal property for dependency injection in tests
     typealias Dependency = HasAnalytics
 
     var dependencies: Dependency = CoreDependencyContainer.shared
 
     var framework: FrameworkType = .uikit
+
+    private var analyticsHasBeenSent = false
 
     // MARK: - Initialization
 
@@ -82,6 +85,47 @@ public final class SecurityCodeTextField: PCITextField {
         buildLayout()
         self.setupCallbacks()
 
+        // Send analytics event
+        self.sendAnalyticsEvent()
+    }
+
+    /// Internal initializer for testing purposes
+    /// Allows injection of custom dependencies
+    ///
+    /// - Parameters:
+    ///   - style: The styling configuration for the text field
+    ///   - maxLength: Maximum length for the security code
+    ///   - dependencies: Custom dependency container for testing
+    ///   - framework: UI framework type being used
+    convenience init(
+        style: Style = TextFieldDefaultStyle(),
+        maxLength: Int = 3,
+        dependencies: Dependency,
+        framework: FrameworkType = .uikit
+    ) {
+        self.init(style: style, maxLength: maxLength)
+
+        self.analyticsHasBeenSent = false
+
+        self.dependencies = dependencies
+        self.framework = framework
+
+        self.sendAnalyticsEvent()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Analytics
+
+    /// Sends analytics event only once
+    private func sendAnalyticsEvent() {
+        // Only send once
+        guard !self.analyticsHasBeenSent else { return }
+        self.analyticsHasBeenSent = true
+
         Task {
             let eventData = SecureFieldEventData(
                 field: .securityCode,
@@ -93,11 +137,6 @@ public final class SecurityCodeTextField: PCITextField {
                 .setEventData(eventData)
                 .send()
         }
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: - Private Methods
