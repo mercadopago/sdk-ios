@@ -29,7 +29,7 @@ struct PaymentMethodEventData: AnalyticsEventData {
             "card_brand": self.cardBrand ?? "",
             "issuer": self.issuer != nil ? "\(self.issuer ?? 0)" : "",
             "payment_type": self.paymentType ?? "",
-            "size_security_code": self.sizeSecurityCode != nil ? "\(self.sizeSecurityCode ?? 0)" : ""
+            "security_length": self.sizeSecurityCode != nil ? "\(self.sizeSecurityCode ?? 0)" : ""
         ]
     }
 }
