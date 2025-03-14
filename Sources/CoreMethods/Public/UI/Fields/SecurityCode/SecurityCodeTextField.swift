@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 14/11/24.
 //
 
+import MPAnalytics
 import MPCore
 import UIKit
 
@@ -51,6 +52,12 @@ public final class SecurityCodeTextField: PCITextField {
 
     private let validation: SecurityCodeValidation
 
+    typealias Dependency = HasAnalytics
+
+    var dependencies: Dependency = CoreDependencyContainer.shared
+
+    var framework: FrameworkType = .uikit
+
     // MARK: - Initialization
 
     public init(
@@ -74,6 +81,18 @@ public final class SecurityCodeTextField: PCITextField {
         super.init(style: style, configuration: configuration, contentType: contentType)
         buildLayout()
         self.setupCallbacks()
+
+        Task {
+            let eventData = SecureFieldEventData(
+                field: .securityCode,
+                frameworkUI: framework
+            )
+
+            await dependencies.analytics
+                .trackView("/sdk-native/core-methods/pci_field")
+                .setEventData(eventData)
+                .send()
+        }
     }
 
     @available(*, unavailable)

@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 27/01/25.
 //
 
+import MPAnalytics
 import MPCore
 import UIKit
 
@@ -67,6 +68,12 @@ public final class ExpirationDateTextfield: PCITextField {
 
     private var format: Format = .short
 
+    typealias Dependency = HasAnalytics
+
+    var dependencies: Dependency = CoreDependencyContainer.shared
+
+    var framework: FrameworkType = .uikit
+
     // MARK: - Initialization
 
     public init(
@@ -95,6 +102,18 @@ public final class ExpirationDateTextfield: PCITextField {
             contentType: contentType
         )
         self.setupCallbacks()
+
+        Task {
+            let eventData = SecureFieldEventData(
+                field: .expirationDate,
+                frameworkUI: framework
+            )
+
+            await dependencies.analytics
+                .trackView("/sdk-native/core-methods/pci_field")
+                .setEventData(eventData)
+                .send()
+        }
     }
 
     @available(*, unavailable)
