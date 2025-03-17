@@ -58,10 +58,15 @@ public final class SecurityCodeTextField: PCITextField {
     var dependencies: Dependency = CoreDependencyContainer.shared
 
     var framework: FrameworkType = .uikit
+    
+    private var eventData: SecureFieldEventData {
+        SecureFieldEventData(
+            field: .securityCode,
+            frameworkUI: framework
+        )
+    }
 
     var analyticsTask: Task<Void, Never>?
-
-    private var analyticsHasBeenSent = false
 
     // MARK: - Initialization
 
@@ -106,8 +111,6 @@ public final class SecurityCodeTextField: PCITextField {
     ) {
         self.init(style: style, maxLength: maxLength)
 
-        self.analyticsHasBeenSent = false
-
         self.dependencies = dependencies
         self.framework = framework
     }
@@ -118,18 +121,8 @@ public final class SecurityCodeTextField: PCITextField {
     }
 
     // MARK: - Analytics
-
-    /// Sends analytics event only once
     private func sendAnalyticsEvent() {
-        guard !self.analyticsHasBeenSent else { return }
-        self.analyticsHasBeenSent = true
-
         self.analyticsTask = Task {
-            let eventData = SecureFieldEventData(
-                field: .securityCode,
-                frameworkUI: framework
-            )
-
             await dependencies.analytics
                 .trackView("/sdk-native/core-methods/pci_field")
                 .setEventData(eventData)
@@ -153,6 +146,15 @@ public final class SecurityCodeTextField: PCITextField {
 
         self.input.onFocusChange = { [weak self] focus in
             guard let self else { return }
+            
+            if focus {
+                self.analyticsTask = Task {
+                    await dependencies.analytics
+                        .trackEvent("/sdk-native/core-methods/pci_field/focus")
+                        .setEventData(eventData)
+                        .send()
+                }
+            }
 
             let error = self.validation.error
             if !self.isValid, !focus {

@@ -171,8 +171,12 @@ final class CardNumberTextFieldTests: XCTestCase {
 
     // MARK: - Focus Tests
 
-    func test_onFocusChanged_shouldTrackFocusState() {
-        let (sut, input, _) = self.makeSUT()
+    func test_onFocusChanged_shouldTrackFocusStateAndAnalytics() async {
+        let (sut, input, analytics) = self.makeSUT()
+        let expectEventData = SecureFieldEventData(field: .cardNumber, frameworkUI: .uikit)
+
+        await sut.analyticsTask?.value
+
         var focusStates: [Bool] = []
         sut.onFocusChanged = { isFocused in
             focusStates.append(isFocused)
@@ -180,8 +184,24 @@ final class CardNumberTextFieldTests: XCTestCase {
 
         input.onFocusChange?(true)
         input.onFocusChange?(false)
+        
+        await sut.analyticsTask?.value
+        
+        let messages = await analytics.mock.getMessages()
 
         XCTAssertEqual(focusStates, [true, false])
+        
+        XCTAssertEqual(
+            messages,
+            [
+                .trackView("/sdk-native/core-methods/pci_field"),
+                .setEventData(expectEventData.toDictionary()),
+                .send,
+                .track(path: "/sdk-native/core-methods/pci_field/focus"),
+                .setEventData(expectEventData.toDictionary()),
+                .send
+            ]
+        )
     }
 
     // MARK: - Style Tests
@@ -275,6 +295,7 @@ final class CardNumberTextFieldTests: XCTestCase {
             ]
         )
     }
+    
 }
 
 // MARK: - Helpers

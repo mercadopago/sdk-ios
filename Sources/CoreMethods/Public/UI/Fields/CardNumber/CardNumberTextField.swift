@@ -61,9 +61,14 @@ public final class CardNumberTextField: PCITextField {
     var framework: FrameworkType = .uikit
 
     var analyticsTask: Task<Void, Never>?
+    
+    private var eventData: SecureFieldEventData {
+        SecureFieldEventData(
+            field: .cardNumber,
+            frameworkUI: framework
+        )
+    }
 
-    /// Flag to track if analytics have been sent
-    private var analyticsHasBeenSent = false
 
     // MARK: - Initialization
 
@@ -121,15 +126,7 @@ public final class CardNumberTextField: PCITextField {
     // MARK: - Private Methods
 
     private func sendAnalyticsEvent() {
-        guard !self.analyticsHasBeenSent else { return }
-        self.analyticsHasBeenSent = true
-
         self.analyticsTask = Task {
-            let eventData = SecureFieldEventData(
-                field: .cardNumber,
-                frameworkUI: framework
-            )
-
             await dependencies.analytics
                 .trackView("/sdk-native/core-methods/pci_field")
                 .setEventData(eventData)
@@ -163,6 +160,15 @@ public final class CardNumberTextField: PCITextField {
 
         self.input.onFocusChange = { [weak self] focus in
             guard let self else { return }
+            
+            if focus {
+                self.analyticsTask = Task {
+                    await dependencies.analytics
+                        .trackEvent("/sdk-native/core-methods/pci_field/focus")
+                        .setEventData(eventData)
+                        .send()
+                }
+            }
 
             let error = self.validation.error
             if !self.isValid, !focus {

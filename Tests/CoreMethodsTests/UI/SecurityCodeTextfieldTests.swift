@@ -13,7 +13,8 @@ import XCTest
 final class SecurityCodeTextFieldTests: XCTestCase {
     private typealias SUT = (
         sut: SecurityCodeTextField,
-        input: PCIFieldState
+        input: PCIFieldState,
+        analytics: MockAnalytics
     )
 
     // MARK: - Factory Methods
@@ -27,13 +28,13 @@ final class SecurityCodeTextFieldTests: XCTestCase {
         let analytics = container.mockAnalytics
 
         let sut = SecurityCodeTextField(maxLength: maxLength, dependencies: container)
-        return (sut, sut.input)
+        return (sut, sut.input, analytics)
     }
 
     // MARK: - Initialization Tests
 
     func test_init_defaultValues() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
 
         XCTAssertNotNil(sut.style)
         XCTAssertTrue(sut.isEnabled)
@@ -44,7 +45,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     // MARK: - onInputFilled Tests
 
     func test_onInputFilled_shouldTriggerWhenFieldValid() async {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         let expectation = expectation(description: "onInputFilled called")
 
         sut.onInputFilled = {
@@ -59,7 +60,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     // MARK: - Last Four Digits Tests
 
     func test_onLengthChanged_shouldTriggerWhenValidNumberCompleted() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedLength: Int?
         sut.onLengthChanged = { length in
             capturedLength = length
@@ -71,7 +72,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     }
 
     func test_onLengthChanged_shouldTriggerWhenDigitNumberInField() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var currentLength = 0
         sut.onLengthChanged = { length in
             currentLength = length
@@ -85,7 +86,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     // MARK: - Error Handling Tests
 
     func test_onError_shouldTriggerWithInvalidLength() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedError: SecurityCodeError?
         sut.onError = { error in
             capturedError = error
@@ -99,8 +100,12 @@ final class SecurityCodeTextFieldTests: XCTestCase {
 
     // MARK: - Focus Tests
 
-    func test_onFocusChanged_shouldTrackFocusState() {
-        let (sut, input) = self.makeSUT()
+    func test_onFocusChanged_shouldTrackFocusStateAndAnalytics() async {
+        let (sut, input, analytics) = self.makeSUT()
+        let expectEventData = SecureFieldEventData(field: .securityCode, frameworkUI: .uikit)
+
+        await sut.analyticsTask?.value
+
         var focusStates: [Bool] = []
         sut.onFocusChanged = { isFocused in
             focusStates.append(isFocused)
@@ -108,14 +113,30 @@ final class SecurityCodeTextFieldTests: XCTestCase {
 
         input.onFocusChange?(true)
         input.onFocusChange?(false)
+        
+        await sut.analyticsTask?.value
+        
+        let messages = await analytics.mock.getMessages()
 
         XCTAssertEqual(focusStates, [true, false])
+        
+        XCTAssertEqual(
+            messages,
+            [
+                .trackView("/sdk-native/core-methods/pci_field"),
+                .setEventData(expectEventData.toDictionary()),
+                .send,
+                .track(path: "/sdk-native/core-methods/pci_field/focus"),
+                .setEventData(expectEventData.toDictionary()),
+                .send
+            ]
+        )
     }
 
     // MARK: - Style Tests
 
     func test_setStyle_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let newStyle = TextFieldDefaultStyle()
             .textColor(.red)
             .borderColor(.blue)
@@ -130,7 +151,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     // MARK: - Clear Tests
 
     func test_clear_shouldResetToInitialState() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
 
         simulateTextInput("4111111111111111", input: input)
         sut.clear()
@@ -143,7 +164,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     // MARK: - Max Length Tests
 
     func test_setMaxLength_shouldUpdateAndReturnSelf() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         let newMaxLength = 13
         let text = "4123456789111213145"
 
@@ -157,7 +178,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     // MARK: - Placeholder
 
     func test_setPlaceholder_shouldUpdatePlaceholderAndReturnSelf() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         let text = "card number insert"
 
         sut.setPlaceholder(text)
@@ -169,7 +190,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     // MARK: - Side View Tests
 
     func test_setLeftImage_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let imageView = UIImageView()
 
         let result = sut.setLeftImage(view: imageView)
@@ -178,7 +199,7 @@ final class SecurityCodeTextFieldTests: XCTestCase {
     }
 
     func test_setRightImage_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let imageView = UIImageView()
 
         let result = sut.setRightImage(view: imageView)

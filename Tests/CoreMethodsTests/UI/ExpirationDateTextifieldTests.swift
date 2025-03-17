@@ -148,8 +148,12 @@ final class ExpirationDateTextfieldTests: XCTestCase {
 
     // MARK: - Focus Tests
 
-    func test_onFocusChanged_shouldTrackFocusState() {
-        let (sut, input, _) = self.makeSUT()
+    func test_onFocusChanged_shouldTrackFocusStateAndAnalytics() async {
+        let (sut, input, analytics) = self.makeSUT()
+        let expectEventData = SecureFieldEventData(field: .expirationDate, frameworkUI: .uikit)
+
+        await sut.analyticsTask?.value
+
         var focusStates: [Bool] = []
         sut.onFocusChanged = { isFocused in
             focusStates.append(isFocused)
@@ -157,8 +161,24 @@ final class ExpirationDateTextfieldTests: XCTestCase {
 
         input.onFocusChange?(true)
         input.onFocusChange?(false)
+        
+        await sut.analyticsTask?.value
+        
+        let messages = await analytics.mock.getMessages()
 
         XCTAssertEqual(focusStates, [true, false])
+        
+        XCTAssertEqual(
+            messages,
+            [
+                .trackView("/sdk-native/core-methods/pci_field"),
+                .setEventData(expectEventData.toDictionary()),
+                .send,
+                .track(path: "/sdk-native/core-methods/pci_field/focus"),
+                .setEventData(expectEventData.toDictionary()),
+                .send
+            ]
+        )
     }
 
     // MARK: - Style Tests
@@ -219,24 +239,6 @@ final class ExpirationDateTextfieldTests: XCTestCase {
         let result = sut.setRightImage(view: imageView)
 
         XCTAssertTrue(result === sut)
-    }
-
-    func test_init_shouldSendEventData() async {
-        let (sut, _, analytics) = self.makeSUT()
-        let expectEventData = SecureFieldEventData(field: .expirationDate, frameworkUI: .uikit)
-
-        await sut.analyticsTask?.value
-
-        let messages = await analytics.mock.getMessages()
-
-        XCTAssertEqual(
-            messages,
-            [
-                .trackView("/sdk-native/core-methods/pci_field"),
-                .setEventData(expectEventData.toDictionary()),
-                .send
-            ]
-        )
     }
 }
 
