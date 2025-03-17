@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 17/01/25.
 //
 
+import CommonTests
 @testable import CoreMethods
 import SnapshotTesting
 import XCTest
@@ -23,7 +24,9 @@ final class CardNumberTextFieldSnapshotTests: XCTestCase {
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
-        let sut = CardNumberTextField(style: style)
+        let container = MockDependencyContainer()
+
+        let sut = CardNumberTextField(style: style, dependencies: container)
         sut.frame = CGRect(x: 0, y: 0, width: 300, height: 56)
         sut.backgroundColor = .white
         sut.setPlaceholder("Card number")

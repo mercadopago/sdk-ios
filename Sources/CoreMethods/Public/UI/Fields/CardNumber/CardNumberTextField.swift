@@ -60,6 +60,8 @@ public final class CardNumberTextField: PCITextField {
 
     var framework: FrameworkType = .uikit
 
+    var analyticsTask: Task<Void, Never>?
+
     /// Flag to track if analytics have been sent
     private var analyticsHasBeenSent = false
 
@@ -103,12 +105,8 @@ public final class CardNumberTextField: PCITextField {
     ) {
         self.init(style: style, maxLength: maxLength, mask: mask)
 
-        self.analyticsHasBeenSent = false
-
         self.dependencies = dependencies
         self.framework = framework
-
-        self.sendAnalyticsEvent()
     }
 
     @available(*, unavailable)
@@ -116,14 +114,17 @@ public final class CardNumberTextField: PCITextField {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        analyticsTask?.cancel()
+    }
+
     // MARK: - Private Methods
 
     private func sendAnalyticsEvent() {
-        // Only send once
         guard !self.analyticsHasBeenSent else { return }
         self.analyticsHasBeenSent = true
 
-        Task {
+        self.analyticsTask = Task {
             let eventData = SecureFieldEventData(
                 field: .cardNumber,
                 frameworkUI: framework

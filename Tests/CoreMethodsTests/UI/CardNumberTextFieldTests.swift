@@ -13,7 +13,8 @@ import XCTest
 final class CardNumberTextFieldTests: XCTestCase {
     private typealias SUT = (
         sut: CardNumberTextField,
-        input: PCIFieldState
+        input: PCIFieldState,
+        analytics: MockAnalytics
     )
 
     // MARK: - Factory Methods
@@ -28,13 +29,13 @@ final class CardNumberTextFieldTests: XCTestCase {
 
         let sut = CardNumberTextField(maxLength: maxLength, dependencies: container)
 
-        return (sut, sut.input)
+        return (sut, sut.input, analytics)
     }
 
     // MARK: - Initialization Tests
 
     func test_init_defaultValues() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
 
         XCTAssertNotNil(sut.style)
         XCTAssertTrue(sut.isEnabled)
@@ -45,7 +46,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - BIN Detection Tests
 
     func test_onBinChanged_shouldTriggerWhenFirst8DigitsEntered() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedBin: String?
         sut.onBinChanged = { bin in
             capturedBin = bin
@@ -57,7 +58,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     }
 
     func test_onBinChanged_shouldTriggerWithLessThan8Digits() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var binChangeCount = 0
         sut.onBinChanged = { _ in
             binChangeCount += 1
@@ -71,7 +72,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Last Four Digits Tests
 
     func test_onLastFourDigitsFilled_shouldTriggerWhenValidNumberCompleted() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedLastFour: String?
         sut.onLastFourDigitsFilled = { lastFour in
             capturedLastFour = lastFour
@@ -83,7 +84,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     }
 
     func test_onLastFourDigitsFilled_shouldValidateLuhn() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedLastFour: String?
         sut.onLastFourDigitsFilled = { lastFour in
             capturedLastFour = lastFour
@@ -98,7 +99,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Luhn Validation Tests
 
     func test_onLastFourDigitsFilled_When19Digits_shouldValidateLuhn() async {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
 
         var capturedLastFour: String?
         sut.onLastFourDigitsFilled = { lastFour in
@@ -111,7 +112,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     }
 
     func test_onLastFourDigitsFilled_When15Digitis_shouldValidateLuhn() {
-        let (sut, input) = self.makeSUT(maxLength: 15)
+        let (sut, input, _) = self.makeSUT(maxLength: 15)
 
         sut.setMask(pattern: "#### ###### #####")
 
@@ -129,7 +130,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Error Handling Tests
 
     func test_onError_shouldTriggerWithInvalidLuhn() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedError: CardNumberError?
         sut.onError = { error in
             capturedError = error
@@ -142,7 +143,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     }
 
     func test_onError_shouldTriggerWithInvalidLength() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedError: CardNumberError?
         sut.onError = { error in
             capturedError = error
@@ -155,7 +156,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     }
 
     func test_onError_When19Digits_shouldNotValidateLuhn() async {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
 
         var capturedError: CardNumberError?
         sut.onError = { error in
@@ -171,7 +172,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Focus Tests
 
     func test_onFocusChanged_shouldTrackFocusState() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var focusStates: [Bool] = []
         sut.onFocusChanged = { isFocused in
             focusStates.append(isFocused)
@@ -186,7 +187,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Style Tests
 
     func test_setStyle_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let newStyle = TextFieldDefaultStyle()
             .textColor(.red)
             .borderColor(.blue)
@@ -201,7 +202,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Clear Tests
 
     func test_clear_shouldResetToInitialState() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
 
         simulateTextInput("4111111111111111", input: input)
         sut.clear()
@@ -214,7 +215,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Max Length Tests
 
     func test_setMaxLength_shouldUpdateAndReturnSelf() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         let newMaxLength = 13
         let text = "4123456789111213145"
 
@@ -228,7 +229,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Placeholder
 
     func test_setPlaceholder_shouldUpdatePlaceholderAndReturnSelf() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         let text = "card number insert"
 
         sut.setPlaceholder(text)
@@ -240,7 +241,7 @@ final class CardNumberTextFieldTests: XCTestCase {
     // MARK: - Side View Tests
 
     func test_setLeftImage_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let imageView = UIImageView()
 
         let result = sut.setLeftImage(view: imageView)
@@ -249,12 +250,30 @@ final class CardNumberTextFieldTests: XCTestCase {
     }
 
     func test_setRightImage_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let imageView = UIImageView()
 
         let result = sut.setRightImage(view: imageView)
 
         XCTAssertTrue(result === sut)
+    }
+
+    func test_init_shouldSendEventData() async {
+        let (sut, _, analytics) = self.makeSUT()
+        let expectEventData = SecureFieldEventData(field: .cardNumber, frameworkUI: .uikit)
+
+        await sut.analyticsTask?.value
+
+        let messages = await analytics.mock.getMessages()
+
+        XCTAssertEqual(
+            messages,
+            [
+                .trackView("/sdk-native/core-methods/pci_field"),
+                .setEventData(expectEventData.toDictionary()),
+                .send
+            ]
+        )
     }
 }
 

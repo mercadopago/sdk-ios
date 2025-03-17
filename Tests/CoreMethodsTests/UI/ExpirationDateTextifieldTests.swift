@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 27/01/25.
 //
 
+import CommonTests
 @testable import CoreMethods
 import XCTest
 
@@ -12,7 +13,8 @@ import XCTest
 final class ExpirationDateTextfieldTests: XCTestCase {
     private typealias SUT = (
         sut: ExpirationDateTextfield,
-        input: PCIFieldState
+        input: PCIFieldState,
+        analytics: MockAnalytics
     )
 
     // MARK: - Factory Methods
@@ -21,14 +23,17 @@ final class ExpirationDateTextfieldTests: XCTestCase {
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
-        let sut = ExpirationDateTextfield()
-        return (sut, sut.input)
+        let container = MockDependencyContainer()
+        let analytics = container.mockAnalytics
+
+        let sut = ExpirationDateTextfield(dependencies: container)
+        return (sut, sut.input, analytics)
     }
 
     // MARK: - Initialization Tests
 
     func test_init_defaultValues() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
 
         XCTAssertNotNil(sut.style)
         XCTAssertTrue(sut.isEnabled)
@@ -39,7 +44,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Format Tests
 
     func test_shortFormat_shouldLimitToFourDigits() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
 
         sut.setFormat(.short)
 
@@ -50,7 +55,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     }
 
     func test_longFormat_shouldLimitToSixDigits() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         sut.setFormat(.long)
 
         simulateTextInput("123456", input: input)
@@ -60,7 +65,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     }
 
     func test_setFormat_WhenSelectLong_shouldLimitToSixDigits() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         sut.setFormat(.long)
 
         simulateTextInput("123456", input: input)
@@ -72,7 +77,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Validation Tests
 
     func test_validation_shouldRejectInvalidMonth() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedError: ExpirationDateError?
         sut.onError = { error in
             capturedError = error
@@ -86,7 +91,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     }
 
     func test_validation_shouldRejectExpiredDate() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedError: ExpirationDateError?
         sut.onError = { error in
             capturedError = error
@@ -100,7 +105,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     }
 
     func test_validation_shouldAcceptValidFutureDate() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var inputFilledCalled = false
         sut.onInputFilled = {
             inputFilledCalled = true
@@ -115,7 +120,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - onInputFilled Tests
 
     func test_onInputFilled_shouldTriggerWhenFieldValid() async {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         let expectation = expectation(description: "onInputFilled called")
 
         sut.onInputFilled = {
@@ -130,7 +135,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Length Changed Tests
 
     func test_onLengthChanged_shouldTriggerWhenDigitsAdded() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var capturedLengths: [Int] = []
         sut.onLengthChanged = { length in
             capturedLengths.append(length)
@@ -144,7 +149,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Focus Tests
 
     func test_onFocusChanged_shouldTrackFocusState() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         var focusStates: [Bool] = []
         sut.onFocusChanged = { isFocused in
             focusStates.append(isFocused)
@@ -159,7 +164,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Style Tests
 
     func test_setStyle_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let newStyle = TextFieldDefaultStyle()
             .textColor(.red)
             .borderColor(.blue)
@@ -174,7 +179,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Clear Tests
 
     func test_clear_shouldResetToInitialState() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
 
         simulateTextInput("12/25", input: input)
         sut.clear()
@@ -187,7 +192,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Placeholder Tests
 
     func test_setPlaceholder_shouldUpdatePlaceholderAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let text = "MM/YY"
 
         let result = sut.setPlaceholder(text)
@@ -199,7 +204,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     // MARK: - Side View Tests
 
     func test_setLeftImage_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let imageView = UIImageView()
 
         let result = sut.setLeftImage(view: imageView)
@@ -208,12 +213,30 @@ final class ExpirationDateTextfieldTests: XCTestCase {
     }
 
     func test_setRightImage_shouldUpdateAndReturnSelf() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let imageView = UIImageView()
 
         let result = sut.setRightImage(view: imageView)
 
         XCTAssertTrue(result === sut)
+    }
+
+    func test_init_shouldSendEventData() async {
+        let (sut, _, analytics) = self.makeSUT()
+        let expectEventData = SecureFieldEventData(field: .expirationDate, frameworkUI: .uikit)
+
+        await sut.analyticsTask?.value
+
+        let messages = await analytics.mock.getMessages()
+
+        XCTAssertEqual(
+            messages,
+            [
+                .trackView("/sdk-native/core-methods/pci_field"),
+                .setEventData(expectEventData.toDictionary()),
+                .send
+            ]
+        )
     }
 }
 

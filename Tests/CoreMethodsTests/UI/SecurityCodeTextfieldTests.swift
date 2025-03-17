@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 21/01/25.
 //
 
+import CommonTests
 @testable import CoreMethods
 import XCTest
 
@@ -22,7 +23,10 @@ final class SecurityCodeTextFieldTests: XCTestCase {
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
-        let sut = SecurityCodeTextField(maxLength: maxLength)
+        let container = MockDependencyContainer()
+        let analytics = container.mockAnalytics
+
+        let sut = SecurityCodeTextField(maxLength: maxLength, dependencies: container)
         return (sut, sut.input)
     }
 

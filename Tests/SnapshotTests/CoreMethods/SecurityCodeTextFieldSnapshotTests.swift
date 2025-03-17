@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 21/01/25.
 //
 
+import CommonTests
 @testable import CoreMethods
 import SnapshotTesting
 import XCTest
@@ -13,7 +14,8 @@ import XCTest
 final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     private typealias SUT = (
         sut: SecurityCodeTextField,
-        input: PCIFieldState
+        input: PCIFieldState,
+        analytics: MockAnalytics
     )
 
     // MARK: - Factory Methods
@@ -23,12 +25,15 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
-        let sut = SecurityCodeTextField(style: style)
+        let container = MockDependencyContainer()
+        let analytics = container.mockAnalytics
+
+        let sut = SecurityCodeTextField(style: style, dependencies: container)
         sut.frame = CGRect(x: 0, y: 0, width: 300, height: 56)
         sut.backgroundColor = .white
         sut.setPlaceholder("Insert security code")
 
-        return (sut, sut.input)
+        return (sut, sut.input, analytics)
     }
 
     private func makeCustomStyle() -> TextFieldDefaultStyle {
@@ -63,7 +68,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     // MARK: - Appearance Tests
 
     func test_defaultAppearance() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
 
         assertSnapshot(
             of: sut,
@@ -74,7 +79,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
 
     func test_customStyleAppearance() {
         let style = self.makeCustomStyle()
-        let (sut, _) = self.makeSUT(style: style)
+        let (sut, _, _) = self.makeSUT(style: style)
 
         assertSnapshot(
             of: sut,
@@ -86,7 +91,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     // MARK: - Input State Tests
 
     func test_partiallyFilledAppearance() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
 
         simulateTextInput("1", input: input)
 
@@ -98,7 +103,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     }
 
     func test_completelyFilledAppearance() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
 
         simulateTextInput("123", input: input)
 
@@ -112,7 +117,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     // MARK: - Validation State Tests
 
     func test_customMaxLength() {
-        let (sut, input) = self.makeSUT()
+        let (sut, input, _) = self.makeSUT()
         sut.setMaxLength(4)
 
         simulateTextInput("1234", input: input)
@@ -125,7 +130,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     }
 
     func test_errorStateAppearance() async {
-        let (sut, _) = self.makeSUT(style: self.makeCustomStyle())
+        let (sut, _, _) = self.makeSUT(style: self.makeCustomStyle())
 
         sut.setStyle(self.makeErrorCustomStyle())
 
@@ -137,7 +142,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     }
 
     func test_disabledStateAppearance() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
 
         sut.isEnabled = false
 
@@ -151,7 +156,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     // MARK: - Side Views Tests
 
     func test_leftIconAppearance() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let imageView = UIImageView(image: UIImage(systemName: "creditcard.fill"))
         imageView.tintColor = .blue
         imageView.contentMode = .scaleAspectFit
@@ -167,7 +172,7 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
     }
 
     func test_rightIconAppearance() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let imageView = UIImageView(image: UIImage(systemName: "checkmark.circle.fill"))
         imageView.tintColor = .green
         imageView.contentMode = .scaleAspectFit
@@ -179,6 +184,24 @@ final class SecurityCodeTextFieldSnapshotTests: XCTestCase {
             of: sut,
             as: .image(size: sut.frame.size),
             named: "security_field_right_icon"
+        )
+    }
+
+    func test_init_shouldSendEventData() async {
+        let (sut, _, analytics) = self.makeSUT()
+        let expectEventData = SecureFieldEventData(field: .securityCode, frameworkUI: .uikit)
+
+        await sut.analyticsTask?.value
+
+        let messages = await analytics.mock.getMessages()
+
+        XCTAssertEqual(
+            messages,
+            [
+                .trackView("/sdk-native/core-methods/pci_field"),
+                .setEventData(expectEventData.toDictionary()),
+                .send
+            ]
         )
     }
 }

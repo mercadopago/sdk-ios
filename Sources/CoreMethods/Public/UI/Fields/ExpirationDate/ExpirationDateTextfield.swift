@@ -75,6 +75,8 @@ public final class ExpirationDateTextfield: PCITextField {
 
     var framework: FrameworkType = .uikit
 
+    var analyticsTask: Task<Void, Never>?
+
     private var analyticsHasBeenSent = false
 
     // MARK: - Initialization
@@ -120,13 +122,15 @@ public final class ExpirationDateTextfield: PCITextField {
 
         self.dependencies = dependencies
         self.framework = framework
-
-        self.sendAnalyticsLoadEvent()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    deinit {
+        analyticsTask?.cancel()
     }
 
     // MARK: - Analytics
@@ -135,7 +139,7 @@ public final class ExpirationDateTextfield: PCITextField {
         guard !self.analyticsHasBeenSent else { return }
         self.analyticsHasBeenSent = true
 
-        Task {
+        self.analyticsTask = Task {
             let eventData = SecureFieldEventData(
                 field: .expirationDate,
                 frameworkUI: framework

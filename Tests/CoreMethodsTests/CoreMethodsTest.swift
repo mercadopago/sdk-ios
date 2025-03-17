@@ -147,9 +147,10 @@ final class CoreMethodsTests: XCTestCase {
         expirationDate: ExpirationDateTextfield,
         securityCode: SecurityCodeTextField
     ) {
-        let cardNumberField = await CardNumberTextField()
-        let expirationDateField = await ExpirationDateTextfield()
-        let securityCodeField = await SecurityCodeTextField()
+        let container = MockDependencyContainer()
+        let cardNumberField = await CardNumberTextField(dependencies: container)
+        let expirationDateField = await ExpirationDateTextfield(dependencies: container)
+        let securityCodeField = await SecurityCodeTextField(dependencies: container)
 
         return (cardNumberField, expirationDateField, securityCodeField)
     }
@@ -277,7 +278,7 @@ final class CoreMethodsTests: XCTestCase {
         // Arrange
         let (sut, session, _) = self.makeSUT()
         let cardID = "123"
-        let securityCode = await SecurityCodeTextField()
+        let (_, _, securityCode) = await makeCardFields()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
         await session.mock.setData(CardTokenStub.validResponse)

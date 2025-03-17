@@ -59,6 +59,8 @@ public final class SecurityCodeTextField: PCITextField {
 
     var framework: FrameworkType = .uikit
 
+    var analyticsTask: Task<Void, Never>?
+
     private var analyticsHasBeenSent = false
 
     // MARK: - Initialization
@@ -85,7 +87,6 @@ public final class SecurityCodeTextField: PCITextField {
         buildLayout()
         self.setupCallbacks()
 
-        // Send analytics event
         self.sendAnalyticsEvent()
     }
 
@@ -109,8 +110,6 @@ public final class SecurityCodeTextField: PCITextField {
 
         self.dependencies = dependencies
         self.framework = framework
-
-        self.sendAnalyticsEvent()
     }
 
     @available(*, unavailable)
@@ -122,11 +121,10 @@ public final class SecurityCodeTextField: PCITextField {
 
     /// Sends analytics event only once
     private func sendAnalyticsEvent() {
-        // Only send once
         guard !self.analyticsHasBeenSent else { return }
         self.analyticsHasBeenSent = true
 
-        Task {
+        self.analyticsTask = Task {
             let eventData = SecureFieldEventData(
                 field: .securityCode,
                 frameworkUI: framework
