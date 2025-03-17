@@ -14,10 +14,85 @@ package final class MockAnalytics: AnalyticsInterface {
         package enum Messages: Equatable {
             case initialize(version: String, siteID: String)
             case track(path: String)
-            case setEventData([String: String])
+            case setEventData([String: any Sendable])
             case send
             case trackView(_ path: String)
             case setError(String)
+
+            package static func == (lhs: Messages, rhs: Messages) -> Bool {
+                switch (lhs, rhs) {
+                case let (.initialize(lVersion, lSiteID), .initialize(rVersion, rSiteID)):
+                    return lVersion == rVersion && lSiteID == rSiteID
+
+                case let (.track(lPath), .track(rPath)):
+                    return lPath == rPath
+
+                case let (.setEventData(lData), .setEventData(rData)):
+                    return self.areDictionariesEqual(lData, rData)
+
+                case (.send, .send):
+                    return true
+
+                case let (.trackView(lPath), .trackView(rPath)):
+                    return lPath == rPath
+
+                case let (.setError(lError), .setError(rError)):
+                    return lError == rError
+
+                default:
+                    return false
+                }
+            }
+
+            private static func areDictionariesEqual(_ dict1: [String: Any], _ dict2: [String: Any]) -> Bool {
+                guard dict1.keys.count == dict2.keys.count else { return false }
+
+                for (key, value1) in dict1 {
+                    guard let value2 = dict2[key] else { return false }
+
+                    if !self.areValuesEqual(value1, value2) {
+                        return false
+                    }
+                }
+
+                return true
+            }
+
+            private static func areValuesEqual(_ value1: Any, _ value2: Any) -> Bool {
+                // String
+                if let v1 = value1 as? String, let v2 = value2 as? String {
+                    return v1 == v2
+                }
+                // Int
+                else if let v1 = value1 as? Int, let v2 = value2 as? Int {
+                    return v1 == v2
+                }
+                // Double
+                else if let v1 = value1 as? Double, let v2 = value2 as? Double {
+                    return v1 == v2
+                }
+                // Bool
+                else if let v1 = value1 as? Bool, let v2 = value2 as? Bool {
+                    return v1 == v2
+                }
+                // [String: Any]
+                else if let v1 = value1 as? [String: Any], let v2 = value2 as? [String: Any] {
+                    return self.areDictionariesEqual(v1, v2)
+                }
+
+                else if let v1 = value1 as? [Any], let v2 = value2 as? [Any] {
+                    guard v1.count == v2.count else { return false }
+
+                    for i in 0 ..< v1.count {
+                        if !self.areValuesEqual(v1[i], v2[i]) {
+                            return false
+                        }
+                    }
+                    return true
+                } else {
+                    return false
+                }
+            }
         }
 
         var messages: [Messages] = []

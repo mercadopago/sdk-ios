@@ -16,11 +16,11 @@ struct SecureFieldEventData: AnalyticsEventData {
         case securityCode
     }
 
-    func toDictionary() -> [String: String] {
+    func toDictionary() -> [String: any Sendable] {
         return [
             "field": self.field?.rawValue ?? "",
             "framework_ui": self.frameworkUI?.rawValue ?? "",
-            "is_development": "\(self.isDevelopment)"
+            "is_development": self.isDevelopment
         ]
     }
 }

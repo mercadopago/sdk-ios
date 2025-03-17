@@ -24,7 +24,7 @@ struct PaymentMethodEventData: AnalyticsEventData {
         self.cardBrand = cardBrand
     }
 
-    func toDictionary() -> [String: String] {
+    func toDictionary() -> [String: any Sendable] {
         return [
             "card_brand": self.cardBrand ?? "",
             "issuer": self.issuer != nil ? "\(self.issuer ?? 0)" : "",

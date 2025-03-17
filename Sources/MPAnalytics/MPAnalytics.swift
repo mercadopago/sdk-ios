@@ -33,7 +33,7 @@ package protocol AnalyticsEventData: Sendable, Encodable {
     /// Converts event data into a JSON-compatible dictionary format.
     ///
     /// - Returns: A dictionary containing the formatted event data for JSON serialization.
-    func toDictionary() -> [String: String]
+    func toDictionary() -> [String: any Sendable]
 }
 
 package extension AnalyticsEventData {
