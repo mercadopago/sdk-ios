@@ -58,11 +58,11 @@ public final class SecurityCodeTextField: PCITextField {
     var dependencies: Dependency = CoreDependencyContainer.shared
 
     var framework: FrameworkType = .uikit
-    
+
     private var eventData: SecureFieldEventData {
         SecureFieldEventData(
             field: .securityCode,
-            frameworkUI: framework
+            frameworkUI: self.framework
         )
     }
 
@@ -121,11 +121,12 @@ public final class SecurityCodeTextField: PCITextField {
     }
 
     // MARK: - Analytics
+
     private func sendAnalyticsEvent() {
         self.analyticsTask = Task {
-            await dependencies.analytics
+            await self.dependencies.analytics
                 .trackView("/sdk-native/core-methods/pci_field")
-                .setEventData(eventData)
+                .setEventData(self.eventData)
                 .send()
         }
     }
@@ -146,12 +147,12 @@ public final class SecurityCodeTextField: PCITextField {
 
         self.input.onFocusChange = { [weak self] focus in
             guard let self else { return }
-            
+
             if focus {
                 self.analyticsTask = Task {
-                    await dependencies.analytics
+                    await self.dependencies.analytics
                         .trackEvent("/sdk-native/core-methods/pci_field/focus")
-                        .setEventData(eventData)
+                        .setEventData(self.eventData)
                         .send()
                 }
             }

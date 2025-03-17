@@ -61,14 +61,13 @@ public final class CardNumberTextField: PCITextField {
     var framework: FrameworkType = .uikit
 
     var analyticsTask: Task<Void, Never>?
-    
+
     private var eventData: SecureFieldEventData {
         SecureFieldEventData(
             field: .cardNumber,
-            frameworkUI: framework
+            frameworkUI: self.framework
         )
     }
-
 
     // MARK: - Initialization
 
@@ -127,9 +126,9 @@ public final class CardNumberTextField: PCITextField {
 
     private func sendAnalyticsEvent() {
         self.analyticsTask = Task {
-            await dependencies.analytics
+            await self.dependencies.analytics
                 .trackView("/sdk-native/core-methods/pci_field")
-                .setEventData(eventData)
+                .setEventData(self.eventData)
                 .send()
         }
     }
@@ -160,12 +159,12 @@ public final class CardNumberTextField: PCITextField {
 
         self.input.onFocusChange = { [weak self] focus in
             guard let self else { return }
-            
+
             if focus {
                 self.analyticsTask = Task {
-                    await dependencies.analytics
+                    await self.dependencies.analytics
                         .trackEvent("/sdk-native/core-methods/pci_field/focus")
-                        .setEventData(eventData)
+                        .setEventData(self.eventData)
                         .send()
                 }
             }

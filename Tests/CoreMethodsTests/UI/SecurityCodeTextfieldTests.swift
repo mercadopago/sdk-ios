@@ -113,13 +113,13 @@ final class SecurityCodeTextFieldTests: XCTestCase {
 
         input.onFocusChange?(true)
         input.onFocusChange?(false)
-        
+
         await sut.analyticsTask?.value
-        
+
         let messages = await analytics.mock.getMessages()
 
         XCTAssertEqual(focusStates, [true, false])
-        
+
         XCTAssertEqual(
             messages,
             [
