@@ -149,7 +149,8 @@ public final class SecurityCodeTextField: PCITextField {
             guard let self else { return }
 
             if focus {
-                self.analyticsTask = Task {
+                self.analyticsTask = Task { [weak self] in
+                    guard let self else { return }
                     await self.dependencies.analytics
                         .trackEvent("/sdk-native/core-methods/pci_field/focus")
                         .setEventData(self.eventData)
