@@ -33,7 +33,9 @@ package final class CoreDependencyContainer: DI {
     package let networkService: NetworkServiceProtocol
 
     /// Analytics service for tracking SDK events
-    package let analytics: AnalyticsInterface
+    package var analytics: AnalyticsInterface {
+        return MPAnalytics()
+    }
 
     package let keyChainService: KeyChainManagerProtocol
 
@@ -43,11 +45,9 @@ package final class CoreDependencyContainer: DI {
     /// Private initializer configuring default services
     package init(
         networkService: NetworkServiceProtocol = NetworkService(),
-        analytics: AnalyticsInterface = MPAnalytics(),
         keyChainService: KeyChainManagerProtocol = KeychainManager()
     ) {
         self.networkService = networkService
-        self.analytics = analytics
         self.keyChainService = keyChainService
     }
 }
