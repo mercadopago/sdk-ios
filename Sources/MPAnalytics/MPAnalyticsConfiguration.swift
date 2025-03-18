@@ -9,4 +9,6 @@ package actor MPAnalyticsConfiguration {
     static var version = ""
 
     static var siteID = ""
+
+    static var sessionID = ""
 }

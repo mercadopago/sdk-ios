@@ -118,9 +118,6 @@ package protocol AnalyticsInterface: Sendable {
 ///     .send()
 /// ```
 package final class MPAnalytics: AnalyticsInterface {
-    /// Unique identifier for the current analytics session.
-    private let sessionId: String
-
     actor TrackEvent {
         /// Custom data for the current event.
         private var eventData: AnalyticsEventData?
@@ -177,15 +174,14 @@ package final class MPAnalytics: AnalyticsInterface {
     /// Initializes a new Analytics instance.
     ///
     /// Creates a new UUID session identifier.
-    package init() {
-        self.sessionId = UUID().uuidString
-    }
+    package init() {}
 
     // MARK: - Interface Implementation
 
     package func initialize(version: String, siteID: String) async {
         MPAnalyticsConfiguration.version = version
         MPAnalyticsConfiguration.siteID = siteID
+        MPAnalyticsConfiguration.sessionID = UUID().uuidString
     }
 
     @discardableResult
@@ -244,7 +240,7 @@ package final class MPAnalytics: AnalyticsInterface {
                 "uid": self.buyerInfo.getUID()
             ],
             "type": self.track.getType().rawValue,
-            "id": self.sessionId,
+            "id": MPAnalyticsConfiguration.sessionID,
             "user_time": Int64(Date().timeIntervalSince1970 * 1000),
             "event_data": getEventData(),
             "application": [
