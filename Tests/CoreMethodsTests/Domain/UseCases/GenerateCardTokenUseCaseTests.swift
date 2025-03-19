@@ -47,7 +47,10 @@ final class GenerateCardTokenUseCaseTests: XCTestCase {
                 expirationDateMonth: "12",
                 expirationDateYear: "2032",
                 securityCodeInput: "123",
-                cardID: nil
+                cardID: nil,
+                cardHolderName: nil,
+                identificationType: nil,
+                identificationNumber: nil
             )
 
             XCTAssertEqual(result.token, "1234")

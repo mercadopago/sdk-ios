@@ -12,6 +12,16 @@ import MPCore
 
 /// CoreMethods provides access to Mercado Pago's public API functionality.
 /// This class serves as the main entry point for interacting with Mercado Pago's payment processing services,
+/// offering methods for card tokenization, fetching payment options, and retrieving supported identification types.
+///
+/// # Features
+/// - Card tokenization for new and saved cards
+/// - Retrieval of accepted identification document types
+/// - Fetching of available installment options for payments
+/// - Discovery of payment methods supported for a specific card
+///
+/// # Thread Safety
+/// This class is thread-safe and can be used from multiple threads simultaneously.
 ///
 /// Usage Example:
 /// ```swift
@@ -67,77 +77,221 @@ public final class CoreMethods: Sendable {
 
     /// Creates a card token using the provided card details.
     ///
-    /// This method processes the input from various card-related text fields and generates
+    /// This method processes the input from card-related text fields and generates
     /// a token that can be used for payment processing through Mercado Pago's API.
+    /// It's suitable for collecting minimal card information without cardholder details.
+    ///
+    /// # Example
+    /// ```swift
+    /// Task {
+    ///     do {
+    ///         let token = try await coreMethods.createToken(
+    ///             cardNumber: cardNumberField,
+    ///             expirationDate: expirationField,
+    ///             securityCode: securityCodeField
+    ///         )
+    ///         print("Generated token: \(token.id)")
+    ///     } catch {
+    ///         print("Token generation failed: \(error)")
+    ///     }
+    /// }
+    /// ```
     ///
     /// - Parameters:
     ///   - cardNumber: A text field containing the card number
-    ///   - expirationDate: A text field containing the card's expiration date
+    ///   - expirationDate: A text field containing the card's expiration date in MM/YY format
     ///   - securityCode: A text field containing the card's security code (CVV)
     ///
-    /// - Returns: A CardToken object containing:
-    ///   - token: The generated card token
+    /// - Returns: A CardToken object containing the generated card token and related information
     ///
-    /// - Throws: An error if token generation fails
+    /// - Throws:
+    ///   - NetworkError: If communication with the API fails
+    ///   - ValidationError: If the provided card details are invalid
+    ///   - DecodingError: If the API response cannot be properly decoded
     ///
     /// - Note: This method performs asynchronous operations to retrieve values from the text fields
     ///         and to communicate with the Mercado Pago API
+    ///
     public func createToken(
         cardNumber: CardNumberTextField,
         expirationDate: ExpirationDateTextfield,
         securityCode: SecurityCodeTextField
     ) async throws -> CardToken {
-        async let cardNumber = cardNumber.input.getValue()
-        async let expirationDateYear = expirationDate.getYear()
-        async let expirationDateMonth = expirationDate.getMonth()
-        async let securityCode = securityCode.input.getValue()
+        return try await executeWithTracking(
+            operation: {
+                async let cardNumber = cardNumber.input.getValue()
+                async let expirationDateYear = expirationDate.getYear()
+                async let expirationDateMonth = expirationDate.getMonth()
+                async let securityCode = securityCode.input.getValue()
 
-        return try await self.generateTokenUseCase
-            .tokenize(
-                cardNumber: await cardNumber,
-                expirationDateMonth: await expirationDateMonth,
-                expirationDateYear: await expirationDateYear,
-                securityCodeInput: await securityCode,
-                cardID: nil
-            )
+                return try await self.generateTokenUseCase
+                    .tokenize(
+                        cardNumber: cardNumber,
+                        expirationDateMonth: expirationDateMonth,
+                        expirationDateYear: expirationDateYear,
+                        securityCodeInput: securityCode,
+                        cardID: nil,
+                        cardHolderName: nil,
+                        identificationType: nil,
+                        identificationNumber: nil
+                    )
+            },
+            path: AnalyticsPath.tokenization,
+            extractEventData: { _ -> TokenizationEventData? in
+                return TokenizationEventData(isSaveCard: false, documentType: "")
+            }
+        )
     }
 
-    /// Creates a payment token for a saved card using its ID
+    /// Creates a card token using the provided card details and cardholder information.
     ///
-    /// Tokenizes a previously saved card by combining its ID with the user-provided security
-    /// code and expiration date. The resulting token can be used for payment processing
-    /// through Mercado Pago's API.
+    /// This method processes the input from card-related text fields along with cardholder details
+    /// to generate a token that can be used for payment processing through Mercado Pago's API.
+    /// Use this method when full cardholder information is required for the transaction.
+    ///
+    /// # Example
+    /// ```swift
+    /// Task {
+    ///     do {
+    ///         // First, fetch available document types
+    ///         let documentTypes = try await coreMethods.identificationTypes()
+    ///
+    ///         // User need select type select
+    ///         guard let documentType = documentTypes[0]
+    ///
+    ///         let token = try await coreMethods.createToken(
+    ///             cardNumber: cardNumberField,
+    ///             expirationDate: expirationField,
+    ///             securityCode: securityCodeField,
+    ///             documentType: documentType,
+    ///             documentNumber: "12345678900",
+    ///             cardHolderName: "João Silva"
+    ///         )
+    ///         print("Generated token: \(token.id)")
+    ///     } catch {
+    ///         print("Token generation failed: \(error)")
+    ///     }
+    /// }
+    /// ```
     ///
     /// - Parameters:
-    ///   - cardID: The unique identifier of the saved card.
-    ///   - expirationDate: ExpirationDateTextfield containing the card's expiration date in MM/YY format
-    ///   - securityCode: SecurityCodeTextField  containing the card's 3-4 digit security code (CVV)
+    ///   - cardNumber: A text field containing the card number
+    ///   - expirationDate: A text field containing the card's expiration date in MM/YY format
+    ///   - securityCode: A text field containing the card's security code (CVV)
+    ///   - documentType: The type of identification document for the cardholder
+    ///   - documentNumber: The identification number associated with the document type
+    ///   - cardHolderName: The full name of the cardholder as it appears on the card
     ///
-    /// - Returns: A CardToken object containing the generated payment token
+    /// - Returns: A CardToken object containing the generated card token and related information
     ///
     /// - Throws:
-    ///   - .invalidURL: If the API endpoint URL is malformed
-    ///   - .decodingFailed(Error): If the response cannot be decoded
+    ///   - NetworkError: If communication with the API fails
+    ///   - ValidationError: If the provided card or identification details are invalid
+    ///   - DecodingError: If the API response cannot be properly decoded
+    ///
+    /// - Note: Different countries may require different types of identification documents.
+    ///         Use the `identificationTypes()` method to retrieve the valid options.
+    public func createToken(
+        cardNumber: CardNumberTextField,
+        expirationDate: ExpirationDateTextfield,
+        securityCode: SecurityCodeTextField,
+        documentType: IdentificationType,
+        documentNumber: String,
+        cardHolderName: String
+    ) async throws -> CardToken {
+        return try await executeWithTracking(
+            operation: {
+                async let cardNumber = cardNumber.input.getValue()
+                async let expirationDateYear = expirationDate.getYear()
+                async let expirationDateMonth = expirationDate.getMonth()
+                async let securityCode = securityCode.input.getValue()
+
+                return try await self.generateTokenUseCase
+                    .tokenize(
+                        cardNumber: cardNumber,
+                        expirationDateMonth: expirationDateMonth,
+                        expirationDateYear: expirationDateYear,
+                        securityCodeInput: securityCode,
+                        cardID: nil,
+                        cardHolderName: cardHolderName,
+                        identificationType: documentType.name,
+                        identificationNumber: documentNumber
+                    )
+            },
+            path: AnalyticsPath.tokenization,
+            extractEventData: { _ -> TokenizationEventData? in
+                return TokenizationEventData(isSaveCard: false, documentType: documentType.name)
+            }
+        )
+    }
+
+    /// Creates a payment token for a previously saved card using its ID.
+    ///
+    /// Tokenizes a card that was previously saved in Mercado Pago's system by combining its ID
+    /// with the user-provided security code and optionally updated expiration date.
+    /// The resulting token can be used for payment processing through Mercado Pago's API.
+    ///
+    /// # Example
+    /// ```swift
+    /// Task {
+    ///     do {
+    ///         let savedCardID = "id_card"
+    ///         let token = try await coreMethods.createToken(
+    ///             cardID: savedCardID,
+    ///             securityCode: securityCodeField
+    ///         )
+    ///         print("Generated token for saved card: \(token.id)")
+    ///     } catch {
+    ///         print("Token generation for saved card failed: \(error)")
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - cardID: The unique identifier of the saved card
+    ///   - expirationDate: Optional text field containing updated expiration date in MM/YY format
+    ///   - securityCode: Text field containing the card's security code (CVV)
+    ///
+    /// - Returns: A CardToken object containing the generated payment token and related information
+    ///
+    /// - Throws:
+    ///   - NetworkError: If communication with the API fails
+    ///   - ValidationError: If the provided card ID or security code is invalid
+    ///   - DecodingError: If the API response cannot be properly decoded
     ///
     /// - Important: The card must be previously saved in Mercado Pago's system. For new cards,
-    ///             use the  another `createToken` method instead.
+    ///             use one of the other `createToken` methods instead.
+    ///
+    /// - Note: The expirationDate parameter is optional and should only be provided if the
+    ///         card's expiration date needed.
     public func createToken(
         cardID: String,
         expirationDate: ExpirationDateTextfield? = nil,
         securityCode: SecurityCodeTextField
     ) async throws -> CardToken {
-        let expirationDateYear = await expirationDate?.getYear()
-        let expirationDateMonth = await expirationDate?.getMonth()
-        let securityCode = await securityCode.input.getValue()
+        return try await executeWithTracking(
+            operation: {
+                async let expirationDateYear = expirationDate?.getYear()
+                async let expirationDateMonth = expirationDate?.getMonth()
+                async let securityCode = securityCode.input.getValue()
 
-        return try await self.generateTokenUseCase
-            .tokenize(
-                cardNumber: nil,
-                expirationDateMonth: expirationDateMonth,
-                expirationDateYear: expirationDateYear,
-                securityCodeInput: securityCode,
-                cardID: cardID
-            )
+                return try await self.generateTokenUseCase
+                    .tokenize(
+                        cardNumber: nil,
+                        expirationDateMonth: expirationDateMonth,
+                        expirationDateYear: expirationDateYear,
+                        securityCodeInput: securityCode,
+                        cardID: cardID,
+                        cardHolderName: nil,
+                        identificationType: nil,
+                        identificationNumber: nil
+                    )
+            },
+            path: AnalyticsPath.tokenization,
+            extractEventData: { _ -> TokenizationEventData? in
+                return TokenizationEventData(isSaveCard: true, documentType: "")
+            }
+        )
     }
 
     /// Gets the identification document types accepted by the Mercado Pago API
@@ -152,7 +306,7 @@ public final class CoreMethods: Sendable {
     public func identificationTypes() async throws -> [IdentificationType] {
         return try await executeWithTracking(
             operation: { try await self.identificationTypeUseCase.getIdentificationTypes() },
-            path: "/sdk-native/core-methods/identification_types"
+            path: AnalyticsPath.identificationTypes
         )
     }
 
@@ -183,13 +337,11 @@ public final class CoreMethods: Sendable {
 
         return try await executeWithTracking(
             operation: { try await self.installmentsUseCase.getInstallments(params: params) },
-            path: "/sdk-native/core-methods/installments",
+            path: AnalyticsPath.installments,
             extractEventData: { result -> InstallmentEventData? in
-                guard !result.isEmpty else { return nil }
-
                 return InstallmentEventData(
                     amount: amount,
-                    paymentType: result[0].paymentTypeId
+                    paymentType: result?.first?.paymentTypeId ?? ""
                 )
             }
         )
@@ -221,9 +373,9 @@ public final class CoreMethods: Sendable {
             operation: {
                 try await self.paymentMethodUseCase.getPaymentMethods(params: params)
             },
-            path: "/sdk-native/core-methods/payment_methods",
+            path: AnalyticsPath.paymentMethods,
             extractEventData: { result -> PaymentMethodEventData? in
-                guard let data = result.first else {
+                guard let data = result?.first else {
                     return PaymentMethodEventData()
                 }
 
@@ -241,10 +393,17 @@ public final class CoreMethods: Sendable {
 // MARK: Execute Operation of Core Methods
 
 private extension CoreMethods {
+    private enum AnalyticsPath {
+        static let identificationTypes = "/choapi_sdk_native/core_methods/identification_types"
+        static let installments = "/choapi_sdk_native/core_methods/installments"
+        static let paymentMethods = "/choapi_sdk_native/core_methods/payment_methods"
+        static let tokenization = "/choapi_sdk_native/core_methods/tokenization"
+    }
+
     func executeWithTracking<T: Sendable>(
         operation: @Sendable () async throws -> T,
         path: String,
-        extractEventData: (@Sendable (T) async -> (some AnalyticsEventData)?)? = nil
+        extractEventData: (@Sendable (T?) async -> (any AnalyticsEventData)?)? = nil
     ) async throws -> T {
         do {
             let result = try await operation()
@@ -263,36 +422,16 @@ private extension CoreMethods {
             return result
         } catch {
             Task(priority: .low) {
-                await self.dependencies.analytics
+                let event = await self.dependencies.analytics
                     .trackEvent(path + "/error")
                     .setError("\(error)")
-                    .send()
-            }
 
-            throw error
-        }
-    }
+                if let extractEventData,
+                   let eventData = await extractEventData(nil) {
+                    await event.setEventData(eventData)
+                }
 
-    func executeWithTracking<T: Sendable>(
-        operation: @Sendable () async throws -> T,
-        path: String
-    ) async throws -> T {
-        do {
-            let result = try await operation()
-
-            Task(priority: .low) {
-                await self.dependencies.analytics
-                    .trackEvent(path)
-                    .send()
-            }
-
-            return result
-        } catch {
-            Task(priority: .low) {
-                await self.dependencies.analytics
-                    .trackEvent(path + "/error")
-                    .setError("\(error)")
-                    .send()
+                await event.send()
             }
 
             throw error

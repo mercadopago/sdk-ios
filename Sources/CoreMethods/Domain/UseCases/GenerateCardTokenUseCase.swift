@@ -14,7 +14,10 @@ protocol GenerateCardTokenUseCaseProtocol: Sendable {
         expirationDateMonth: String?,
         expirationDateYear: String?,
         securityCodeInput: String,
-        cardID: String?
+        cardID: String?,
+        cardHolderName: String?,
+        identificationType: String?,
+        identificationNumber: String?
     ) async throws -> CardToken
 }
 
@@ -30,14 +33,24 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
         expirationDateMonth: String?,
         expirationDateYear: String?,
         securityCodeInput: String,
-        cardID: String?
+        cardID: String?,
+        cardHolderName: String?,
+        identificationType: String?,
+        identificationNumber: String?
     ) async throws -> CardToken {
+        var buyerIdentification: BuyerIdentification?
+
+        if let identificationType, let identificationNumber, let cardHolderName {
+            buyerIdentification = BuyerIdentification(name: cardHolderName, number: identificationNumber, type: identificationNumber)
+        }
+
         let cardData = CardTokenBody(
             cardNumber: cardNumber,
             expirationMonth: expirationDateMonth,
             expirationYear: expirationDateYear,
             securityCode: securityCodeInput,
-            cardId: cardID
+            cardId: cardID,
+            buyerIdentification: buyerIdentification
         )
 
         let response = try await repository.generateCardToken(cardData)
