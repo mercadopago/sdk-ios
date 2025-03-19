@@ -23,16 +23,25 @@ extension CardTokenBody {
     ///
     /// - Returns: A `Data` object representing the post data in JSON format, or `nil` if the conversion fails.
     func toJSONData() -> Data? {
-        let jsonObject: [String: Any] = [
+        var jsonObject: [String: Any] = [
             "card_number": cardNumber as Any,
             "expiration_month": expirationMonth ?? "",
             "expiration_year": expirationYear ?? "",
             "securityCode": securityCode,
             "card_id": cardId as Any,
             "esc": esc as Any,
-            "require_esc": requireEsc,
-            "buyer_identification": buyerIdentification as Any
+            "require_esc": requireEsc
         ]
+
+        if let buyerIdentification {
+            let buyerDict: [String: Any] = [
+                "name": buyerIdentification.name,
+                "number": buyerIdentification.number,
+                "type": buyerIdentification.type
+            ]
+            jsonObject["buyer_identification"] = buyerDict
+        }
+
         return try? JSONSerialization.data(withJSONObject: jsonObject, options: [])
     }
 }

@@ -297,6 +297,190 @@ final class CoreMethodsTests: XCTestCase {
         }
     }
 
+    func test_createToken_withDocumentAndCardholderName_whenNetworkReturnsSuccess_shouldReturnCardToken() async {
+        // Arrange
+        let (sut, session, _) = self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
+        let documentType = IdentificationTypeStub.validDNI
+        let documentNumber = "12345678"
+        let cardHolderName = "João Silva"
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(CardTokenStub.validResponse)
+
+        // Act
+        do {
+            let result = try await sut.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode,
+                documentType: documentType,
+                documentNumber: documentNumber,
+                cardHolderName: cardHolderName
+            )
+
+            // Assert
+            XCTAssertEqual(result.token, CardTokenStub.validTokenID)
+        } catch {
+            XCTFail("Should not throw error: \(error)")
+        }
+    }
+
+    func test_createToken_withDocumentAndCardholderName_whenNetworkReturnsError_shouldThrowAPIError() async {
+        // Arrange
+        let (sut, session, _) = self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
+        let documentType = IdentificationTypeStub.validDNI
+        let documentNumber = "12345678"
+        let cardHolderName = "João Silva"
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
+        await session.mock.setData(APIErrorStub.badRequestData)
+
+        // Act & Assert
+        try await self.assertThrowsAPIError(
+            await sut.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode,
+                documentType: documentType,
+                documentNumber: documentNumber,
+                cardHolderName: cardHolderName
+            ),
+            expectedError: APIErrorStub.badRequest
+        )
+    }
+
+    func test_createToken_withDocumentAndCardholderName_shouldSendAnalyticsEvent() async {
+        // Arrange
+        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, session, analytics) = self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
+        let documentType = IdentificationTypeStub.validDNI
+        let documentNumber = "12345678"
+        let cardHolderName = "João Silva"
+        let expectEventData = TokenizationEventData(isSaveCard: false, documentType: documentType.name)
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(CardTokenStub.validResponse)
+
+        // Act
+        do {
+            let _ = try await sut.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode,
+                documentType: documentType,
+                documentNumber: documentNumber,
+                cardHolderName: cardHolderName
+            )
+
+            await analytics.mock.updateSendCallback {
+                expectation.fulfill()
+            }
+
+            await fulfillment(of: [expectation], timeout: 1.0)
+            let messages = await analytics.mock.getMessages()
+
+            // Assert
+            XCTAssertEqual(
+                messages,
+                [
+                    .track(path: "/choapi_sdk_native/core_methods/tokenization"),
+                    .setEventData(expectEventData.toDictionary()),
+                    .send
+                ]
+            )
+        } catch {
+            XCTFail("Should not throw error: \(error)")
+        }
+    }
+
+    // MARK: - Tests for createToken with cardID and expirationDate
+
+    func test_createToken_withCardIDAndExpirationDate_shouldReturnCardToken() async {
+        // Arrange
+        let (sut, session, _) = self.makeSUT()
+        let cardID = "123"
+        let (_, expirationDate, securityCode) = await makeCardFields()
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(CardTokenStub.validResponse)
+
+        // Act
+        do {
+            let result = try await sut.createToken(
+                cardID: cardID,
+                expirationDate: expirationDate,
+                securityCode: securityCode
+            )
+
+            // Assert
+            XCTAssertEqual(result.token, CardTokenStub.validTokenID)
+        } catch {
+            XCTFail("Expected success but got \(error)")
+        }
+    }
+
+    func test_createToken_withCardIDAndExpirationDate_whenNetworkReturnsError_shouldThrowAPIError() async {
+        // Arrange
+        let (sut, session, _) = self.makeSUT()
+        let cardID = "123"
+        let (_, expirationDate, securityCode) = await makeCardFields()
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
+        await session.mock.setData(APIErrorStub.badRequestData)
+
+        // Act & Assert
+        try await self.assertThrowsAPIError(
+            await sut.createToken(
+                cardID: cardID,
+                expirationDate: expirationDate,
+                securityCode: securityCode
+            ),
+            expectedError: APIErrorStub.badRequest
+        )
+    }
+
+    func test_createToken_withCardID_shouldSendAnalyticsEventWithSaveCardFlag() async {
+        // Arrange
+        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, session, analytics) = self.makeSUT()
+        let cardID = "123"
+        let (_, _, securityCode) = await makeCardFields()
+        let expectEventData = TokenizationEventData(isSaveCard: true, documentType: "")
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(CardTokenStub.validResponse)
+
+        // Act
+        do {
+            let _ = try await sut.createToken(
+                cardID: cardID,
+                securityCode: securityCode
+            )
+
+            await analytics.mock.updateSendCallback {
+                expectation.fulfill()
+            }
+
+            await fulfillment(of: [expectation], timeout: 1.0)
+            let messages = await analytics.mock.getMessages()
+
+            // Assert
+            XCTAssertEqual(
+                messages,
+                [
+                    .track(path: "/choapi_sdk_native/core_methods/tokenization"),
+                    .setEventData(expectEventData.toDictionary()),
+                    .send
+                ]
+            )
+        } catch {
+            XCTFail("Should not throw error: \(error)")
+        }
+    }
+
     // MARK: - Tests for identificationType
 
     func test_identificationType_whenNetworkReturnsSuccess_shouldReturnIdentificationTypes() async {
