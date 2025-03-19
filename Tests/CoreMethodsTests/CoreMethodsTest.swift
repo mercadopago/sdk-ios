@@ -408,6 +408,10 @@ final class CoreMethodsTests: XCTestCase {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
         let (sut, session, analytics) = self.makeSUT()
+        let expectEventData = InstallmentEventData(
+            amount: 500,
+            paymentType: ""
+        )
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
         await session.mock.setData(APIErrorStub.badRequestData)
@@ -430,6 +434,7 @@ final class CoreMethodsTests: XCTestCase {
             [
                 .track(path: "/choapi_sdk_native/core_methods/installments/error"),
                 .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
+                .setEventData(expectEventData.toDictionary()),
                 .send
             ]
         )
@@ -486,6 +491,7 @@ final class CoreMethodsTests: XCTestCase {
         // Arrange
         let expectation = expectation(description: "Analytics error event should be sent")
         let (sut, session, analytics) = self.makeSUT()
+        let expectEventData = PaymentMethodEventData()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
         await session.mock.setData(APIErrorStub.badRequestData)
@@ -508,6 +514,7 @@ final class CoreMethodsTests: XCTestCase {
             [
                 .track(path: "/choapi_sdk_native/core_methods/payment_methods/error"),
                 .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
+                .setEventData(expectEventData.toDictionary()),
                 .send
             ]
         )
