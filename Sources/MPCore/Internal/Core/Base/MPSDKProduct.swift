@@ -6,5 +6,5 @@
 //
 
 package enum MPSDKProduct {
-    package static let id = "CHQBUNESFQCVF58JFECG"
+    package static let id = ""
 }

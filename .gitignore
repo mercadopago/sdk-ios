@@ -71,3 +71,5 @@ Gemfile.lock
 vendor/
 
 fastlane/README.md
+
+Sources/MPCore/Internal/Core/Base/MPSDKProduct.swift
