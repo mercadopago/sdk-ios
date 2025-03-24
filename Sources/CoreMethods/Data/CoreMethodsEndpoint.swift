@@ -90,7 +90,8 @@ extension CoreMethodsEndpoint: RequestEndpoint {
         case let .getIssuers(params):
             return [
                 "bin": params.bin,
-                "payment_method_id": params.paymentMethodID
+                "payment_method_id": params.paymentMethodID,
+                "product_id": MPSDKProduct.id
             ]
         }
     }

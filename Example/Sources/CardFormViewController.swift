@@ -336,7 +336,9 @@ final class CardFormViewController: UIViewController {
         Task {
             do {
                 let paymentMethod = try await coreMethods.paymentMethods(bin: bin)
+                let issuer = try await coreMethods.issuers(bin: bin, paymentMethodID: paymentMethod.first?.id ?? "")
                 print("Payment methods: \(paymentMethod)")
+                print("Issuer: \(issuer)")
             } catch {
                 print("Error paymentMethod: \(error)")
             }
