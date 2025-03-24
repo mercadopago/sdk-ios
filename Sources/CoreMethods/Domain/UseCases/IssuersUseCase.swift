@@ -9,7 +9,7 @@ protocol IssuerUseCaseProtocol: Sendable {
     func getIssuers(params: IssuersParams) async throws -> [Issuer]
 }
 
-final class IssuersUseCase: IssuerUseCaseProtocol {
+final class IssuerUseCase: IssuerUseCaseProtocol {
     private let repository: CoreMethodsRepositoryProtocol
 
     init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {

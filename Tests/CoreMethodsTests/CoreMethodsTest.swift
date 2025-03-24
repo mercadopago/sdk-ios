@@ -199,7 +199,7 @@ final class CoreMethodsTests: XCTestCase {
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
         let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
-        let issuerUseCase = IssuersUseCase(repository: repository)
+        let issuerUseCase = IssuerUseCase(repository: repository)
 
         let coreMethodsService = CoreMethods(
             dependencies: container,
@@ -790,7 +790,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act
         do {
-            let result = try await sut.issuer(bin: "300", paymentMethodID: "12345")
+            let result = try await sut.issuers(bin: "300", paymentMethodID: "12345")
 
             await analytics.mock.updateSendCallback {
                 expectation.fulfill()
@@ -826,7 +826,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act & Assert
         try await self.assertThrowsAPIError(
-            await sut.issuer(bin: "000", paymentMethodID: "master"),
+            await sut.issuers(bin: "000", paymentMethodID: "master"),
             expectedError: APIErrorStub.badRequest
         )
 

@@ -54,7 +54,7 @@ public final class CoreMethods: Sendable {
         self.identificationTypeUseCase = IdentificationTypesUseCase()
         self.installmentsUseCase = InstallmentsUseCase()
         self.paymentMethodUseCase = PaymentMethodUseCase()
-        self.issuerUseCase = IssuersUseCase()
+        self.issuerUseCase = IssuerUseCase()
         self.dependencies = CoreDependencyContainer.shared
     }
 
@@ -423,7 +423,7 @@ public final class CoreMethods: Sendable {
     ///   - NetworkError: If communication with the API fails
     ///   - ValidationError: If the provided bin or paymentMethodID is invalid
     ///   - DecodingError: If the API response cannot be properly decoded
-    public func issuer(
+    public func issuers(
         bin: String,
         paymentMethodID: String
     ) async throws -> [Issuer] {
