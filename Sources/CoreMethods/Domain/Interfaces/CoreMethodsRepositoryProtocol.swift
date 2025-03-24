@@ -11,4 +11,5 @@ protocol CoreMethodsRepositoryProtocol: Sendable {
     func getIdentificationTypes() async throws -> [IdentificationTypesResponse]
     func getInstallments(params: InstallmentsParams) async throws -> [Installment]
     func getPaymentMethods(params: PaymentMethodsParams) async throws -> [PaymentMethod]
+    func getIssuers(params: IssuersParams) async throws -> [Issuer]
 }

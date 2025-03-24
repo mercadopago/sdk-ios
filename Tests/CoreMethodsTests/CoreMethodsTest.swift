@@ -125,6 +125,37 @@ final class CoreMethodsTests: XCTestCase {
         }
     }
 
+    private enum IssuerStub {
+        static var expectResponse: [Issuer] {
+            [
+                .init(
+                    id: "0",
+                    name: "Banco",
+                    merchantAccountId: "",
+                    processingMode: "aggregator",
+                    status: "active",
+                    thumbnail: ""
+                )
+            ]
+        }
+
+        static var validResponse: Data {
+            let response = """
+            [
+                {
+                    "id": "0",
+                    "name": "Banco",
+                    "merchant_account_id": "",
+                    "processing_mode": "aggregator",
+                    "status": "active",
+                    "thumbnail": ""
+                }
+            ]
+            """
+            return Data(response.utf8)
+        }
+    }
+
     /// API error response model
     private enum APIErrorStub {
         static let badRequest = APIErrorResponse(code: "400", message: "Bad Request")
@@ -168,13 +199,15 @@ final class CoreMethodsTests: XCTestCase {
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
         let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        let issuerUseCase = IssuersUseCase(repository: repository)
 
         let coreMethodsService = CoreMethods(
             dependencies: container,
             generateTokenUseCase: generateTokenUseCase,
             identificationTypeUseCase: identificationTypeUseCase,
             installmentsUseCase: installmentsUseCase,
-            paymentMethodUseCase: paymentMethodUseCase
+            paymentMethodUseCase: paymentMethodUseCase,
+            issuerUseCase: issuerUseCase
         )
 
         return (coreMethodsService, session, analytics)
@@ -743,5 +776,75 @@ final class CoreMethodsTests: XCTestCase {
         } catch {
             XCTFail("Should not throw error: \(error)")
         }
+    }
+
+    func test_issuer_whenNetworkReturnsSuccess_shouldReturnInstallment() async {
+        // Arrange
+        let (sut, session, analytics) = self.makeSUT()
+        let expectation = expectation(description: "Analytics event should be sent")
+        let expectResponse = IssuerStub.expectResponse
+        let expectEventData = IssuersEventData(issuers: ["Banco"])
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
+        await session.mock.setData(IssuerStub.validResponse)
+
+        // Act
+        do {
+            let result = try await sut.issuer(bin: "300", paymentMethodID: "12345")
+
+            await analytics.mock.updateSendCallback {
+                expectation.fulfill()
+            }
+
+            await fulfillment(of: [expectation], timeout: 1.0)
+            let messages = await analytics.mock.getMessages()
+
+            // Assert
+            XCTAssertEqual(result, expectResponse)
+
+            XCTAssertEqual(
+                messages,
+                [
+                    .track(path: "/choapi_sdk_native/core_methods/issuers"),
+                    .setEventData(expectEventData.toDictionary()),
+                    .send
+                ]
+            )
+        } catch {
+            XCTFail("Should not throw error: \(error)")
+        }
+    }
+
+    func test_issuer_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
+        // Arrange
+        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, session, analytics) = self.makeSUT()
+        let expectEventData = IssuersEventData(issuers: [])
+
+        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
+        await session.mock.setData(APIErrorStub.badRequestData)
+
+        // Act & Assert
+        try await self.assertThrowsAPIError(
+            await sut.issuer(bin: "000", paymentMethodID: "master"),
+            expectedError: APIErrorStub.badRequest
+        )
+
+        await analytics.mock.updateSendCallback {
+            expectation.fulfill()
+        }
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+        let messages = await analytics.mock.getMessages()
+
+        XCTAssertEqual(
+            messages,
+            [
+                .track(path: "/choapi_sdk_native/core_methods/issuers/error"),
+                .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
+                .setEventData(expectEventData.toDictionary()),
+                .send
+            ]
+        )
     }
 }

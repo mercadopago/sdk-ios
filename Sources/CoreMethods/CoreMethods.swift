@@ -39,6 +39,7 @@ public final class CoreMethods: Sendable {
     private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
     private let installmentsUseCase: InstallmentsUseCaseProtocol
     private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
+    private let issuerUseCase: IssuerUseCaseProtocol
 
     typealias Dependency = HasAnalytics
 
@@ -53,6 +54,7 @@ public final class CoreMethods: Sendable {
         self.identificationTypeUseCase = IdentificationTypesUseCase()
         self.installmentsUseCase = InstallmentsUseCase()
         self.paymentMethodUseCase = PaymentMethodUseCase()
+        self.issuerUseCase = IssuersUseCase()
         self.dependencies = CoreDependencyContainer.shared
     }
 
@@ -66,13 +68,15 @@ public final class CoreMethods: Sendable {
         generateTokenUseCase: GenerateCardTokenUseCaseProtocol,
         identificationTypeUseCase: IdentificationTypesUseCaseProtocol,
         installmentsUseCase: InstallmentsUseCaseProtocol,
-        paymentMethodUseCase: PaymentMethodUseCaseProtocol
+        paymentMethodUseCase: PaymentMethodUseCaseProtocol,
+        issuerUseCase: IssuerUseCaseProtocol
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
         self.identificationTypeUseCase = identificationTypeUseCase
         self.installmentsUseCase = installmentsUseCase
         self.paymentMethodUseCase = paymentMethodUseCase
+        self.issuerUseCase = issuerUseCase
     }
 
     /// Creates a card token using the provided card details.
@@ -388,6 +392,61 @@ public final class CoreMethods: Sendable {
             }
         )
     }
+
+    /// Gets available issuers for a card BIN and payment method
+    ///
+    /// Retrieves a list of issuers (banks) that can process a transaction for
+    /// a specified card BIN and payment method combination.
+    ///
+    /// # Example
+    /// ```swift
+    /// Task {
+    ///     do {
+    ///         let issuers = try await coreMethods.issuer(
+    ///             bin: "411111",
+    ///             paymentMethodID: "visa"
+    ///         )
+    ///         print("Available issuers: \(issuers.map { $0.name }.joined(separator: ", "))")
+    ///     } catch {
+    ///         print("Failed to fetch issuers: \(error)")
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - bin: Bank Identification Number (first 6-8 digits of card number)
+    ///   - paymentMethodID: The ID of the payment method (e.g., "visa", "master")
+    ///
+    /// - Returns: An array of ``Issuer`` objects representing available card issuers
+    ///
+    /// - Throws:
+    ///   - NetworkError: If communication with the API fails
+    ///   - ValidationError: If the provided bin or paymentMethodID is invalid
+    ///   - DecodingError: If the API response cannot be properly decoded
+    public func issuer(
+        bin: String,
+        paymentMethodID: String
+    ) async throws -> [Issuer] {
+        let params = IssuersParams(bin: bin, paymentMethodID: paymentMethodID)
+
+        return try await executeWithTracking(
+            operation: {
+                try await self.issuerUseCase.getIssuers(params: params)
+            },
+            path: AnalyticsPath.issuers,
+            extractEventData: { result -> IssuersEventData? in
+                guard let data = result else {
+                    return IssuersEventData(issuers: [])
+                }
+
+                let issuers = data.map { data in
+                    data.name
+                }
+
+                return IssuersEventData(issuers: issuers)
+            }
+        )
+    }
 }
 
 // MARK: Execute Operation of Core Methods
@@ -398,6 +457,7 @@ private extension CoreMethods {
         static let installments = "/choapi_sdk_native/core_methods/installments"
         static let paymentMethods = "/choapi_sdk_native/core_methods/payment_methods"
         static let tokenization = "/choapi_sdk_native/core_methods/tokenization"
+        static let issuers = "/choapi_sdk_native/core_methods/issuers"
     }
 
     func executeWithTracking<T: Sendable>(

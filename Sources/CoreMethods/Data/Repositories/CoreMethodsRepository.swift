@@ -55,4 +55,14 @@ package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
 
         return self.paymentMethodMapper.map(responses: response)
     }
+
+    func getIssuers(params: IssuersParams) async throws -> [Issuer] {
+        let response: [IssuersResponse] = try await self.dependencies.networkService.request(
+            Endpoint.getIssuers(params: params)
+        )
+
+        return response.map { data in
+            Issuer(with: data)
+        }
+    }
 }
