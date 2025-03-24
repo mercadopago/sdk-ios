@@ -6,7 +6,6 @@
 //
 import CommonTests
 @testable import CoreMethods
-import MPCoreTests
 import XCTest
 
 // MARK: - Setup SUT
