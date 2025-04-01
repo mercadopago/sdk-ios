@@ -11,6 +11,8 @@ import UIKit
 struct MainListView: View {
     @State private var showingCardForm = false
 
+    @State private var showingCardFormSwiftUI = false
+
     var body: some View {
         NavigationView {
             List {
@@ -19,7 +21,9 @@ struct MainListView: View {
                         self.showingCardForm = true
                     }
 
-                    NavigationLink("Other Form", destination: Text("Under construction"))
+                    Button("Card Form (SwiftUI)") {
+                        self.showingCardFormSwiftUI = true
+                    }
                 }
 
                 Section("Settings") {
@@ -31,6 +35,9 @@ struct MainListView: View {
         }
         .fullScreenCover(isPresented: self.$showingCardForm) {
             CardFormViewControllerRepresentable()
+        }
+        .sheet(isPresented: self.$showingCardFormSwiftUI) {
+            CardFormView()
         }
     }
 }

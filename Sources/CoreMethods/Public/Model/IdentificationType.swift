@@ -6,7 +6,7 @@
 //
 import Foundation
 
-public struct IdentificationType: Sendable, Equatable {
+public struct IdentificationType: Sendable, Equatable, Hashable {
     public let id: String
     public let name: String
     public let type: String
