@@ -40,7 +40,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
     public var placeholder: String?
 
     /// Whether the text field is enabled for user interaction.
-    public var isEnabled: Bool
+    @Binding var isEnabled: Bool
 
     /// The appearance style of the keyboard.
     public var keyboardAppearance: UIKeyboardAppearance
@@ -109,7 +109,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         maxLength: Int = 19,
         mask: String = "#### #### #### #######",
         placeholder: String? = nil,
-        isEnabled: Bool = true,
+        isEnabled: Binding<Bool> = .constant(true),
         keyboardAppearance: UIKeyboardAppearance = .default,
         onBinChanged: @escaping ((String) -> Void),
         onLastFourDigitsFilled: @escaping ((String) -> Void),
@@ -120,7 +120,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         self.maxLength = maxLength
         self.mask = mask
         self.placeholder = placeholder
-        self.isEnabled = isEnabled
+        self._isEnabled = isEnabled
         self.keyboardAppearance = keyboardAppearance
         self.onBinChanged = onBinChanged
         self.onLastFourDigitsFilled = onLastFourDigitsFilled
