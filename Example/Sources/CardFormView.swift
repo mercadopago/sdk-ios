@@ -24,7 +24,7 @@ struct CardFormView: View {
             },
             onFocusChanged: { isFocused in
                 if !isFocused {
-                    self.cardNumberIsValid = self.cardNumber.textField.isValid
+                    self.cardNumberIsValid = self.cardNumber.isValid
                 }
             },
             onError: { error in

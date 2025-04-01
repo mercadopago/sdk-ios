@@ -1,6 +1,28 @@
+
+
 import MPCore
 import SwiftUI
 
+/// A SwiftUI component that provides a text field specifically designed for inputting credit card expiration dates.
+///
+/// `ExpirationDateTextFieldView` is a SwiftUI wrapper for a UIKit-based text field that handles
+/// credit card expiration date input. It provides formatting, validation, and customization
+/// capabilities while maintaining a SwiftUI-friendly interface.
+///
+/// The component supports different display formats, styling options, and callback handlers
+/// to integrate seamlessly with your payment flow.
+///
+/// ```swift
+/// ExpirationDateTextFieldView(
+///     style: myCustomStyle,
+///     format: .short,
+///     placeholder: "MM/YY",
+///     onInputFilled: {
+///         validatePaymentForm()
+///     }
+/// )
+/// .frame(height: 44)
+/// ```
 public struct ExpirationDateTextFieldView: UIViewRepresentable {
     // MARK: - Properties
 
@@ -12,15 +34,55 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
 
     // MARK: - Callbacks
 
+    /// A closure that is called when the input length changes.
     private var onLengthChanged: ((Int) -> Void)?
+
+    /// A closure that is called when the input is completely filled.
     private var onInputFilled: (() -> Void)?
+
+    /// A closure that is called when the focus state changes.
     private var onFocusChanged: ((Bool) -> Void)?
+
+    /// A closure that is called when a validation error occurs.
     private var onError: ((ExpirationDateError) -> Void)?
 
+    /// The underlying text field implementation.
     public let textField: ExpirationDateTextfield
 
     // MARK: - Initialization
 
+    /// Creates a new expiration date text field with the specified configuration.
+    ///
+    /// - Parameters:
+    ///   - style: The styling configuration for the text field.
+    ///   - format: The format to use for displaying the expiration date.
+    ///   - placeholder: Optional placeholder text to display when the field is empty.
+    ///   - isEnabled: Whether the text field is enabled for user interaction.
+    ///   - keyboardAppearance: The appearance style of the keyboard.
+    ///   - onLengthChanged: Callback triggered when the input length changes.
+    ///   - onInputFilled: Callback triggered when the input is completely filled.
+    ///   - onFocusChanged: Callback triggered when the focus state changes.
+    ///   - onError: Callback triggered when a validation error occurs.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   ExpirationDateTextFieldView(
+    ///       style: TextFieldDefaultStyle()
+    ///           .textColor(.blue)
+    ///           .font(.systemFont(ofSize: 17))
+    ///           .borderWidth(1),
+    ///       format: .long,
+    ///       placeholder: "MM/YYYY",
+    ///       onInputFilled: {
+    ///           // Proceed to the next field
+    ///           nextField.becomeFirstResponder()
+    ///       },
+    ///       onError: { error in
+    ///           // Handle the error
+    ///           errorLabel.text = error.localizedDescription
+    ///       }
+    ///   )
+    ///   ```
     public init(
         style: ExpirationDateTextfield.Style = TextFieldDefaultStyle(),
         format: ExpirationDateTextfield.Format = .short,
@@ -77,35 +139,87 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
 // MARK: - View Modifiers
 
 public extension ExpirationDateTextFieldView {
-    /// Define o estilo do campo de texto
+    /// Sets the style for the expiration date text field.
+    ///
+    /// - Parameter style: The style to apply to the text field.
+    /// - Returns: A modified view with the new style applied.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   ExpirationDateTextFieldView()
+    ///       .style(
+    ///           TextFieldDefaultStyle()
+    ///               .textColor(.darkGray)
+    ///               .backgroundColor(.white)
+    ///               .borderColor(.gray)
+    ///               .borderWidth(1)
+    ///               .cornerRadius(8)
+    ///       )
+    ///   ```
     func style(_ style: ExpirationDateTextfield.Style) -> ExpirationDateTextFieldView {
         var view = self
         view.style = style
         return view
     }
 
-    /// Define o formato da data de expiração
+    /// Sets the format for displaying the expiration date.
+    ///
+    /// - Parameter format: The format to use for the expiration date.
+    /// - Returns: A modified view with the new format applied.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   ExpirationDateTextFieldView()
+    ///       .format(.long) // Uses MM/YYYY format
+    ///   ```
     func format(_ format: ExpirationDateTextfield.Format) -> ExpirationDateTextFieldView {
         var view = self
         view.format = format
         return view
     }
 
-    /// Define o texto do placeholder
+    /// Sets the placeholder text for the expiration date text field.
+    ///
+    /// - Parameter text: The placeholder text to display when the field is empty.
+    /// - Returns: A modified view with the new placeholder text.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   ExpirationDateTextFieldView()
+    ///       .placeholder("Expiry Date")
+    ///   ```
     func placeholder(_ text: String) -> ExpirationDateTextFieldView {
         var view = self
         view.placeholder = text
         return view
     }
 
-    /// Define se o campo está habilitado
+    /// Sets whether the expiration date text field is enabled for user interaction.
+    ///
+    /// - Parameter isEnabled: A Boolean value that determines whether the text field is enabled.
+    /// - Returns: A modified view with the new enabled state.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   ExpirationDateTextFieldView()
+    ///       .enabled(isCardPaymentSelected)
+    ///   ```
     func enabled(_ isEnabled: Bool) -> ExpirationDateTextFieldView {
         var view = self
         view.isEnabled = isEnabled
         return view
     }
 
-    /// Define a aparência do teclado
+    /// Sets the appearance of the keyboard when the text field is focused.
+    ///
+    /// - Parameter appearance: The appearance style of the keyboard.
+    /// - Returns: A modified view with the new keyboard appearance.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   ExpirationDateTextFieldView()
+    ///       .keyboardAppearance(.dark)
+    ///   ```
     func keyboardAppearance(_ appearance: UIKeyboardAppearance) -> ExpirationDateTextFieldView {
         var view = self
         view.keyboardAppearance = appearance
@@ -113,48 +227,57 @@ public extension ExpirationDateTextFieldView {
     }
 }
 
-// MARK: - Preview Provider
-
 #if DEBUG
-    struct ExpirationDateTextFieldView_Previews: PreviewProvider {
-        static var previews: some View {
-            VStack(spacing: 20) {
-                @State var isValid = false
 
-                @State var style = TextFieldDefaultStyle()
-                    .textColor(.blue)
-                    .font(.systemFont(ofSize: 17))
-                    .backgroundColor(.systemBackground)
-                    .borderColor(.systemGray4)
-                    .borderWidth(1)
-                    .cornerRadius(8)
+    struct ExpirationDatePreview: View {
+        @State private var isValid = true
 
-                ExpirationDateTextFieldView(
-                    style: style,
-                    placeholder: "Data de expiração",
-                    onLengthChanged: { length in
-                        print("Length changed: \(length)")
-                    },
-                    onInputFilled: {
-                        print("Input filled")
-                        style.textColor(.green)
-                        isValid = true
-                    },
-                    onFocusChanged: { isFocused in
-                        print("Focus changed: \(isFocused)")
-                    },
-                    onError: { error in
-                        print("Error: \(error)")
-                        style.textColor(.red)
-                        isValid = false
+        let style = TextFieldDefaultStyle()
+            .textColor(.blue)
+            .font(.systemFont(ofSize: 17))
+            .backgroundColor(.systemBackground)
+            .borderColor(.systemGray4)
+            .borderWidth(1)
+            .cornerRadius(8)
+
+        var expirationDate: ExpirationDateTextFieldView {
+            ExpirationDateTextFieldView(
+                style: self.style,
+                placeholder: "Expiration Date",
+                onLengthChanged: { length in
+                    print("Length changed: \(length)")
+                },
+                onInputFilled: {
+                    print("Input filled")
+                },
+                onFocusChanged: { isFocused in
+                    if !isFocused {
+                        self.isValid = self.expirationDate.textField.isValid
                     }
-                )
-                .frame(height: 44)
-                .padding()
+                    print("Focus changed: \(isFocused)")
+                },
+                onError: { error in
+                    self.isValid = false
+                    print("Error: \(error)")
+                }
+            )
+        }
 
-                Text("Válido: \(isValid ? "Sim" : "Não")")
-                    .foregroundColor(isValid ? .green : .red)
+        var body: some View {
+            VStack(spacing: 20) {
+                self.expirationDate
+                    .frame(height: 44)
+                    .padding()
+
+                Text("Valid: \(self.isValid ? "Yes" : "No")")
+                    .foregroundColor(self.isValid ? .green : .red)
             }
+        }
+    }
+
+    struct ExpirationDatePreview_Previews: PreviewProvider {
+        static var previews: some View {
+            ExpirationDatePreview()
         }
     }
 #endif
