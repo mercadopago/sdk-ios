@@ -2,52 +2,40 @@ import CoreMethods
 import SwiftUI
 
 struct CardFormView: View {
-    private static var defaultStyle = TextFieldDefaultStyle()
-        .borderColor(.systemGray)
-        .borderWidth(2)
-        .cornerRadius(8)
-
-    private var errorStyle = TextFieldDefaultStyle()
-        .borderColor(.red)
-        .borderWidth(2)
-        .cornerRadius(8)
-
-    @State private var cardNumberMainStyle: TextFieldDefaultStyle = CardFormView.defaultStyle
-    @State private var securityCodeMainStyle: TextFieldDefaultStyle = CardFormView.defaultStyle
-    @State private var expirationDateMainStyle: TextFieldDefaultStyle = CardFormView.defaultStyle
-
     @State private var documents: [IdentificationType] = []
     @State private var selectedDocumentType: IdentificationType?
     @State private var token: String?
+
+    @State private var cardNumberIsValid = true
+    @State private var securityCodeIsValid = true
+    @State private var expirationDateIsValid = true
 
     private let coreMethods = CoreMethods()
     private let amount: Double = 5000
 
     private var cardNumber: CardNumberTextFieldView {
         CardNumberTextFieldView(
-            style: self.cardNumberMainStyle,
             placeholder: "Número do cartão",
             onBinChanged: { bin in
                 print("BIN changed: \(bin)")
             },
             onLastFourDigitsFilled: { lastFour in
                 print("Last four digits: \(lastFour)")
-                self.cardNumberMainStyle = CardFormView.defaultStyle
             },
             onFocusChanged: { isFocused in
-                print("Focus changed: \(isFocused)")
+                if !isFocused {
+                    self.cardNumberIsValid = self.cardNumber.textField.isValid
+                }
             },
             onError: { error in
+                self.cardNumberIsValid = false
                 print("Error: \(error)")
-                self.cardNumberMainStyle = self.errorStyle
             }
         )
-        .style(self.cardNumberMainStyle)
     }
 
     private var securityCode: SecurityCodeTextFieldView {
         SecurityCodeTextFieldView(
-            style: self.securityCodeMainStyle,
             placeholder: "Insert security code",
             onLengthChanged: { length in
                 print("Security code length: \(length)")
@@ -56,9 +44,13 @@ struct CardFormView: View {
                 print("Security code completed")
             },
             onFocusChanged: { isFocused in
+                if !isFocused {
+                    self.securityCodeIsValid = self.securityCode.textField.isValid
+                }
                 print("SecurityCodeField Focus changed: \(isFocused)")
             },
             onError: { error in
+                self.securityCodeIsValid = false
                 print("SecurityCodeField Error: \(error)")
             }
         )
@@ -66,7 +58,6 @@ struct CardFormView: View {
 
     private var expirationDate: ExpirationDateTextFieldView {
         ExpirationDateTextFieldView(
-            style: self.expirationDateMainStyle,
             placeholder: "Insert date",
             onLengthChanged: { length in
                 print("Length changed: \(length)")
@@ -75,9 +66,13 @@ struct CardFormView: View {
                 print("Date completed")
             },
             onFocusChanged: { isFocused in
+                if !isFocused {
+                    self.expirationDateIsValid = self.expirationDate.textField.isValid
+                }
                 print("ExpirationDateField Focus changed: \(isFocused)")
             },
             onError: { error in
+                self.expirationDateIsValid = false
                 print("ExpirationDateField Error: \(error)")
             }
         )
@@ -87,26 +82,18 @@ struct CardFormView: View {
         ScrollView {
             VStack(spacing: 16) {
                 // Card Number Section
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Card Number")
-                        .font(.headline)
-
+                StyledCardFieldContainer(title: "Number of card", isValid: self.$cardNumberIsValid) {
                     self.cardNumber
                         .frame(height: 44)
                 }
 
                 HStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Security Code")
-                            .font(.headline)
+                    StyledCardFieldContainer(title: "Security Code", isValid: self.$securityCodeIsValid) {
                         self.securityCode
                             .frame(height: 44)
                     }
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Expiration Date")
-                            .font(.headline)
-
+                    StyledCardFieldContainer(title: "Expiration Date", isValid: self.$expirationDateIsValid) {
                         self.expirationDate
                             .frame(height: 44)
                     }
