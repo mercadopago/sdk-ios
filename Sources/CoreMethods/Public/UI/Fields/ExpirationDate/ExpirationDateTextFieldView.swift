@@ -29,7 +29,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
     private var style: ExpirationDateTextfield.Style
     private var format: ExpirationDateTextfield.Format
     private var placeholder: String?
-    private var isEnabled: Bool
+    @Binding private var isEnabled: Bool
     private var keyboardAppearance: UIKeyboardAppearance
 
     // MARK: - Callbacks
@@ -47,7 +47,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
     private var onError: ((ExpirationDateError) -> Void)?
 
     /// The underlying text field implementation.
-    public let textField: ExpirationDateTextfield
+    @Binding private var textField: ExpirationDateTextfield?
 
     // MARK: - Initialization
 
@@ -84,10 +84,11 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
     ///   )
     ///   ```
     public init(
+        textField: Binding<ExpirationDateTextfield?>,
         style: ExpirationDateTextfield.Style = TextFieldDefaultStyle(),
         format: ExpirationDateTextfield.Format = .short,
         placeholder: String? = nil,
-        isEnabled: Bool = true,
+        isEnabled: Binding<Bool> = .constant(true),
         keyboardAppearance: UIKeyboardAppearance = .default,
         onLengthChanged: ((Int) -> Void)? = nil,
         onInputFilled: (() -> Void)? = nil,
@@ -97,33 +98,34 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         self.style = style
         self.format = format
         self.placeholder = placeholder
-        self.isEnabled = isEnabled
+        self._isEnabled = isEnabled
         self.keyboardAppearance = keyboardAppearance
         self.onLengthChanged = onLengthChanged
         self.onInputFilled = onInputFilled
         self.onFocusChanged = onFocusChanged
         self.onError = onError
-        self.textField = ExpirationDateTextfield(style: style)
-            .setFormat(format)
+        self._textField = textField
     }
 
     // MARK: - UIViewRepresentable
 
     public func makeUIView(context _: Context) -> ExpirationDateTextfield {
-        self.textField.framework = .swiftui
+        let textField = ExpirationDateTextfield(style: style)
+            .setFormat(self.format)
+        textField.framework = .swiftui
 
         if let placeholder {
-            self.textField.setPlaceholder(placeholder)
+            textField.setPlaceholder(placeholder)
         }
-        self.textField.isEnabled = self.isEnabled
-        self.textField.keyboardAppearance = self.keyboardAppearance
+        textField.isEnabled = self.isEnabled
+        textField.keyboardAppearance = self.keyboardAppearance
 
-        self.textField.onLengthChanged = self.onLengthChanged
-        self.textField.onInputFilled = self.onInputFilled
-        self.textField.onFocusChanged = self.onFocusChanged
-        self.textField.onError = self.onError
+        textField.onLengthChanged = self.onLengthChanged
+        textField.onInputFilled = self.onInputFilled
+        textField.onFocusChanged = self.onFocusChanged
+        textField.onError = self.onError
 
-        return self.textField
+        return textField
     }
 
     public func updateUIView(_ uiView: ExpirationDateTextfield, context _: Context) {
@@ -240,8 +242,11 @@ public extension ExpirationDateTextFieldView {
             .borderWidth(1)
             .cornerRadius(8)
 
+        @State var textField: ExpirationDateTextfield?
+
         var expirationDate: ExpirationDateTextFieldView {
             ExpirationDateTextFieldView(
+                textField: self.$textField,
                 style: self.style,
                 placeholder: "Expiration Date",
                 onLengthChanged: { length in
@@ -252,7 +257,7 @@ public extension ExpirationDateTextFieldView {
                 },
                 onFocusChanged: { isFocused in
                     if !isFocused {
-                        self.isValid = self.expirationDate.textField.isValid
+                        self.isValid = self.textField?.isValid ?? true
                     }
                     print("Focus changed: \(isFocused)")
                 },

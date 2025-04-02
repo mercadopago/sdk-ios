@@ -34,7 +34,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     private var placeholder: String?
 
     /// Whether the text field is enabled for user interaction.
-    private var isEnabled: Bool
+    @Binding private var isEnabled: Bool
 
     /// The appearance style of the keyboard.
     private var keyboardAppearance: UIKeyboardAppearance
@@ -54,7 +54,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     private var onError: ((SecurityCodeError) -> Void)?
 
     /// The underlying text field implementation.
-    public let textField: SecurityCodeTextField
+    @Binding var textField: SecurityCodeTextField?
 
     // MARK: - Initialization
 
@@ -90,10 +90,11 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     ///   )
     ///   ```
     public init(
+        textField: Binding<SecurityCodeTextField?>,
         style: SecurityCodeTextField.Style = TextFieldDefaultStyle(),
         maxLength: Int = 3,
         placeholder: String? = nil,
-        isEnabled: Bool = true,
+        isEnabled: Binding<Bool> = .constant(true),
         keyboardAppearance: UIKeyboardAppearance = .default,
         onLengthChanged: ((Int) -> Void)? = nil,
         onInputFilled: (() -> Void)? = nil,
@@ -103,35 +104,40 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         self.style = style
         self.maxLength = maxLength
         self.placeholder = placeholder
-        self.isEnabled = isEnabled
+        self._isEnabled = isEnabled
         self.keyboardAppearance = keyboardAppearance
         self.onLengthChanged = onLengthChanged
         self.onInputFilled = onInputFilled
         self.onFocusChanged = onFocusChanged
         self.onError = onError
-        self.textField = SecurityCodeTextField(
-            style: style,
-            maxLength: maxLength
-        )
+        self._textField = textField
     }
 
     // MARK: - UIViewRepresentable
 
     public func makeUIView(context _: Context) -> SecurityCodeTextField {
-        self.textField.framework = .swiftui
+        let textField = SecurityCodeTextField(
+            style: style,
+            maxLength: maxLength
+        )
+        textField.framework = .swiftui
 
         if let placeholder {
-            self.textField.setPlaceholder(placeholder)
+            textField.setPlaceholder(placeholder)
         }
-        self.textField.isEnabled = self.isEnabled
-        self.textField.keyboardAppearance = self.keyboardAppearance
+        textField.isEnabled = self.isEnabled
+        textField.keyboardAppearance = self.keyboardAppearance
 
-        self.textField.onLengthChanged = self.onLengthChanged
-        self.textField.onInputFilled = self.onInputFilled
-        self.textField.onFocusChanged = self.onFocusChanged
-        self.textField.onError = self.onError
+        textField.onLengthChanged = self.onLengthChanged
+        textField.onInputFilled = self.onInputFilled
+        textField.onFocusChanged = self.onFocusChanged
+        textField.onError = self.onError
 
-        return self.textField
+        Task { @MainActor in
+            self.textField = textField
+        }
+
+        return textField
     }
 
     public func updateUIView(_ uiView: SecurityCodeTextField, context _: Context) {
@@ -250,8 +256,11 @@ public extension SecurityCodeTextFieldView {
             .borderWidth(1)
             .cornerRadius(8)
 
+        @State private var securityTextField: SecurityCodeTextField?
+
         var securityCode: SecurityCodeTextFieldView {
             SecurityCodeTextFieldView(
+                textField: self.$securityTextField,
                 style: self.style,
                 placeholder: "Security Code",
                 onLengthChanged: { length in
@@ -262,7 +271,7 @@ public extension SecurityCodeTextFieldView {
                 },
                 onFocusChanged: { isFocused in
                     if !isFocused {
-                        self.isValid = self.securityCode.textField.isValid
+                        self.isValid = self.securityTextField?.isValid ?? true
                     }
                     print("Focus changed: \(isFocused)")
                 },

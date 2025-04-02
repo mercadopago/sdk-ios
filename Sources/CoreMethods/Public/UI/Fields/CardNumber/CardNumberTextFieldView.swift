@@ -59,11 +59,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
     /// A closure that is called when a validation error occurs.
     public var onError: (CardNumberError) -> Void
 
-    /// The underlying text field implementation.
-    public let textField: CardNumberTextField
-
-    /// Returns whether the current card number is valid.
-    public lazy var isValid = self.textField.isValid
+    @Binding var textField: CardNumberTextField?
 
     // MARK: - Initialization
 
@@ -105,6 +101,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
     ///   )
     ///   ```
     public init(
+        textField: Binding<CardNumberTextField?>,
         style: CardNumberTextField.Style = TextFieldDefaultStyle(),
         maxLength: Int = 19,
         mask: String = "#### #### #### #######",
@@ -126,30 +123,35 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         self.onLastFourDigitsFilled = onLastFourDigitsFilled
         self.onFocusChanged = onFocusChanged
         self.onError = onError
-        self.textField = CardNumberTextField(
-            style: style,
-            maxLength: maxLength,
-            mask: mask
-        )
+        self._textField = textField
     }
 
     // MARK: - UIViewRepresentable
 
     public func makeUIView(context _: Context) -> CardNumberTextField {
-        self.textField.framework = .swiftui
+        let textField = CardNumberTextField(
+            style: style,
+            maxLength: maxLength,
+            mask: mask
+        )
+        textField.framework = .swiftui
 
         if let placeholder {
-            self.textField.setPlaceholder(placeholder)
+            textField.setPlaceholder(placeholder)
         }
-        self.textField.isEnabled = self.isEnabled
-        self.textField.keyboardAppearance = self.keyboardAppearance
+        textField.isEnabled = self.isEnabled
+        textField.keyboardAppearance = self.keyboardAppearance
 
-        self.textField.onBinChanged = self.onBinChanged
-        self.textField.onLastFourDigitsFilled = self.onLastFourDigitsFilled
-        self.textField.onFocusChanged = self.onFocusChanged
-        self.textField.onError = self.onError
+        textField.onBinChanged = self.onBinChanged
+        textField.onLastFourDigitsFilled = self.onLastFourDigitsFilled
+        textField.onFocusChanged = self.onFocusChanged
+        textField.onError = self.onError
 
-        return self.textField
+        Task { @MainActor in
+            self.textField = textField
+        }
+
+        return textField
     }
 
     public func updateUIView(_ uiView: CardNumberTextField, context _: Context) {
@@ -277,6 +279,7 @@ public extension CardNumberTextFieldView {
 
     struct CardNumberPreview: View {
         @State private var isValid = true
+        @State private var cardNumberTeste: CardNumberTextField?
 
         let style = TextFieldDefaultStyle()
             .textColor(.blue)
@@ -288,6 +291,7 @@ public extension CardNumberTextFieldView {
 
         var cardNumber: CardNumberTextFieldView {
             CardNumberTextFieldView(
+                textField: self.$cardNumberTeste,
                 style: self.style,
                 placeholder: "Número do cartão",
                 onBinChanged: { bin in
@@ -298,7 +302,7 @@ public extension CardNumberTextFieldView {
                 },
                 onFocusChanged: { isFocused in
                     if !isFocused {
-                        self.isValid = self.cardNumber.textField.isValid
+                        self.isValid = self.cardNumberTeste?.isValid ?? true
                     }
                     print("Focus changed: \(isFocused)")
                 },
