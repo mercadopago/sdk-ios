@@ -2,6 +2,9 @@ import CoreMethods
 import SwiftUI
 
 struct CardFormView: View {
+    private let coreMethods = CoreMethods()
+    private let amount: Double = 5000
+
     @State private var documents: [IdentificationType] = []
     @State private var selectedDocumentType: IdentificationType?
     @State private var token: String?
@@ -10,11 +13,13 @@ struct CardFormView: View {
     @State private var securityCodeIsValid = true
     @State private var expirationDateIsValid = true
 
-    private let coreMethods = CoreMethods()
-    private let amount: Double = 5000
+    @State var cardNumberTextField: CardNumberTextField?
+    @State var securityTextField: SecurityCodeTextField?
+    @State var expirationDateTextField: ExpirationDateTextfield?
 
     private var cardNumber: CardNumberTextFieldView {
         CardNumberTextFieldView(
+            textField: self.$cardNumberTextField,
             placeholder: "Número do cartão",
             onBinChanged: { bin in
                 print("BIN changed: \(bin)")
@@ -24,7 +29,7 @@ struct CardFormView: View {
             },
             onFocusChanged: { isFocused in
                 if !isFocused {
-                    self.cardNumberIsValid = self.cardNumber.isValid
+                    self.cardNumberIsValid = self.cardNumberTextField?.isValid ?? false
                 }
             },
             onError: { error in
@@ -36,6 +41,7 @@ struct CardFormView: View {
 
     private var securityCode: SecurityCodeTextFieldView {
         SecurityCodeTextFieldView(
+            textField: self.$securityTextField,
             placeholder: "Insert security code",
             onLengthChanged: { length in
                 print("Security code length: \(length)")
@@ -45,7 +51,7 @@ struct CardFormView: View {
             },
             onFocusChanged: { isFocused in
                 if !isFocused {
-                    self.securityCodeIsValid = self.securityCode.textField.isValid
+                    self.securityCodeIsValid = self.securityTextField?.isValid ?? true
                 }
                 print("SecurityCodeField Focus changed: \(isFocused)")
             },
@@ -58,6 +64,7 @@ struct CardFormView: View {
 
     private var expirationDate: ExpirationDateTextFieldView {
         ExpirationDateTextFieldView(
+            textField: self.$expirationDateTextField,
             placeholder: "Insert date",
             onLengthChanged: { length in
                 print("Length changed: \(length)")
@@ -67,7 +74,7 @@ struct CardFormView: View {
             },
             onFocusChanged: { isFocused in
                 if !isFocused {
-                    self.expirationDateIsValid = self.expirationDate.textField.isValid
+                    self.expirationDateIsValid = self.expirationDateTextField?.isValid ?? true
                 }
                 print("ExpirationDateField Focus changed: \(isFocused)")
             },
@@ -154,12 +161,16 @@ struct CardFormView: View {
     }
 
     private func handlePayButtonTapped() {
+        guard let cardNumberTextField, let securityTextField, let expirationDateTextField else {
+            return
+        }
+
         Task {
             do {
                 let token = try await coreMethods.createToken(
-                    cardNumber: self.cardNumber.textField,
-                    expirationDate: self.expirationDate.textField,
-                    securityCode: self.securityCode.textField
+                    cardNumber: cardNumberTextField,
+                    expirationDate: expirationDateTextField,
+                    securityCode: securityTextField
                 )
 
                 await MainActor.run {
