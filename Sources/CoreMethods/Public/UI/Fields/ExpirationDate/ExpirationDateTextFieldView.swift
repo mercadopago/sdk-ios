@@ -125,6 +125,10 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         textField.onFocusChanged = self.onFocusChanged
         textField.onError = self.onError
 
+        Task { @MainActor in
+            self.textField = textField
+        }
+
         return textField
     }
 
