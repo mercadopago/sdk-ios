@@ -200,12 +200,17 @@ public final class ExpirationDateTextfield: PCITextField {
     }
 
     private func getDate() -> Date? {
-        var text = input.getValue()
+        var text = input.textField.text ?? ""
 
         if !text.isEmpty {
             text.insert(contentsOf: Calendar.current.firstTwoDigitsOfYear(), at: text.index(text.startIndex, offsetBy: 3))
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MM/yyyy"
+            if self.format == .short {
+                dateFormatter.dateFormat = "MM/yy"
+            } else {
+                dateFormatter.dateFormat = "MM/yyyy"
+            }
+
             return dateFormatter.date(from: text)
         } else {
             return nil
