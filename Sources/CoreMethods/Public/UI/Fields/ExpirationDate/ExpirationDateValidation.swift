@@ -6,7 +6,9 @@
 //
 
 import Foundation
-import MPCore
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 
 public enum ExpirationDateError {
     case invalidFormat

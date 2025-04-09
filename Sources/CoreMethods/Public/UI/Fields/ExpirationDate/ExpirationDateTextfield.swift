@@ -5,8 +5,10 @@
 //  Created by Guilherme Prata Costa on 27/01/25.
 //
 
-import MPAnalytics
-import MPCore
+#if SWIFT_PACKAGE
+    import MPAnalytics
+    import MPCore
+#endif
 import UIKit
 
 /// A secure text field specialized for handling expiration date of the card.

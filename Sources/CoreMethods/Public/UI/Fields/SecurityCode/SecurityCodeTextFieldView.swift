@@ -1,4 +1,6 @@
-import MPCore
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 import SwiftUI
 
 /// A SwiftUI component that provides a text field specifically designed for inputting credit card security codes (CVV/CVC).

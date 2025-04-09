@@ -6,7 +6,9 @@
 //
 
 import Foundation
-import MPAnalytics
+#if SWIFT_PACKAGE
+    import MPAnalytics
+#endif
 
 /// Protocol combining core SDK dependencies for analytics and networking
 typealias DI = Sendable & HasAnalytics & HasNetwork & HasKeyChain

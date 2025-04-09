@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import MPCore
-
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 protocol GenerateCardTokenUseCaseProtocol: Sendable {
     func tokenize(
         cardNumber: String?,

@@ -6,7 +6,9 @@
 //
 
 import Foundation
-import MPAnalytics
+#if SWIFT_PACKAGE
+    import MPAnalytics
+#endif
 
 /// Main entry point for MercadoPago SDK
 public final class MercadoPagoSDK: @unchecked Sendable {

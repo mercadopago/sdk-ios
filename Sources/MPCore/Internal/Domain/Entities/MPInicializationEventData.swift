@@ -5,7 +5,9 @@
 //  Created by Guilherme Prata Costa on 12/02/25.
 //
 
-import MPAnalytics
+#if SWIFT_PACKAGE
+    import MPAnalytics
+#endif
 
 struct MPInicializationEventData: AnalyticsEventData {
     let locale: String

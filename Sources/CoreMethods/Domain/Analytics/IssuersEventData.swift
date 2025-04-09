@@ -5,8 +5,9 @@
 //  Created by Guilherme Prata Costa on 24/03/25.
 //
 
-import MPAnalytics
-
+#if SWIFT_PACKAGE
+    import MPAnalytics
+#endif
 struct IssuersEventData: AnalyticsEventData {
     let issuers: [String]
 

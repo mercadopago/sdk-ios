@@ -5,7 +5,9 @@
 //  Created by Guilherme Prata Costa on 28/01/25.
 //
 
-import MPCore
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 import UIKit
 
 public class PCITextField: UIView {

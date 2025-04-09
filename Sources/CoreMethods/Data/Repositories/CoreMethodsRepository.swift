@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import MPCore
-
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
     typealias Dependency = HasNetwork
     private typealias Endpoint = CoreMethodsEndpoint

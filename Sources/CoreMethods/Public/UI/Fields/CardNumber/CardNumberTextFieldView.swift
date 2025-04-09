@@ -1,5 +1,9 @@
-import MPCore
+#if SWIFT_PACKAGE
+    import MPAnalytics
+    import MPCore
+#endif
 import SwiftUI
+import UIKit
 
 /// A SwiftUI component that provides a text field specifically designed for inputting credit card numbers.
 ///

@@ -4,7 +4,9 @@
 //
 //  Created by Guilherme Prata Costa on 14/03/25.
 //
-import MPAnalytics
+#if SWIFT_PACKAGE
+    import MPAnalytics
+#endif
 
 struct SecureFieldEventData: AnalyticsEventData {
     let field: FieldType?

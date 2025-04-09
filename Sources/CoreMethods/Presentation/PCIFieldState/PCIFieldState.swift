@@ -5,7 +5,9 @@
 //  Created by Guilherme Prata Costa on 08/01/25.
 //
 
-import MPCore
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 import SwiftUI
 import UIKit
 

@@ -5,8 +5,10 @@
 //  Created by Guilherme Prata Costa on 14/11/24.
 //
 
-import MPAnalytics
-import MPCore
+#if SWIFT_PACKAGE
+    import MPAnalytics
+    import MPCore
+#endif
 import UIKit
 
 /// A secure text field specialized for handling credit card numbers.

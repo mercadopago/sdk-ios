@@ -4,8 +4,9 @@
 //
 //  Created by Guilherme Prata Costa on 10/03/25.
 //
-import MPAnalytics
-
+#if SWIFT_PACKAGE
+    import MPAnalytics
+#endif
 struct InstallmentEventData: AnalyticsEventData {
     let amount: Double?
     let paymentType: String?

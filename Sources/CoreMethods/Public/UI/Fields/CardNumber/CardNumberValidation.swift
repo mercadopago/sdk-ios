@@ -1,5 +1,7 @@
 import Foundation
-import MPCore
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 
 public enum CardNumberError {
     case invalidCharacters

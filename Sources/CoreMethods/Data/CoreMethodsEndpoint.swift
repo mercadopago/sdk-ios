@@ -6,9 +6,11 @@
 //
 
 import Foundation
-import MPCore
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 
-private enum Constants {
+private enum ConstantsCoreMethods {
     static let baseURLToken = "https://api.mercadopago.com"
     static let baseURLBricks = "https://api.mercadopago.com/cho-off/beta"
 }
@@ -33,9 +35,9 @@ extension CoreMethodsEndpoint: RequestEndpoint {
     var baseURL: String {
         switch self {
         case .postCardToken:
-            return Constants.baseURLToken
+            return ConstantsCoreMethods.baseURLToken
         default:
-            return Constants.baseURLBricks
+            return ConstantsCoreMethods.baseURLBricks
         }
     }
 

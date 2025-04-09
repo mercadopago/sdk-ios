@@ -4,7 +4,9 @@
 //
 //  Created by Guilherme Prata Costa on 19/03/25.
 //
-import MPAnalytics
+#if SWIFT_PACKAGE
+    import MPAnalytics
+#endif
 
 struct TokenizationEventData: AnalyticsEventData {
     let isSaveCard: Bool

@@ -7,8 +7,10 @@
 //
 
 import Foundation
-import MPAnalytics
-import MPCore
+#if SWIFT_PACKAGE
+    import MPAnalytics
+    import MPCore
+#endif
 
 /// CoreMethods provides access to Mercado Pago's public API functionality.
 /// This class serves as the main entry point for interacting with Mercado Pago's payment processing services,
