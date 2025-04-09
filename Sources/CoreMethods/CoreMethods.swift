@@ -9,7 +9,7 @@
 import Foundation
 #if SWIFT_PACKAGE
     import MPAnalytics
-    import MPCore
+    @_exported import MPCore
 #endif
 
 /// CoreMethods provides access to Mercado Pago's public API functionality.

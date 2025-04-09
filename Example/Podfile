@@ -1,0 +1,11 @@
+platform :ios, '13.0'
+
+target 'Example' do
+  use_frameworks!
+  
+  # MercadoPago CoreMethods SDK
+  pod 'CoreMethods', :path => './', :tag => '0.1.0'
+  
+  # Adicione quaisquer outras dependências que seu projeto precise aqui
+  
+end
