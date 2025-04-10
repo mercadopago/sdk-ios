@@ -7,7 +7,6 @@
 //
 
 import CoreMethods
-import MPCore
 import SwiftUI
 
 @available(iOS 14.0, *)
@@ -23,7 +22,7 @@ struct ExampleApp: App {
 struct ExampleAppWrapper {
     static func main() {
         if #available(iOS 14.0, *) {
-            let configuration = MercadoPagoSDK.Configuration(publicKey: "")
+            let configuration = MercadoPagoSDK.Configuration(publicKey: "aaaa", country: .ARG)
             MercadoPagoSDK.shared.initialize(configuration)
 
             ExampleApp.main()
