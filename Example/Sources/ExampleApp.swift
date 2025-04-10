@@ -22,7 +22,7 @@ struct ExampleApp: App {
 struct ExampleAppWrapper {
     static func main() {
         if #available(iOS 14.0, *) {
-            let configuration = MercadoPagoSDK.Configuration(publicKey: "aaaa", country: .ARG)
+            let configuration = MercadoPagoSDK.Configuration(publicKey: "", country: .ARG)
             MercadoPagoSDK.shared.initialize(configuration)
 
             ExampleApp.main()
