@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 18/02/25.
 //
 
+@preconcurrency import DeviceFingerPrint
 import Foundation
 #if SWIFT_PACKAGE
     import MPCore
@@ -53,6 +54,11 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
             cardId: cardID,
             buyerIdentification: buyerIdentification
         )
+
+        await MainActor.run {
+            let fingerPrint: [String: Any] = DeviceFingerPrint.getInfoASDic()
+            print(fingerPrint)
+        }
 
         let response = try await repository.generateCardToken(cardData)
 

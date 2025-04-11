@@ -28,10 +28,15 @@ let package = Package(
         ),
         .target(
             name: "CoreMethods",
-            dependencies: ["MPCore"]
+            dependencies: ["MPCore", "DeviceFingerPrint"]
         ),
         .target(
             name: "MPAnalytics"
+        ),
+        
+        .binaryTarget(
+            name: "DeviceFingerPrint",
+            path: "Sources/Framework/DeviceFingerPrint.xcframework"
         ),
         
         //Tests

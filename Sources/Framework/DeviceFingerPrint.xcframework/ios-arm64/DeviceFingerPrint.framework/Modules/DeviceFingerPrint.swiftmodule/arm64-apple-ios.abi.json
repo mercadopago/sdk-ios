@@ -1,0 +1,111 @@
+{
+  "ABIRoot": {
+    "kind": "Root",
+    "name": "DeviceFingerPrint",
+    "printedName": "DeviceFingerPrint",
+    "children": [
+      {
+        "kind": "Import",
+        "name": "MercadoPagoDevicesSDK",
+        "printedName": "MercadoPagoDevicesSDK",
+        "declKind": "Import",
+        "moduleName": "DeviceFingerPrint",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "DeviceFingerPrint",
+        "printedName": "DeviceFingerPrint",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "start",
+            "printedName": "start()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:17DeviceFingerPrintAAC5startyyFZ",
+            "mangledName": "$s17DeviceFingerPrintAAC5startyyFZ",
+            "moduleName": "DeviceFingerPrint",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getInfoASDic",
+            "printedName": "getInfoASDic()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:17DeviceFingerPrintAAC12getInfoASDicSDySSypGyFZ",
+            "mangledName": "$s17DeviceFingerPrintAAC12getInfoASDicSDySSypGyFZ",
+            "moduleName": "DeviceFingerPrint",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:17DeviceFingerPrintAAC",
+        "mangledName": "$s17DeviceFingerPrintAAC",
+        "moduleName": "DeviceFingerPrint",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "hasMissingDesignatedInitializers": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      }
+    ],
+    "json_format_version": 8
+  },
+  "ConstValues": []
+}
