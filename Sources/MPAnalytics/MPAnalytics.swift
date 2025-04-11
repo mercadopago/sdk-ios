@@ -228,11 +228,16 @@ package final class MPAnalytics: AnalyticsInterface {
               !MPAnalyticsConfiguration.siteID.isEmpty else {
             return
         }
+        var identifierVendor = ""
+
+        await MainActor.run {
+            identifierVendor = self.buyerInfo.getUID()
+        }
 
         let payload: [String: Any] = await [
             "path": track.getPath(),
             "user": [
-                "uid": self.buyerInfo.getUID()
+                "uid": identifierVendor
             ],
             "type": self.track.getType().rawValue,
             "id": MPAnalyticsConfiguration.sessionID,

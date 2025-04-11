@@ -11,7 +11,7 @@ import UIKit
 public class TextFieldDefaultStyle: PCIFieldStateStyleProtocol {
     // MARK: - Text Configuration
 
-    public var textColor: UIColor = .label
+    public var textColor: UIColor = .black
 
     public var font: UIFont = .systemFont(ofSize: 17)
 

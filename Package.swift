@@ -24,11 +24,11 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "MPCore",
-            dependencies: ["MPAnalytics"]
+            dependencies: ["MPAnalytics", "DeviceFingerPrint"]
         ),
         .target(
             name: "CoreMethods",
-            dependencies: ["MPCore", "DeviceFingerPrint"]
+            dependencies: ["MPCore"]
         ),
         .target(
             name: "MPAnalytics"

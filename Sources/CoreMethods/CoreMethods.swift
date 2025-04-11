@@ -6,7 +6,6 @@
 //  Copyright © 2024 Mercado Pago. All rights reserved.
 //
 
-@preconcurrency import DeviceFingerPrint
 import Foundation
 #if SWIFT_PACKAGE
     import MPAnalytics
@@ -53,7 +52,6 @@ public final class CoreMethods: Sendable {
     /// This initializer sets up the class with the standard implementation of the card token generation use case.
     /// Use this initializer for production code.
     public init() {
-        DeviceFingerPrint.start()
         self.generateTokenUseCase = GenerateCardTokenUseCase()
         self.identificationTypeUseCase = IdentificationTypesUseCase()
         self.installmentsUseCase = InstallmentsUseCase()
