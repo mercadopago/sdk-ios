@@ -16,14 +16,21 @@
         ]
       },
       {
+        "kind": "Import",
+        "name": "CoreLocation",
+        "printedName": "CoreLocation",
+        "declKind": "Import",
+        "moduleName": "DeviceFingerPrint"
+      },
+      {
         "kind": "TypeDecl",
-        "name": "DeviceFingerPrint",
-        "printedName": "DeviceFingerPrint",
+        "name": "Device",
+        "printedName": "Device",
         "children": [
           {
             "kind": "Function",
-            "name": "start",
-            "printedName": "start()",
+            "name": "execute",
+            "printedName": "execute()",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -32,8 +39,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:17DeviceFingerPrintAAC5startyyFZ",
-            "mangledName": "$s17DeviceFingerPrintAAC5startyyFZ",
+            "usr": "s:17DeviceFingerPrint0A0C7executeyyFZ",
+            "mangledName": "$s17DeviceFingerPrint0A0C7executeyyFZ",
             "moduleName": "DeviceFingerPrint",
             "static": true,
             "declAttributes": [
@@ -44,8 +51,8 @@
           },
           {
             "kind": "Function",
-            "name": "getInfoASDic",
-            "printedName": "getInfoASDic()",
+            "name": "getInfoAsDictionary",
+            "printedName": "getInfoAsDictionary()",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -68,8 +75,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:17DeviceFingerPrintAAC12getInfoASDicSDySSypGyFZ",
-            "mangledName": "$s17DeviceFingerPrintAAC12getInfoASDicSDySSypGyFZ",
+            "usr": "s:17DeviceFingerPrint0A0C19getInfoAsDictionarySDySSypGyFZ",
+            "mangledName": "$s17DeviceFingerPrint0A0C19getInfoAsDictionarySDySSypGyFZ",
             "moduleName": "DeviceFingerPrint",
             "static": true,
             "declAttributes": [
@@ -77,11 +84,113 @@
               "AccessControl"
             ],
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getInfoAsJsonData",
+            "printedName": "getInfoAsJsonData()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.Data?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Data",
+                    "printedName": "Foundation.Data",
+                    "usr": "s:10Foundation4DataV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:17DeviceFingerPrint0A0C17getInfoAsJsonData10Foundation0H0VSgyFZ",
+            "mangledName": "$s17DeviceFingerPrint0A0C17getInfoAsJsonData10Foundation0H0VSgyFZ",
+            "moduleName": "DeviceFingerPrint",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getInfoAsJsonString",
+            "printedName": "getInfoAsJsonString()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:17DeviceFingerPrint0A0C19getInfoAsJsonStringSSSgyFZ",
+            "mangledName": "$s17DeviceFingerPrint0A0C19getInfoAsJsonStringSSSgyFZ",
+            "moduleName": "DeviceFingerPrint",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "locationManager",
+            "printedName": "locationManager(_:didUpdateLocations:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "CLLocationManager",
+                "printedName": "CoreLocation.CLLocationManager",
+                "usr": "c:objc(cs)CLLocationManager"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[CoreLocation.CLLocation]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CLLocation",
+                    "printedName": "CoreLocation.CLLocation",
+                    "usr": "c:objc(cs)CLLocation"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:17DeviceFingerPrint0A0C15locationManager_18didUpdateLocationsySo010CLLocationE0C_SaySo0I0CGtF",
+            "mangledName": "$s17DeviceFingerPrint0A0C15locationManager_18didUpdateLocationsySo010CLLocationE0C_SaySo0I0CGtF",
+            "moduleName": "DeviceFingerPrint",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Class",
-        "usr": "s:17DeviceFingerPrintAAC",
-        "mangledName": "$s17DeviceFingerPrintAAC",
+        "usr": "s:17DeviceFingerPrint0A0C",
+        "mangledName": "$s17DeviceFingerPrint0A0C",
         "moduleName": "DeviceFingerPrint",
         "declAttributes": [
           "AccessControl"

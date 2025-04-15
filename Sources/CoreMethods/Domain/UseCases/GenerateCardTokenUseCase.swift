@@ -43,8 +43,19 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
         var buyerIdentification: BuyerIdentification?
 
         if let identificationType, let identificationNumber, let cardHolderName {
-            buyerIdentification = BuyerIdentification(name: cardHolderName, number: identificationNumber, type: identificationNumber)
+            buyerIdentification = BuyerIdentification(
+                name: cardHolderName,
+                number: identificationNumber,
+                type: identificationType
+            )
         }
+        var fingerPrint: Data?
+
+        await MainActor.run {
+            fingerPrint = Device.getInfoAsJsonData()
+        }
+
+        print(fingerPrint)
 
         let cardData = CardTokenBody(
             cardNumber: cardNumber,
@@ -52,13 +63,9 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
             expirationYear: expirationDateYear,
             securityCode: securityCodeInput,
             cardId: cardID,
-            buyerIdentification: buyerIdentification
+            buyerIdentification: buyerIdentification,
+            device: fingerPrint
         )
-
-        await MainActor.run {
-            let fingerPrint: [String: Any] = DeviceFingerPrint.getInfoASDic()
-            print(fingerPrint)
-        }
 
         let response = try await repository.generateCardToken(cardData)
 

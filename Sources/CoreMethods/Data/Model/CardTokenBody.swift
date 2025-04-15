@@ -16,6 +16,8 @@ struct CardTokenBody: Codable {
     var esc: String? = nil
     var requireEsc = false
     var buyerIdentification: BuyerIdentification? = nil
+
+    var device: Data? = nil
 }
 
 extension CardTokenBody {
@@ -40,6 +42,11 @@ extension CardTokenBody {
                 "type": buyerIdentification.type
             ]
             jsonObject["buyer_identification"] = buyerDict
+        }
+
+        if let deviceData = device,
+           let deviceObject = try? JSONSerialization.jsonObject(with: deviceData, options: []) as? [String: Any] {
+            jsonObject["device"] = deviceObject
         }
 
         return try? JSONSerialization.data(withJSONObject: jsonObject, options: [])

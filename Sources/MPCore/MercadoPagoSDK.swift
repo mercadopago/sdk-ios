@@ -65,15 +65,12 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     /// - Parameter configuration: SDK configuration options
     public func initialize(_ configuration: Configuration) {
         verifyCanBeInitialized(configuration)
+        Device.execute()
 
         self.configuration = configuration
         self.isInitialized = true
 
         self.analyticsMonitoringTask = Task(priority: .background) {
-            await MainActor.run {
-                DeviceFingerPrint.start()
-            }
-
             await self.dependencies.analytics.initialize(
                 version: MPSDKVersion.version,
                 siteID: configuration.country.getSiteId()
