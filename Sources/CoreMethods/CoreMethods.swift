@@ -43,7 +43,7 @@ public final class CoreMethods: Sendable {
     private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
     private let issuerUseCase: IssuerUseCaseProtocol
 
-    typealias Dependency = HasAnalytics
+    typealias Dependency = HasAnalytics & HasFingerPrint
 
     let dependencies: Dependency
 
@@ -52,12 +52,12 @@ public final class CoreMethods: Sendable {
     /// This initializer sets up the class with the standard implementation of the card token generation use case.
     /// Use this initializer for production code.
     public init() {
-        self.generateTokenUseCase = GenerateCardTokenUseCase()
+        self.dependencies = CoreDependencyContainer.shared
+        self.generateTokenUseCase = GenerateCardTokenUseCase(fingerPrint: self.dependencies.fingerPrint)
         self.identificationTypeUseCase = IdentificationTypesUseCase()
         self.installmentsUseCase = InstallmentsUseCase()
         self.paymentMethodUseCase = PaymentMethodUseCase()
         self.issuerUseCase = IssuerUseCase()
-        self.dependencies = CoreDependencyContainer.shared
     }
 
     /// Initializes a new instance of CoreMethods with custom dependencies.

@@ -25,9 +25,11 @@ protocol GenerateCardTokenUseCaseProtocol: Sendable {
 
 final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
     private let repository: CoreMethodsRepositoryProtocol
+    private let fingerPrint: FingerPrintProtocol
 
-    init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {
+    init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository(), fingerPrint: FingerPrintProtocol) {
         self.repository = repository
+        self.fingerPrint = fingerPrint
     }
 
     func tokenize(
@@ -49,13 +51,8 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
                 type: identificationType
             )
         }
-        var fingerPrint: Data?
 
-        await MainActor.run {
-            fingerPrint = Device.getInfoAsJsonData()
-        }
-
-        print(fingerPrint)
+        let deviceData = await fingerPrint.getDeviceData()
 
         let cardData = CardTokenBody(
             cardNumber: cardNumber,
@@ -64,7 +61,7 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
             securityCode: securityCodeInput,
             cardId: cardID,
             buyerIdentification: buyerIdentification,
-            device: fingerPrint
+            device: deviceData
         )
 
         let response = try await repository.generateCardToken(cardData)

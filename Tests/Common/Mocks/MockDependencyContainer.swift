@@ -8,12 +8,14 @@ import MPAnalytics
 @testable import MPCore
 import XCTest
 
-package struct MockDependencyContainer: Sendable, HasKeyChain, HasNetwork, HasAnalytics {
+package struct MockDependencyContainer: Sendable, HasKeyChain, HasNetwork, HasAnalytics, HasFingerPrint {
     package let keyChainService: KeyChainManagerProtocol
 
     package let networkService: NetworkServiceProtocol
 
     package var analytics: AnalyticsInterface
+
+    package let fingerPrint: FingerPrintProtocol
 
     package let mockSession: MockURLSession
     package let mockKeyChainService: MockKeyChainService
@@ -22,7 +24,8 @@ package struct MockDependencyContainer: Sendable, HasKeyChain, HasNetwork, HasAn
     package init(
         session: MockURLSession = MockURLSession(),
         keyChainService: MockKeyChainService = MockKeyChainService(),
-        analytics: MockAnalytics = MockAnalytics()
+        analytics: MockAnalytics = MockAnalytics(),
+        fingerPrint: MockFingerPrint = MockFingerPrint()
     ) {
         self.mockSession = session
         self.mockKeyChainService = keyChainService
@@ -31,5 +34,6 @@ package struct MockDependencyContainer: Sendable, HasKeyChain, HasNetwork, HasAn
         self.networkService = NetworkService(session: session)
         self.keyChainService = keyChainService
         self.analytics = analytics
+        self.fingerPrint = fingerPrint
     }
 }

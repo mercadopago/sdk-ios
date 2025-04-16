@@ -21,7 +21,7 @@ private extension GenerateCardTokenUseCaseTests {
         let session = container.mockSession
         let repository = CoreMethodsRepository(dependencies: container)
 
-        let sut = GenerateCardTokenUseCase(repository: repository)
+        let sut = GenerateCardTokenUseCase(repository: repository, fingerPrint: MockFingerPrint())
 
         return (sut, session)
     }

@@ -11,7 +11,7 @@ import Foundation
 #endif
 
 /// Protocol combining core SDK dependencies for analytics and networking
-typealias DI = Sendable & HasAnalytics & HasNetwork & HasKeyChain
+typealias DI = Sendable & HasAnalytics & HasNetwork & HasKeyChain & HasFingerPrint
 
 /// Main dependency container managing SDK services
 ///
@@ -41,6 +41,8 @@ package final class CoreDependencyContainer: DI {
 
     package let keyChainService: KeyChainManagerProtocol
 
+    package let fingerPrint: FingerPrintProtocol
+
     /// Shared singleton instance of the container
     package static let shared = CoreDependencyContainer()
 
@@ -51,5 +53,6 @@ package final class CoreDependencyContainer: DI {
     ) {
         self.networkService = networkService
         self.keyChainService = keyChainService
+        self.fingerPrint = FingerPrint()
     }
 }
