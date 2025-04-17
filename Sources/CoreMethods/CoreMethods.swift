@@ -53,7 +53,7 @@ public final class CoreMethods: Sendable {
     /// Use this initializer for production code.
     public init() {
         self.dependencies = CoreDependencyContainer.shared
-        self.generateTokenUseCase = GenerateCardTokenUseCase(fingerPrint: self.dependencies.fingerPrint)
+        self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies)
         self.identificationTypeUseCase = IdentificationTypesUseCase()
         self.installmentsUseCase = InstallmentsUseCase()
         self.paymentMethodUseCase = PaymentMethodUseCase()

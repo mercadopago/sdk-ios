@@ -25,11 +25,14 @@ protocol GenerateCardTokenUseCaseProtocol: Sendable {
 
 final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
     private let repository: CoreMethodsRepositoryProtocol
-    private let fingerPrint: FingerPrintProtocol
 
-    init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository(), fingerPrint: FingerPrintProtocol) {
+    typealias Dependency = HasFingerPrint
+
+    let dependencies: Dependency
+
+    init(dependencies: Dependency, repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {
         self.repository = repository
-        self.fingerPrint = fingerPrint
+        self.dependencies = dependencies
     }
 
     func tokenize(
@@ -52,7 +55,7 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
             )
         }
 
-        let deviceData = await fingerPrint.getDeviceData()
+        let deviceData = await dependencies.fingerPrint.getDeviceData()
 
         let cardData = CardTokenBody(
             cardNumber: cardNumber,
