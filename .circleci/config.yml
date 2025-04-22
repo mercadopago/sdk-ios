@@ -48,30 +48,6 @@ jobs:
       - run:
           name: Run Snapshot Tests
           command: bundle exec fastlane snapshot_tests
-
-  release:
-    executor: default
-    steps:
-      - checkout
-      - setup_environment
-
-      - run:
-          name: Authenticate GitHub CLI
-          command: echo "$GH_TOKEN" | gh auth login --with-token
-
-      - run:
-          name: Set CocoaPods Trunk Token
-          command: |
-            mkdir -p ~/.netrc
-            echo "machine trunk.cocoapods.org" >> ~/.netrc
-            echo "  login $COCOAPODS_TRUNK_TOKEN" >> ~/.netrc
-
-      - run:
-          name: Run Release Script
-          command: |
-            chmod +x scripts/*.sh
-            ./scripts/release-sdk.sh
-
 workflows:
   version: 2
 
@@ -81,11 +57,3 @@ workflows:
       - snapshot-tests:
           requires:
             - build-and-test
-
-  release-after-merge:
-    jobs:
-      - release:
-          filters:
-            branches:
-              only:
-                - main
