@@ -18,7 +18,6 @@ commands:
 
 jobs:
   build-and-test:
-    circleci_ip_ranges: false
     executor: default
     steps:
       - checkout
@@ -50,11 +49,54 @@ jobs:
           name: Run Snapshot Tests
           command: bundle exec fastlane snapshot_tests
 
+  release:
+    executor: default
+    steps:
+      - checkout
+      - setup_environment
+
+      - run:
+          name: Authenticate GitHub CLI
+          command: echo "$GH_TOKEN" | gh auth login --with-token
+
+      - run:
+          name: Set CocoaPods Trunk Token
+          command: |
+            mkdir -p ~/.netrc
+            echo "machine trunk.cocoapods.org" >> ~/.netrc
+            echo "  login $COCOAPODS_TRUNK_TOKEN" >> ~/.netrc
+
+      - run:
+          name: Extract version from MPSDKVersion.swift
+          command: |
+            VERSION=$(grep -E 'static let version = "' Sources/**/MPSDKVersion.swift | sed -E 's/.*"([0-9.]+)".*/\1/')
+            echo "export VERSION=$VERSION" >> $BASH_ENV
+
+      - run:
+          name: Run Release Script
+          command: |
+            source $BASH_ENV
+            chmod +x scripts/*.sh
+            ./scripts/release-sdk.sh "$VERSION"
+
 workflows:
   version: 2
+
   build-test:
     jobs:
       - build-and-test
       - snapshot-tests:
           requires:
             - build-and-test
+
+  release-after-merge:
+    jobs:
+      - release
+    filters:
+      branches:
+        only:
+          - main
+      paths:
+        only:
+          - Sources/**/MPSDKVersion.swift
+          - *.podspec
