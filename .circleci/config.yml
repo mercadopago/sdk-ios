@@ -91,12 +91,12 @@ workflows:
 
   release-after-merge:
     jobs:
-      - release
-    filters:
-      branches:
-        only:
-          - main
-      paths:
-        only:
-          - Sources/**/MPSDKVersion.swift
-          - "*.podspec"
+      - release:
+          filters:
+            branches:
+              only:
+                - main
+            paths:
+              only:
+                - Sources/**/MPSDKVersion.swift
+                - "*.podspec"
