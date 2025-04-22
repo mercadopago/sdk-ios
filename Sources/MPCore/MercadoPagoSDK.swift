@@ -5,7 +5,6 @@
 //  Created by Guilherme Prata Costa on 11/02/25.
 //
 
-@preconcurrency import DeviceFingerPrint
 import Foundation
 
 #if SWIFT_PACKAGE

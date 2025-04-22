@@ -8,11 +8,14 @@ Pod::Spec.new do |s|
   s.author           = { 'MercadoPago' => 'dev@mercadopago.com' }
   s.source           = { :git => 'https://github.com/mercadopago/sdk-ios.git', :tag => s.version.to_s }
 
+  s.swift_version    = '6.0'
   s.ios.deployment_target = '13.0'
-  s.swift_version = '6.0'
   s.module_name = 'CoreMethods'
 
-  s.source_files = 'Sources/**/*'
+  s.source_files = 'Sources/CoreMethods/**/*', 'Sources/MPCore/**/*', 'Sources/MPAnalytics/**/*'
+
+  s.ios.vendored_frameworks = ['Sources/Framework/DeviceFingerPrint.xcframework']
+
   s.pod_target_xcconfig = {
     'OTHER_SWIFT_FLAGS' => '$(inherited) -package-name CoreMethods -DCOCOAPODS'
   }
