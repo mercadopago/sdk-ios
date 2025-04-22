@@ -14,11 +14,8 @@ fi
 git add .
 git commit -m "chore: release version $VERSION"
 git tag "$VERSION"
-echo "teste1"
 git push origin release/"$VERSION"
-echo "teste2"
 git push origin "$VERSION"
-echo "teste3"
 
 # 3. Generate changelog from last tag
 LAST_TAG=$(git tag --sort=-creatordate | grep -v "$VERSION" | head -n 1)
