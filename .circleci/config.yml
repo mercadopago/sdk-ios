@@ -99,4 +99,4 @@ workflows:
       paths:
         only:
           - Sources/**/MPSDKVersion.swift
-          - *.podspec
+          - "*.podspec"
