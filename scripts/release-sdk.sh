@@ -1,26 +1,29 @@
 #!/bin/bash
 
-VERSION=$1
+set -e
 
-if [ -z "$VERSION" ]; then
-  echo "Usage: ./scripts/release-sdk.sh <version>"
-  exit 1
-fi
+# 1. Read version from VERSION file
+VERSION=$(cat VERSION)
 
-# 1. Update version in podspec + Swift
-./scripts/update-version.sh "$VERSION"
+echo "🚀 Starting release for version $VERSION"
 
-# 2. Commit and tag
-git add .
+# 2. Update version in podspec
+PODSPEC_FILE=$(find . -name '*.podspec' | head -n 1)
+sed -i '' "s/s.version *= *'[^']*'/s.version = '$VERSION'/" "$PODSPEC_FILE"
+
+# 3. Update MPSDKVersion.swift
+VERSION_FILE=$(find . -name 'MPSDKVersion.swift' | head -n 1)
+sed -i '' "s/static let version = \".*\"/static let version = \"$VERSION\"/" "$VERSION_FILE"
+
+# 4. Git commit and tag
+git add "$PODSPEC_FILE" "$VERSION_FILE" VERSION
 git commit -m "chore: release version $VERSION"
 git tag "$VERSION"
-git push origin release/"$VERSION"
+git push origin main
 git push origin "$VERSION"
 
-# 3. Generate changelog from last tag
-LAST_TAG=$(git tag --sort=-creatordate | grep -v "$VERSION" | head -n 1)
-
-echo "📝 Generating changelog from $LAST_TAG to $VERSION..."
+# 5. Generate changelog from last tag
+LAST_TAG=$(git tag --sort=-creatordate | grep -v "$VERSION" | tail -n 1)
 
 if [ -z "$LAST_TAG" ]; then
   CHANGELOG=$(git log --pretty=format:"- %s")
@@ -28,15 +31,13 @@ else
   CHANGELOG=$(git log "$LAST_TAG"..HEAD --pretty=format:"- %s")
 fi
 
-# 4. Create GitHub release (requires gh CLI)
+# 6. Create GitHub release
 gh release create "$VERSION" \
   --title "Release $VERSION" \
   --notes "$CHANGELOG"
 
-# 5. Push to CocoaPods trunk
-echo "📦 Publishing to CocoaPods trunk..."
-PODSPEC_FILE=$(find . -name '*.podspec' | head -n 1)
-pod lib lint "$PODSPEC_FILE" --allow-warnings
+# 7. Push to CocoaPods trunk
+echo "📦 Publishing to CocoaPods..."
 pod trunk push "$PODSPEC_FILE" --allow-warnings
 
-echo "✅ Release $VERSION published on GitHub and CocoaPods!"
+echo "✅ Release $VERSION published successfully!"

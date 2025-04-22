@@ -67,17 +67,10 @@ jobs:
             echo "  login $COCOAPODS_TRUNK_TOKEN" >> ~/.netrc
 
       - run:
-          name: Extract version from MPSDKVersion.swift
-          command: |
-            VERSION=$(grep -E 'static let version = "' Sources/**/MPSDKVersion.swift | sed -E 's/.*"([0-9.]+)".*/\1/')
-            echo "export VERSION=$VERSION" >> $BASH_ENV
-
-      - run:
           name: Run Release Script
           command: |
-            source $BASH_ENV
             chmod +x scripts/*.sh
-            ./scripts/release-sdk.sh "$VERSION"
+            ./scripts/release-sdk.sh
 
 workflows:
   version: 2
@@ -96,7 +89,3 @@ workflows:
             branches:
               only:
                 - main
-            paths:
-              only:
-                - Sources/**/MPSDKVersion.swift
-                - "*.podspec"
