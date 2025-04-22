@@ -195,7 +195,7 @@ final class CoreMethodsTests: XCTestCase {
 
         let repository = CoreMethodsRepository(dependencies: container)
 
-        let generateTokenUseCase = GenerateCardTokenUseCase(repository: repository, fingerPrint: MockFingerPrint())
+        let generateTokenUseCase = GenerateCardTokenUseCase(dependencies: container, repository: repository)
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
         let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
