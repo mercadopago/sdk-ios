@@ -1,10 +1,10 @@
 #!/bin/bash
 # prepare-release.sh - Creates a release branch and prepares version changes
 
-VERSION=$1
+VERSION=$(cat VERSION)
 
 if [ -z "$VERSION" ]; then
-  echo "Usage: ./scripts/prepare-release.sh <version>"
+  echo "❌ Error: VERSION file is empty or not found."
   exit 1
 fi
 

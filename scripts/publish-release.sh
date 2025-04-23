@@ -1,35 +1,33 @@
 #!/bin/bash
-# publish-release.sh - Executes after merging a release PR
+# publish-release.sh
 
-# This script should be run by CI when a release branch is merged to main
-# Verify we're on main branch
-CURRENT_BRANCH=$(git branch --show-current)
-if [ "$CURRENT_BRANCH" != "main" ]; then
-  echo "❌ Error: This script must be run on the main branch"
-  exit 1
-fi
-
-# Verify this is a merge from a release branch
-LAST_COMMIT=$(git log -1 --pretty=%B)
-if [[ ! $LAST_COMMIT == *"Merge pull request"* || ! $LAST_COMMIT == *"release/"* ]]; then
-  echo "❌ Error: Last commit is not a merge from a release branch"
-  exit 1
-fi
-
-# Extract version from VERSION file
 VERSION=$(cat VERSION)
+
 if [ -z "$VERSION" ]; then
-  echo "❌ Error: VERSION file not found or empty"
+  echo "❌ Error: VERSION file is empty or not found."
   exit 1
 fi
 
 echo "🚀 Publishing release version $VERSION..."
 
-# Tag the release
+# Check if we are on the main branch
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+  echo "⚠️ Warning: This script should be run on the main branch"
+  echo "Current branch: $CURRENT_BRANCH"
+  read -p "Do you want to continue anyway? (y/N): " CONFIRM
+  if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo "Operation cancelled"
+    exit 1
+  fi
+fi
+
+# Create release tag
+echo "📋 Creating tag $VERSION..."
 git tag "$VERSION"
 git push origin "$VERSION"
 
-# Generate changelog from last tag (excluding the one we just created)
+# Generate changelog between tags
 PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "$VERSION" | head -n 1)
 
 if [ -z "$PREVIOUS_TAG" ]; then
@@ -38,7 +36,7 @@ else
   CHANGELOG=$(git log "$PREVIOUS_TAG".."$VERSION" --pretty=format:"- %s" | grep -v "Merge pull request")
 fi
 
-# Create GitHub release
+# Create GitHub release if gh CLI is available
 if command -v gh &> /dev/null; then
   echo "📝 Creating GitHub release $VERSION..."
   gh release create "$VERSION" \
@@ -46,12 +44,14 @@ if command -v gh &> /dev/null; then
     --notes "$CHANGELOG"
 else
   echo "⚠️ GitHub CLI not found. GitHub release not created."
+  echo "Generated changelog:"
+  echo "$CHANGELOG"
 fi
 
-# Push to CocoaPods trunk
-echo "📦 Publishing to CocoaPods trunk..."
+# Publish to CocoaPods
+echo "📦 Publishing to CocoaPods..."
 PODSPEC_FILE=$(find . -name '*.podspec' | head -n 1)
 pod lib lint "$PODSPEC_FILE" --allow-warnings
 pod trunk push "$PODSPEC_FILE" --allow-warnings
 
-echo "✅ Release $VERSION published successfully on GitHub and CocoaPods!"
+echo "✅ Release $VERSION successfully published on GitHub and Cocoa
