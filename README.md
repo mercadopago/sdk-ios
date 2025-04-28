@@ -63,6 +63,7 @@ struct YourApp: App {
 
 ### Usage Examples
 ```swift
+import UIKit
 import CoreMethods
 
 final class PaymentViewController: UIViewController {
@@ -75,9 +76,17 @@ final class PaymentViewController: UIViewController {
         .cornerRadius(8)
     
     // Fields
-    private let cardNumberField = CardNumberTextField(style: style)
-    private let securityCodeField = SecurityCodeTextField(style: style)
-    private let expirationDateField = ExpirationDateTextfield(style: style)
+    private lazy var cardNumberField: CardNumberTextField = {
+        CardNumberTextField(style: style)
+    }()
+    
+    private lazy var securityCodeField: SecurityCodeTextField = {
+        SecurityCodeTextField(style: style)
+    }()
+    
+    private lazy var expirationDateField: ExpirationDateTextfield = {
+        ExpirationDateTextfield(style: style)
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -160,9 +169,10 @@ final class PaymentViewController: UIViewController {
 #### SwiftUI
 
 ```swift
+import SwiftUI
 import CoreMethods
 
-struct CardFormView: View {
+struct CardFormVie: View {
     @State var cardNumberTextField: CardNumberTextField?
     @State var securityTextField: SecurityCodeTextField?
     @State var expirationDateTextField: ExpirationDateTextfield?
@@ -175,7 +185,18 @@ struct CardFormView: View {
                     placeholder: "Card number",
                     onBinChanged: { bin in
                         print("onBinChanged")
+                    },
+                    onLastFourDigitsFilled: {_ in 
+                        print("onLastFourDigitsFilledd")
+
+                    },
+                    onFocusChanged: { _ in
+                        print("focus changed")
+                    },
+                    onError: { error in
+                        print("Error card number: \(error)")
                     }
+                    
                 )
                 .frame(height: 44)
 
@@ -197,6 +218,7 @@ struct CardFormView: View {
         }
     }
 }
+
 ```
 
 ## License
