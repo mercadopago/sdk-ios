@@ -5,7 +5,7 @@ import PackageDescription
 import Foundation
 
 let package = Package(
-    name: "MercadoPagoSDK-iOS",
+    name: "MercadoPagoSDK",
     platforms: [
         .iOS(.v13)
     ],
