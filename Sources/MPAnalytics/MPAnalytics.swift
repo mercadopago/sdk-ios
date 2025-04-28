@@ -46,6 +46,10 @@ package extension AnalyticsEventData {
     }
 }
 
+private enum APIAnalytics: String {
+    static let url = "https://api.mercadolibre.com/melidata/catalog/validate"
+}
+
 /// Defines the core analytics tracking functionality.
 ///
 /// This protocol provides methods for:
@@ -228,43 +232,58 @@ package final class MPAnalytics: AnalyticsInterface {
               !MPAnalyticsConfiguration.siteID.isEmpty else {
             return
         }
+        let payload = await buildPayload()
+
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
+
+            guard let url = URL(string: APIAnalytics.url) else {
+                return
+            }
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = jsonData
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            await self.track.setEventData(nil)
+
+        } catch {
+            print("Error sending request:", error)
+        }
+    }
+
+    private func buildPayload() async -> [String: Any] {
         var identifierVendor = ""
 
         await MainActor.run {
             identifierVendor = self.buyerInfo.getUID()
         }
 
-        let payload: [String: Any] = await [
-            "path": track.getPath(),
+        return await [
+            "path": self.track.getPath(),
             "user": [
-                "uid": identifierVendor
+                "uid": identifierVendor,
+                "melidata_session_id": MPAnalyticsConfiguration.sessionID
             ],
             "type": self.track.getType().rawValue,
-            "id": MPAnalyticsConfiguration.sessionID,
+            "id": UUID().uuidString,
             "user_time": Int64(Date().timeIntervalSince1970 * 1000),
-            "event_data": getEventData(),
+            "event_data": self.getEventData(),
             "application": [
+                "app_name": self.sellerInfo.getBundleIdentifier(),
                 "business": "mercadopago",
                 "site_id": MPAnalyticsConfiguration.siteID,
                 "version": MPAnalyticsConfiguration.version
             ],
             "device": [
-                "platform": "iOS"
+                "platform": "/mobile/ios",
+                "connectivity_type": self.buyerInfo.getNetworkType(),
+                "os_version": self.buyerInfo.getiOSVersion()
             ]
         ]
-
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: payload, options: .prettyPrinted)
-
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("Tracking event:", jsonString)
-            }
-
-            await self.track.setEventData(nil)
-
-        } catch {
-            print("Error converting to JSON:", error)
-        }
     }
 }
 
@@ -277,10 +296,8 @@ private extension MPAnalytics {
     func getEventData() async -> [String: Any] {
         var eventData = await track.getEventData()?.toDictionary() ?? [:]
 
-        eventData["date"] = "\(Date())"
-
         if let error = await track.getError() {
-            eventData["error"] = error
+            eventData["error_type"] = error
         }
 
         return eventData

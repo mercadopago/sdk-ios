@@ -13,12 +13,17 @@ struct MPInicializationEventData: AnalyticsEventData {
     let locale: String
     let distribution: String
     let minimumVersionApp: String
+    let publicKey: String
+    let sdkVersion: String
 
     func toDictionary() -> [String: any Sendable] {
         return [
             "locale": self.locale,
             "distribution": self.distribution,
-            "minimum_version_app": self.minimumVersionApp
+            "min_version": self.minimumVersionApp,
+            "public_key": self.publicKey,
+            "developer_mode": isDevelopment,
+            "sdk_version": self.sdkVersion
         ]
     }
 }

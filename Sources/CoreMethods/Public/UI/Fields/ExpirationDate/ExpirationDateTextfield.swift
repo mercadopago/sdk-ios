@@ -144,7 +144,7 @@ public final class ExpirationDateTextfield: PCITextField {
         self.analyticsTask = Task { [weak self] in
             guard let self else { return }
             await self.dependencies.analytics
-                .trackView("/sdk-native/core-methods/pci_field")
+                .trackView("/checkout_api_native/core_methods/pci_field")
                 .setEventData(self.eventData)
                 .send()
         }
@@ -176,7 +176,7 @@ public final class ExpirationDateTextfield: PCITextField {
                 self.analyticsTask = Task { [weak self] in
                     guard let self else { return }
                     await self.dependencies.analytics
-                        .trackEvent("/sdk-native/core-methods/pci_field/focus")
+                        .trackEvent("/checkout_api_native/core_methods/focus")
                         .setEventData(self.eventData)
                         .send()
                 }

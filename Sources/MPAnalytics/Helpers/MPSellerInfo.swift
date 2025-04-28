@@ -52,4 +52,8 @@ package final class MPSellerInfo: Sendable {
             return .xcode
         #endif
     }
+
+    func getBundleIdentifier() -> String {
+        return self.bundle.object(forInfoDictionaryKey: "CFBundleIdentifier") as? String ?? ""
+    }
 }

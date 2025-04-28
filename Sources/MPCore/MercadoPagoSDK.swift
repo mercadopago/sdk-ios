@@ -119,11 +119,13 @@ private extension MercadoPagoSDK {
         let eventData = MPInicializationEventData(
             locale: self.configuration?.locale ?? "",
             distribution: self.dependencies.analytics.sellerInfo.getDistribution().rawValue,
-            minimumVersionApp: self.dependencies.analytics.sellerInfo.getTargetMinimum()
+            minimumVersionApp: self.dependencies.analytics.sellerInfo.getTargetMinimum(),
+            publicKey: self.getPublicKey(),
+            sdkVersion: MPSDKVersion.version
         )
 
         await self.dependencies.analytics
-            .trackEvent("/sdk-native")
+            .trackEvent("/checkout_api_native/initialize")
             .setEventData(eventData)
             .send()
     }

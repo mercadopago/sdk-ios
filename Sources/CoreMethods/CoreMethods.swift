@@ -312,7 +312,18 @@ public final class CoreMethods: Sendable {
     public func identificationTypes() async throws -> [IdentificationType] {
         return try await executeWithTracking(
             operation: { try await self.identificationTypeUseCase.getIdentificationTypes() },
-            path: AnalyticsPath.identificationTypes
+            path: AnalyticsPath.identificationTypes,
+            extractEventData: { result -> IdentificationTypeEventData? in
+                guard let identificationTypes = result else {
+                    return nil
+                }
+
+                let documents = identificationTypes.map { data in
+                    data.name
+                }
+
+                return IdentificationTypeEventData(documentTypes: documents)
+            }
         )
     }
 
@@ -455,11 +466,11 @@ public final class CoreMethods: Sendable {
 
 private extension CoreMethods {
     private enum AnalyticsPath {
-        static let identificationTypes = "/choapi_sdk_native/core_methods/identification_types"
-        static let installments = "/choapi_sdk_native/core_methods/installments"
-        static let paymentMethods = "/choapi_sdk_native/core_methods/payment_methods"
-        static let tokenization = "/choapi_sdk_native/core_methods/tokenization"
-        static let issuers = "/choapi_sdk_native/core_methods/issuers"
+        static let identificationTypes = "/checkout_api_native/core_methods/identification_types"
+        static let installments = "/checkout_api_native/core_methods/installments"
+        static let paymentMethods = "/checkout_api_native/core_methods/payment_methods"
+        static let tokenization = "/checkout_api_native/core_methods/tokenization"
+        static let issuers = "/checkout_api_native/core_methods/issuers"
     }
 
     func executeWithTracking<T: Sendable>(
