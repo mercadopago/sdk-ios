@@ -562,6 +562,7 @@ final class CoreMethodsTests: XCTestCase {
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
         await session.mock.setData(APIErrorStub.badRequestData)
+        let expectEventData = IdentificationTypeEventData(documentTypes: [])
 
         // Act & Assert
         try await self.assertThrowsAPIError(
@@ -581,6 +582,7 @@ final class CoreMethodsTests: XCTestCase {
             [
                 .track(path: "/checkout_api_native/core_methods/identification_types/error"),
                 .setError("\(APIClientError.apiError(APIErrorStub.badRequest))"),
+                .setEventData(expectEventData.toDictionary()),
                 .send
             ]
         )

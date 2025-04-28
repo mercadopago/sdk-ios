@@ -314,11 +314,7 @@ public final class CoreMethods: Sendable {
             operation: { try await self.identificationTypeUseCase.getIdentificationTypes() },
             path: AnalyticsPath.identificationTypes,
             extractEventData: { result -> IdentificationTypeEventData? in
-                guard let identificationTypes = result else {
-                    return nil
-                }
-
-                let documents = identificationTypes.map { data in
+                let documents = result?.map { data in
                     data.name
                 }
 
