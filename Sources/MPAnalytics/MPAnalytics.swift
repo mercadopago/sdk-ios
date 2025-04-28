@@ -46,7 +46,8 @@ package extension AnalyticsEventData {
     }
 }
 
-private enum APIAnalytics: String {
+@frozen
+private enum APIAnalytics {
     static let url = "https://api.mercadolibre.com/melidata/catalog/validate"
 }
 
