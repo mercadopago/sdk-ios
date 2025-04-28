@@ -48,7 +48,7 @@ package extension AnalyticsEventData {
 
 @frozen
 private enum APIAnalytics {
-    static let url = "https://api.mercadolibre.com/melidata/catalog/validate"
+    static let url = "https://api.mercadolibre.com/tracks"
 }
 
 /// Defines the core analytics tracking functionality.
@@ -263,7 +263,7 @@ package final class MPAnalytics: AnalyticsInterface {
             identifierVendor = self.buyerInfo.getUID()
         }
 
-        return await [
+        let payload: [String: Any] = await [
             "path": self.track.getPath(),
             "user": [
                 "uid": identifierVendor,
@@ -283,6 +283,12 @@ package final class MPAnalytics: AnalyticsInterface {
                 "platform": "/mobile/ios",
                 "connectivity_type": self.buyerInfo.getNetworkType(),
                 "os_version": self.buyerInfo.getiOSVersion()
+            ]
+        ]
+
+        return [
+            "tracks": [
+                payload
             ]
         ]
     }
