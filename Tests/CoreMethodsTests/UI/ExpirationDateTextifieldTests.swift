@@ -171,10 +171,10 @@ final class ExpirationDateTextfieldTests: XCTestCase {
         XCTAssertEqual(
             messages,
             [
-                .trackView("/sdk-native/core-methods/pci_field"),
+                .trackView("/checkout_api_native/core_methods/pci_field"),
                 .setEventData(expectEventData.toDictionary()),
                 .send,
-                .track(path: "/sdk-native/core-methods/pci_field/focus"),
+                .track(path: "/checkout_api_native/core_methods/focus"),
                 .setEventData(expectEventData.toDictionary()),
                 .send
             ]
