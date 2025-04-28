@@ -12,7 +12,7 @@ import Foundation
 
 private enum ConstantsCoreMethods {
     static let baseURLToken = "https://api.mercadopago.com"
-    static let baseURLBricks = "https://api.mercadopago.com/cho-off/beta"
+    static let baseURLBricks = "https://api.mercadopago.com/cho-off"
 }
 
 /// Endpoints
