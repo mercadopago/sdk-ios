@@ -21,8 +21,7 @@ struct SecureFieldEventData: AnalyticsEventData {
     func toDictionary() -> [String: any Sendable] {
         return [
             "field": self.field?.rawValue ?? "",
-            "framework_ui": self.frameworkUI?.rawValue ?? "",
-            "is_development": self.isDevelopment
+            "framework_ui": self.frameworkUI?.rawValue ?? ""
         ]
     }
 }
