@@ -33,14 +33,17 @@ final class CardFormViewController: UIViewController {
 
         field.onLastFourDigitsFilled = { [weak self] last in
             guard let self else { return }
-            if field.isValid { field.setStyle(self.style) }
+            if field.isValid {
+                self.setStyle(field, style: self.style)
+            }
             print("Length:", field.count, "Last 4:", last)
         }
 
         field.onFocusChanged = { print("CardNumberField Focus changed:", $0) }
 
         field.onError = { [weak self] error in
-            self?.cardNumberField.setStyle(self?.errorStyle ?? self!.style)
+            guard let self else { return }
+            self.setStyle(field, style: self.errorStyle)
             print("CardNumberField Error:", error)
         }
 
@@ -52,10 +55,17 @@ final class CardFormViewController: UIViewController {
         field.translatesAutoresizingMaskIntoConstraints = false
         field.setPlaceholder("Insert security code")
 
-        field.onInputFilled = { [weak self] in self?.setSecurityInputStyleDefault() }
+        field.onInputFilled = { [weak self] in
+            guard let self else { return }
+
+            self.setStyle(field, style: self.style)
+        }
         field.onLengthChanged = { print("SecurityCode length:", $0) }
         field.onFocusChanged = { print("SecurityCode Focus changed:", $0) }
-        field.onError = { [weak self] _ in self?.setSecurityInputStyleError() }
+        field.onError = { [weak self] _ in
+            guard let self else { return }
+            self.setStyle(field, style: self.errorStyle)
+        }
 
         return field
     }()
@@ -66,10 +76,17 @@ final class CardFormViewController: UIViewController {
         field.setPlaceholder("Insert date")
         field.setFormat(.long)
 
-        field.onInputFilled = { print("Date completed") }
+        field.onInputFilled = { [weak self] in
+            guard let self else { return }
+
+            self.setStyle(field, style: self.style)
+        }
         field.onLengthChanged = { print("Date length:", $0) }
         field.onFocusChanged = { print("ExpirationDate Focus changed:", $0) }
-        field.onError = { print("ExpirationDate Error:", $0) }
+        field.onError = { [weak self] _ in
+            guard let self else { return }
+            self.setStyle(field, style: self.errorStyle)
+        }
 
         return field
     }()
@@ -113,6 +130,8 @@ final class CardFormViewController: UIViewController {
         button.addTarget(self, action: #selector(self.handlePayButtonTapped), for: .touchUpInside)
         return button
     }()
+
+    // MARK: Build UI
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -203,7 +222,11 @@ final class CardFormViewController: UIViewController {
     @objc private func doneButtonTapped() {
         view.endEditing(true)
     }
+}
 
+// MARK: Core Methods
+
+extension CardFormViewController {
     @objc private func handlePayButtonTapped() {
         Task {
             let token = try await coreMethods.createToken(
@@ -235,9 +258,6 @@ final class CardFormViewController: UIViewController {
         }
     }
 
-    func setSecurityInputStyleError() { self.securityCodeField.setStyle(self.errorStyle) }
-    func setSecurityInputStyleDefault() { self.securityCodeField.setStyle(self.style) }
-
     func searchInstallment(bin: String) {
         Task {
             do {
@@ -260,6 +280,14 @@ final class CardFormViewController: UIViewController {
                 print("Error paymentMethod:", error)
             }
         }
+    }
+}
+
+// MARK: Style
+
+extension CardFormViewController {
+    func setStyle(_ textfield: PCITextField, style: TextFieldDefaultStyle) {
+        textfield.setStyle(style)
     }
 }
 
