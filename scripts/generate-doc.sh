@@ -6,7 +6,7 @@ SCHEME="MercadoPagoSDK"
 ARCHIVE_NAME="CoreMethods"
 DERIVED_DATA="./build"
 OUTPUT_DIR="./docs"
-HOSTING_BASE_PATH="sdk-ios"
+HOSTING_BASE_PATH="/"
 DOCCARCHIVE_PATH="$DERIVED_DATA/Build/Products/Debug-iphonesimulator/$ARCHIVE_NAME.doccarchive"
 
 echo "📘 Generating .doccarchive with xcodebuild..."
