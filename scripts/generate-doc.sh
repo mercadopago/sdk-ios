@@ -30,4 +30,21 @@ $(xcrun --find docc) process-archive \
   --output-path "$OUTPUT_DIR" \
   --hosting-base-path "$HOSTING_BASE_PATH"
 
+echo '
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="0; url=./documentation/coremethods/index.html">
+    <script>
+      window.location.href = "./documentation/coremethods/index.html";
+    </script>
+    <title>Redirecting...</title>
+  </head>
+  <body>
+    If you are not redirected automatically, <a href="./documentation/coremethods/index.html">click here</a>.
+  </body>
+</html>
+' > docs/index.html
+
 echo "✅ Documentation successfully generated at $OUTPUT_DIR/"
