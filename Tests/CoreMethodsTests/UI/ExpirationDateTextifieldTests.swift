@@ -52,6 +52,10 @@ final class ExpirationDateTextfieldTests: XCTestCase {
 
         XCTAssertEqual(sut.count, 4)
         XCTAssertEqual(input.textField.text, "12/34")
+
+        // Internal
+        XCTAssertEqual(sut.getMonth(), "12")
+        XCTAssertEqual(sut.getYear(), "2034")
     }
 
     func test_longFormat_shouldLimitToSixDigits() {
@@ -72,6 +76,10 @@ final class ExpirationDateTextfieldTests: XCTestCase {
 
         XCTAssertEqual(sut.count, 6)
         XCTAssertEqual(input.textField.text, "12/3456")
+
+        // Internal
+        XCTAssertEqual(sut.getMonth(), "12")
+        XCTAssertEqual(sut.getYear(), "3456")
     }
 
     // MARK: - Validation Tests
@@ -111,7 +119,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
             inputFilledCalled = true
         }
 
-        simulateTextInput("12/25", input: input)
+        simulateTextInput("12/30", input: input)
 
         XCTAssertTrue(sut.isValid)
         XCTAssertTrue(inputFilledCalled)
