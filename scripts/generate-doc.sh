@@ -8,7 +8,7 @@ TEMP_DIR="$ROOT_DIR/.docc-temp"
 DOCC_OUTPUT_DIR="$ROOT_DIR/docs"
 SDK_LOCAL_PATH="$ROOT_DIR"
 HOST_MODULE="DocHost"
-HOSTING_BASE_PATH="sdk-ios-docs" # usado na URL do GitHub Pages
+HOSTING_BASE_PATH="sdk-ios" # usado na URL do GitHub Pages
 
 # Limpa e cria diretório temporário
 rm -rf "$TEMP_DIR"
