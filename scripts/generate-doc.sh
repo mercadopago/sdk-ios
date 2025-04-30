@@ -2,21 +2,21 @@
 
 set -euo pipefail
 
-# Configurações
+# Configuration
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMP_DIR="$ROOT_DIR/.docc-temp"
 DOCC_OUTPUT_DIR="$ROOT_DIR/docs"
 SDK_LOCAL_PATH="$ROOT_DIR"
 HOST_MODULE="DocHost"
-HOSTING_BASE_PATH="sdk-ios" # usado na URL do GitHub Pages
+HOSTING_BASE_PATH="sdk-ios" # used in the GitHub Pages URL
 
-# Limpa e cria diretório temporário
+# Clean up and create temporary directory
 rm -rf "$TEMP_DIR"
 mkdir -p "$TEMP_DIR/Sources/$HOST_MODULE"
 
 cd "$TEMP_DIR"
 
-# Cria Package.swift temporário
+# Create temporary Package.swift
 cat > Package.swift <<EOF
 // swift-tools-version:5.6
 import PackageDescription
@@ -41,13 +41,13 @@ let package = Package(
 )
 EOF
 
-# Cria arquivo Swift dummy
+# Create dummy Swift file
 echo "// Dummy source for documentation host" > "Sources/$HOST_MODULE/DocHost.swift"
 
-# Resolve dependências
+# Resolve dependencies
 swift package resolve
 
-# Gera documentação com xcodebuild
+# Generate documentation using xcodebuild
 xcodebuild docbuild \
   -scheme "$HOST_MODULE" \
   -destination 'platform=iOS Simulator,name=iPhone 16' \
@@ -55,7 +55,20 @@ xcodebuild docbuild \
   DOCC_OUTPUT_DIR="/docs" \
   OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path $DOCC_OUTPUT_DIR --hosting-base-path $HOSTING_BASE_PATH"
 
-# Cria .nojekyll para GitHub Pages
+# Create .nojekyll for GitHub Pages
 touch "$DOCC_OUTPUT_DIR/.nojekyll"
 
-echo "✅ Documentação DocC gerada em: $DOCC_OUTPUT_DIR"
+cat > "$DOCC_OUTPUT_DIR/index.html" <<EOF
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="refresh" content="0; url=./documentation/coremethods/index.html" />
+    <title>Redirecting...</title>
+  </head>
+  <body>
+    <p>If you are not redirected automatically, <a href="./documentation/coremethods/index.html">click here</a>.</p>
+  </body>
+</html>
+EOF
+
+echo "✅ DocC documentation successfully generated at: $DOCC_OUTPUT_DIR"
