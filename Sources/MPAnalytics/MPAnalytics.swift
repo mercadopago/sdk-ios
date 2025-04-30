@@ -46,7 +46,6 @@ package extension AnalyticsEventData {
     }
 }
 
-@frozen
 private enum APIAnalytics {
     static let url = "https://api.mercadolibre.com/tracks"
 }

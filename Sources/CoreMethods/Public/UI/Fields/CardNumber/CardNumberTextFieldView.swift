@@ -80,6 +80,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
     ///   - onLastFourDigitsFilled: Callback triggered when the last four digits of the card number are filled.
     ///   - onFocusChanged: Callback triggered when the focus state changes.
     ///   - onError: Callback triggered when a validation error occurs.
+    ///   - textField: Reference of CardNumberTextfield
     ///
     /// - Example:
     ///   ```swift

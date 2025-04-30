@@ -34,7 +34,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         /// - Parameters:
         ///   - publicKey: Your MercadoPago public key
         ///   - locale: Locale identifier (defaults to system locale)
-        ///   - contry: The country code of your Mercado Pago associated with the public key. It uses the ISO 3166-1 alpha-3 standard.
+        ///   - country: The country code of your Mercado Pago associated with the public key. It uses the ISO 3166-1 alpha-3 standard.
         public init(
             publicKey: String,
             locale: String = Locale.current.identifier,

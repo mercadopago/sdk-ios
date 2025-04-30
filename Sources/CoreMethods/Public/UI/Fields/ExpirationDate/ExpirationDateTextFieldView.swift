@@ -65,6 +65,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
     ///   - onInputFilled: Callback triggered when the input is completely filled.
     ///   - onFocusChanged: Callback triggered when the focus state changes.
     ///   - onError: Callback triggered when a validation error occurs.
+    ///   - textField: Reference of ExpirationDateNumberTextfield
     ///
     /// - Example:
     ///   ```swift
