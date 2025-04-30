@@ -62,11 +62,11 @@ cat > "$DOCC_OUTPUT_DIR/index.html" <<EOF
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="refresh" content="0; url=./documentation/coremethods/index.html" />
+    <meta http-equiv="refresh" content="0; url=./documentation/coremethods/" />
     <title>Redirecting...</title>
   </head>
   <body>
-    <p>If you are not redirected automatically, <a href="./documentation/coremethods/index.html">click here</a>.</p>
+    <p>If you are not redirected automatically, <a href="./documentation/coremethods/">click here</a>.</p>
   </body>
 </html>
 EOF
