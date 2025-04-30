@@ -52,7 +52,7 @@ xcodebuild docbuild \
   -scheme "$HOST_MODULE" \
   -destination 'platform=iOS Simulator,name=iPhone 16' \
   -derivedDataPath .build \
-  DOCC_OUTPUT_DIR="$DOCC_OUTPUT_DIR" \
+  DOCC_OUTPUT_DIR="/docs" \
   OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path $DOCC_OUTPUT_DIR --hosting-base-path $HOSTING_BASE_PATH"
 
 # Cria .nojekyll para GitHub Pages
