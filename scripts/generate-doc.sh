@@ -1,71 +1,61 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-SCHEME="MercadoPagoSDK"
-ARCHIVE_NAME="CoreMethods"
-DERIVED_DATA="./build"
-OUTPUT_DIR="./docs"
-HOSTING_BASE_PATH="/"
-DOCCARCHIVE_PATH="$DERIVED_DATA/Build/Products/Debug-iphonesimulator/$ARCHIVE_NAME.doccarchive"
-PORT=8000
+# Configurações
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TEMP_DIR="$ROOT_DIR/.docc-temp"
+DOCC_OUTPUT_DIR="$ROOT_DIR/docs"
+SDK_LOCAL_PATH="$ROOT_DIR"
+HOST_MODULE="DocHost"
+HOSTING_BASE_PATH="sdk-ios-docs" # usado na URL do GitHub Pages
 
-echo "📘 Generating .doccarchive with xcodebuild..."
+# Limpa e cria diretório temporário
+rm -rf "$TEMP_DIR"
+mkdir -p "$TEMP_DIR/Sources/$HOST_MODULE"
 
+cd "$TEMP_DIR"
+
+# Cria Package.swift temporário
+cat > Package.swift <<EOF
+// swift-tools-version:5.6
+import PackageDescription
+
+let package = Package(
+    name: "$HOST_MODULE",
+    platforms: [.iOS(.v13)],
+    products: [
+        .library(name: "$HOST_MODULE", targets: ["$HOST_MODULE"]),
+    ],
+    dependencies: [
+        .package(path: "$SDK_LOCAL_PATH")
+    ],
+    targets: [
+        .target(
+            name: "$HOST_MODULE",
+            dependencies: [
+                .product(name: "CoreMethods", package: "sdk-ios")
+            ]
+        )
+    ]
+)
+EOF
+
+# Cria arquivo Swift dummy
+echo "// Dummy source for documentation host" > "Sources/$HOST_MODULE/DocHost.swift"
+
+# Resolve dependências
+swift package resolve
+
+# Gera documentação com xcodebuild
 xcodebuild docbuild \
-  -scheme "$SCHEME" \
+  -scheme "$HOST_MODULE" \
   -destination 'platform=iOS Simulator,name=iPhone 16' \
-  -derivedDataPath "$DERIVED_DATA"
+  -derivedDataPath .build \
+  DOCC_OUTPUT_DIR="$DOCC_OUTPUT_DIR" \
+  OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path $DOCC_OUTPUT_DIR --hosting-base-path $HOSTING_BASE_PATH"
 
-echo "📂 Checking if the file $DOCCARCHIVE_PATH was generated..."
+# Cria .nojekyll para GitHub Pages
+touch "$DOCC_OUTPUT_DIR/.nojekyll"
 
-if [ ! -d "$DOCCARCHIVE_PATH" ]; then
-  echo "❌ ERROR: .doccarchive not found at $DOCCARCHIVE_PATH"
-  exit 1
-fi
-
-echo "🌐 Converting .doccarchive into a static website at $OUTPUT_DIR..."
-
-$(xcrun --find docc) process-archive \
-  transform-for-static-hosting "$DOCCARCHIVE_PATH" \
-  --output-path "$OUTPUT_DIR" \
-  --hosting-base-path "$HOSTING_BASE_PATH"
-
-# echo '
-# <!DOCTYPE html>
-# <html lang="en">
-#   <head>
-#     <meta charset="utf-8">
-#     <meta http-equiv="refresh" content="0; url=./documentation/coremethods/index.html">
-#     <script>
-#       window.location.href = "./documentation/coremethods/index.html";
-#     </script>
-#     <title>Redirecting...</title>
-#   </head>
-#   <body>
-#     If you are not redirected automatically, <a href="./documentation/coremethods/index.html">click here</a>.
-#   </body>
-# </html>
-# ' > docs/index.html
-
-# echo "✅ Documentation successfully generated at $OUTPUT_DIR/"
-
-
-echo "🌍 Iniciando servidor local na porta $PORT..."
-
-# Verifica se Python está disponível
-if command -v python3 &>/dev/null; then
-  echo "Usando Python 3 para servir os arquivos"
-  cd "$OUTPUT_DIR" && python3 -m http.server $PORT
-elif command -v python &>/dev/null; then
-  echo "Usando Python 2 para servir os arquivos"
-  cd "$OUTPUT_DIR" && python -m SimpleHTTPServer $PORT
-elif command -v npx &>/dev/null; then
-  echo "Usando http-server do Node.js para servir os arquivos"
-  cd "$OUTPUT_DIR" && npx http-server -p $PORT
-else
-  echo "⚠️ Nem Python nem Node.js encontrados para servir os arquivos."
-  echo "Por favor, navegue até $OUTPUT_DIR e inicie um servidor web manualmente."
-  echo "Ou instale Python ou Node.js para usar os servidores embutidos."
-  exit 1
-fi
+echo "✅ Documentação DocC gerada em: $DOCC_OUTPUT_DIR"
