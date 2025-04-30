@@ -36,12 +36,14 @@ extension CardTokenBody {
         ]
 
         if let buyerIdentification {
-            let buyerDict: [String: Any] = [
-                "name": buyerIdentification.name,
+            let holderDic: [String: Any] = [
                 "number": buyerIdentification.number,
                 "type": buyerIdentification.type
             ]
-            jsonObject["buyer_identification"] = buyerDict
+            jsonObject["cardholder"] = [
+                "identification": holderDic,
+                "name": buyerIdentification.name
+            ]
         }
 
         if let deviceData = device,
