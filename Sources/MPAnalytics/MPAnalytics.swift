@@ -247,7 +247,7 @@ package final class MPAnalytics: AnalyticsInterface {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = jsonData
 
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let _ = try await URLSession.shared.data(for: request)
 
             await self.track.setEventData(nil)
 

@@ -69,7 +69,9 @@ extension CoreMethodsEndpoint: RequestEndpoint {
 
     /// Request headers.
     var headers: [String: String] {
-        return [:]
+        return [
+            "Content-Type": "application/json"
+        ]
     }
 
     /// Request URL parameters.

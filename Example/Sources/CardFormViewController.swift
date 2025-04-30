@@ -239,7 +239,7 @@ extension CardFormViewController {
                 securityCode: self.securityCodeField,
                 documentType: selectedDocumentType,
                 documentNumber: self.documentNumberField.text ?? "",
-                cardHolderName: ""
+                cardHolderName: self.documentNumberField.text ?? ""
             )
             let label = UILabel()
             label.numberOfLines = 0
