@@ -229,10 +229,17 @@ final class CardFormViewController: UIViewController {
 extension CardFormViewController {
     @objc private func handlePayButtonTapped() {
         Task {
+            guard let selectedDocumentType else {
+                return
+            }
+
             let token = try await coreMethods.createToken(
                 cardNumber: self.cardNumberField,
                 expirationDate: self.expirationDateField,
-                securityCode: self.securityCodeField
+                securityCode: self.securityCodeField,
+                documentType: selectedDocumentType,
+                documentNumber: self.documentNumberField.text ?? "",
+                cardHolderName: ""
             )
             let label = UILabel()
             label.numberOfLines = 0
