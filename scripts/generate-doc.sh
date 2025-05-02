@@ -22,6 +22,9 @@ fi
 DOCC_OUTPUT_DIR="$ROOT_DIR/docs"
 VERSIONED_OUTPUT_DIR="$DOCC_OUTPUT_DIR/$VERSION"
 HOSTING_BASE_PATH="sdk-ios/$VERSION"
+OUTPUT_DIR="/Users/gpcosta/Documents/sdk-ios/docs"
+
+mkdir -p "$OUTPUT_DIR"
 
 # Clean and set up temp package
 rm -rf "$TEMP_DIR"
@@ -30,7 +33,7 @@ cd "$TEMP_DIR"
 
 # Create temporary Swift Package
 cat > Package.swift <<EOF
-// swift-tools-version:5.6
+// swift-tools-version:6.0
 import PackageDescription
 
 let package = Package(
@@ -46,7 +49,7 @@ let package = Package(
         .target(
             name: "$HOST_MODULE",
             dependencies: [
-                .product(name: "CoreMethods", package: "project")
+                .product(name: "CoreMethods", package: "sdk-ios")
             ]
         )
     ]
