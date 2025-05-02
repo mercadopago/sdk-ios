@@ -85,4 +85,6 @@ workflows:
           filters:
             branches:
               ignore: main
-      - generate-doc
+      - generate-doc:
+          requires:
+          - build-and-test
