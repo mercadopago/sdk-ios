@@ -55,6 +55,14 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:ePS1ePTgELc4JvunAy0yKgPcAXP0Cv5I4g2/ZW3E0+c"
+      - run:
+          name: Configure Git for deployment
+          command: |
+            git config --global user.email "dev@mercadopago.com"
+            git config --global user.name "CI Build"
       - run:
           name: Generate documentation
           command: ./scripts/generate-doc.sh
