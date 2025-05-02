@@ -75,6 +75,20 @@ workflows:
 
   build-test:
     jobs:
-      - generate-doc
+      - build-and-test:
+          filters:
+            branches:
+              ignore: main
+      - snapshot-tests:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              ignore: main
+      - generate-doc:
+          filters:
+            branches:
+              ignore:
+                - main
 
 
