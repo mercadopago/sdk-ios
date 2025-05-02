@@ -46,7 +46,7 @@ let package = Package(
         .target(
             name: "$HOST_MODULE",
             dependencies: [
-                .product(name: "CoreMethods", package: "sdk-ios")
+                .product(name: "CoreMethods", package: "project")
             ]
         )
     ]
