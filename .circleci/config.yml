@@ -53,8 +53,8 @@ jobs:
   generate-doc:
     executor: default
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
+      - setup_environment
       - add_ssh_keys:
           fingerprints:
             - "SHA256:ePS1ePTgELc4JvunAy0yKgPcAXP0Cv5I4g2/ZW3E0+c"
@@ -85,6 +85,4 @@ workflows:
           filters:
             branches:
               ignore: main
-      - generate-doc:
-          requires:
-          - build-and-test
+      - generate-doc
