@@ -12,6 +12,12 @@ HOST_MODULE="DocHost"
 # Read version from VERSION file
 VERSION=$(cat "$VERSION_FILE")
 
+# Only proceed if patch version is 0 (e.g., x.y.0)
+if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
+  echo "⚠️  Skipping DocC generation: VERSION ($VERSION) is not a major or minor release."
+  exit 0
+fi
+
 # Define output paths
 DOCC_OUTPUT_DIR="$ROOT_DIR/docs"
 VERSIONED_OUTPUT_DIR="$DOCC_OUTPUT_DIR/$VERSION"
