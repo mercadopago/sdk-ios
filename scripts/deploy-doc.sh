@@ -34,6 +34,8 @@ if [ -f "$HOOK_PATH" ]; then
   mv "$HOOK_PATH" "$BACKUP_PATH"
   HOOK_WAS_PRESENT=true
 fi
+git config --global user.name "Circle CI"
+git config --global user.email "ci-ios@circleci.com"
 
 # 📦 Commit and push changes
 cd "$WORKTREE_PATH"
