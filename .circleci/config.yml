@@ -60,7 +60,7 @@ jobs:
           command: ./scripts/generate-doc.sh
       - run:
           name: Deploy DocC to GitHub Pages
-          command: ./scripts/deploy-docs.sh
+          command: ./scripts/deploy-doc.sh
 
 workflows:
   version: 2
