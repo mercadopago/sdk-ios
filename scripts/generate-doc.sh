@@ -22,9 +22,8 @@ fi
 DOCC_OUTPUT_DIR="$ROOT_DIR/docs"
 VERSIONED_OUTPUT_DIR="$DOCC_OUTPUT_DIR/$VERSION"
 HOSTING_BASE_PATH="sdk-ios/$VERSION"
-OUTPUT_DIR="/Users/gpcosta/Documents/sdk-ios/docs"
 
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$DOCC_OUTPUT_DIR"
 
 # Clean and set up temp package
 rm -rf "$TEMP_DIR"
