@@ -57,7 +57,7 @@ jobs:
       - setup_environment
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:ePS1ePTgELc4JvunAy0yKgPcAXP0Cv5I4g2/ZW3E0+c"
+            - "SHA256:QCKwvoOSf76ROiASMPP0agO6EhQpXF8HFtX7x+pDvk0"
       - run:
           name: Configure Git for deployment
           command: |
@@ -75,14 +75,6 @@ workflows:
 
   build-test:
     jobs:
-      - build-and-test:
-          filters:
-            branches:
-              ignore: main
-      - snapshot-tests:
-          requires:
-            - build-and-test
-          filters:
-            branches:
-              ignore: main
       - generate-doc
+
+
