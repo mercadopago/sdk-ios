@@ -80,6 +80,78 @@ public final class CoreMethods: Sendable {
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
     }
+    
+    
+    /// Creates a card token using the provided card details.
+    ///
+    /// This method processes the input from card-related text fields and generates
+    /// a token that can be used for payment processing through Mercado Pago's API.
+    /// It's suitable for collecting minimal card information without cardholder details.
+    ///
+    /// # Example
+    /// ```swift
+    /// Task {
+    ///     do {
+    ///         let token = try await coreMethods.createToken(
+    ///             cardNumber: cardNumberField,
+    ///             expirationDate: expirationField,
+    ///             securityCode: securityCodeField
+    ///         )
+    ///         print("Generated token: \(token.id)")
+    ///     } catch {
+    ///         print("Token generation failed: \(error)")
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - cardNumber: A text field containing the card number
+    ///   - expirationDate: A text field containing the card's expiration date in MM/YY format
+    ///   - securityCode: A text field containing the card's security code (CVV)
+    ///   - cardHolderName: The full name of the cardholder as it appears on the card
+    ///   
+    /// - Returns: A CardToken object containing the generated card token and related information
+    ///
+    /// - Throws:
+    ///   - NetworkError: If communication with the API fails
+    ///   - ValidationError: If the provided card details are invalid
+    ///   - DecodingError: If the API response cannot be properly decoded
+    ///
+    /// - Note: This method performs asynchronous operations to retrieve values from the text fields
+    ///         and to communicate with the Mercado Pago API
+    ///
+    public func createToken(
+        cardNumber: CardNumberTextField,
+        expirationDate: ExpirationDateTextfield,
+        securityCode: SecurityCodeTextField,
+        cardHolder: String?
+    ) async throws -> CardToken {
+        return try await executeWithTracking(
+            operation: {
+                async let cardNumber = cardNumber.input.getValue()
+                async let expirationDateYear = expirationDate.getYear()
+                async let expirationDateMonth = expirationDate.getMonth()
+                async let securityCode = securityCode.input.getValue()
+
+                return try await self.generateTokenUseCase
+                    .tokenize(
+                        cardNumber: cardNumber,
+                        expirationDateMonth: expirationDateMonth,
+                        expirationDateYear: expirationDateYear,
+                        securityCodeInput: securityCode,
+                        cardID: nil,
+                        cardHolderName: cardHolder,
+                        identificationType: nil,
+                        identificationNumber: nil
+                    )
+            },
+            path: AnalyticsPath.tokenization,
+            extractEventData: { _ -> TokenizationEventData? in
+                return TokenizationEventData(isSaveCard: false, documentType: "")
+            }
+        )
+    }
+
 
     /// Creates a card token using the provided card details and cardholder information.
     ///
