@@ -18,24 +18,14 @@ extension CoreMethods {
         documentNumber: String,
         cardHolderName: String
     ) async throws -> CardToken {
-        return try await executeWithTracking(
-            operation: {
-                return try await self.generateTokenUseCase
-                    .tokenize(
-                        cardNumber: cardNumber,
-                        expirationDateMonth: expirationMonth,
-                        expirationDateYear: expirationYear,
-                        securityCodeInput: securityCode,
-                        cardID: nil,
-                        cardHolderName: cardHolderName,
-                        identificationType: documentType,
-                        identificationNumber: documentNumber
-                    )
-            },
-            path: AnalyticsPath.tokenization,
-            extractEventData: { _ -> TokenizationEventData? in
-                return TokenizationEventData(isSaveCard: false, documentType: documentType)
-            }
+        return try await tokenization(
+            cardNumber: cardNumber,
+            expirationDateMonth: expirationYear,
+            expirationDateYear: expirationMonth,
+            securityCode: securityCode,
+            cardHolderName: cardHolderName,
+            documentType: documentType,
+            documentNumber: documentNumber
         )
     }
 }

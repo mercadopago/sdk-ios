@@ -37,6 +37,8 @@ import Foundation
 /// }
 /// ```
 public final class CoreMethods: Sendable {
+    
+    //MARK: Use Cases
     internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
     private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
     private let installmentsUseCase: InstallmentsUseCaseProtocol
@@ -46,11 +48,13 @@ public final class CoreMethods: Sendable {
     typealias Dependency = HasAnalytics & HasFingerPrint
 
     let dependencies: Dependency
-
+    
+    // MARK: - Initialization
     /// Initializes a new instance of CoreMethods with default dependencies.
     ///
-    /// This initializer sets up the class with the standard implementation of the card token generation use case.
+    /// This initializer sets up the class with the standard implementation of core methods.
     /// Use this initializer for production code.
+    ///
     public init() {
         self.dependencies = CoreDependencyContainer.shared
         self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies)
@@ -82,6 +86,8 @@ public final class CoreMethods: Sendable {
     }
     
     
+    // MARK: Create Token
+    
     /// Creates a card token using the provided card details.
     ///
     /// This method processes the input from card-related text fields and generates
@@ -109,7 +115,7 @@ public final class CoreMethods: Sendable {
     ///   - expirationDate: A text field containing the card's expiration date in MM/YY format
     ///   - securityCode: A text field containing the card's security code (CVV)
     ///   - cardHolderName: The full name of the cardholder as it appears on the card
-    ///   
+    ///
     /// - Returns: A CardToken object containing the generated card token and related information
     ///
     /// - Throws:
@@ -124,31 +130,19 @@ public final class CoreMethods: Sendable {
         cardNumber: CardNumberTextField,
         expirationDate: ExpirationDateTextfield,
         securityCode: SecurityCodeTextField,
-        cardHolder: String?
+        cardHolderName: String?
     ) async throws -> CardToken {
-        return try await executeWithTracking(
-            operation: {
-                async let cardNumber = cardNumber.input.getValue()
-                async let expirationDateYear = expirationDate.getYear()
-                async let expirationDateMonth = expirationDate.getMonth()
-                async let securityCode = securityCode.input.getValue()
-
-                return try await self.generateTokenUseCase
-                    .tokenize(
-                        cardNumber: cardNumber,
-                        expirationDateMonth: expirationDateMonth,
-                        expirationDateYear: expirationDateYear,
-                        securityCodeInput: securityCode,
-                        cardID: nil,
-                        cardHolderName: cardHolder,
-                        identificationType: nil,
-                        identificationNumber: nil
-                    )
-            },
-            path: AnalyticsPath.tokenization,
-            extractEventData: { _ -> TokenizationEventData? in
-                return TokenizationEventData(isSaveCard: false, documentType: "")
-            }
+        async let cardNumber = cardNumber.input.getValue()
+        async let expirationDateYear = expirationDate.getYear()
+        async let expirationDateMonth = expirationDate.getMonth()
+        async let securityCode = securityCode.input.getValue()
+        
+        return try await tokenization(
+            cardNumber: cardNumber,
+            expirationDateMonth: expirationDateMonth,
+            expirationDateYear: expirationDateYear,
+            securityCode: securityCode,
+            cardHolderName: cardHolderName
         )
     }
 
@@ -209,29 +203,19 @@ public final class CoreMethods: Sendable {
         documentNumber: String,
         cardHolderName: String
     ) async throws -> CardToken {
-        return try await executeWithTracking(
-            operation: {
-                async let cardNumber = cardNumber.input.getValue()
-                async let expirationDateYear = expirationDate.getYear()
-                async let expirationDateMonth = expirationDate.getMonth()
-                async let securityCode = securityCode.input.getValue()
-
-                return try await self.generateTokenUseCase
-                    .tokenize(
-                        cardNumber: cardNumber,
-                        expirationDateMonth: expirationDateMonth,
-                        expirationDateYear: expirationDateYear,
-                        securityCodeInput: securityCode,
-                        cardID: nil,
-                        cardHolderName: cardHolderName,
-                        identificationType: documentType.name,
-                        identificationNumber: documentNumber
-                    )
-            },
-            path: AnalyticsPath.tokenization,
-            extractEventData: { _ -> TokenizationEventData? in
-                return TokenizationEventData(isSaveCard: false, documentType: documentType.name)
-            }
+        async let cardNumber = cardNumber.input.getValue()
+        async let expirationDateYear = expirationDate.getYear()
+        async let expirationDateMonth = expirationDate.getMonth()
+        async let securityCode = securityCode.input.getValue()
+        
+        return try await tokenization(
+            cardNumber: cardNumber,
+            expirationDateMonth: expirationDateMonth,
+            expirationDateYear: expirationDateYear,
+            securityCode: securityCode,
+            cardHolderName: cardHolderName,
+            documentType: documentType.name,
+            documentNumber: documentNumber
         )
     }
 
@@ -279,31 +263,20 @@ public final class CoreMethods: Sendable {
         expirationDate: ExpirationDateTextfield? = nil,
         securityCode: SecurityCodeTextField
     ) async throws -> CardToken {
-        return try await executeWithTracking(
-            operation: {
-                async let expirationDateYear = expirationDate?.getYear()
-                async let expirationDateMonth = expirationDate?.getMonth()
-                async let securityCode = securityCode.input.getValue()
-
-                return try await self.generateTokenUseCase
-                    .tokenize(
-                        cardNumber: nil,
-                        expirationDateMonth: expirationDateMonth,
-                        expirationDateYear: expirationDateYear,
-                        securityCodeInput: securityCode,
-                        cardID: cardID,
-                        cardHolderName: nil,
-                        identificationType: nil,
-                        identificationNumber: nil
-                    )
-            },
-            path: AnalyticsPath.tokenization,
-            extractEventData: { _ -> TokenizationEventData? in
-                return TokenizationEventData(isSaveCard: true, documentType: "")
-            }
+        async let expirationDateYear = expirationDate?.getYear()
+        async let expirationDateMonth = expirationDate?.getMonth()
+        async let securityCode = securityCode.input.getValue()
+        
+        return try await tokenization(
+            expirationDateMonth: expirationDateMonth,
+            expirationDateYear: expirationDateYear,
+            securityCode: securityCode,
+            cardID: cardID
         )
     }
 
+    // MARK: Identification Types
+    
     /// Gets the identification document types accepted by the Mercado Pago API
     ///
     /// - Returns: An array of ``IdentificationType`` objects representing the available
@@ -326,6 +299,8 @@ public final class CoreMethods: Sendable {
             }
         )
     }
+    
+    // MARK: Installments
 
     /// Gets available installment options for a payment amount and card BIN
     ///
@@ -363,6 +338,8 @@ public final class CoreMethods: Sendable {
             }
         )
     }
+    
+    // MARK: Payment Methods
 
     /// Gets available payment methods for a card BIN
     ///
@@ -405,6 +382,8 @@ public final class CoreMethods: Sendable {
             }
         )
     }
+    
+    // MARK: Issuers
 
     /// Gets available issuers for a card BIN and payment method
     ///
@@ -462,8 +441,45 @@ public final class CoreMethods: Sendable {
     }
 }
 
-// MARK: Execute Operation of Core Methods
+// MARK: Tokenization Method
+internal extension CoreMethods {
+    func tokenization(
+        cardNumber: String? = nil,
+        expirationDateMonth: String? = nil,
+        expirationDateYear: String? = nil,
+        securityCode: String? = nil,
+        cardHolderName: String? = nil,
+        documentType: String? = nil,
+        documentNumber: String? = nil,
+        cardID: String? = nil
+    ) async throws -> CardToken {
+        return try await executeWithTracking(
+            operation: {
+                return try await self.generateTokenUseCase
+                    .tokenize(
+                        cardNumber: cardNumber,
+                        expirationDateMonth: expirationDateMonth,
+                        expirationDateYear: expirationDateYear,
+                        securityCodeInput: securityCode ?? "",
+                        cardID: cardID,
+                        cardHolderName: cardHolderName,
+                        identificationType: documentType,
+                        identificationNumber: documentNumber
+                    )
+            },
+            path: AnalyticsPath.tokenization,
+            extractEventData: { _ -> TokenizationEventData? in
+                return TokenizationEventData(
+                    isSaveCard: true,
+                    documentType: documentType ?? ""
+                )
+            }
+        )
 
+    }
+}
+
+// MARK: Execute Operation of Core Methods
 extension CoreMethods {
     internal enum AnalyticsPath {
         static let identificationTypes = "/checkout_api_native/core_methods/identification_types"
