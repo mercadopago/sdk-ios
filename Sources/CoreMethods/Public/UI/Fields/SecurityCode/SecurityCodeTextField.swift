@@ -17,6 +17,11 @@ import UIKit
 ///
 /// Example usage:
 /// ```swift
+/// let style = TextFieldDefaultStyle()
+///    .borderColor(.systemGray)
+///    .borderWidth(2)
+///    .cornerRadius(8)
+///    
 /// let field = SecurityCodeTextField(style: style)
 ///    .setMaxLength(4)
 ///    .setPlaceholder("Insert security code")
@@ -30,6 +35,12 @@ import UIKit
 /// field.onInputFilled = { [weak self] error in
 ///     // Handle complete field
 /// }
+///
+/// field.onFocusChanged = { [weak self] isFocus in
+///     // Handle focus changed
+/// }
+///
+/// field.setStyle(style) // Also you can change style this way
 /// ```
 public final class SecurityCodeTextField: PCITextField {
     /// Callback triggered when the length of security change
@@ -72,6 +83,11 @@ public final class SecurityCodeTextField: PCITextField {
 
     // MARK: - Initialization
 
+    /// Initializer the textfield
+    ///
+    /// - Parameters:
+    ///   - style: The styling configuration for the text field
+    ///   - maxLength: Sets the maximum length of the card number
     public init(
         style: Style = TextFieldDefaultStyle(),
         maxLength: Int = 3

@@ -15,7 +15,10 @@ import UIKit
 /// and various callback handlers to integrate into your payment flow.
 ///
 /// ```swift
+/// @State var cardNumberTextField: CardNumberTextField?
+/// 
 /// CardNumberTextFieldView(
+///     textField: self.$cardNumberTextField,
 ///     style: myCustomStyle,
 ///     mask: "#### #### #### ####",
 ///     placeholder: "Card number",
@@ -82,29 +85,6 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
     ///   - onError: Callback triggered when a validation error occurs.
     ///   - textField: Reference of CardNumberTextfield
     ///
-    /// - Example:
-    ///   ```swift
-    ///   CardNumberTextFieldView(
-    ///       style: TextFieldDefaultStyle()
-    ///           .textColor(.blue)
-    ///           .font(.systemFont(ofSize: 17))
-    ///           .borderWidth(1),
-    ///       mask: "#### #### #### ####",
-    ///       placeholder: "Card number",
-    ///       onBinChanged: { bin in
-    ///           detectCardType(bin)
-    ///       },
-    ///       onLastFourDigitsFilled: { lastFour in
-    ///           saveLastFourDigits(lastFour)
-    ///       },
-    ///       onFocusChanged: { isFocused in
-    ///           print("Focus changed: \(isFocused)")
-    ///       },
-    ///       onError: { error in
-    ///           handleError(error)
-    ///       }
-    ///   )
-    ///   ```
     public init(
         textField: Binding<CardNumberTextField?>,
         style: CardNumberTextField.Style = TextFieldDefaultStyle(),

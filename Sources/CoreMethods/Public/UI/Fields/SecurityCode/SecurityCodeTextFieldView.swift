@@ -13,7 +13,11 @@ import SwiftUI
 /// and various callback handlers to integrate into your payment flow.
 ///
 /// ```swift
+///
+/// @State var securityTextField: SecurityCodeTextField?
+///
 /// SecurityCodeTextFieldView(
+///     textField: self.$securityTextField,
 ///     style: myCustomStyle,
 ///     maxLength: 3,
 ///     placeholder: "CVV",
@@ -74,24 +78,6 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     ///   - onError: Callback triggered when a validation error occurs.
     ///   - textField: Reference of SecurityCodeTextField
     ///
-    /// - Example:
-    ///   ```swift
-    ///   SecurityCodeTextFieldView(
-    ///       style: TextFieldDefaultStyle()
-    ///           .textColor(.blue)
-    ///           .font(.systemFont(ofSize: 17)),
-    ///       maxLength: 4, // For Amex cards
-    ///       placeholder: "CVV",
-    ///       onInputFilled: {
-    ///           // Move to next field
-    ///           nextField.becomeFirstResponder()
-    ///       },
-    ///       onError: { error in
-    ///           // Handle validation error
-    ///           showError(error.localizedDescription)
-    ///       }
-    ///   )
-    ///   ```
     public init(
         textField: Binding<SecurityCodeTextField?>,
         style: SecurityCodeTextField.Style = TextFieldDefaultStyle(),

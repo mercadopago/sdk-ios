@@ -15,7 +15,11 @@ import SwiftUI
 /// to integrate seamlessly with your payment flow.
 ///
 /// ```swift
+///
+/// @State var expirationDateTextField: ExpirationDateTextfield?
+/// 
 /// ExpirationDateTextFieldView(
+///     textField: self.$expirationDateTextField,
 ///     style: myCustomStyle,
 ///     format: .short,
 ///     placeholder: "MM/YY",

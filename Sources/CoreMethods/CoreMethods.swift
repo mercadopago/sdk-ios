@@ -37,7 +37,7 @@ import Foundation
 /// }
 /// ```
 public final class CoreMethods: Sendable {
-    private let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
+    internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
     private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
     private let installmentsUseCase: InstallmentsUseCaseProtocol
     private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
@@ -79,74 +79,6 @@ public final class CoreMethods: Sendable {
         self.installmentsUseCase = installmentsUseCase
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
-    }
-
-    /// Creates a card token using the provided card details.
-    ///
-    /// This method processes the input from card-related text fields and generates
-    /// a token that can be used for payment processing through Mercado Pago's API.
-    /// It's suitable for collecting minimal card information without cardholder details.
-    ///
-    /// # Example
-    /// ```swift
-    /// Task {
-    ///     do {
-    ///         let token = try await coreMethods.createToken(
-    ///             cardNumber: cardNumberField,
-    ///             expirationDate: expirationField,
-    ///             securityCode: securityCodeField
-    ///         )
-    ///         print("Generated token: \(token.id)")
-    ///     } catch {
-    ///         print("Token generation failed: \(error)")
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// - Parameters:
-    ///   - cardNumber: A text field containing the card number
-    ///   - expirationDate: A text field containing the card's expiration date in MM/YY format
-    ///   - securityCode: A text field containing the card's security code (CVV)
-    ///
-    /// - Returns: A CardToken object containing the generated card token and related information
-    ///
-    /// - Throws:
-    ///   - NetworkError: If communication with the API fails
-    ///   - ValidationError: If the provided card details are invalid
-    ///   - DecodingError: If the API response cannot be properly decoded
-    ///
-    /// - Note: This method performs asynchronous operations to retrieve values from the text fields
-    ///         and to communicate with the Mercado Pago API
-    ///
-    public func createToken(
-        cardNumber: CardNumberTextField,
-        expirationDate: ExpirationDateTextfield,
-        securityCode: SecurityCodeTextField
-    ) async throws -> CardToken {
-        return try await executeWithTracking(
-            operation: {
-                async let cardNumber = cardNumber.input.getValue()
-                async let expirationDateYear = expirationDate.getYear()
-                async let expirationDateMonth = expirationDate.getMonth()
-                async let securityCode = securityCode.input.getValue()
-
-                return try await self.generateTokenUseCase
-                    .tokenize(
-                        cardNumber: cardNumber,
-                        expirationDateMonth: expirationDateMonth,
-                        expirationDateYear: expirationDateYear,
-                        securityCodeInput: securityCode,
-                        cardID: nil,
-                        cardHolderName: nil,
-                        identificationType: nil,
-                        identificationNumber: nil
-                    )
-            },
-            path: AnalyticsPath.tokenization,
-            extractEventData: { _ -> TokenizationEventData? in
-                return TokenizationEventData(isSaveCard: false, documentType: "")
-            }
-        )
     }
 
     /// Creates a card token using the provided card details and cardholder information.
@@ -460,8 +392,8 @@ public final class CoreMethods: Sendable {
 
 // MARK: Execute Operation of Core Methods
 
-private extension CoreMethods {
-    private enum AnalyticsPath {
+extension CoreMethods {
+    internal enum AnalyticsPath {
         static let identificationTypes = "/checkout_api_native/core_methods/identification_types"
         static let installments = "/checkout_api_native/core_methods/installments"
         static let paymentMethods = "/checkout_api_native/core_methods/payment_methods"
