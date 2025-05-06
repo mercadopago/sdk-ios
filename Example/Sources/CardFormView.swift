@@ -8,6 +8,8 @@ struct CardFormView: View {
     @State private var documents: [IdentificationType] = []
     @State private var selectedDocumentType: IdentificationType?
     @State private var token: String?
+    
+    @State private var documentText: String = ""
 
     @State private var cardNumberIsValid = true
     @State private var securityCodeIsValid = true
@@ -161,16 +163,25 @@ struct CardFormView: View {
     }
 
     private func handlePayButtonTapped() {
-        guard let cardNumberTextField, let securityTextField, let expirationDateTextField else {
+        guard let cardNumberTextField = self.cardNumberTextField, let expirationTextField = self.expirationDateTextField, let securityCodeTextField = self.securityTextField, let selectedDocumentType  else {
             return
         }
-
+        
         Task {
             do {
+
+                
+                // Change status of payment here
+                // https://www.mercadopago.com.br/developers/pt/docs/checkout-bricks/integration-test/test-payment-flow
+                let cardHolder = "APRO"
+
                 let token = try await coreMethods.createToken(
                     cardNumber: cardNumberTextField,
-                    expirationDate: expirationDateTextField,
-                    securityCode: securityTextField
+                    expirationDate: expirationTextField,
+                    securityCode: securityCodeTextField,
+                    documentType: selectedDocumentType,
+                    documentNumber: documentText,
+                    cardHolderName: cardHolder
                 )
 
                 await MainActor.run {
