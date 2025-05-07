@@ -118,10 +118,9 @@ public final class CoreMethods: Sendable {
     ///
     /// - Returns: A CardToken object containing the generated card token and related information
     ///
-    /// - Throws:
-    ///   - NetworkError: If communication with the API fails
-    ///   - ValidationError: If the provided card details are invalid
-    ///   - DecodingError: If the API response cannot be properly decoded
+    /// - Throws: ``APIClientError/invalidURL``: If the API endpoint URL is malformed.
+    /// - Throws: ``APIClientError/networkError(_:)``: If the response cannot be decoded.
+    /// - Throws: ``APIClientError/decodingFailed(_:)``: If the API response cannot be properly decoded
     ///
     /// - Note: This method performs asynchronous operations to retrieve values from the text fields
     ///         and to communicate with the Mercado Pago API
@@ -188,13 +187,13 @@ public final class CoreMethods: Sendable {
     ///
     /// - Returns: A CardToken object containing the generated card token and related information
     ///
-    /// - Throws:
-    ///   - NetworkError: If communication with the API fails
-    ///   - ValidationError: If the provided card or identification details are invalid
-    ///   - DecodingError: If the API response cannot be properly decoded
-    ///
     /// - Note: Different countries may require different types of identification documents.
     ///         Use the `identificationTypes()` method to retrieve the valid options.
+    ///
+    /// - Throws: ``APIClientError/invalidURL``: If the API endpoint URL is malformed.
+    /// - Throws: ``APIClientError/networkError(_:)``: If the response cannot be decoded.
+    /// - Throws: ``APIClientError/decodingFailed(_:)``: If the API response cannot be properly decoded
+    ///
     public func createToken(
         cardNumber: CardNumberTextField,
         expirationDate: ExpirationDateTextfield,
@@ -248,16 +247,16 @@ public final class CoreMethods: Sendable {
     ///
     /// - Returns: A CardToken object containing the generated payment token and related information
     ///
-    /// - Throws:
-    ///   - NetworkError: If communication with the API fails
-    ///   - ValidationError: If the provided card ID or security code is invalid
-    ///   - DecodingError: If the API response cannot be properly decoded
-    ///
     /// - Important: The card must be previously saved in Mercado Pago's system. For new cards,
     ///             use one of the other `createToken` methods instead.
     ///
     /// - Note: The expirationDate parameter is optional and should only be provided if the
     ///         card's expiration date needed.
+    ///
+    /// - Throws: ``APIClientError/invalidURL``: If the API endpoint URL is malformed.
+    /// - Throws: ``APIClientError/networkError(_:)``: If the response cannot be decoded.
+    /// - Throws: ``APIClientError/decodingFailed(_:)``: If the API response cannot be properly decoded
+    ///
     public func createToken(
         cardID: String,
         expirationDate: ExpirationDateTextfield? = nil,
@@ -277,15 +276,16 @@ public final class CoreMethods: Sendable {
 
     // MARK: Identification Types
     
-    /// Gets the identification document types accepted by the Mercado Pago API
+    /// Retrieves the list of identification document types supported by the Mercado Pago API.
     ///
-    /// - Returns: An array of ``IdentificationType`` objects representing the available
-    ///   document types for user identification
+    /// - Returns: An array of ``IdentificationType`` objects representing the supported
+    ///   document types for user identification.
     ///
-    /// - Throws:
-    ///   - .invalidURL: If the API endpoint URL is malformed
-    ///   - .decodingFailed(Error): If the response cannot be decoded
+    /// - Throws: ``APIClientError/invalidURL``: If the API endpoint URL is malformed.
+    /// - Throws: ``APIClientError/networkError(_:)``: If the response cannot be decoded.
+    /// - Throws: ``APIClientError/decodingFailed(_:)``: If the API response cannot be properly decoded
     ///
+    /// - Important: Document types are not available for Mexico.
     public func identificationTypes() async throws -> [IdentificationType] {
         return try await executeWithTracking(
             operation: { try await self.identificationTypeUseCase.getIdentificationTypes() },
@@ -315,10 +315,9 @@ public final class CoreMethods: Sendable {
     ///
     /// - Returns: An array of ``Installment`` objects containing available payment plans
     ///
-    /// - Throws:
-    ///   - .invalidURL: If the API endpoint URL is malformed
-    ///   - .networkError: If a connection to the API cannot be established
-    ///   - .decodingFailed(Error): If the response cannot be decoded
+    /// - Throws: ``APIClientError/invalidURL``: If the API endpoint URL is malformed.
+    /// - Throws: ``APIClientError/networkError(_:)``: If the response cannot be decoded.
+    /// - Throws: ``APIClientError/decodingFailed(_:)``: If the API response cannot be properly decoded
     ///
     public func installments(
         amount: Double,
@@ -352,10 +351,9 @@ public final class CoreMethods: Sendable {
     ///
     /// - Returns: An array of ``PaymentMethod`` objects containing available payment methods
     ///
-    /// - Throws:
-    ///   - .invalidURL: If the API endpoint URL is malformed
-    ///   - .networkError: If a connection to the API cannot be established
-    ///   - .decodingFailed(Error): If the response cannot be decoded
+    /// - Throws: ``APIClientError/invalidURL``: If the API endpoint URL is malformed.
+    /// - Throws: ``APIClientError/networkError(_:)``: If the response cannot be decoded.
+    /// - Throws: ``APIClientError/decodingFailed(_:)``: If the API response cannot be properly decoded
     ///
     public func paymentMethods(
         bin: String,
@@ -407,14 +405,14 @@ public final class CoreMethods: Sendable {
     ///
     /// - Parameters:
     ///   - bin: Bank Identification Number (first 6-8 digits of card number)
-    ///   - paymentMethodID: The ID of the payment method (e.g., "visa", "master")
+    ///   - paymentMethodID: The ID of the payment method (e.g., "visa", "master"), you can get this in paymentMethod function
     ///
     /// - Returns: An array of ``Issuer`` objects representing available card issuers
     ///
-    /// - Throws:
-    ///   - NetworkError: If communication with the API fails
-    ///   - ValidationError: If the provided bin or paymentMethodID is invalid
-    ///   - DecodingError: If the API response cannot be properly decoded
+    /// - Throws: ``APIClientError/invalidURL``: If the API endpoint URL is malformed.
+    /// - Throws: ``APIClientError/networkError(_:)``: If the response cannot be decoded.
+    /// - Throws: ``APIClientError/decodingFailed(_:)``: If the API response cannot be properly decoded
+    ///
     public func issuers(
         bin: String,
         paymentMethodID: String
