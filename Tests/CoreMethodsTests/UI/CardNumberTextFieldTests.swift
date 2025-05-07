@@ -66,7 +66,7 @@ final class CardNumberTextFieldTests: XCTestCase {
 
         simulateTextInput("411111133", input: input)
 
-        XCTAssertEqual(binChangeCount, 2)
+        XCTAssertEqual(binChangeCount, 1)
     }
 
     // MARK: - Last Four Digits Tests

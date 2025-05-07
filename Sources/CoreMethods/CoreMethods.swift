@@ -468,7 +468,7 @@ internal extension CoreMethods {
             path: AnalyticsPath.tokenization,
             extractEventData: { _ -> TokenizationEventData? in
                 return TokenizationEventData(
-                    isSaveCard: true,
+                    isSaveCard: cardID != nil,
                     documentType: documentType ?? ""
                 )
             }
