@@ -250,7 +250,8 @@ final class CoreMethodsTests: XCTestCase {
             let result = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
-                securityCode: securityCode
+                securityCode: securityCode,
+                cardHolderName: ""
             )
 
             // Assert
@@ -273,7 +274,8 @@ final class CoreMethodsTests: XCTestCase {
             let _ = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
-                securityCode: securityCode
+                securityCode: securityCode,
+                cardHolderName: ""
             )
             XCTFail("Expected APIClientError.decodingFailed error")
         } catch let error as APIClientError {
@@ -299,7 +301,8 @@ final class CoreMethodsTests: XCTestCase {
             await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
-                securityCode: securityCode
+                securityCode: securityCode,
+                cardHolderName: ""
             ),
             expectedError: APIErrorStub.badRequest
         )
