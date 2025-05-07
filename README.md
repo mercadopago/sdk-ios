@@ -172,7 +172,7 @@ final class PaymentViewController: UIViewController {
 import SwiftUI
 import CoreMethods
 
-struct CardFormVie: View {
+struct CardFormView: View {
     @State var cardNumberTextField: CardNumberTextField?
     @State var securityTextField: SecurityCodeTextField?
     @State var expirationDateTextField: ExpirationDateTextfield?
