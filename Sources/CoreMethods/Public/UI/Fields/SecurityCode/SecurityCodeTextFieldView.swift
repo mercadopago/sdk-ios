@@ -208,7 +208,7 @@ public extension SecurityCodeTextFieldView {
     ///       .enabled(isCardPaymentSelected)
     ///   ```
     func enabled(_ isEnabled: Bool) -> SecurityCodeTextFieldView {
-        var view = self
+        let view = self
         view.isEnabled = isEnabled
         return view
     }

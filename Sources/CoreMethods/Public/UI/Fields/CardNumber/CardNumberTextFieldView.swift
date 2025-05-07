@@ -236,7 +236,7 @@ public extension CardNumberTextFieldView {
     ///       .enabled(isCardPaymentSelected)
     ///   ```
     func enabled(_ isEnabled: Bool) -> CardNumberTextFieldView {
-        var view = self
+        let view = self
         view.isEnabled = isEnabled
         return view
     }

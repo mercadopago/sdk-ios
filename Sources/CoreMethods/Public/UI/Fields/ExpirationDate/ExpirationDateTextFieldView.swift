@@ -218,7 +218,7 @@ public extension ExpirationDateTextFieldView {
     ///       .enabled(isCardPaymentSelected)
     ///   ```
     func enabled(_ isEnabled: Bool) -> ExpirationDateTextFieldView {
-        var view = self
+        let view = self
         view.isEnabled = isEnabled
         return view
     }
