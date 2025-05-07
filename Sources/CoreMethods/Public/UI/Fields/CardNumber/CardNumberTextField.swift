@@ -161,7 +161,7 @@ public final class CardNumberTextField: PCITextField {
         self.input.onChange = { [weak self] text in
             guard let self else { return }
 
-            if self.count >= self.binLength || text.isEmpty {
+            if self.count == self.binLength || text.isEmpty {
                 self.onBinChanged?(self.getBin(text))
             }
 
