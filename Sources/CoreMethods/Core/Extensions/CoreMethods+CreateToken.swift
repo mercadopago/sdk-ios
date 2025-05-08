@@ -6,7 +6,6 @@
 //
 import Foundation
 
-@available(*, unavailable)
 @_documentation(visibility: private)
 extension CoreMethods {
     public func createToken(
