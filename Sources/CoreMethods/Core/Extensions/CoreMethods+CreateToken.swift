@@ -9,22 +9,17 @@ import Foundation
 @_documentation(visibility: private)
 extension CoreMethods {
     public func createToken(
-        cardNumber: String,
-        expirationYear: String,
-        expirationMonth: String,
-        securityCode: String,
-        documentType: String,
-        documentNumber: String,
-        cardHolderName: String
+        _ params: CardParams
     ) async throws -> CardToken {
+        
         return try await tokenization(
-            cardNumber: cardNumber,
-            expirationDateMonth: expirationYear,
-            expirationDateYear: expirationMonth,
-            securityCode: securityCode,
-            cardHolderName: cardHolderName,
-            documentType: documentType,
-            documentNumber: documentNumber
+            cardNumber: params.cardNumber,
+            expirationDateMonth: params.expirationYear,
+            expirationDateYear: params.expirationMonth,
+            securityCode: params.securityCode,
+            cardHolderName: params.cardHolderName,
+            documentType: params.documentType,
+            documentNumber: params.documentNumber
         )
     }
 }
