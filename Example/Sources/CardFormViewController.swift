@@ -256,6 +256,8 @@ extension CardFormViewController {
         Task(priority: .userInitiated) {
             do {
                 self.documents = try await self.coreMethods.identificationTypes()
+                DebugLogger.shared.log(type: .network, title: "GET IdentificationTypes", object: self.documents)
+
                 await MainActor.run {
                     self.documentTypePicker.reloadAllComponents()
                     if let first = documents.first {
@@ -274,6 +276,8 @@ extension CardFormViewController {
             do {
                 let installment = try await coreMethods.installments(amount: self.amount, bin: bin)
                 self.installmentPicker.updateInstallments(installment)
+                
+                DebugLogger.shared.log(type: .network, title: "GET Installment", object: installment)
             } catch {
                 print("Error installments:", error)
             }
@@ -285,6 +289,10 @@ extension CardFormViewController {
             do {
                 let paymentMethod = try await coreMethods.paymentMethods(bin: bin)
                 let issuer = try await coreMethods.issuers(bin: bin, paymentMethodID: paymentMethod.first?.id ?? "")
+
+                DebugLogger.shared.log(type: .network, title: "GET PaymentMethods", object: paymentMethod)
+                DebugLogger.shared.log(type: .network, title: "GET issuer", object: issuer)
+
                 print("Payment methods:", paymentMethod)
                 print("Issuer:", issuer)
             } catch {

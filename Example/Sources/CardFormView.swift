@@ -169,8 +169,6 @@ struct CardFormView: View {
         
         Task {
             do {
-
-                
                 // Change status of payment here
                 // https://www.mercadopago.com.br/developers/pt/docs/checkout-bricks/integration-test/test-payment-flow
                 let cardHolder = "APRO"

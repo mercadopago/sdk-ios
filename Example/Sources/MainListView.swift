@@ -13,6 +13,8 @@ struct MainListView: View {
 
     @State private var showingCardFormSwiftUI = false
 
+    @State private var showDebug = false
+
     var body: some View {
         NavigationView {
             List {
@@ -27,7 +29,10 @@ struct MainListView: View {
                 }
 
                 Section("Settings") {
-                    NavigationLink("Preferences", destination: Text("Under construction"))
+                    Button("Debugging") {
+                        self.showDebug = true
+                    }
+                    NavigationLink("Debugging", destination: Text("Under construction"))
                     NavigationLink("About", destination: Text("Under construction"))
                 }
             }
@@ -38,6 +43,9 @@ struct MainListView: View {
         }
         .sheet(isPresented: self.$showingCardFormSwiftUI) {
             CardFormView()
+        }
+        .sheet(isPresented: self.$showDebug) {
+            DebugView()
         }
     }
 }
