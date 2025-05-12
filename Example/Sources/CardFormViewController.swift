@@ -29,6 +29,7 @@ final class CardFormViewController: UIViewController {
         field.onBinChanged = { [weak self] bin in
             self?.searchInstallment(bin: bin)
             self?.searchPaymentMethod(bin: bin)
+            DebugLogger.shared.log(type: .function, title: "onBinChanged", object: bin)
         }
 
         field.onLastFourDigitsFilled = { [weak self] last in
@@ -37,14 +38,19 @@ final class CardFormViewController: UIViewController {
                 self.setStyle(field, style: self.style)
             }
             print("Length:", field.count, "Last 4:", last)
+            DebugLogger.shared.log(type: .function, title: "onLastFourDigitsFilled", object: last)
         }
 
-        field.onFocusChanged = { print("CardNumberField Focus changed:", $0) }
+        field.onFocusChanged = { [weak self] isFocused in
+            print("CardNumberField Focus changed:", isFocused)
+            DebugLogger.shared.log(type: .function, title: "onFocusChanged - CardNumberTextFieldView", object: isFocused)
+        }
 
         field.onError = { [weak self] error in
             guard let self else { return }
             self.setStyle(field, style: self.errorStyle)
             print("CardNumberField Error:", error)
+            DebugLogger.shared.log(type: .function, title: "onError - CardNumberTextFieldView", object: error)
         }
 
         return field
@@ -60,11 +66,18 @@ final class CardFormViewController: UIViewController {
 
             self.setStyle(field, style: self.style)
         }
-        field.onLengthChanged = { print("SecurityCode length:", $0) }
-        field.onFocusChanged = { print("SecurityCode Focus changed:", $0) }
-        field.onError = { [weak self] _ in
+        field.onLengthChanged = { [weak self] length in
+            print("SecurityCode length:", length)
+            DebugLogger.shared.log(type: .function, title: "onLengthChanged - SecurityCodeTextField", object: length)
+        }
+        field.onFocusChanged = { [weak self] isFocused in
+            print("SecurityCode Focus changed:", isFocused)
+            DebugLogger.shared.log(type: .function, title: "onFocusChanged - SecurityCodeTextField", object: isFocused)
+        }
+        field.onError = { [weak self] error in
             guard let self else { return }
             self.setStyle(field, style: self.errorStyle)
+            DebugLogger.shared.log(type: .function, title: "onError - SecurityCodeTextField", object: error)
         }
 
         return field
@@ -81,11 +94,18 @@ final class CardFormViewController: UIViewController {
 
             self.setStyle(field, style: self.style)
         }
-        field.onLengthChanged = { print("Date length:", $0) }
-        field.onFocusChanged = { print("ExpirationDate Focus changed:", $0) }
-        field.onError = { [weak self] _ in
+        field.onLengthChanged = { [weak self] length in
+            print("ExpirationDateTextfield length:", length)
+            DebugLogger.shared.log(type: .function, title: "onLengthChanged - ExpirationDateTextfield", object: length)
+        }
+        field.onFocusChanged = { [weak self] isFocused in
+            print("ExpirationDateTextfield Focus changed:", isFocused)
+            DebugLogger.shared.log(type: .function, title: "onFocusChanged - ExpirationDateTextfield", object: isFocused)
+        }
+        field.onError = { [weak self] error in
             guard let self else { return }
             self.setStyle(field, style: self.errorStyle)
+            DebugLogger.shared.log(type: .function, title: "onError - SecurityCodeTextField", object: error)
         }
 
         return field
@@ -245,6 +265,10 @@ extension CardFormViewController {
                 documentNumber: self.documentNumberField.text ?? "",
                 cardHolderName: cardHolder
             )
+            
+            DebugLogger.shared.log(type: .network, title: "POST Create Token", object: token)
+
+            
             let label = UILabel()
             label.numberOfLines = 0
             label.text = "Token response => \(token.token)"

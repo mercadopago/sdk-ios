@@ -18,25 +18,31 @@ struct CardFormView: View {
     @State var cardNumberTextField: CardNumberTextField?
     @State var securityTextField: SecurityCodeTextField?
     @State var expirationDateTextField: ExpirationDateTextfield?
+    
+    @State private var cardNumberImageURL: URL?
 
     private var cardNumber: CardNumberTextFieldView {
         CardNumberTextFieldView(
             textField: self.$cardNumberTextField,
             placeholder: "Número do cartão",
             onBinChanged: { bin in
-                print("BIN changed: \(bin)")
+                searchPaymentMethod(bin: bin)
+                DebugLogger.shared.log(type: .function, title: "onBinChanged", object: bin)
             },
             onLastFourDigitsFilled: { lastFour in
                 print("Last four digits: \(lastFour)")
+                DebugLogger.shared.log(type: .function, title: "onLastFourDigitsFilled", object: lastFour)
             },
             onFocusChanged: { isFocused in
                 if !isFocused {
                     self.cardNumberIsValid = self.cardNumberTextField?.isValid ?? false
                 }
+                DebugLogger.shared.log(type: .function, title: "onFocusChanged - CardNumberTextFieldView", object: isFocused)
             },
             onError: { error in
                 self.cardNumberIsValid = false
                 print("Error: \(error)")
+                DebugLogger.shared.log(type: .function, title: "onError - CardNumberTextFieldView", object: error)
             }
         )
     }
@@ -47,19 +53,25 @@ struct CardFormView: View {
             placeholder: "Insert security code",
             onLengthChanged: { length in
                 print("Security code length: \(length)")
+                DebugLogger.shared.log(type: .function, title: "onLengthChanged - SecurityCodeTextFieldView", object: length)
+
             },
             onInputFilled: {
                 print("Security code completed")
+                DebugLogger.shared.log(type: .function, title: "onInputFilled - SecurityCodeTextFieldView")
             },
             onFocusChanged: { isFocused in
                 if !isFocused {
                     self.securityCodeIsValid = self.securityTextField?.isValid ?? true
                 }
                 print("SecurityCodeField Focus changed: \(isFocused)")
+                DebugLogger.shared.log(type: .function, title: "onFocusChanged - SecurityCodeTextFieldView", object: isFocused)
+
             },
             onError: { error in
                 self.securityCodeIsValid = false
                 print("SecurityCodeField Error: \(error)")
+                DebugLogger.shared.log(type: .function, title: "onError - SecurityCodeTextFieldView", object: error)
             }
         )
     }
@@ -70,19 +82,23 @@ struct CardFormView: View {
             placeholder: "Insert date",
             onLengthChanged: { length in
                 print("Length changed: \(length)")
+                DebugLogger.shared.log(type: .function, title: "onLengthChanged - ExpirationDateTextFieldView", object: length)
             },
             onInputFilled: {
                 print("Date completed")
+                DebugLogger.shared.log(type: .function, title: "onInputFilled - ExpirationDateTextFieldView")
             },
             onFocusChanged: { isFocused in
                 if !isFocused {
                     self.expirationDateIsValid = self.expirationDateTextField?.isValid ?? true
                 }
                 print("ExpirationDateField Focus changed: \(isFocused)")
+                DebugLogger.shared.log(type: .function, title: "onFocusChanged - ExpirationDateTextFieldView", object: isFocused)
             },
             onError: { error in
                 self.expirationDateIsValid = false
                 print("ExpirationDateField Error: \(error)")
+                DebugLogger.shared.log(type: .function, title: "onError - ExpirationDateTextFieldView", object: error)
             }
         )
     }
@@ -92,8 +108,17 @@ struct CardFormView: View {
             VStack(spacing: 16) {
                 // Card Number Section
                 StyledCardFieldContainer(title: "Number of card", isValid: self.$cardNumberIsValid) {
-                    self.cardNumber
-                        .frame(height: 44)
+                    HStack {
+                        self.cardNumber
+                        
+                        if let cardNumberImageURL {
+                            AsyncImage(url: cardNumberImageURL)
+                                .frame(width: 24, height: 24)
+                                .padding(EdgeInsets(top: .zero, leading: .zero, bottom: .zero, trailing: 8))
+                        }
+                        
+                    }
+                    .frame(height: 44)
                 }
 
                 HStack(spacing: 16) {
@@ -181,6 +206,7 @@ struct CardFormView: View {
                     documentNumber: documentText,
                     cardHolderName: cardHolder
                 )
+                DebugLogger.shared.log(type: .network, title: "POST Create Token", object: token)
 
                 await MainActor.run {
                     self.token = token.token
@@ -195,6 +221,7 @@ struct CardFormView: View {
         Task {
             do {
                 let documents = try await coreMethods.identificationTypes()
+                DebugLogger.shared.log(type: .network, title: "GET IdentificationTypes", object: self.documents)
 
                 await MainActor.run {
                     self.documents = documents
@@ -211,7 +238,9 @@ struct CardFormView: View {
     private func searchInstallment(bin: String) {
         Task {
             do {
-                _ = try await self.coreMethods.installments(amount: self.amount, bin: bin)
+                let installment = try await self.coreMethods.installments(amount: self.amount, bin: bin)
+                DebugLogger.shared.log(type: .network, title: "GET Installment", object: installment)
+
                 // TODO: Update installment picker
             } catch {
                 print("Error installments: \(error)")
@@ -222,8 +251,15 @@ struct CardFormView: View {
     private func searchPaymentMethod(bin: String) {
         Task {
             do {
-                let paymentMethod = try await coreMethods.paymentMethods(bin: bin)
-                let issuer = try await coreMethods.issuers(bin: bin, paymentMethodID: paymentMethod.first?.id ?? "")
+                guard let paymentMethod = try await coreMethods.paymentMethods(bin: bin).first else {
+                    return
+                }
+                let issuer = try await coreMethods.issuers(bin: bin, paymentMethodID: paymentMethod.id)
+                self.cardNumberImageURL = URL(string: paymentMethod.thumbnail ?? "")
+                
+                DebugLogger.shared.log(type: .network, title: "GET PaymentMethods", object: paymentMethod)
+                DebugLogger.shared.log(type: .network, title: "GET issuer", object: issuer)
+                
                 print("Payment methods: \(paymentMethod)")
                 print("Issuer: \(issuer)")
             } catch {

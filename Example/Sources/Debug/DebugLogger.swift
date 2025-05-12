@@ -16,8 +16,11 @@ final class DebugLogger: ObservableObject {
 
     private init() {}
 
-    func log(type: DebugLogType, title: String, object: Any) {
-        let jsonString = mirrorToPrettyString(object)
+    func log(type: DebugLogType, title: String, object: Any? = nil) {
+        var jsonString = ""
+        if let object {
+            jsonString = mirrorToPrettyString(object)
+        }
         
         let entry = DebugLog(
             type: type,
