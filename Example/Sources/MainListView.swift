@@ -32,7 +32,6 @@ struct MainListView: View {
                     Button("Debugging") {
                         self.showDebug = true
                     }
-                    NavigationLink("Debugging", destination: Text("Under construction"))
                     NavigationLink("About", destination: Text("Under construction"))
                 }
             }
