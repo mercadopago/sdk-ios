@@ -8,10 +8,8 @@ import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
 @_hasMissingDesignatedInitializers public class Device {
-  public static func execute()
   public static func getInfoAsDictionary() -> [Swift.String : Any]
   public static func getInfoAsJsonData() -> Foundation.Data?
   public static func getInfoAsJsonString() -> Swift.String?
-  public func locationManager(_ mng: CoreLocation.CLLocationManager, didUpdateLocations locations: [CoreLocation.CLLocation])
   @objc deinit
 }

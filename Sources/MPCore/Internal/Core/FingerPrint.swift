@@ -12,8 +12,6 @@ package protocol HasFingerPrint: Sendable {
 }
 
 package protocol FingerPrintProtocol: Sendable {
-    func execute()
-
     @MainActor
     func getDeviceData() async -> Data?
 }
@@ -24,9 +22,5 @@ package final class FingerPrint: FingerPrintProtocol {
     @MainActor
     package func getDeviceData() async -> Data? {
         return Device.getInfoAsJsonData()
-    }
-
-    package func execute() {
-        Device.execute()
     }
 }

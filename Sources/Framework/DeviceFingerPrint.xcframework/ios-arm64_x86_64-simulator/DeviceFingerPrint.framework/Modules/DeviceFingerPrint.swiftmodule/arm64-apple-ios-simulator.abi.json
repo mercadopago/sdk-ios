@@ -29,28 +29,6 @@
         "children": [
           {
             "kind": "Function",
-            "name": "execute",
-            "printedName": "execute()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:17DeviceFingerPrint0A0C7executeyyFZ",
-            "mangledName": "$s17DeviceFingerPrint0A0C7executeyyFZ",
-            "moduleName": "DeviceFingerPrint",
-            "static": true,
-            "declAttributes": [
-              "Final",
-              "AccessControl"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
             "name": "getInfoAsDictionary",
             "printedName": "getInfoAsDictionary()",
             "children": [
@@ -143,46 +121,6 @@
             "static": true,
             "declAttributes": [
               "Final",
-              "AccessControl"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "locationManager",
-            "printedName": "locationManager(_:didUpdateLocations:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "CLLocationManager",
-                "printedName": "CoreLocation.CLLocationManager",
-                "usr": "c:objc(cs)CLLocationManager"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[CoreLocation.CLLocation]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "CLLocation",
-                    "printedName": "CoreLocation.CLLocation",
-                    "usr": "c:objc(cs)CLLocation"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:17DeviceFingerPrint0A0C15locationManager_18didUpdateLocationsySo010CLLocationE0C_SaySo0I0CGtF",
-            "mangledName": "$s17DeviceFingerPrint0A0C15locationManager_18didUpdateLocationsySo010CLLocationE0C_SaySo0I0CGtF",
-            "moduleName": "DeviceFingerPrint",
-            "declAttributes": [
               "AccessControl"
             ],
             "funcSelfKind": "NonMutating"
