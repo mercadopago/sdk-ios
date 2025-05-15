@@ -23,7 +23,7 @@ public struct Installment: Sendable, Equatable {
     }
 
     public struct PayerCost: Sendable, Equatable, Identifiable, Hashable {
-        public var id: UUID = UUID()
+        public var id: Int
         public let installments: Int
         public let installmentAmount: Double
         public let installmentRate: Double

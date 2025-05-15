@@ -69,6 +69,7 @@ final class CoreMethodsTests: XCTestCase {
                     merchantAccountId: "",
                     payerCosts: [
                         Installment.PayerCost(
+                            id: 1,
                             installments: 1,
                             installmentAmount: 5000,
                             installmentRate: 0,

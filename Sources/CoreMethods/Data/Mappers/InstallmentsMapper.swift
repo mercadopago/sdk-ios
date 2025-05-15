@@ -38,6 +38,7 @@ struct InstallmentsMapper: InstallmentsMapperProtocol {
         _ payerCost: InstallmentsResponse.PayerCost
     ) -> Installment.PayerCost {
         return Installment.PayerCost(
+            id: payerCost.installments,
             installments: payerCost.installments,
             installmentAmount: payerCost.installmentAmount,
             installmentRate: payerCost.installmentRate,
