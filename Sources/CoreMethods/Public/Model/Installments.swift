@@ -5,6 +5,8 @@
 //  Created by Guilherme Prata Costa on 05/03/25.
 //
 
+import Foundation
+
 public struct Installment: Sendable, Equatable {
     public let paymentMethodId: String
     public let paymentTypeId: String
@@ -20,7 +22,8 @@ public struct Installment: Sendable, Equatable {
         public let thumbnail: String
     }
 
-    public struct PayerCost: Sendable, Equatable {
+    public struct PayerCost: Sendable, Equatable, Identifiable, Hashable {
+        public var id: UUID = UUID()
         public let installments: Int
         public let installmentAmount: Double
         public let installmentRate: Double

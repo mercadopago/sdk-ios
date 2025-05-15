@@ -39,7 +39,23 @@ final class CardFormViewController: UIViewController {
     private var selectedDocumentType: IdentificationType?
     
     /// Token response text label
-    private var tokenResponseLabel: UILabel?
+    private lazy var tokenResponseLabel: CopyableLabel = {
+        let label = CopyableLabel()
+        label.numberOfLines = 0
+        label.textColor = .systemGreen
+        label.font = .systemFont(ofSize: 14)
+        label.textAlignment = .center
+        label.backgroundColor = .systemGray6
+        label.layer.cornerRadius = 8
+        label.clipsToBounds = true
+        
+        label.isUserInteractionEnabled = true
+        
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        label.addGestureRecognizer(longPressGesture)
+
+        return label
+    }()
 
     // MARK: - UI Components
     
@@ -125,6 +141,7 @@ final class CardFormViewController: UIViewController {
         let field = SecurityCodeTextField(style: style)
         field.translatesAutoresizingMaskIntoConstraints = false
         field.setPlaceholder("CVV")
+        field.setLeftImage(view: UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0)))
 
         // Handle when field is completely filled
         field.onInputFilled = { [weak self] in
@@ -160,6 +177,7 @@ final class CardFormViewController: UIViewController {
         field.translatesAutoresizingMaskIntoConstraints = false
         field.setPlaceholder("MM/YYYY")
         field.setFormat(.long) // MM/YYYY format
+        field.setLeftImage(view: UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0)))
 
         // Handle when field is completely filled
         field.onInputFilled = { [weak self] in
@@ -258,8 +276,6 @@ final class CardFormViewController: UIViewController {
         self.cardNumberContainer.addInputField(self.cardNumberField)
         self.securityCodeContainer.addInputField(self.securityCodeField)
         self.expirationDateContainer.addInputField(self.expirationDateField)
-        self.expirationDateField.setLeftImage(view: paddingField)
-
     }
 
     // MARK: - UI Setup Methods
@@ -290,6 +306,7 @@ final class CardFormViewController: UIViewController {
             self.documentSectionStackView,
             self.installmentSectionLabel,
             self.installmentPicker,
+            self.tokenResponseLabel,
             self.payButton
         ].forEach { self.stackView.addArrangedSubview($0) }
     }
@@ -400,21 +417,7 @@ extension CardFormViewController {
 
                 // Display the token (in a real app, you would send this to your server)
                 await MainActor.run {
-                    if let tokenResponseLabel = self.tokenResponseLabel {
-                        tokenResponseLabel.text = "Token response => \(token.token)"
-                    } else {
-                        let label = UILabel()
-                        label.numberOfLines = 0
-                        label.text = "Token response => \(token.token)"
-                        label.textColor = .systemGreen
-                        label.font = .systemFont(ofSize: 14)
-                        label.textAlignment = .center
-                        label.backgroundColor = .systemGray6
-                        label.layer.cornerRadius = 8
-                        label.clipsToBounds = true
-                        self.tokenResponseLabel = label
-                        self.stackView.addArrangedSubview(label)
-                    }
+                    tokenResponseLabel.text = "Token response => \(token.token)"
                 }
             } catch {
                 print("Error creating token: \(error)")
@@ -496,11 +499,42 @@ extension CardFormViewController {
             }
         }
     }
+}
+
+// MARK: - Style Helpers
+
+extension CardFormViewController {
+    /// Updates the style of a text field
+    /// - Parameters:
+    ///   - textfield: The field to update
+    ///   - style: The style to apply
+    func setStyle(_ textfield: PCITextField, style: TextFieldDefaultStyle) {
+        textfield.setStyle(style)
+    }
+}
+
+// MARK: Helpers
+extension CardFormViewController {
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began, let label = gesture.view as? CopyableLabel else { return }
+        
+        label.becomeFirstResponder()
+        
+        let menuController = UIMenuController.shared
+        
+        if #available(iOS 13.0, *) {
+            menuController.showMenu(from: label, rect: label.bounds)
+        } else {
+            menuController.setTargetRect(label.bounds, in: label)
+            menuController.setMenuVisible(true, animated: true)
+        }
+    }
     
     private func loadCardImage(from urlString: String) {
         guard let url = URL(string: urlString) else { return }
         
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+        // Separando a chamada do dataTask para evitar problemas de verificação de tipo
+        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             guard let self = self,
                   let data = data,
                   error == nil,
@@ -534,19 +568,9 @@ extension CardFormViewController {
                 
                 self.cardNumberField.setRightImage(view: containerView)
             }
-        }.resume()
-    }
-}
-
-// MARK: - Style Helpers
-
-extension CardFormViewController {
-    /// Updates the style of a text field
-    /// - Parameters:
-    ///   - textfield: The field to update
-    ///   - style: The style to apply
-    func setStyle(_ textfield: PCITextField, style: TextFieldDefaultStyle) {
-        textfield.setStyle(style)
+        }
+        
+        task.resume()
     }
 }
 
@@ -568,7 +592,6 @@ extension CardFormViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 }
 
 // MARK: - InstallmentPicker Delegate
-
 extension CardFormViewController: InstallmentPickerDelegate {
     func installmentPicker(_: InstallmentPickerView, didSelectPayerCost payerCost: Installment.PayerCost) {
         print("Selected installment:", payerCost.installments)
