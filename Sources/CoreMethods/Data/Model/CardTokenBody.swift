@@ -48,9 +48,7 @@ extension CardTokenBody {
 
         if let deviceData = device,
            let deviceObject = try? JSONSerialization.jsonObject(with: deviceData, options: []) as? [String: Any] {
-            jsonObject["device"] = deviceObject
-            
-            print("Device: ", deviceObject)
+            jsonObject["device"] = deviceObject            
         }
 
         return try? JSONSerialization.data(withJSONObject: jsonObject, options: [])
