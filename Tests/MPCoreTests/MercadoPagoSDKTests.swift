@@ -81,7 +81,7 @@ final class MercadoPagoSDKTests: XCTestCase {
 
     func test_getPublicKey_Initialized_SDK_ShouldReturnCorrectKey() {
         let (sut, _, _) = self.makeSUT()
-        let config = MercadoPagoSDK.Configuration(publicKey: "test_key", country: .ARG)
+        let config = MercadoPagoSDK.Configuration(publicKey: "test_key", country: .BRA)
 
         sut.initialize(config)
 

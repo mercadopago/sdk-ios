@@ -79,7 +79,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
                 and: configuration.country
             )
             
-            assert(siteID != configuration.country.getSiteId(), SDKError.countryInvalid.rawValue)
+            assert(siteID == configuration.country.getSiteId(), SDKError.countryInvalid.rawValue)
 
             await self.dependencies.analytics.initialize(
                 version: MPSDKVersion.version,
