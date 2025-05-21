@@ -54,4 +54,4 @@ PODSPEC_FILE=$(find . -name '*.podspec' | head -n 1)
 pod lib lint "$PODSPEC_FILE" --allow-warnings
 pod trunk push "$PODSPEC_FILE" --allow-warnings
 
-echo "✅ Release $VERSION successfully published on GitHub and Cocoa
+echo "✅ Release $VERSION successfully published on GitHub and Cocoapods"
