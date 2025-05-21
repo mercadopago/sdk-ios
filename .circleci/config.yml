@@ -85,7 +85,10 @@ jobs:
           command: |
             git config --global user.email "dev@mercadopago.com"
             git config --global user.name "CI Build"
-            
+      - run:
+          name: Install GitHub CLI
+          command: |
+            brew install gh
       - run:
           name: Configure CocoaPods authentication
           command: |
@@ -117,7 +120,7 @@ jobs:
 workflows:
   version: 2
 
-  build-test:
+  main-workflow:
     jobs:
       - build-and-test:
           filters:
@@ -134,12 +137,11 @@ workflows:
             branches:
               only:
                 - main
-    
-  release-workflow:
-    jobs:
       - publish-release:
           filters:
             branches:
-              ignore: main
+              only:
+                - main
+
 
 
