@@ -10,7 +10,7 @@ fi
 
 echo "🚀 Publishing release version $VERSION..."
 
-Check if we are on the main branch
+#Check if we are on the main branch
 CURRENT_BRANCH=$(git branch --show-current)
 if [ "$CURRENT_BRANCH" != "main" ]; then
   echo "⚠️ Warning: This script should be run on the main branch"
