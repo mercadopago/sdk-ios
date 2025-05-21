@@ -11,16 +11,16 @@ fi
 echo "🚀 Publishing release version $VERSION..."
 
 # Check if we are on the main branch
-CURRENT_BRANCH=$(git branch --show-current)
-if [ "$CURRENT_BRANCH" != "main" ]; then
-  echo "⚠️ Warning: This script should be run on the main branch"
-  echo "Current branch: $CURRENT_BRANCH"
-  read -p "Do you want to continue anyway? (y/N): " CONFIRM
-  if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
-    echo "Operation cancelled"
-    exit 1
-  fi
-fi
+# CURRENT_BRANCH=$(git branch --show-current)
+# if [ "$CURRENT_BRANCH" != "main" ]; then
+#   echo "⚠️ Warning: This script should be run on the main branch"
+#   echo "Current branch: $CURRENT_BRANCH"
+#   read -p "Do you want to continue anyway? (y/N): " CONFIRM
+#   if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+#     echo "Operation cancelled"
+#     exit 1
+#   fi
+# fi
 
 # Create release tag
 echo "📋 Creating tag $VERSION..."

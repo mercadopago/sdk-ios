@@ -69,6 +69,50 @@ jobs:
       - run:
           name: Deploy DocC to GitHub Pages
           command: ./scripts/deploy-doc.sh
+          
+  publish-release:
+    executor: default
+    environment:
+      COCOAPODS_TRUNK_TOKEN: ${COCOAPODS_TRUNK_TOKEN}
+      COCOAPODS_TRUNK_USER: ${COCOAPODS_TRUNK_USER}
+    steps:
+      - checkout
+      - setup_environment
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:QCKwvoOSf76ROiASMPP0agO6EhQpXF8HFtX7x+pDvk0"
+      - run:
+          name: Configure Git for deployment
+          command: |
+            git config --global user.email "dev@mercadopago.com"
+            git config --global user.name "CI Build"
+      - run:
+          name: Configure CocoaPods authentication
+          command: |
+            # Set up .netrc file for CocoaPods authentication
+            echo "machine trunk.cocoapods.org" > ~/.netrc
+            echo "  login ${COCOAPODS_TRUNK_USER}" >> ~/.netrc
+            echo "  password ${COCOAPODS_TRUNK_TOKEN}" >> ~/.netrc
+            chmod 0600 ~/.netrc
+      - run:
+          name: Check if new version needs to be published
+          command: |
+            # Get current version from VERSION file
+            CURRENT_VERSION=$(cat VERSION)
+            echo "Current version in VERSION file: $CURRENT_VERSION"
+            
+            # Get the latest git tag
+            git fetch --tags
+            LATEST_TAG=$(git tag --sort=-v:refname | head -n 1)
+            echo "Latest git tag: $LATEST_TAG"
+            
+            if [ "$CURRENT_VERSION" == "$LATEST_TAG" ]; then
+              echo "Version $CURRENT_VERSION is already published. Skipping publication."
+              exit 0
+            else
+              echo "New version detected: $CURRENT_VERSION. Publishing..."
+              ./scripts/publish-release.sh
+            fi
 
 workflows:
   version: 2
@@ -90,5 +134,11 @@ workflows:
             branches:
               only:
                 - main
+  release-workflow:
+    jobs:
+      - publish-release:
+          filters:
+            branches:
+              ignore: main
 
 
