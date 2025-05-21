@@ -73,8 +73,7 @@ jobs:
   publish-release:
     executor: default
     environment:
-      COCOAPODS_TRUNK_TOKEN: ${COCOAPODS_TRUNK_TOKEN}
-      COCOAPODS_TRUNK_USER: ${COCOAPODS_TRUNK_USER}
+      GITHUB_TOKEN: ${GH_TOKEN}
     steps:
       - checkout
       - setup_environment
@@ -82,17 +81,18 @@ jobs:
           fingerprints:
             - "SHA256:QCKwvoOSf76ROiASMPP0agO6EhQpXF8HFtX7x+pDvk0"
       - run:
-          name: Configure Git for deployment
+          name: Configure Git for GitHub access
           command: |
             git config --global user.email "dev@mercadopago.com"
             git config --global user.name "CI Build"
+            
       - run:
           name: Configure CocoaPods authentication
           command: |
-            # Set up .netrc file for CocoaPods authentication
+            mkdir -p ~/.cocoapods
             echo "machine trunk.cocoapods.org" > ~/.netrc
-            echo "  login ${COCOAPODS_TRUNK_USER}" >> ~/.netrc
-            echo "  password ${COCOAPODS_TRUNK_TOKEN}" >> ~/.netrc
+            echo "  login $COCOAPODS_TRUNK_TOKEN" >> ~/.netrc
+            echo "  password $COCOAPODS_TRUNK_TOKEN" >> ~/.netrc
             chmod 0600 ~/.netrc
       - run:
           name: Check if new version needs to be published
@@ -134,6 +134,7 @@ workflows:
             branches:
               only:
                 - main
+    
   release-workflow:
     jobs:
       - publish-release:
