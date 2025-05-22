@@ -35,7 +35,7 @@ class InstallmentPickerView: UIView {
         textField.textAlignment = .left
         textField.font = UIFont.systemFont(ofSize: 16)
         textField.layer.borderWidth = 2
-        textField.layer.borderColor = UIColor.systemGray.cgColor
+        textField.layer.borderColor = UIColor.systemGray4.cgColor
         textField.layer.cornerRadius = 8
 
         // Add left padding

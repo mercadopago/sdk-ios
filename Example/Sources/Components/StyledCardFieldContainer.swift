@@ -22,12 +22,11 @@ struct StyledCardFieldContainer<Content: View>: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(self.title)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color(.darkText))
+                .foregroundColor(.secondary)
 
             HStack {
                 self.content
                     .frame(height: 48)
-                    .background(Color.white)
                     .padding(self.paddingContent)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)

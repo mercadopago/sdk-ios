@@ -387,9 +387,6 @@ struct CardFormView: View {
             return
         }
         
-        // Set processing state to show loading UI
-        isProcessing = true
-        
         Task {
             do {
                 // Card holder name for testing
@@ -413,6 +410,7 @@ struct CardFormView: View {
                     self.token = token.token
                     self.isProcessing = false
                     self.showingSuccessAlert = true
+                    UIPasteboard.general.string = token.token
                 }
             } catch {
                 print("Error creating token: \(error)")

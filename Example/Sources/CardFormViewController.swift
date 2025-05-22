@@ -417,6 +417,7 @@ extension CardFormViewController {
 
                 // Display the token (in a real app, you would send this to your server)
                 await MainActor.run {
+                    UIPasteboard.general.string = token.token
                     tokenResponseLabel.text = "Token response => \(token.token)"
                 }
             } catch {
