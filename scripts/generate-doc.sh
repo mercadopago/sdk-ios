@@ -75,13 +75,20 @@ cat > "$DOCC_OUTPUT_DIR/index.html" <<EOF
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="refresh" content="0; url=./$VERSION/documentation/coremethods" />
+    <meta http-equiv="refresh" content="0; url=./latest/documentation/coremethods" />
     <title>Redirecting...</title>
   </head>
   <body>
-    <p>If you are not redirected automatically, <a href="./$VERSION/documentation/coremethods">click here</a>.</p>
+    <p>If you are not redirected automatically, <a href="./latest/documentation/coremethods">click here</a>.</p>
   </body>
 </html>
 EOF
 
+# Atualizar pasta latest com a nova versão
+LATEST_DIR="$DOCC_OUTPUT_DIR/latest"
+
+rm -rf "$LATEST_DIR"
+cp -R "$VERSIONED_OUTPUT_DIR" "$LATEST_DIR"
+
 echo "✅ DocC documentation generated at: $VERSIONED_OUTPUT_DIR"
+echo "✅ Updated 'latest' documentation at: $LATEST_DIR"
