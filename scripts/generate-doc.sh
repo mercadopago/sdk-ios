@@ -84,7 +84,7 @@ cat > "$DOCC_OUTPUT_DIR/index.html" <<EOF
 </html>
 EOF
 
-# Atualizar pasta latest com a nova versão
+# Update folder latest with the new version
 LATEST_DIR="$DOCC_OUTPUT_DIR/latest"
 
 rm -rf "$LATEST_DIR"
