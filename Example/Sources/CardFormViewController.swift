@@ -15,14 +15,14 @@ final class CardFormViewController: UIViewController {
         .borderColor(.systemGray4).borderWidth(1).cornerRadius(12)
         .backgroundColor(.systemBackground)
         .font(.systemFont(ofSize: 16, weight: .regular))
-        .textColor(.darkText)
+        .textColor(UIColor.dynamicColor)
 
     /// Style configuration for error field state
     private let errorStyle = TextFieldDefaultStyle()
         .borderColor(.systemRed).borderWidth(1).cornerRadius(12)
         .backgroundColor(.systemBackground)
         .font(.systemFont(ofSize: 16, weight: .regular))
-        .textColor(.darkText)
+        .textColor(UIColor.dynamicColor)
     
     let paddingField = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
 
@@ -39,8 +39,8 @@ final class CardFormViewController: UIViewController {
     private var selectedDocumentType: IdentificationType?
     
     /// Token response text label
-    private lazy var tokenResponseLabel: CopyableLabel = {
-        let label = CopyableLabel()
+    private lazy var tokenResponseLabel: UILabel = {
+        let label = UILabel()
         label.numberOfLines = 0
         label.textColor = .systemGreen
         label.font = .systemFont(ofSize: 14)
@@ -48,11 +48,7 @@ final class CardFormViewController: UIViewController {
         label.backgroundColor = .systemGray6
         label.layer.cornerRadius = 8
         label.clipsToBounds = true
-        
         label.isUserInteractionEnabled = true
-        
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        label.addGestureRecognizer(longPressGesture)
 
         return label
     }()
@@ -175,7 +171,7 @@ final class CardFormViewController: UIViewController {
     private lazy var expirationDateField: ExpirationDateTextfield = {
         let field = ExpirationDateTextfield(style: style)
         field.translatesAutoresizingMaskIntoConstraints = false
-        field.setPlaceholder("MM/YYYY")
+        field.setPlaceholder("MM/YY")
         field.setFormat(.long) // MM/YYYY format
         field.setLeftImage(view: UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0)))
 
@@ -188,20 +184,32 @@ final class CardFormViewController: UIViewController {
         // Handle length changes
         field.onLengthChanged = { [weak self] length in
             print("ExpirationDateTextfield length:", length)
-            DebugLogger.shared.log(type: .function, title: "onLengthChanged - ExpirationDateTextfield", object: length)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onLengthChanged - ExpirationDateTextfield",
+                object: length
+            )
         }
         
         // Handle focus changes
         field.onFocusChanged = { [weak self] isFocused in
             print("ExpirationDateTextfield Focus changed:", isFocused)
-            DebugLogger.shared.log(type: .function, title: "onFocusChanged - ExpirationDateTextfield", object: isFocused)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onFocusChanged - ExpirationDateTextfield",
+                object: isFocused
+            )
         }
         
         // Handle validation errors
         field.onError = { [weak self] error in
             guard let self else { return }
             self.setStyle(field, style: self.errorStyle)
-            DebugLogger.shared.log(type: .function, title: "onError - SecurityCodeTextField", object: error)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onError - SecurityCodeTextField",
+                object: error
+            )
         }
 
         return field
@@ -384,17 +392,22 @@ extension CardFormViewController {
     /// Creates a token using the card information
     @objc private func handlePayButtonTapped() {
         Task {
-            guard let selectedDocumentType else {
-                let alert = UIAlertController(
-                    title: "Missing Information",
-                    message: "Please select a document type",
-                    preferredStyle: .alert
-                )
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                present(alert, animated: true)
+            if !cardNumberField.isValid {
+                self.setStyle(cardNumberField, style: self.errorStyle)
+            }
+            
+            if !securityCodeField.isValid {
+                self.setStyle(securityCodeField, style: self.errorStyle)
+            }
+            
+            if !expirationDateField.isValid {
+                self.setStyle(expirationDateField, style: self.errorStyle)
+            }
+            
+            if !cardNumberField.isValid, !expirationDateField.isValid, !securityCodeField.isValid {
                 return
             }
-
+            
             // Test card holder name
             // For test payments, you can use these names to trigger different payment states:
             // - APRO: Payment approved
@@ -402,34 +415,42 @@ extension CardFormViewController {
             // - CONT: Pending payment
             // More info: https://www.mercadopago.com.br/developers/pt/docs/checkout-bricks/integration-test/test-payment-flow
             let cardHolder = "APRO"
+            
 
             do {
-                let token = try await coreMethods.createToken(
-                    cardNumber: self.cardNumberField,
-                    expirationDate: self.expirationDateField,
-                    securityCode: self.securityCodeField,
-                    documentType: selectedDocumentType,
-                    documentNumber: self.documentNumberField.text ?? "",
-                    cardHolderName: cardHolder
-                )
+                var token: CardToken?
+                
+                if let selectedDocumentType {
+                    let cardToken = try await coreMethods.createToken(
+                        cardNumber: self.cardNumberField,
+                        expirationDate: self.expirationDateField,
+                        securityCode: self.securityCodeField,
+                        documentType: selectedDocumentType,
+                        documentNumber: self.documentNumberField.text ?? "",
+                        cardHolderName: cardHolder
+                    )
+                    
+                    token = cardToken
+                } else {
+                    let cardToken = try await coreMethods.createToken(
+                        cardNumber: self.cardNumberField,
+                        expirationDate: self.expirationDateField,
+                        securityCode: self.securityCodeField,
+                        cardHolderName: cardHolder
+                    )
+                    
+                    token = cardToken
+                }
                 
                 DebugLogger.shared.log(type: .network, title: "POST Create Token", object: token)
 
                 // Display the token (in a real app, you would send this to your server)
                 await MainActor.run {
-                    UIPasteboard.general.string = token.token
-                    tokenResponseLabel.text = "Token response => \(token.token)"
+                    UIPasteboard.general.string = token?.token ?? ""
+                    tokenResponseLabel.text = "Token response => \(token?.token ?? "")"
                 }
             } catch {
                 print("Error creating token: \(error)")
-                
-                let alert = UIAlertController(
-                    title: "Payment Failed",
-                    message: "Failed to process payment: \(error.localizedDescription)",
-                    preferredStyle: .alert
-                )
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                present(alert, animated: true)
             }
         }
     }
@@ -478,27 +499,37 @@ extension CardFormViewController {
         Task(priority: .userInitiated) {
             do {
                 // Fetch payment method types based on card BIN
-                let paymentMethod = try await coreMethods.paymentMethods(bin: bin)
+                guard let paymentMethod = try await coreMethods.paymentMethods(bin: bin).first else {
+                    return
+                }
                 
                 // Fetch issuer information base on id of payment method
-                let issuer = try await coreMethods.issuers(bin: bin, paymentMethodID: paymentMethod.first?.id ?? "")
+                let issuer = try await coreMethods.issuers(bin: bin, paymentMethodID: paymentMethod.id)
 
                 DebugLogger.shared.log(type: .network, title: "GET PaymentMethods", object: paymentMethod)
                 DebugLogger.shared.log(type: .network, title: "GET issuer", object: issuer)
-
-                // Update UI with card logo
-                if let thumbnail = paymentMethod.first?.thumbnail, !thumbnail.isEmpty {
-                    await MainActor.run {
-                        self.loadCardImage(from: thumbnail)
-                    }
-                }
-
+                
                 print("Payment methods:", paymentMethod)
                 print("Issuer:", issuer)
+                
+                await configureFields(paymentMethod)
             } catch {
                 print("Error paymentMethod:", error)
             }
         }
+    }
+    
+    private func configureFields(_ method: PaymentMethod) async {
+        // Update UI with card logo
+        if let thumbnail = method.thumbnail, !thumbnail.isEmpty {
+            await MainActor.run {
+                self.loadCardImage(from: thumbnail)
+            }
+        }
+        
+        
+        cardNumberField.setMaxLength(method.card?.length.max ?? 16)
+        securityCodeField.setMaxLength(method.card?.securityCode.length ?? 3)
     }
 }
 
@@ -516,21 +547,6 @@ extension CardFormViewController {
 
 // MARK: Helpers
 extension CardFormViewController {
-    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-        guard gesture.state == .began, let label = gesture.view as? CopyableLabel else { return }
-        
-        label.becomeFirstResponder()
-        
-        let menuController = UIMenuController.shared
-        
-        if #available(iOS 13.0, *) {
-            menuController.showMenu(from: label, rect: label.bounds)
-        } else {
-            menuController.setTargetRect(label.bounds, in: label)
-            menuController.setMenuVisible(true, animated: true)
-        }
-    }
-    
     private func loadCardImage(from urlString: String) {
         guard let url = URL(string: urlString) else { return }
         

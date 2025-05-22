@@ -2,9 +2,14 @@ import CoreMethods
 import SwiftUI
 
 struct CardFormView: View {
+    
+    private let style = TextFieldDefaultStyle()
+        .textColor(UIColor.dynamicColor)
+        .borderColor(.clear)
+    
     // MARK: - Properties
     private let coreMethods = CoreMethods()
-    private let amount: Double = 5000
+    private let amount: Double = 500.00
 
     // MARK: - State
     @State private var documents: [IdentificationType] = []
@@ -42,6 +47,7 @@ struct CardFormView: View {
     private var cardNumber: CardNumberTextFieldView {
         CardNumberTextFieldView(
             textField: self.$cardNumberTextField,
+            style: style,
             placeholder: "Número do cartão",
             onBinChanged: { bin in
                 searchPaymentMethod(bin: bin)
@@ -70,6 +76,7 @@ struct CardFormView: View {
     private var securityCode: SecurityCodeTextFieldView {
         SecurityCodeTextFieldView(
             textField: self.$securityTextField,
+            style: style,
             placeholder: "CVV",
             onLengthChanged: { length in
                 print("Security code length: \(length)")
@@ -101,6 +108,7 @@ struct CardFormView: View {
     private var expirationDate: ExpirationDateTextFieldView {
         ExpirationDateTextFieldView(
             textField: self.$expirationDateTextField,
+            style: style,
             placeholder: "MM/YYYY",
             onLengthChanged: { length in
                 // Log when length changes
@@ -339,7 +347,7 @@ struct CardFormView: View {
                     .scaleEffect(1.2)
                     .padding(.vertical, 8)
             } else {
-                Text("Pay $\(String(format: "%.2f", amount / 100))")
+                Text("Pay \(formatAmount(amount))")
                     .font(.headline)
             }
         }
