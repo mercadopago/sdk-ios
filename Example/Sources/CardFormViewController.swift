@@ -527,9 +527,33 @@ extension CardFormViewController {
             }
         }
         
+        await MainActor.run {
+            self.configureCardMask(for: method.id)
+        }
         
         cardNumberField.setMaxLength(method.card?.length.max ?? 16)
         securityCodeField.setMaxLength(method.card?.securityCode.length ?? 3)
+    }
+
+
+    private func configureCardMask(for paymentMethodId: String) {
+        let mask: String
+        
+        switch paymentMethodId.lowercased() {
+        case "visa", "master", "elo", "hipercard":
+            mask = "#### #### #### ####"
+            
+        case "amex":
+            mask = "#### ###### #####"
+            
+        case "diners":
+            mask = "#### ###### ####"
+            
+        default:
+            mask = "#### #### #### ####"
+        }
+    
+        cardNumberField.setMask(pattern: mask)
     }
 }
 
@@ -550,7 +574,6 @@ extension CardFormViewController {
     private func loadCardImage(from urlString: String) {
         guard let url = URL(string: urlString) else { return }
         
-        // Separando a chamada do dataTask para evitar problemas de verificação de tipo
         let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             guard let self = self,
                   let data = data,
@@ -589,6 +612,7 @@ extension CardFormViewController {
         
         task.resume()
     }
+    
 }
 
 // MARK: - PickerView Delegate & DataSource
