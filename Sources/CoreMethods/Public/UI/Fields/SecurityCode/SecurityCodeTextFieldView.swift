@@ -136,6 +136,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         uiView.isEnabled = self.isEnabled
         uiView.keyboardAppearance = self.keyboardAppearance
         uiView.setStyle(self.style)
+        uiView.setMaxLength(self.maxLength)
     }
 }
 
