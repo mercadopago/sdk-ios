@@ -15,8 +15,8 @@ import CoreMethods
  * 1. Document Types: Required for user identification compliance
  * 2. Payment Methods: Auto-detected from card BIN for dynamic UI
  * 3. Installments: Fetched based on amount and payment method
- * 4. Card Validation: Real-time validation using SDK components
- * 5. Token Creation: Secure payment token generation
+ * 4. Card Validation: Real-time validation using SDK of CoreMethods
+ * 5. Token Creation: Secure payment token generation using SDK CoreMethods
  */
 @MainActor
 class CardFormViewModel: ObservableObject {
@@ -30,7 +30,7 @@ class CardFormViewModel: ObservableObject {
     
     let amount: Double = 500.00
     
-    // MARK: - Published Properties
+    // MARK: - Published Properties (for SwiftUI)
     
     /// Available document types fetched from CoreMethods API
     /// These are required for compliance and vary by country/region
@@ -54,7 +54,7 @@ class CardFormViewModel: ObservableObject {
     
     /// Card brand logo URL for display in the card number field
     @Published var cardNumberImageURL: URL?
-    
+
     // MARK: - Dynamic Card Configuration
     
     /// Maximum security code length (changes based on card type: 3 for most, 4 for Amex)
@@ -124,21 +124,17 @@ class CardFormViewModel: ObservableObject {
      * This is typically the first API call you make when initializing the payment form.
      * Document types are required for compliance and vary by country.
      */
-    func getDocuments() {
-        Task {
-            do {
-                let fetchedDocuments = try await coreMethods.identificationTypes()
-                await MainActor.run {
-                    self.documents = fetchedDocuments
-                    if let firstDocument = fetchedDocuments.first {
-                        self.selectedDocumentType = firstDocument
-                    }
-                }
-                
-                DebugLogger.shared.log(type: .network, title: "GET IdentificationTypes", object: self.documents)
-            } catch {
-                print("Error identifying documents: \(error)")
+    func getDocuments() async {
+        do {
+            let fetchedDocuments = try await coreMethods.identificationTypes()
+            self.documents = fetchedDocuments
+            if let firstDocument = fetchedDocuments.first {
+                self.selectedDocumentType = firstDocument
             }
+            
+            DebugLogger.shared.log(type: .network, title: "GET IdentificationTypes", object: self.documents)
+        } catch {
+            print("Error identifying documents: \(error)")
         }
     }
     
@@ -207,10 +203,9 @@ class CardFormViewModel: ObservableObject {
         guard let tokenData else {
             throw TokenzationError.networkError
         }
+        
         // Update token in UI
-        await MainActor.run {
-            self.token = tokenData.token
-        }
+        self.token = tokenData.token
         
         DebugLogger.shared.log(
             type: .network,
@@ -233,11 +228,9 @@ class CardFormViewModel: ObservableObject {
                 bin: bin
             )
             
-            await MainActor.run {
-                self.installments = fetchedInstallments.first?.payerCosts ?? []
-                // Default to single payment (1 installment) when available
-                self.selectedPayerCost = self.installments.first { $0.installments == 1 }
-            }
+            self.installments = fetchedInstallments.first?.payerCosts ?? []
+            // Default to single payment (1 installment) when available
+            self.selectedPayerCost = self.installments.first { $0.installments == 1 }
             
             DebugLogger.shared.log(type: .network, title: "GET Installment", object: fetchedInstallments)
         } catch {
@@ -270,14 +263,15 @@ class CardFormViewModel: ObservableObject {
             
             // Update card brand logo for display
             if let thumbnail = paymentMethod.thumbnail, !thumbnail.isEmpty {
-                await MainActor.run {
-                    self.cardNumberImageURL = URL(string: thumbnail)
-                }
+                self.cardNumberImageURL = URL(string: thumbnail)
             }
             
             if let maxSecurityCode = paymentMethod.card?.securityCode.length {
                 maxLengthSecurityCode = maxSecurityCode
             }
+            
+            // Configure card settings
+            configureCard()
                         
             DebugLogger.shared.log(type: .network, title: "GET PaymentMethods", object: paymentMethod)
         } catch {

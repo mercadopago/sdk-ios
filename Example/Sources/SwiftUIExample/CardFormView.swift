@@ -96,7 +96,9 @@ struct CardFormView: View {
             .onAppear {
                 /// Initialize by fetching available document types via ViewModel
                 /// This is typically the first API call you'll make
-                viewModel.getDocuments()
+                Task {
+                    await viewModel.getDocuments()
+                }
             }
         }
     }

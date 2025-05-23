@@ -7,8 +7,13 @@ import UIKit
 /// - Handle field validation and events
 /// - Fetch payment information (documents, installments, payment methods)
 /// - Create a payment token
+/// - Use shared ViewModel for business logic centralization
 final class CardFormViewController: UIViewController {
     // MARK: - Properties
+    
+    /// Shared ViewModel containing all business logic
+    /// This centralizes SDK calls of CoreMethods
+    private let viewModel = CardFormViewModel()
     
     /// Style configuration for normal field state
     private let style = TextFieldDefaultStyle()
@@ -26,18 +31,6 @@ final class CardFormViewController: UIViewController {
     
     let paddingField = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
 
-    /// The CoreMethods instance for API calls
-    private let coreMethods = CoreMethods()
-    
-    /// Payment amount to be processed
-    private let amount: Double = 5000
-
-    /// Available document types fetched from the API
-    private var documents: [IdentificationType] = []
-    
-    /// Currently selected document type
-    private var selectedDocumentType: IdentificationType?
-    
     /// Token response text label
     private lazy var tokenResponseLabel: UILabel = {
         let label = UILabel()
@@ -68,7 +61,11 @@ final class CardFormViewController: UIViewController {
     private lazy var stackView = buildStackView(axis: .vertical, spacing: 24)
     
     /// Container for security code and expiration date fields
-    private lazy var cardDetailsStackView = buildStackView(axis: .horizontal, spacing: 16, distribution: .fillEqually)
+    private lazy var cardDetailsStackView = buildStackView(
+        axis: .horizontal,
+        spacing: 16,
+        distribution: .fillEqually
+    )
     
     /// Container for document-related fields
     private lazy var documentSectionStackView = buildStackView(axis: .vertical, spacing: 16)
@@ -91,6 +88,9 @@ final class CardFormViewController: UIViewController {
         return label
     }()
 
+    
+    // MARK: Core Methods fields
+    
     /// Card number input field with validation and formatting
     private lazy var cardNumberField: CardNumberTextField = {
         let field = CardNumberTextField(style: style)
@@ -100,9 +100,13 @@ final class CardFormViewController: UIViewController {
 
         // Handle BIN number changes (first 6-8 digits)
         field.onBinChanged = { [weak self] bin in
-            self?.searchInstallment(bin: bin)
-            self?.searchPaymentMethod(bin: bin)
-            DebugLogger.shared.log(type: .function, title: "onBinChanged", object: bin)
+            Task { [weak self] in
+                // ViewModel Hnadle bin change use CoreMethods SDK to retrive card information and update UI
+                await self?.viewModel.handleBinChange(bin)
+                await self?.updateInstallmentsUI()
+                await self?.updateCardImageUI()
+                await self?.updateCardConfigurationUI()
+            }
         }
 
         // Handle when the last 4 digits are filled
@@ -112,13 +116,21 @@ final class CardFormViewController: UIViewController {
                 self.setStyle(field, style: self.style)
             }
             print("Length:", field.count, "Last 4:", last)
-            DebugLogger.shared.log(type: .function, title: "onLastFourDigitsFilled", object: last)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onLastFourDigitsFilled",
+                object: last
+            )
         }
 
         // Handle focus changes
         field.onFocusChanged = { [weak self] isFocused in
             print("CardNumberField Focus changed:", isFocused)
-            DebugLogger.shared.log(type: .function, title: "onFocusChanged - CardNumberTextFieldView", object: isFocused)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onFocusChanged - CardNumberTextFieldView",
+                object: isFocused
+            )
         }
 
         // Handle validation errors
@@ -126,7 +138,11 @@ final class CardFormViewController: UIViewController {
             guard let self else { return }
             self.setStyle(field, style: self.errorStyle)
             print("CardNumberField Error:", error)
-            DebugLogger.shared.log(type: .function, title: "onError - CardNumberTextFieldView", object: error)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onError - CardNumberTextFieldView",
+                object: error
+            )
         }
 
         return field
@@ -148,20 +164,32 @@ final class CardFormViewController: UIViewController {
         // Handle length changes
         field.onLengthChanged = { [weak self] length in
             print("SecurityCode length:", length)
-            DebugLogger.shared.log(type: .function, title: "onLengthChanged - SecurityCodeTextField", object: length)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onLengthChanged - SecurityCodeTextField",
+                object: length
+            )
         }
         
         // Handle focus changes
         field.onFocusChanged = { [weak self] isFocused in
             print("SecurityCode Focus changed:", isFocused)
-            DebugLogger.shared.log(type: .function, title: "onFocusChanged - SecurityCodeTextField", object: isFocused)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onFocusChanged - SecurityCodeTextField",
+                object: isFocused
+            )
         }
         
         // Handle validation errors
         field.onError = { [weak self] error in
             guard let self else { return }
             self.setStyle(field, style: self.errorStyle)
-            DebugLogger.shared.log(type: .function, title: "onError - SecurityCodeTextField", object: error)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onError - SecurityCodeTextField",
+                object: error
+            )
         }
 
         return field
@@ -280,10 +308,17 @@ final class CardFormViewController: UIViewController {
         title = "Card Payment"
         navigationController?.navigationBar.prefersLargeTitles = true
         self.setupView()
-        self.getDocuments()
         self.cardNumberContainer.addInputField(self.cardNumberField)
         self.securityCodeContainer.addInputField(self.securityCodeField)
         self.expirationDateContainer.addInputField(self.expirationDateField)
+        
+        documentNumberField.addTarget(self, action: #selector(documentTextChanged), for: .editingChanged)
+        
+        // Load initial data
+        Task {
+            await viewModel.getDocuments()
+            await updateDocumentsUI()
+        }
     }
 
     // MARK: - UI Setup Methods
@@ -383,179 +418,105 @@ final class CardFormViewController: UIViewController {
     @objc private func doneButtonTapped() {
         view.endEditing(true)
     }
+    
+    @objc private func documentTextChanged() {
+        viewModel.documentText = documentNumberField.text ?? ""
+    }
 }
 
-// MARK: - Core Methods Integration
-
+// MARK: - UI Update Methods
+@MainActor
 extension CardFormViewController {
-    /// Handles the pay button tap
-    /// Creates a token using the card information
+    /// Updates the documents picker UI after fetching documents
+    private func updateDocumentsUI() async {
+        documentTypePicker.reloadAllComponents()
+        if let first = viewModel.documents.first {
+            documentTypeTextField.text = first.name
+        }
+    }
+    
+    /// Updates installments UI after fetching installment data
+    private func updateInstallmentsUI() async {
+        installmentPicker.updatePayerCosts(viewModel.installments)
+    }
+    
+    /// Updates card image UI when card logo is available
+    private func updateCardImageUI() async {
+        if let url = viewModel.cardNumberImageURL {
+            loadCardImage(from: url.absoluteString)
+        }
+    }
+    
+    /// Updates card configuration (length, mask) after payment method detection
+    private func updateCardConfigurationUI() async {
+        cardNumberField.setMaxLength(viewModel.maxLengthCardNumber)
+        securityCodeField.setMaxLength(viewModel.maxLengthSecurityCode)
+        cardNumberField.setMask(pattern: viewModel.maskCardNumber)
+    }
+    
+    /// Updates token response UI after token creation
+    private func updateTokenUI() async {
+        if let token = viewModel.token {
+            UIPasteboard.general.string = token
+            tokenResponseLabel.text = "Token (Already copy in your iPhone) => \(token)"
+        }
+    }
+}
+
+// MARK: - Core Methods Tokenization
+extension CardFormViewController {
+    /// Handles the pay button tap, its here we tokenization card
     @objc private func handlePayButtonTapped() {
         Task {
-            if !cardNumberField.isValid {
-                self.setStyle(cardNumberField, style: self.errorStyle)
-            }
-            
-            if !securityCodeField.isValid {
-                self.setStyle(securityCodeField, style: self.errorStyle)
-            }
-            
-            if !expirationDateField.isValid {
-                self.setStyle(expirationDateField, style: self.errorStyle)
-            }
-            
-            if !cardNumberField.isValid, !expirationDateField.isValid, !securityCodeField.isValid {
-                return
-            }
-            
-            // Test card holder name
-            // For test payments, you can use these names to trigger different payment states:
-            // - APRO: Payment approved
-            // - OTHE: Payment Refused
-            // - CONT: Pending payment
-            // More info: https://www.mercadopago.com.br/developers/pt/docs/checkout-bricks/integration-test/test-payment-flow
-            let cardHolder = "APRO"
-            
-
             do {
-                var token: CardToken?
+                let token = try await viewModel.createPaymentToken(
+                    cardNumber: cardNumberField,
+                    expirationDate: expirationDateField,
+                    securityCode: securityCodeField,
+                    cardHolderName: "APRO"
+                )
                 
-                if let selectedDocumentType {
-                    let cardToken = try await coreMethods.createToken(
-                        cardNumber: self.cardNumberField,
-                        expirationDate: self.expirationDateField,
-                        securityCode: self.securityCodeField,
-                        documentType: selectedDocumentType,
-                        documentNumber: self.documentNumberField.text ?? "",
-                        cardHolderName: cardHolder
-                    )
-                    
-                    token = cardToken
-                } else {
-                    let cardToken = try await coreMethods.createToken(
-                        cardNumber: self.cardNumberField,
-                        expirationDate: self.expirationDateField,
-                        securityCode: self.securityCodeField,
-                        cardHolderName: cardHolder
-                    )
-                    
-                    token = cardToken
-                }
+                // Update UI with token response
+                await updateTokenUI()
                 
-                DebugLogger.shared.log(type: .network, title: "POST Create Token", object: token)
-
-                // Display the token (in a real app, you would send this to your server)
-                await MainActor.run {
-                    UIPasteboard.general.string = token?.token ?? ""
-                    tokenResponseLabel.text = "Token response => \(token?.token ?? "")"
-                }
+                print("Token created successfully: \(token)")
             } catch {
                 print("Error creating token: \(error)")
             }
         }
     }
+}
 
-    /// Fetches available document types from the API
-    private func getDocuments() {
-        Task(priority: .userInitiated) {
-            do {
-                // Fetch document types
-                self.documents = try await self.coreMethods.identificationTypes()
-                DebugLogger.shared.log(type: .network, title: "GET IdentificationTypes", object: self.documents)
+// MARK: - PickerView Delegate & DataSource
 
-                await MainActor.run {
-                    // Update UI with document types
-                    self.documentTypePicker.reloadAllComponents()
-                    if let first = documents.first {
-                        self.selectedDocumentType = first
-                        self.documentTypeTextField.text = first.name
-                    }
-                }
-            } catch {
-                print("Error identifying documents:", error)
-            }
-        }
+extension CardFormViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in _: UIPickerView) -> Int { 1 }
+    
+    func pickerView(_: UIPickerView, numberOfRowsInComponent _: Int) -> Int {
+        self.viewModel.documents.count
     }
-
-    /// Fetches available installments for the given BIN
-    /// - Parameter bin: The bank identification number (first 6-8 digits of card)
-    func searchInstallment(bin: String) {
-        Task {
-            do {
-                // Fetch installment options based on amount and card BIN
-                let installment = try await coreMethods.installments(amount: self.amount, bin: bin)
-                self.installmentPicker.updateInstallments(installment)
-                
-                DebugLogger.shared.log(type: .network, title: "GET Installment", object: installment)
-            } catch {
-                print("Error installments:", error)
-            }
-        }
-    }
-
-    /// Fetches payment method information for the given BIN
-    /// - Parameter bin: The bank identification number (first 6-8 digits of card)
-    func searchPaymentMethod(bin: String) {
-        Task(priority: .userInitiated) {
-            do {
-                // Fetch payment method types based on card BIN
-                guard let paymentMethod = try await coreMethods.paymentMethods(bin: bin).first else {
-                    return
-                }
-                
-                // Fetch issuer information base on id of payment method
-                let issuer = try await coreMethods.issuers(bin: bin, paymentMethodID: paymentMethod.id)
-
-                DebugLogger.shared.log(type: .network, title: "GET PaymentMethods", object: paymentMethod)
-                DebugLogger.shared.log(type: .network, title: "GET issuer", object: issuer)
-                
-                print("Payment methods:", paymentMethod)
-                print("Issuer:", issuer)
-                
-                await configureFields(paymentMethod)
-            } catch {
-                print("Error paymentMethod:", error)
-            }
-        }
+    func pickerView(_: UIPickerView, titleForRow row: Int, forComponent _: Int) -> String? {
+        self.viewModel.documents[row].name
     }
     
-    private func configureFields(_ method: PaymentMethod) async {
-        // Update UI with card logo
-        if let thumbnail = method.thumbnail, !thumbnail.isEmpty {
-            await MainActor.run {
-                self.loadCardImage(from: thumbnail)
-            }
-        }
-        
-        await MainActor.run {
-            self.configureCardMask(for: method.id)
-        }
-        
-        cardNumberField.setMaxLength(method.card?.length.max ?? 16)
-        securityCodeField.setMaxLength(method.card?.securityCode.length ?? 3)
-    }
-
-
-    private func configureCardMask(for paymentMethodId: String) {
-        let mask: String
-        
-        switch paymentMethodId.lowercased() {
-        case "visa", "master", "elo", "hipercard":
-            mask = "#### #### #### ####"
-            
-        case "amex":
-            mask = "#### ###### #####"
-            
-        case "diners":
-            mask = "#### ###### ####"
-            
-        default:
-            mask = "#### #### #### ####"
-        }
-    
-        cardNumberField.setMask(pattern: mask)
+    // When select the document
+    func pickerView(_: UIPickerView, didSelectRow row: Int, inComponent _: Int) {
+        guard self.viewModel.documents.indices.contains(row) else { return }
+        self.viewModel.selectedDocumentType = self.viewModel.documents[row]
+        self.documentTypeTextField.text = self.viewModel.documents[row].name
+        self.documentNumberField.placeholder = "Enter \(self.viewModel.documents[row].name) number"
     }
 }
+
+// MARK: - InstallmentPicker Delegate
+// Select installment
+extension CardFormViewController: InstallmentPickerDelegate {
+    func installmentPicker(_: InstallmentPickerView, didSelectPayerCost payerCost: Installment.PayerCost) {
+        viewModel.selectedPayerCost = payerCost
+        print("Selected installment:", payerCost.installments)
+    }
+}
+
 
 // MARK: - Style Helpers
 
@@ -613,28 +574,4 @@ extension CardFormViewController {
         task.resume()
     }
     
-}
-
-// MARK: - PickerView Delegate & DataSource
-
-extension CardFormViewController: UIPickerViewDelegate, UIPickerViewDataSource {
-    func numberOfComponents(in _: UIPickerView) -> Int { 1 }
-    func pickerView(_: UIPickerView, numberOfRowsInComponent _: Int) -> Int { self.documents.count }
-    func pickerView(_: UIPickerView, titleForRow row: Int, forComponent _: Int) -> String? {
-        self.documents[row].name
-    }
-
-    func pickerView(_: UIPickerView, didSelectRow row: Int, inComponent _: Int) {
-        guard self.documents.indices.contains(row) else { return }
-        self.selectedDocumentType = self.documents[row]
-        self.documentTypeTextField.text = self.documents[row].name
-        self.documentNumberField.placeholder = "Enter \(self.documents[row].name) number"
-    }
-}
-
-// MARK: - InstallmentPicker Delegate
-extension CardFormViewController: InstallmentPickerDelegate {
-    func installmentPicker(_: InstallmentPickerView, didSelectPayerCost payerCost: Installment.PayerCost) {
-        print("Selected installment:", payerCost.installments)
-    }
 }
