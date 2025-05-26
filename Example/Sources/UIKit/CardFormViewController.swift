@@ -101,7 +101,9 @@ final class CardFormViewController: UIViewController {
         // Handle BIN number changes (first 6-8 digits)
         field.onBinChanged = { [weak self] bin in
             Task { [weak self] in
-                // ViewModel Hnadle bin change use CoreMethods SDK to retrive card information and update UI
+                
+                // Payment Method, Issuer and Installment call
+                // ViewModel Handle bin change use CoreMethods SDK to retrive card information and update UI
                 await self?.viewModel.handleBinChange(bin)
                 await self?.updateInstallmentsUI()
                 await self?.updateCardImageUI()
@@ -242,6 +244,8 @@ final class CardFormViewController: UIViewController {
 
         return field
     }()
+    
+    // MARK: Document Section
 
     /// Document type selector with picker
     private lazy var documentTypeTextField: UITextField = {
@@ -270,6 +274,8 @@ final class CardFormViewController: UIViewController {
         label.textColor = .label
         return label
     }()
+    
+    // MARK: Installment Section
 
     /// Installment selection control
     private lazy var installmentPicker: InstallmentPickerView = {
@@ -286,6 +292,8 @@ final class CardFormViewController: UIViewController {
         label.textColor = .label
         return label
     }()
+    
+    // MARK: Pay Button
 
     /// Pay button to submit the form
     private lazy var payButton: UIButton = {
@@ -314,6 +322,7 @@ final class CardFormViewController: UIViewController {
         
         documentNumberField.addTarget(self, action: #selector(documentTextChanged), for: .editingChanged)
         
+        // CoreMethods: Identification Types Call
         // Load initial data
         Task {
             await viewModel.getDocuments()
