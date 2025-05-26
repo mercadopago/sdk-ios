@@ -76,4 +76,8 @@ fastlane/README.md
 Sources/MPCore/Internal/Core/Base/MPSDKProduct.swift
 /docs
 
+/.vscode
+
+buildServer.json
+
 .docc-temp
