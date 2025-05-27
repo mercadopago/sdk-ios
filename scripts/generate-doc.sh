@@ -21,9 +21,11 @@ fi
 # Define output paths
 DOCC_OUTPUT_DIR="$ROOT_DIR/docs"
 VERSIONED_OUTPUT_DIR="$DOCC_OUTPUT_DIR/$VERSION"
-HOSTING_BASE_PATH="sdk-ios/$VERSION"
+LATEST_OUTPUT_DIR="$DOCC_OUTPUT_DIR/latest"
 
 mkdir -p "$DOCC_OUTPUT_DIR"
+
+# --- Common Setup for DocC Generation ---
 
 # Clean and set up temp package
 rm -rf "$TEMP_DIR"
@@ -48,7 +50,7 @@ let package = Package(
         .target(
             name: "$HOST_MODULE",
             dependencies: [
-                .product(name: "CoreMethods", package: "project")
+                .product(name: "CoreMethods", package: "sdk-ios")
             ]
         )
     ]
@@ -61,16 +63,41 @@ echo "// Dummy source for documentation host" > "Sources/$HOST_MODULE/DocHost.sw
 # Resolve dependencies
 swift package resolve
 
-# Generate DocC documentation
+# --- Generate Versioned Documentation ---
+echo "Generating documentation for version: $VERSION..."
+HOSTING_BASE_PATH_VERSIONED="sdk-ios/$VERSION" # Specific to the versioned folder
+
 xcodebuild docbuild \
   -scheme "$HOST_MODULE" \
   -destination 'platform=iOS Simulator,name=iPhone 16' \
   -derivedDataPath .build \
   DOCC_OUTPUT_DIR="/docs" \
-  OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path $VERSIONED_OUTPUT_DIR --hosting-base-path $HOSTING_BASE_PATH"
+  OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path $VERSIONED_OUTPUT_DIR --hosting-base-path $HOSTING_BASE_PATH_VERSIONED"
 
+echo "✅ DocC documentation generated at: $VERSIONED_OUTPUT_DIR"
+
+rm -rf .build
+
+# --- Generate 'latest' Documentation ---
+echo "Generating documentation for 'latest'..."
+HOSTING_BASE_PATH_LATEST="sdk-ios/latest" # Specific to the latest folder
+
+# Clean up previous 'latest' output before generating new one
+rm -rf "$LATEST_OUTPUT_DIR"
+
+xcodebuild docbuild \
+  -scheme "$HOST_MODULE" \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -derivedDataPath .build \
+  DOCC_OUTPUT_DIR="/docs" \
+  OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path $LATEST_OUTPUT_DIR --hosting-base-path $HOSTING_BASE_PATH_LATEST"
+
+echo "✅ 'latest' documentation generated at: $LATEST_OUTPUT_DIR"
+
+# --- Final Touches ---
 touch "$DOCC_OUTPUT_DIR/.nojekyll"
 
+# Create/update the root index.html to redirect to 'latest'
 cat > "$DOCC_OUTPUT_DIR/index.html" <<EOF
 <!DOCTYPE html>
 <html>
@@ -84,11 +111,4 @@ cat > "$DOCC_OUTPUT_DIR/index.html" <<EOF
 </html>
 EOF
 
-# Update folder latest with the new version
-LATEST_DIR="$DOCC_OUTPUT_DIR/latest"
-
-rm -rf "$LATEST_DIR"
-cp -R "$VERSIONED_OUTPUT_DIR" "$LATEST_DIR"
-
-echo "✅ DocC documentation generated at: $VERSIONED_OUTPUT_DIR"
-echo "✅ Updated 'latest' documentation at: $LATEST_DIR"
+echo "DocC generation process complete."
