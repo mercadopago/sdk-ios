@@ -49,7 +49,7 @@ if command -v gh &> /dev/null; then
   echo "📝 Creating PR for release $VERSION..."
   gh pr create \
     --title "Release $VERSION" \
-    --body "This PR prepares the release of version $VERSION. Please review the changes before merging." \
+    --body "This PR prepares the release of version $VERSION .Please review the changes before merging." \
     --base main \
     --head release/"$VERSION"
   
