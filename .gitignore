@@ -80,4 +80,8 @@ Sources/MPCore/Internal/Core/Base/MPSDKProduct.swift
 
 buildServer.json
 
+/.swiftpm
+
+/Package.resolved
+
 .docc-temp
