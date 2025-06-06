@@ -174,11 +174,10 @@ class CardFormViewModel: ObservableObject {
         securityCode: SecurityCodeTextField,
         cardHolderName: String = "APRO"
     ) async throws -> String {
-        
         guard cardNumber.isValid, securityCode.isValid, expirationDate.isValid else {
             throw TokenzationError.invalidCardData
         }
-        
+                
         var tokenData: CardToken?
         
         if let selectedDocumentType = selectedDocumentType {
