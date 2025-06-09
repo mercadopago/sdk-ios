@@ -52,8 +52,6 @@ private extension NetworkService {
                 throw APIClientError.invalidResponse(data)
             }
 
-            log("Received HTTP response: \(httpResponse)")
-
             guard (200 ... 299).contains(httpResponse.statusCode) else {
                 if let apiError = decodeAPIError(from: data) {
                     throw APIClientError.apiError(apiError)
@@ -74,15 +72,5 @@ private extension NetworkService {
 
     private func decodeAPIError(from data: Data) -> APIErrorResponse? {
         return try? JSONDecoder().decode(APIErrorResponse.self, from: data)
-    }
-}
-
-// MARK: - Log extension -
-
-private extension NetworkService {
-    private func log(_ string: String) {
-        #if DEBUG
-            print(string)
-        #endif
     }
 }

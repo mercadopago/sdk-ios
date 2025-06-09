@@ -250,9 +250,7 @@ package final class MPAnalytics: AnalyticsInterface {
 
             await self.track.setEventData(nil)
 
-        } catch {
-            print("Error sending request:", error)
-        }
+        } catch {}
     }
 
     private func buildPayload() async -> [String: Any] {

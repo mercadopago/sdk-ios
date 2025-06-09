@@ -39,6 +39,20 @@ let package = Package(
             path: "Sources/Framework/DeviceFingerPrint.xcframework"
         ),
         
+        
+        .target(
+            name: "MercadoPagoCheckout",
+            dependencies: ["MPComponents", "CoreMethods"]
+        ),
+        .target(
+            name: "MPComponents",
+            dependencies: ["MPFoundation"]
+        ),
+        .target(
+            name: "MPFoundation",
+        ),
+            
+        
         //Tests
         .target(
             name: "CommonTests",
