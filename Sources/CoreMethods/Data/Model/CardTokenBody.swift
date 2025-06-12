@@ -37,8 +37,8 @@ extension CardTokenBody {
 
         if let buyerIdentification {
             let holderDic: [String: Any] = [
-                "number": buyerIdentification.number,
-                "type": buyerIdentification.type
+                "number": buyerIdentification.number ?? "",
+                "type": buyerIdentification.type ?? ""
             ]
             jsonObject["cardholder"] = [
                 "identification": holderDic,
@@ -57,6 +57,6 @@ extension CardTokenBody {
 
 struct BuyerIdentification: Codable {
     let name: String
-    let number: String
-    let type: String
+    let number: String?
+    let type: String?
 }

@@ -46,7 +46,7 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
     ) async throws -> CardToken {
         var buyerIdentification: BuyerIdentification?
 
-        if let identificationType, let identificationNumber, let cardHolderName {
+        if let cardHolderName {
             buyerIdentification = BuyerIdentification(
                 name: cardHolderName,
                 number: identificationNumber,
