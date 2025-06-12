@@ -97,6 +97,7 @@ public struct LightTypography: MPTypography {
     public var titleSSemibold: Font = .system(size: 20, weight: .semibold)
 
     public var bodyMSemibold: Font = .system(size: 16, weight: .semibold)
+    
     public var bodyMRegular: Font = .system(size: 16, weight: .regular)
 
     public var bodySSemibold: Font = .system(size: 14, weight: .semibold)
