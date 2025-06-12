@@ -49,10 +49,7 @@ let package = Package(
             dependencies: ["MPFoundation"]
         ),
         .target(
-            name: "MPFoundation",
-            resources: [
-                .process("./Resources/Assets.xcassets")
-            ]
+            name: "MPFoundation"
         ),
             
         
