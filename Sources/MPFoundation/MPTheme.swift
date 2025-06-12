@@ -63,33 +63,33 @@ public protocol MPColors {
 
 // MARK: - Spacing Definitions
 public protocol MPSpacings {
-    var xxs: CGFloat { get }
-    var xs: CGFloat { get }
-    var s: CGFloat { get }
-    var m: CGFloat { get }
-    var l: CGFloat { get }
-    var xl: CGFloat { get }
-    var xxl: CGFloat { get }
+    var xxs: CGFloat { get set }
+    var xs: CGFloat { get set }
+    var s: CGFloat { get set }
+    var m: CGFloat { get set }
+    var l: CGFloat { get set }
+    var xl: CGFloat { get set }
+    var xxl: CGFloat { get set }
 }
 
 // MARK: - Border Radius Definitions
 public protocol MPBorderRadius {
-    var xxs: CGFloat { get }
-    var xs: CGFloat { get }
-    var s: CGFloat { get }
+    var xxs: CGFloat { get set }
+    var xs: CGFloat { get set }
+    var s: CGFloat { get set }
 }
 
 // MARK: - Outline Definitions
 public protocol MPOutline {
-    var xxs: CGFloat { get }
-    var xs: CGFloat { get }
+    var xxs: CGFloat { get set }
+    var xs: CGFloat { get set }
 }
 
 public protocol MPTypography {
-    var titleSSemibold: Font { get }
-    var bodyMSemibold: Font { get }
-    var bodyMRegular: Font { get }
-    var bodySSemibold: Font { get }
-    var bodySRegular: Font { get }
-    var bodyXSSemibold: Font { get }
+    var titleSSemibold: Font { get set }
+    var bodyMSemibold: Font { get set }
+    var bodyMRegular: Font { get set }
+    var bodySSemibold: Font { get set }
+    var bodySRegular: Font { get set }
+    var bodyXSSemibold: Font { get set }
 }

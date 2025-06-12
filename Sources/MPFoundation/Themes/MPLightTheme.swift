@@ -94,27 +94,14 @@ public struct LightOutline: MPOutline {
 
 public struct LightTypography: MPTypography {
     
-    public var titleSSemibold: Font {
-        .system(size: 20, weight: .semibold)
-    }
+    public var titleSSemibold: Font = .system(size: 20, weight: .semibold)
 
-    public var bodyMSemibold: Font {
-        .system(size: 16, weight: .semibold)
-    }
+    public var bodyMSemibold: Font = .system(size: 16, weight: .semibold)
+    public var bodyMRegular: Font = .system(size: 16, weight: .regular)
 
-    public var bodyMRegular: Font {
-        .system(size: 16, weight: .regular)
-    }
+    public var bodySSemibold: Font = .system(size: 14, weight: .semibold)
 
-    public var bodySSemibold: Font {
-        .system(size: 14, weight: .semibold)
-    }
+    public var bodySRegular: Font = .system(size: 14, weight: .regular)
 
-    public var bodySRegular: Font {
-        .system(size: 14, weight: .regular)
-    }
-
-    public var bodyXSSemibold: Font {
-        .system(size: 12, weight: .semibold)
-    }
+    public var bodyXSSemibold: Font = .system(size: 12, weight: .semibold)
 }
