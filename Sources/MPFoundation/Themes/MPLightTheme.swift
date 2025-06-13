@@ -35,7 +35,7 @@ public struct MPLightTheme: MPTheme {
 
 public struct LightColors: MPColors {
     // Accent
-    public var accent = Color("TesteCor", bundle: .module)
+    public var accent = Color(hex: 0x3483FA)
     public var accentFirstVariant = Color(hex: 0x2968c8)
     public var accentSecondVariant = Color(hex: 0x1f4e96)
     public var accentYellow = Color(hex: 0xffe600)
