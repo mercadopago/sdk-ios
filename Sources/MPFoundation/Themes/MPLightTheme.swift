@@ -71,6 +71,7 @@ public struct LightColors: MPColors {
     public var feedbackPositiveSecondary = Color(hex: 0xdcede4)
 }
 
+// swiftlint:disable identifier_name
 public struct LightSpacings: MPSpacings {
     public var xxs: CGFloat = 4.0
     public var xs: CGFloat = 8.0
@@ -91,6 +92,8 @@ public struct LightOutline: MPOutline {
     public var xxs: CGFloat = 1.0
     public var xs: CGFloat = 2.0
 }
+
+// swiftlint:enable identifier_name
 
 public struct LightTypography: MPTypography {
     

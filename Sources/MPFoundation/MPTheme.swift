@@ -61,6 +61,7 @@ public protocol MPColors {
     var feedbackPositiveSecondary: Color { get set }
 }
 
+// swiftlint:disable identifier_name
 // MARK: - Spacing Definitions
 public protocol MPSpacings {
     var xxs: CGFloat { get set }
@@ -84,6 +85,7 @@ public protocol MPOutline {
     var xxs: CGFloat { get set }
     var xs: CGFloat { get set }
 }
+// swiftlint:enable identifier_name
 
 public protocol MPTypography {
     var titleSSemibold: Font { get set }
