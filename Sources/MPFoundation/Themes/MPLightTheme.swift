@@ -95,17 +95,32 @@ public struct LightOutline: MPOutline {
 
 // swiftlint:enable identifier_name
 
+fileprivate enum FontName: String {
+    case semiBold = "ProximaNova-SemiBold"
+    case regular = "ProximaNova-Regular"
+}
+
+fileprivate extension Font {
+    static func custom(_ name: FontName, size: CGFloat) -> Font {
+        .custom(name.rawValue, size: size)
+    }
+}
+
 public struct LightTypography: MPTypography {
-    
-    public var titleSSemibold: Font = .system(size: 20, weight: .semibold)
 
-    public var bodyMSemibold: Font = .system(size: 16, weight: .semibold)
-    
-    public var bodyMRegular: Font = .system(size: 16, weight: .regular)
+    public var title = MPTitleStyle(
+        smallSemibold: .custom(.semiBold, size: 20)
+    )
 
-    public var bodySSemibold: Font = .system(size: 14, weight: .semibold)
-
-    public var bodySRegular: Font = .system(size: 14, weight: .regular)
-
-    public var bodyXSSemibold: Font = .system(size: 12, weight: .semibold)
+    public var body = MPBodyStyle(
+        medium: MPFontStyle(
+            regular: .custom(.regular, size: 16),
+            semibold: .custom(.semiBold, size: 16)
+        ),
+        small: MPFontStyle(
+            regular: .custom(.regular, size: 14),
+            semibold: .custom(.semiBold, size: 14)
+        ),
+        extraSmallSemibold: .custom(.semiBold, size: 12)
+    )
 }

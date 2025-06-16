@@ -87,11 +87,22 @@ public protocol MPOutline {
 }
 // swiftlint:enable identifier_name
 
+public struct MPFontStyle {
+    public var regular: Font
+    public var semibold: Font
+}
+
+public struct MPTitleStyle {
+    public var smallSemibold: Font
+}
+
+public struct MPBodyStyle {
+    public var medium: MPFontStyle
+    public var small: MPFontStyle
+    public var extraSmallSemibold: Font
+}
+
 public protocol MPTypography {
-    var titleSSemibold: Font { get set }
-    var bodyMSemibold: Font { get set }
-    var bodyMRegular: Font { get set }
-    var bodySSemibold: Font { get set }
-    var bodySRegular: Font { get set }
-    var bodyXSSemibold: Font { get set }
+    var title: MPTitleStyle { get }
+    var body: MPBodyStyle { get }
 }
