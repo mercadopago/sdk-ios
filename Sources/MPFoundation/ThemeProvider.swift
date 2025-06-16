@@ -17,15 +17,15 @@ package struct ThemeProvider<Content: View>: View {
     @Environment(\.colorScheme) var colorScheme
 
     /// The theme used when the system is in light mode.
-    public let lightTheme: MPTheme
+    private let lightTheme: MPTheme
 
     /// The theme used when the system is in dark mode.
-    public let darkTheme: MPTheme
+    private let darkTheme: MPTheme
 
-    public let style: UserInterfaceStyle
+    private let style: UserInterfaceStyle
 
     /// The content view to wrap in the themed environment.
-    public let content: () -> Content
+    private let content: () -> Content
     
 
     /// Initializes a `ThemeProvider` with optional light and dark themes.
@@ -34,7 +34,7 @@ package struct ThemeProvider<Content: View>: View {
     ///   - light: The theme to apply in light mode. Defaults to `MPLightTheme`.
     ///   - dark: The theme to apply in dark mode. Defaults to `MPLightTheme`.
     ///   - content: The root view that will inherit the themed environment.
-    public init(
+    package init(
         light: MPTheme,
         dark: MPTheme,
         style: UserInterfaceStyle = .automatic,
@@ -48,7 +48,7 @@ package struct ThemeProvider<Content: View>: View {
   
     /// The view body that injects the current theme into the environment
     /// based on the active color scheme.
-    public var body: some View {
+    package var body: some View {
 
         return content()
           .environment(\.checkoutTheme, currentTheme)
