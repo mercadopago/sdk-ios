@@ -8,7 +8,7 @@ import SwiftUI
 import Foundation
 
 // MARK: - Theme Protocol Definition
-public protocol MPTheme {
+public protocol MPTheme: Sendable {
     var colors: MPColors { get set }
     var spacings: MPSpacings { get set }
     var borderRadius: MPBorderRadius { get set }
@@ -23,7 +23,7 @@ public enum UserInterfaceStyle {
 }
 
 // MARK: - Color Definitions
-public protocol MPColors {
+public protocol MPColors: Sendable {
     // Accent
     var accent: Color { get set }
     var accentFirstVariant: Color { get set }
@@ -63,7 +63,7 @@ public protocol MPColors {
 
 // swiftlint:disable identifier_name
 // MARK: - Spacing Definitions
-public protocol MPSpacings {
+public protocol MPSpacings: Sendable {
     var xxs: CGFloat { get set }
     var xs: CGFloat { get set }
     var s: CGFloat { get set }
@@ -74,35 +74,35 @@ public protocol MPSpacings {
 }
 
 // MARK: - Border Radius Definitions
-public protocol MPBorderRadius {
+public protocol MPBorderRadius: Sendable {
     var xxs: CGFloat { get set }
     var xs: CGFloat { get set }
     var s: CGFloat { get set }
 }
 
 // MARK: - Outline Definitions
-public protocol MPOutline {
+public protocol MPOutline: Sendable {
     var xxs: CGFloat { get set }
     var xs: CGFloat { get set }
 }
 // swiftlint:enable identifier_name
 
-public struct MPFontStyle {
+public struct MPFontStyle: Sendable {
     public var regular: Font
     public var semibold: Font
 }
 
-public struct MPTitleStyle {
+public struct MPTitleStyle: Sendable {
     public var smallSemibold: Font
 }
 
-public struct MPBodyStyle {
+public struct MPBodyStyle: Sendable {
     public var medium: MPFontStyle
     public var small: MPFontStyle
     public var extraSmallSemibold: Font
 }
 
-public protocol MPTypography {
+public protocol MPTypography: Sendable {
     var title: MPTitleStyle { get }
     var body: MPBodyStyle { get }
 }

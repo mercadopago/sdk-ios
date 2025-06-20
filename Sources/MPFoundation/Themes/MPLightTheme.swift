@@ -95,9 +95,36 @@ public struct LightOutline: MPOutline {
 
 // swiftlint:enable identifier_name
 
+@MainActor
 fileprivate enum FontName: String {
     case semiBold = "ProximaNova-SemiBold"
     case regular = "ProximaNova-Regular"
+
+    private static var hasRegistered = false
+
+    public static func registerCustomFonts() {
+        guard !hasRegistered else { return }
+
+        let fontFileNames = ["\(FontName.semiBold.rawValue).ttf", "\(FontName.regular.rawValue).ttf"]
+
+        for fontFileName in fontFileNames {
+            guard let url = Bundle.module.url(forResource: fontFileName, withExtension: nil) else {
+                continue
+            }
+            CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+        }
+        
+        hasRegistered = true
+    }
+}
+
+extension View {
+    /// Attach this to any Xcode Preview's view to have custom fonts displayed
+    /// Note: Not needed for the actual app
+    package func loadMPFonts() -> some View {
+        FontName.registerCustomFonts()
+        return self
+    }
 }
 
 fileprivate extension Font {
