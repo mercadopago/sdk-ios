@@ -92,7 +92,6 @@ public struct LightOutline: MPOutline {
     public var xxs: CGFloat = 1.0
     public var xs: CGFloat = 2.0
 }
-
 // swiftlint:enable identifier_name
 
 @MainActor
@@ -113,14 +112,12 @@ fileprivate enum FontName: String {
             }
             CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
         }
-        
+
         hasRegistered = true
     }
 }
 
 extension View {
-    /// Attach this to any Xcode Preview's view to have custom fonts displayed
-    /// Note: Not needed for the actual app
     package func loadMPFonts() -> some View {
         FontName.registerCustomFonts()
         return self
