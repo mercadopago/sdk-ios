@@ -15,6 +15,8 @@ public struct MPLightTheme: MPTheme {
     public var borderRadius: MPBorderRadius = LightBorderRadius()
     public var outline: MPOutline = LightOutline()
     public var typography: MPTypography = LightTypography()
+    
+    // Appearance Components
     public var buttons: MPButtons
 
     public init(
@@ -34,13 +36,7 @@ public struct MPLightTheme: MPTheme {
     }
     
     public init() {
-        self.buttons = LightButtonTheme(
-            colors: self.colors,
-            radios: self.borderRadius,
-            outlines: self.outline,
-            spacings: self.spacings,
-            typography: self.typography
-        )
+        self.buttons = MPButtons(colors: colors, radios: borderRadius, outlines: outline, spacings: spacings, typography: typography)
     }
 }
 
