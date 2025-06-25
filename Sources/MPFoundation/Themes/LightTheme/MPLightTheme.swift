@@ -15,22 +15,33 @@ public struct MPLightTheme: MPTheme {
     public var borderRadius: MPBorderRadius = LightBorderRadius()
     public var outline: MPOutline = LightOutline()
     public var typography: MPTypography = LightTypography()
-    
+    public var buttons: MPButtons
+
     public init(
         colors: MPColors,
         spacings: MPSpacings,
         borderRadius: MPBorderRadius,
         outline: MPOutline,
-        typography: MPTypography
+        typography: MPTypography,
+        buttons: MPButtons
     ) {
         self.colors = colors
         self.spacings = spacings
         self.borderRadius = borderRadius
         self.outline = outline
         self.typography = typography
+        self.buttons = buttons
     }
     
-    public init() {}
+    public init() {
+        self.buttons = LightButtonTheme(
+            colors: self.colors,
+            radios: self.borderRadius,
+            outlines: self.outline,
+            spacings: self.spacings,
+            typography: self.typography
+        )
+    }
 }
 
 public struct LightColors: MPColors {
