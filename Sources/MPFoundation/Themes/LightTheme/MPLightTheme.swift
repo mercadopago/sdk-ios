@@ -76,6 +76,8 @@ public struct LightColors: MPColors {
     public var feedbackPositive = Color(hex: 0x00a650)
     public var feedbackNegative = Color(hex: 0xf23d4f)
     public var feedbackPositiveSecondary = Color(hex: 0xdcede4)
+    
+    public init() {}
 }
 
 // swiftlint:disable identifier_name
@@ -87,17 +89,23 @@ public struct LightSpacings: MPSpacings {
     public var l: CGFloat = 20.0
     public var xl: CGFloat = 24.0
     public var xxl: CGFloat = 32.0
+    
+    public init() {}
 }
 
 public struct LightBorderRadius: MPBorderRadius {
     public var xxs: CGFloat = 4.0
     public var xs: CGFloat = 6.0
     public var s: CGFloat = 16.0
+    
+    public init() {}
 }
 
 public struct LightOutline: MPOutline {
     public var xxs: CGFloat = 1.0
     public var xs: CGFloat = 2.0
+    
+    public init() {}
 }
 // swiftlint:enable identifier_name
 
@@ -154,4 +162,6 @@ public struct LightTypography: MPTypography {
         ),
         extraSmallSemibold: .custom(.semiBold, size: 12)
     )
+    
+    public init() {}
 }
