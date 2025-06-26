@@ -13,10 +13,7 @@ public protocol MPTheme: Sendable {
     var spacings: MPSpacings { get set }
     var borderRadius: MPBorderRadius { get set }
     var outline: MPOutline { get set }
-    var typography: MPTypography { get set }
-    
-    var buttons: MPButtons { get set }
-
+    var typography: MPTypography { get set } 
 }
 
 public enum UserInterfaceStyle {
