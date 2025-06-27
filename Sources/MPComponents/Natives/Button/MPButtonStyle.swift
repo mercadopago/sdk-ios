@@ -69,9 +69,17 @@ struct MPButtonStyle: ButtonStyle {
     }
 }
 
+extension View {
+    func mpButtonStyle(variant: MPButtonStyle.Variant, size: MPButtonStyle.Size = .medium) -> some View {
+        self.buttonStyle(MPButtonStyle(variant: variant, size: size))
+    }
+}
 
-struct ContentView: View {
-    @State private var size: MPButtonStyle.Size = .large
+
+#if DEBUG
+
+struct ButtonStyleView: View {
+    @State private var size: MPButtonStyle.Size = .medium
     
     var body: some View {
         VStack(alignment: .center) {
@@ -80,11 +88,11 @@ struct ContentView: View {
             Text("Button Style - Loud")
             Group {
                 Button("Label") {
-                    print("Botão pressionado!")
+                    print("Button Pressed!")
                 }
                 
                 Button("Label") {
-                    print("Botão pressionado!")
+                    print("Button Pressed!")
                 }
                 .disabled(true)
             }
@@ -96,15 +104,15 @@ struct ContentView: View {
 
             Group {
                 Button("Label") {
-                    print("Botão pressionado!")
+                    print("Button Pressed!")
                 }
                 
                 Button("Label") {
-                    print("Botão pressionado!")
+                    print("Button Pressed!")
                 }
                 .disabled(true)
             }
-            .mpButtonStyle(variant: .loud, size: size)
+            .mpButtonStyle(variant: .quiet, size: size)
 
 
             Text("Button Style - Transparent")
@@ -112,15 +120,15 @@ struct ContentView: View {
 
             Group {
                 Button("Label") {
-                    print("Botão pressionado!")
+                    print("Button Pressed!")
                 }
                 
                 Button("Label") {
-                    print("Botão pressionado!")
+                    print("Button Pressed!")
                 }
                 .disabled(true)
             }
-            .mpButtonStyle(variant: .loud, size: size)
+            .mpButtonStyle(variant: .transparent, size: size)
 
             Spacer()
         }
@@ -128,13 +136,8 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ButtonStyleView()
         .loadMPFonts()
 }
 
-
-extension View {
-    func mpButtonStyle(variant: MPButtonStyle.Variant, size: MPButtonStyle.Size = .medium) -> some View {
-        self.buttonStyle(MPButtonStyle(variant: variant, size: size))
-    }
-}
+#endif
