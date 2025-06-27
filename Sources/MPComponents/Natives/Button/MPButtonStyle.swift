@@ -7,14 +7,14 @@
 import SwiftUI
 import MPFoundation
 
-struct MPButtonStyle: ButtonStyle {
-    enum Variant {
+package struct MPButtonStyle: ButtonStyle {
+    package enum Variant {
         case loud
         case quiet
         case transparent
     }
 
-    enum Size {
+    package enum Size {
         case large
         case medium
     }
@@ -22,8 +22,8 @@ struct MPButtonStyle: ButtonStyle {
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.isEnabled) private var isEnabled: Bool
     
-    let variant: Variant
-    let size: Size
+    package let variant: Variant
+    package let size: Size
     
     public func makeBody(configuration: Configuration) -> some View {
         let variantAppearance = getVariantAppearance()
@@ -69,7 +69,7 @@ struct MPButtonStyle: ButtonStyle {
     }
 }
 
-extension View {
+package extension View {
     func mpButtonStyle(variant: MPButtonStyle.Variant, size: MPButtonStyle.Size = .medium) -> some View {
         self.buttonStyle(MPButtonStyle(variant: variant, size: size))
     }
