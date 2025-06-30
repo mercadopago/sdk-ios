@@ -28,7 +28,7 @@ public struct MPButtonAppearance: Sendable {
         disabledForegroundColor: Color,
         borderColor: Color,
         borderWidth: CGFloat,
-        cornerRadius: CGFloat,
+        cornerRadius: CGFloat
     ) {
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
@@ -115,7 +115,7 @@ public struct MPButtons: Sendable {
                     leading: spacings.s,
                     bottom: spacings.xxs,
                     trailing: spacings.s
-                ),
+                )
             )
         )
     }

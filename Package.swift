@@ -79,6 +79,7 @@ let package = Package(
             dependencies: [
                 "CoreMethods",
                 "CommonTests",
+                "MPComponents",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
             ]
         )

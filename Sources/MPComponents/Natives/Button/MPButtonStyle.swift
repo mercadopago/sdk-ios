@@ -79,65 +79,54 @@ package extension View {
 #if DEBUG
 
 struct ButtonStyleView: View {
-    @State private var size: MPButtonStyle.Size = .medium
+    let size: MPButtonStyle.Size
+
+    init(size: MPButtonStyle.Size = .medium) {
+        self.size = size
+    }
     
     var body: some View {
-        VStack(alignment: .center) {
+        VStack(alignment: .center, spacing: 16) {
             Spacer()
-                        
+            
             Text("Button Style - Loud")
+                .font(.headline)
             Group {
-                Button("Label") {
-                    print("Button Pressed!")
-                }
-                
-                Button("Label") {
-                    print("Button Pressed!")
-                }
-                .disabled(true)
+                Button("Label") { print("Button Pressed!") }
+                Button("Label Disabled") { print("Button Pressed!") }
+                    .disabled(true)
             }
             .mpButtonStyle(variant: .loud, size: size)
             
-            
             Text("Button Style - Quiet")
+                .font(.headline)
                 .padding(.top, 30)
-
             Group {
-                Button("Label") {
-                    print("Button Pressed!")
-                }
-                
-                Button("Label") {
-                    print("Button Pressed!")
-                }
-                .disabled(true)
+                Button("Label") { print("Button Pressed!") }
+                Button("Label Disabled") { print("Button Pressed!") }
+                    .disabled(true)
             }
             .mpButtonStyle(variant: .quiet, size: size)
-
-
+            
             Text("Button Style - Transparent")
+                .font(.headline)
                 .padding(.top, 30)
-
             Group {
-                Button("Label") {
-                    print("Button Pressed!")
-                }
-                
-                Button("Label") {
-                    print("Button Pressed!")
-                }
-                .disabled(true)
+                Button("Label") { print("Button Pressed!") }
+                Button("Label Disabled") { print("Button Pressed!") }
+                    .disabled(true)
             }
             .mpButtonStyle(variant: .transparent, size: size)
-
+            
             Spacer()
         }
+        .padding()
+        .loadMPFonts()
     }
 }
 
 #Preview {
     ButtonStyleView()
-        .loadMPFonts()
 }
 
 #endif
