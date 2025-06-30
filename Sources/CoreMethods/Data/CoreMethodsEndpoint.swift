@@ -69,9 +69,19 @@ extension CoreMethodsEndpoint: RequestEndpoint {
 
     /// Request headers.
     var headers: [String: String] {
-        return [
-            "Content-Type": "application/json"
-        ]
+        switch self {
+            
+        case .postCardToken:
+            return [
+                "Content-Type": "application/json",
+                "X-Product-id": MPSDKProduct.id
+            ]
+            
+        default:
+            return [
+                "Content-Type": "application/json"
+            ]
+        }
     }
 
     /// Request URL parameters.
