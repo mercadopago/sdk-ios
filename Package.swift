@@ -36,7 +36,17 @@ let package = Package(
         
         .binaryTarget(
             name: "DeviceFingerPrint",
-            path: "Sources/Framework/DeviceFingerPrint.xcframework"
+            path: "Sources/Frameworks/DeviceFingerPrint.xcframework"
+        ),
+        
+        .binaryTarget(
+            name: "uSDK",
+            path: "Sources/Frameworks/uSDK.xcframework"
+        ),
+        
+        .target(
+            name: "MPThreeDS",
+            dependencies: ["MPCore", "uSDK"]
         ),
         
         
