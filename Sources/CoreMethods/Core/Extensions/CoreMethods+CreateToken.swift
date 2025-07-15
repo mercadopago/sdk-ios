@@ -14,8 +14,8 @@ extension CoreMethods {
         
         return try await tokenization(
             cardNumber: params.cardNumber,
-            expirationDateMonth: params.expirationYear,
-            expirationDateYear: params.expirationMonth,
+            expirationDateMonth: params.expirationMonth,
+            expirationDateYear: params.expirationYear,
             securityCode: params.securityCode,
             cardHolderName: params.cardHolderName,
             documentType: params.documentType,
