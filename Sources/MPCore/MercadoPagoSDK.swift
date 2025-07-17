@@ -27,7 +27,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     /// Configuration options for MercadoPagoSDK
     public struct Configuration: Sendable {
         let publicKey: String
-        let locale: String
+        package let locale: String
         let country: MercadoPagoSDK.Country
 
         /// Initialize SDK configuration
@@ -47,7 +47,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     }
 
     private(set) var isInitialized = false
-    private(set) var configuration: Configuration?
+    package var configuration: Configuration?
     private(set) var analyticsMonitoringTask: Task<Void, Never>?
 
     typealias Dependency = HasAnalytics
