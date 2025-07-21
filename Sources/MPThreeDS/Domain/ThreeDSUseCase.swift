@@ -10,13 +10,12 @@ import Foundation
 #if SWIFT_PACKAGE
     import MPCore
 #endif
-import uSDK
 
 protocol ThreeDSUseCaseProtocol: Sendable {
     func authenticatedThreeDS(
-        transaction: UTransaction,
+        transaction: ThreeDSTransactionProtocol,
         token: String,
-        authenticationParams: UAuthenticationRequestParameters
+        authenticationParams: ThreeDSAuthRequestParameters
     ) async throws -> MPThreeDSAuthenticated
 }
 
@@ -37,15 +36,15 @@ final class ThreeDSUseCase: ThreeDSUseCaseProtocol {
     }
     
     func authenticatedThreeDS(
-        transaction: UTransaction,
+        transaction: ThreeDSTransactionProtocol,
         token: String,
-        authenticationParams: UAuthenticationRequestParameters
+        authenticationParams: ThreeDSAuthRequestParameters
     ) async throws -> MPThreeDSAuthenticated {
         let data = ThreeDSBody(token: token, authenticationRequestParameters: authenticationParams)
         
         let response = try await repository.authenticate(data)
 
-        let status: MPThreeDSAuthenticated.Status = response.response == "" ? .challenge : .noAuthorized
+        let status: MPThreeDSAuthenticated.Status = response.response == "" ? .challenge : .notAuthorized
         
         return MPThreeDSAuthenticated(
             status: status,

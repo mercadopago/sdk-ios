@@ -11,11 +11,16 @@ import Foundation
 @objc public class MPThreeDSChallengeError: NSObject {
     
     public let code: String
-    public let message:String?
-    public let detail:String?
+    public let message: String?
+    public let detail: String?
     public let errorType: MPThreeDSChallengeErrorType
     
-    init(code: String, errorType:MPThreeDSChallengeErrorType,  message:String?, detail:String?) {
+    init(
+        code: String,
+        errorType: MPThreeDSChallengeErrorType,
+        message: String?,
+        detail: String?
+    ) {
         self.code = code
         self.message = message
         self.detail = detail

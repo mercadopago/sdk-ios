@@ -4,17 +4,14 @@
 //
 //  Created by Guilherme Prata Costa on 17/07/25.
 //
-@preconcurrency import uSDK
-
-public typealias MPThreeDSTransaction = UTransaction
 
 public struct MPThreeDSAuthenticated: Sendable {
-    public var status: Status
-    public var parameters: ThreeDSParameters
-    public var transaction: MPThreeDSTransaction
+    public let status: Status
+    public let parameters: ThreeDSParameters
+    public let transaction: ThreeDSTransactionProtocol
     
     public enum Status: Sendable {
-        case noAuthorized
+        case notAuthorized
         case challenge
     }
     

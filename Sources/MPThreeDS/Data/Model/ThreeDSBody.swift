@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import uSDK
 
 struct ThreeDSBody: Sendable {
     let token: String
@@ -21,14 +20,19 @@ struct ThreeDSBody: Sendable {
     /// - Parameters:
     ///   - token: Token do cartão
     ///   - authenticationRequestParameters: Parâmetros de autenticação do 3DS SDK
-    init(token: String, authenticationRequestParameters: UAuthenticationRequestParameters) {
+    ///   - sdkMaxTimeout: Timeout máximo do SDK (padrão: "06")
+    init(
+        token: String, 
+        authenticationRequestParameters: ThreeDSAuthRequestParameters,
+        sdkMaxTimeout: String = "06"
+    ) {
         self.token = token
-        self.sdkAppId = authenticationRequestParameters.getSDKAppID()
-        self.sdkEncData = authenticationRequestParameters.getDeviceData()
-        self.sdkEphemPubKey = authenticationRequestParameters.getSDKEphemeralPublicKey()
-        self.sdkMaxTimeout = "06"
-        self.sdkReferenceNumber = authenticationRequestParameters.getSDKReferenceNumber()
-        self.sdkTransId = authenticationRequestParameters.getSDKTransactionID()
+        self.sdkAppId = authenticationRequestParameters.sdkAppId
+        self.sdkEncData = authenticationRequestParameters.deviceData
+        self.sdkEphemPubKey = authenticationRequestParameters.sdkEphemeralPublicKey
+        self.sdkMaxTimeout = sdkMaxTimeout
+        self.sdkReferenceNumber = authenticationRequestParameters.sdkReferenceNumber
+        self.sdkTransId = authenticationRequestParameters.sdkTransactionId
     }
 }
 
