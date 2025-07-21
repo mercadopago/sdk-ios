@@ -16,11 +16,11 @@ struct ThreeDSBody: Sendable {
     let sdkReferenceNumber: String
     let sdkTransId: String
     
-    /// Inicializa o ThreeDSBody com os parâmetros de autenticação
+    /// Initializes the ThreeDSBody with authentication parameters
     /// - Parameters:
-    ///   - token: Token do cartão
-    ///   - authenticationRequestParameters: Parâmetros de autenticação do 3DS SDK
-    ///   - sdkMaxTimeout: Timeout máximo do SDK (padrão: "06")
+    ///   - token: Card token
+    ///   - authenticationRequestParameters: 3DS SDK authentication parameters
+    ///   - sdkMaxTimeout: SDK maximum timeout (default: "06")
     init(
         token: String, 
         authenticationRequestParameters: ThreeDSAuthRequestParameters,
