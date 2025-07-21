@@ -18,34 +18,13 @@ public enum MPThreeDSError: Error {
     case runtimeError(code: String, message: String)
 }
 
-public enum MPThreeDSDirectoryServer: String {
-    case visa
-    case debvisa
-    case master
-    case debmaster
-    case amex
-
-    var id: String {
-        switch self {
-        case .visa, .debvisa: return "A000000003"
-        case .master, .debmaster: return "A000000004"
-        case .amex: return "A000000025"
-        }
-    }
-}
-
-public struct MPThreeDSChallengeResult {
-    public let transactionStatus: String?
-    public let transactionId: String?
-}
-
 public class MPThreeDS: NSObject {
 
     private let messageVersion = "2.2.0"
     
     private let useCase = ThreeDSUseCase()
     
-    private var challengeContinuation: CheckedContinuation<MPThreeDSChallengeResult, Error>?
+    public weak var challengeDelegate: MPThreeDSChallengeDelegate?
     
     public init(customization: UUiCustomization = UUiCustomization()) {
         let locale = MercadoPagoSDK.shared.configuration?.locale ?? "en_US"
@@ -60,10 +39,9 @@ public class MPThreeDS: NSObject {
     
     
     public func requestChallenge(
-        from navigationController: UINavigationController,
         cardtoken: String,
         paymentMethodId: String
-    ) async throws(MPThreeDSError) -> MPThreeDSChallengeResult {
+    ) async throws(MPThreeDSError) -> MPThreeDSAuthenticated {
         /**
          Gets the Directory Server from the selected Payment Method ID
          */
@@ -88,78 +66,79 @@ public class MPThreeDS: NSObject {
         }
         
         do {
-            let authenticated = try await useCase.authenticatedThreeDS(
+            return try await useCase.authenticatedThreeDS(
                 transaction: transaction,
                 token: cardtoken,
                 authenticationParams: authenticationRequestParameters
             )
             
-            if authenticated.response == "CHALLENGE"  {
-                return try await withCheckedThrowingContinuation { continuation in
-                    self.challengeContinuation = continuation
-                    
-                    transaction.doChallenge(
-                        navigationController,
-                        challengeParameters: .init(
-                            threeDSServerTransactionID: authenticated.threeDSServerTransID,
-                            acsTransactionID: authenticated.acsTransID,
-                            acsRefNumber: authenticated.acsReferenceNumber,
-                            acsSignedContent: authenticated.acsSignedContent
-                        ),
-                        challengeStatusReceiver: self,
-                        timeOut: 20
-                    )
-                }
-            } else {
-                return MPThreeDSChallengeResult(
-                    transactionStatus: authenticated.response,
-                    transactionId: authenticated.threeDSServerTransID
-                )
-            }
-            
         } catch {
             throw .authentication(message: error.localizedDescription)
         }
+    }
+    
+    @MainActor
+    public func startChallenge(
+        from navigationController: UINavigationController,
+        data: MPThreeDSAuthenticated
+    ) async {
+        data.transaction.doChallenge(
+            navigationController,
+            challengeParameters: .init(
+                threeDSServerTransactionID: data.parameters.threeDSServerTransID,
+                acsTransactionID: data.parameters.acsTransID,
+                acsRefNumber: data.parameters.acsReferenceNumber,
+                acsSignedContent: data.parameters.acsSignedContent
+            ),
+            challengeStatusReceiver: self,
+            timeOut: 20
+        )
     }
 }
 
 extension MPThreeDS: UChallengeStatusReceiver {
 
     public func completed(_ completionEvent: UCompletionEvent) {
-        let result = MPThreeDSChallengeResult(
+        challengeDelegate?.completed(
             transactionStatus: completionEvent.getTransactionStatus(),
             transactionId: completionEvent.getSDKTransactionID()
         )
-        challengeContinuation?.resume(returning: result)
-        challengeContinuation = nil
     }
 
     public func cancelled() {
-        challengeContinuation?.resume(throwing: MPThreeDSError.challengeCancelled)
-        challengeContinuation = nil
+        challengeDelegate?.cancelled()
     }
 
     public func timedout() {
-        challengeContinuation?.resume(throwing: MPThreeDSError.challengeTimeout)
-        challengeContinuation = nil
+        challengeDelegate?.timedout()
     }
 
     public func protocolError(_ protocolErrorEvent: UProtocolErrorEvent) {
+        
         let errorMessage = protocolErrorEvent.getErrorMessage()
-        let error = MPThreeDSError.protocolError(
+        
+        let challengeError = MPThreeDSChallengeError(
             code: errorMessage.getErrorCode(),
-            message: errorMessage.getErrorDescription()
+            errorType: .protocolError,
+            message: errorMessage.getErrorDescription(),
+            detail: errorMessage.getErrorDetails()
         )
-        challengeContinuation?.resume(throwing: error)
-        challengeContinuation = nil
+        
+        challengeDelegate?.protocolError?(
+            transactionId: protocolErrorEvent.getSDKTransactionID(),
+            error: challengeError
+        )
     }
 
     public func runtimeError(_ runtimeErrorEvent: URuntimeErrorEvent) {
-        let error = MPThreeDSError.runtimeError(
+        
+        let error = MPThreeDSChallengeError(
             code: runtimeErrorEvent.getErrorCode(),
-            message: runtimeErrorEvent.getErrorMessage()
+            errorType: .runtimeError,
+            message: runtimeErrorEvent.getErrorMessage(),
+            detail: nil
         )
-        challengeContinuation?.resume(throwing: error)
-        challengeContinuation = nil
+        
+        challengeDelegate?.runtimeError?(error: error)
     }
 }

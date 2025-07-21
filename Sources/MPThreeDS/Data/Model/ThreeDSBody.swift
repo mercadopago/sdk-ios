@@ -8,8 +8,6 @@
 import Foundation
 import uSDK
 
-typealias MPThreeDSTransaction = UTransaction
-
 struct ThreeDSBody: Sendable {
     let token: String
     let sdkAppId: String

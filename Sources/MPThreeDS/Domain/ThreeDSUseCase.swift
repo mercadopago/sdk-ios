@@ -17,7 +17,7 @@ protocol ThreeDSUseCaseProtocol: Sendable {
         transaction: UTransaction,
         token: String,
         authenticationParams: UAuthenticationRequestParameters
-    ) async throws -> MPThreeDSAuthenticationResponse
+    ) async throws -> MPThreeDSAuthenticated
 }
 
 final class ThreeDSUseCase: ThreeDSUseCaseProtocol {
@@ -40,11 +40,23 @@ final class ThreeDSUseCase: ThreeDSUseCaseProtocol {
         transaction: UTransaction,
         token: String,
         authenticationParams: UAuthenticationRequestParameters
-    ) async throws -> MPThreeDSAuthenticationResponse {
+    ) async throws -> MPThreeDSAuthenticated {
         let data = ThreeDSBody(token: token, authenticationRequestParameters: authenticationParams)
         
         let response = try await repository.authenticate(data)
 
-        return response
+        let status: MPThreeDSAuthenticated.Status = response.response == "" ? .challenge : .noAuthorized
+        
+        return MPThreeDSAuthenticated(
+            status: status,
+            parameters: .init(
+                threeDSServerTransID: response.threeDSServerTransID,
+                acsReferenceNumber: response.acsReferenceNumber,
+                dsTransID: response.dsTransID,
+                acsTransID: response.acsTransID,
+                acsSignedContent: response.acsSignedContent
+            ),
+            transaction: transaction
+        )
     }
 }

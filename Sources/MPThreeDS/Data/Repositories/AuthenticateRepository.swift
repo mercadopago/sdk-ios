@@ -32,8 +32,10 @@ final class AuthenticateRepository: AuthenticateRepositoryProtocol {
             throw NSError(domain: "ThreeDSError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create request body"])
         }
         
-        return try await self.dependencies.networkService.request(
+        let response: MPThreeDSAuthenticationResponse = try await self.dependencies.networkService.request(
             ThreeDSEndpoint.authenticate(body: body)
         )
+        
+        return response
     }
 }
