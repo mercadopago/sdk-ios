@@ -17,7 +17,7 @@ private enum ConstantsApplePay {
 
 /// Endpoints
 enum ApplePayEndpoint {
-    case postToken(body: ApplePayTokenBody)
+    case postToken(body: ApplePayRequestBody)
 }
 
 /// Extension to conform to `RequestEndpoint`.
@@ -35,7 +35,7 @@ extension ApplePayEndpoint: RequestEndpoint {
     /// Endpoint HTTP method.
     var method: HTTPMethod {
         switch self {
-        case .authenticate:
+        case .postToken:
             return .post
         }
     }
@@ -66,7 +66,7 @@ extension ApplePayEndpoint: RequestEndpoint {
         switch self {
         case let .postToken(body):
             let httpBody = try? JSONEncoder().encode(body)
-            return body
+            return httpBody
         }
     }
 } 

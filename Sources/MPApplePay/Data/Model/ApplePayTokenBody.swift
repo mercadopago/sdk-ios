@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ApplePayTokenBody: Encodable, Sendable {
+struct ApplePayRequestBody: Encodable, Sendable {
     let paymentData: String
 
     enum CodingKeys: String, CodingKey {

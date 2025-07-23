@@ -7,10 +7,13 @@
 
 import Foundation
 import PassKit
+#if SWIFT_PACKAGE
+    @_exported import MPCore
+#endif
 
-public final struct MPApplePay {
+public struct MPApplePay {
     
-    private let useCase: MPApplePayUseCaseProtocol
+    private let useCase: ApplePayUseCaseProtocol
     
     public init() {
         let networkDependency = CoreDependencyContainer.shared
@@ -20,13 +23,13 @@ public final struct MPApplePay {
         self.useCase = useCase
     }
     
-    init(_ useCase: MPApplePayUseCaseProtocol) {
+    init(_ useCase: ApplePayUseCaseProtocol) {
         self.useCase = useCase
     }
 }
 
 extension MPApplePay {
     public func createToken(_ paymentToken: PKPaymentToken) async throws -> MPApplePayToken {
-        return useCase.createToken(paymentToken)
+        return try await useCase.createToken(paymentToken)
     }
 }

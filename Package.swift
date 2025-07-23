@@ -54,8 +54,14 @@ let package = Package(
               .process("Resources")
             ]
         ),
-            
         
+        .target(
+            name: "MPApplePay",
+            dependencies: ["MPCore"]
+        ),
+        
+        
+
         //Tests
         .target(
             name: "CommonTests",
@@ -73,6 +79,10 @@ let package = Package(
         .testTarget(
             name: "MPCoreTests",
             dependencies: ["MPCore", "CommonTests"]
+        ),
+        .testTarget(
+            name: "MPApplePayTests",
+            dependencies: ["MPApplePay", "MPCore", "CommonTests"]
         ),
         .testTarget(
             name: "SnapshotTests",
