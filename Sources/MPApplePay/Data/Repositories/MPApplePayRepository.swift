@@ -1,5 +1,5 @@
 //
-//  AuthenticateRepositoryProtocol.swift
+//  MPApplePayRepository.swift
 //  MercadoPagoSDK
 //
 //  Created by Guilherme Prata Costa on 23/07/25.
@@ -12,8 +12,9 @@ import PassKit
     import MPCore
 #endif
 
+
 protocol ApplePayRepositoryProtocol: Sendable {
-    func postToken(_ data: PKPaymentToken) async throws -> MPApplePayToken
+    func createToken(payment: PKPaymentToken) async throws -> MPApplePayToken
 }
 
 final class MPApplePayRepository: ApplePayRepositoryProtocol {
@@ -24,15 +25,15 @@ final class MPApplePayRepository: ApplePayRepositoryProtocol {
     let dependencies: Dependency
 
     init(
-        dependencies: Dependency = CoreDependencyContainer.shared,
+        dependencies: Dependency
     ) {
         self.dependencies = dependencies
     }
 
-    func postToken(_ data: PKPaymentToken) async throws -> MPApplePayToken {
-        guard let body = data.toJSONData() else {
-            throw NSError(domain: "MPApplePayRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create request body"])
-        }
+    func createToken(payment: PKPaymentToken) async throws -> MPApplePayToken {
+        let body: ApplePayRequestBody = .init(
+            paymentData: payment.paymentData
+        )
 
         let response: MPTokenResponse = try await self.dependencies.networkService.request(
             Endpoint.postToken(body: body)

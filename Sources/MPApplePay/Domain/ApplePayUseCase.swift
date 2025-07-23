@@ -22,7 +22,7 @@ final class ApplePayUseCase: ApplePayUseCaseProtocol {
     private let repository: ApplePayRepositoryProtocol
 
     init(
-        repository: ApplePayRepositoryProtocol = MPApplePayRepository()
+        repository: ApplePayRepositoryProtocol
     ) {
         self.repository = repository
     }

@@ -1,5 +1,5 @@
 //
-//  MPThreeDSAuthenticationResponse.swift
+//  MPTokenResponse.swift
 //  MercadoPagoSDK
 //
 //  Created by Guilherme Prata Costa on 23/07/25.

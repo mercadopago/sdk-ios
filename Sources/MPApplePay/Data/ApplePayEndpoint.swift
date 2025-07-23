@@ -1,5 +1,5 @@
 //
-//  ConstantsThreeDS.swift
+//  ApplePayEndpoint.swift
 //  MercadoPagoSDK
 //
 //  Created by Guilherme Prata Costa on 23/07/25.
@@ -17,7 +17,7 @@ private enum ConstantsApplePay {
 
 /// Endpoints
 enum ApplePayEndpoint {
-    case postToken(body: Data)
+    case postToken(body: ApplePayTokenBody)
 }
 
 /// Extension to conform to `RequestEndpoint`.
@@ -65,6 +65,7 @@ extension ApplePayEndpoint: RequestEndpoint {
     var body: Data? {
         switch self {
         case let .postToken(body):
+            let httpBody = try? JSONEncoder().encode(body)
             return body
         }
     }
