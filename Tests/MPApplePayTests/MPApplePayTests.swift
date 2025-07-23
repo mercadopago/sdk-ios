@@ -3,7 +3,7 @@ import XCTest
 import PassKit
 @testable import MPApplePay
 
-extension PKPaymentToken: @unchecked Sendable {}
+extension PKPaymentToken: @unchecked @retroactive Sendable {}
 
 final class MPApplePayTests: XCTestCase {
 
