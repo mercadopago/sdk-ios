@@ -51,7 +51,7 @@ if command -v gh &> /dev/null; then
     --title "Release $VERSION" \
     --body "This PR prepares the release of version $VERSION .Please review the changes before merging." \
     --base main \
-    --head release/"$VERSION"
+    --head release/$VERSION
   
   echo "✅ PR created for release $VERSION"
 else
