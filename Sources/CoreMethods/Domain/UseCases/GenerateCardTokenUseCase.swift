@@ -29,7 +29,10 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
 
     let dependencies: Dependency
 
-    init(dependencies: Dependency, repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {
+    init(
+        dependencies: Dependency,
+        repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()
+    ) {
         self.repository = repository
         self.dependencies = dependencies
     }
