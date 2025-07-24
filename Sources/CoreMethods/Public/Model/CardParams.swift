@@ -14,7 +14,15 @@ public struct CardParams: Sendable {
     let documentNumber: String?
     let cardHolderName: String
 
-    public init(cardNumber: String, expirationYear: String, expirationMonth: String, securityCode: String, documentType: String?, documentNumber: String?, cardHolderName: String) {
+    public init(
+        cardNumber: String,
+        expirationYear: String,
+        expirationMonth: String,
+        securityCode: String,
+        documentType: String?,
+        documentNumber: String?,
+        cardHolderName: String
+    ) {
         self.cardNumber = cardNumber
         self.expirationYear = expirationYear
         self.expirationMonth = expirationMonth

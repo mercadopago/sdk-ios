@@ -169,7 +169,7 @@ public extension CardNumberTextFieldView {
     ///               .cornerRadius(8)
     ///       )
     ///   ```
-    public func style(_ style: CardNumberTextField.Style) -> CardNumberTextFieldView {
+    func style(_ style: CardNumberTextField.Style) -> CardNumberTextFieldView {
         var view = self
         view.style = style
         return view
@@ -185,7 +185,7 @@ public extension CardNumberTextFieldView {
     ///   CardNumberTextFieldView(...)
     ///       .maxLength(16) // For standard credit cards
     ///   ```
-    public func maxLength(_ length: Int) -> CardNumberTextFieldView {
+    func maxLength(_ length: Int) -> CardNumberTextFieldView {
         var view = self
         view.maxLength = length
         return view
@@ -203,7 +203,7 @@ public extension CardNumberTextFieldView {
     ///   CardNumberTextFieldView(...)
     ///       .mask("#### #### #### ####")
     ///   ```
-    public func mask(_ pattern: String, separator _: Character = " ") -> CardNumberTextFieldView {
+    func mask(_ pattern: String, separator _: Character = " ") -> CardNumberTextFieldView {
         var view = self
         view.mask = pattern
         return view
@@ -219,7 +219,7 @@ public extension CardNumberTextFieldView {
     ///   CardNumberTextFieldView(...)
     ///       .placeholder("Enter card number")
     ///   ```
-    public func placeholder(_ text: String) -> CardNumberTextFieldView {
+    func placeholder(_ text: String) -> CardNumberTextFieldView {
         var view = self
         view.placeholder = text
         return view
@@ -235,7 +235,7 @@ public extension CardNumberTextFieldView {
     ///   CardNumberTextFieldView(...)
     ///       .enabled(isCardPaymentSelected)
     ///   ```
-    public func enabled(_ isEnabled: Bool) -> CardNumberTextFieldView {
+    func enabled(_ isEnabled: Bool) -> CardNumberTextFieldView {
         let view = self
         view.isEnabled = isEnabled
         return view
@@ -251,7 +251,7 @@ public extension CardNumberTextFieldView {
     ///   CardNumberTextFieldView(...)
     ///       .keyboardAppearance(.dark)
     ///   ```
-    public func keyboardAppearance(_ appearance: UIKeyboardAppearance) -> CardNumberTextFieldView {
+    func keyboardAppearance(_ appearance: UIKeyboardAppearance) -> CardNumberTextFieldView {
         var view = self
         view.keyboardAppearance = appearance
         return view

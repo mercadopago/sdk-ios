@@ -38,7 +38,7 @@ import Foundation
 /// ```
 public final class CoreMethods: Sendable {
     
-    //MARK: Use Cases
+    // MARK: Use Cases
     internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
     private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
     private let installmentsUseCase: InstallmentsUseCaseProtocol
@@ -84,7 +84,6 @@ public final class CoreMethods: Sendable {
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
     }
-    
     
     // MARK: Create Token
     
@@ -144,7 +143,6 @@ public final class CoreMethods: Sendable {
             cardHolderName: cardHolderName
         )
     }
-
 
     /// Creates a card token using the provided card details and cardholder information.
     ///

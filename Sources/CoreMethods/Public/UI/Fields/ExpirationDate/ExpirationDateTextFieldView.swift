@@ -1,5 +1,3 @@
-
-
 #if SWIFT_PACKAGE
     import MPCore
 #endif

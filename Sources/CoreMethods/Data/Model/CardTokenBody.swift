@@ -12,12 +12,12 @@ struct CardTokenBody: Codable {
     let expirationYear: String?
     let securityCode: String
 
-    var cardId: String? = nil
-    var esc: String? = nil
-    var requireEsc: Bool? = nil
-    var buyerIdentification: BuyerIdentification? = nil
+    var cardId: String?
+    var esc: String?
+    var requireEsc: Bool?
+    var buyerIdentification: BuyerIdentification?
 
-    var device: Data? = nil
+    var device: Data?
 }
 
 extension CardTokenBody {
