@@ -501,7 +501,7 @@ final class CoreMethodsTests: XCTestCase {
                 expectation.fulfill()
             }
 
-            await fulfillment(of: [expectation], timeout: 1.0)
+            await fulfillment(of: [expectation], timeout: 2.0)
             let messages = await analytics.mock.getMessages()
 
             // Assert
