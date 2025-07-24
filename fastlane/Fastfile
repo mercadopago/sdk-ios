@@ -8,7 +8,7 @@ platform :ios do
     scan(
       scheme: "MercadoPagoSDK",
       package_path: ".",
-      only_testing: ["CoreMethodsTests" , "AnalyticsTests", "MPCoreTests"],
+      only_testing: ["CoreMethodsTests" , "AnalyticsTests", "MPCoreTests", "MPApplePayTests"],
       destination: "platform=iOS Simulator,name=iPhone 16",
       result_bundle: true,
       code_coverage: true,
