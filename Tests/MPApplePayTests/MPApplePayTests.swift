@@ -16,7 +16,7 @@ final class MPApplePayTests: XCTestCase {
     // MARK: - Stubs
     private enum ApplePayTokenStub {
         static let validToken = MPApplePayToken(
-            token: "token_data",
+            token: "token_data"
         )
     }
 
