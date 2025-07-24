@@ -13,7 +13,7 @@ import PassKit
 
 protocol ApplePayUseCaseProtocol: Sendable {
     func createToken(
-        _ payment: PKPaymentToken,
+        _ payment: PKPaymentToken
     ) async throws -> MPApplePayToken
 }
 
