@@ -33,7 +33,7 @@ package extension Text {
 /// and a semantic color (`TextStyleColorType`). The actual `Font` and `Color` are
 /// resolved dynamically using the `MPTheme` from the SwiftUI environment.
 package struct BaseTextStyle: TextStyle {
-    public typealias Configuration = TextStyleConfiguration
+    package typealias Configuration = TextStyleConfiguration
 
     @Environment(\.checkoutTheme) var theme: MPTheme
 
