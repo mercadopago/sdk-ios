@@ -42,7 +42,7 @@ package struct PillTextStyle: TextStyle {
     public func makeBody(configuration: Configuration) -> some View {
         configuration
             .content
-            .font(theme.typography.body.medium.semibold)
+            .font(theme.typography.body.extraSmallSemibold)
             .foregroundColor(pillType.textColor(from: theme.colors))
             .padding(.horizontal, theme.spacings.s)
             .padding(.vertical, theme.spacings.xxs)
@@ -69,7 +69,7 @@ public enum PillType: CaseIterable, Identifiable, Sendable {
     public func backgroundColor(from color: MPColors) -> Color {
         switch self {
         case .success:
-            return color.feedbackPositive
+            return color.feedbackPositiveSecondary
         }
     }
     
