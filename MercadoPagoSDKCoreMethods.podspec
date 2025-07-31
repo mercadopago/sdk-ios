@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
 
   s.source_files = 'Sources/CoreMethods/**/*', 'Sources/MPCore/**/*', 'Sources/MPAnalytics/**/*'
 
-  s.ios.vendored_frameworks = ['Sources/Framework/DeviceFingerPrint.xcframework']
+  s.ios.vendored_frameworks = ['Sources/Frameworks/DeviceFingerPrint.xcframework']
 
   s.pod_target_xcconfig = {
     'OTHER_SWIFT_FLAGS' => '$(inherited) -package-name CoreMethods -DCOCOAPODS'
