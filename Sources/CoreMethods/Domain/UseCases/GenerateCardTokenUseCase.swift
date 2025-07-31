@@ -71,6 +71,27 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
 
         let response = try await repository.generateCardToken(cardData)
 
-        return .init(token: response.id)
+        return .init(
+            token: response.id,
+            publicKey: response.publicKey,
+            bin: response.firstSixDigits,
+            expirationMonth: response.expirationMonth,
+            expirationYear: response.expirationYear,
+            lastFourDigits: response.lastFourDigits,
+            cardHolder: .init(
+                identification: .init(type: response.cardholder?.identification?.type),
+                name: response.cardholder?.name
+            ),
+            status: response.status,
+            dateCreated: response.dateCreated,
+            dateLastUpdated: response.dateLastUpdated,
+            dateDue: response.dateDue,
+            luhnValidation: response.luhnValidation,
+            liveMode: response.liveMode,
+            requireEsc: response.requireEsc,
+            cardNumberLength: response.cardNumberLength,
+            securityCodeLength: response.securityCodeLength,
+            truncCardNumber: response.truncCardNumber
+        )
     }
 }

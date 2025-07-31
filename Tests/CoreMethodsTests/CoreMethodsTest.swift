@@ -17,15 +17,6 @@ final class CoreMethodsTests: XCTestCase {
 
     // MARK: - Stubs and Factories
 
-    /// Card token response model
-    private enum CardTokenStub {
-        static let validTokenID = "1234"
-
-        static var validResponse: Data {
-            try! JSONEncoder().encode(CardTokenResponse(id: validTokenID))
-        }
-    }
-
     /// Identification type response model
     private enum IdentificationTypeStub {
         static let validDNI = IdentificationType(
@@ -256,7 +247,7 @@ final class CoreMethodsTests: XCTestCase {
             )
 
             // Assert
-            XCTAssertEqual(result.token, CardTokenStub.validTokenID)
+            XCTAssertEqual(result, CardTokenStub.expectedToken)
         } catch {
             XCTFail("Should not throw error: \(error)")
         }
@@ -328,7 +319,7 @@ final class CoreMethodsTests: XCTestCase {
             )
 
             // Assert
-            XCTAssertEqual(result.token, CardTokenStub.validTokenID)
+            XCTAssertEqual(result, CardTokenStub.expectedToken)
         } catch {
             XCTFail("Expected success but got \(error)")
         }
@@ -357,7 +348,7 @@ final class CoreMethodsTests: XCTestCase {
             )
 
             // Assert
-            XCTAssertEqual(result.token, CardTokenStub.validTokenID)
+            XCTAssertEqual(result, CardTokenStub.expectedToken)
         } catch {
             XCTFail("Should not throw error: \(error)")
         }
@@ -453,7 +444,7 @@ final class CoreMethodsTests: XCTestCase {
             )
 
             // Assert
-            XCTAssertEqual(result.token, CardTokenStub.validTokenID)
+            XCTAssertEqual(result, CardTokenStub.expectedToken)
         } catch {
             XCTFail("Expected success but got \(error)")
         }

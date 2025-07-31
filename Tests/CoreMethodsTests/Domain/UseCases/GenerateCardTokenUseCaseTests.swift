@@ -35,7 +35,8 @@ final class GenerateCardTokenUseCaseTests: XCTestCase {
     func test_tokenize_WhenNetworkReturnSucessful_ShouldReturnCardToken() async {
         let (sut, session) = self.makeSUT()
 
-        let data = try! JSONEncoder().encode(CardTokenResponse(id: "1234"))
+        let data = CardTokenStub.validResponse
+        let expectedToken = CardTokenStub.expectedToken
 
         await session.mock.setResponse(self.makeSuccessResponse())
         await session.mock.setData(data)
@@ -52,7 +53,7 @@ final class GenerateCardTokenUseCaseTests: XCTestCase {
                 identificationNumber: nil
             )
 
-            XCTAssertEqual(result.token, "1234")
+            XCTAssertEqual(result, expectedToken)
 
         } catch {
             XCTFail("Should not throw error")
