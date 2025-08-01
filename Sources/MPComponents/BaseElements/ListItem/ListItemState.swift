@@ -23,13 +23,4 @@ public enum ListItemState: Equatable {
     
     /// A convenience property that returns `true` if the state is `selected`.
     public var isOn: Bool { self == .selected }
-
-    /// Maps ListItemState to the RadioButtonState used by RadioToggleStyle.
-    var radioState: RadioButtonState {
-        switch self {
-        case .unselected, .selected: return .idle
-        case .disabled: return .disabled
-        case .error: return .error
-        }
-    }
 }

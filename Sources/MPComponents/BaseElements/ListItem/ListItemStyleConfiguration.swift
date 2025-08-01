@@ -24,8 +24,6 @@ public struct ListItemStyleConfiguration {
         public let body: AnyView
     }
     
-    public let state: ListItemState
-
     public let toggle: Toggle
     public let primaryText: PrimaryText
     public let secondaryText: SecondaryText?
@@ -46,7 +44,6 @@ public struct ListItemStyleConfiguration {
         self.secondaryText = secondaryText.map { SecondaryText(body: AnyView($0)) }
         self.badge = badge.map { Badge(body: AnyView($0)) }
         self.isSelected = isSelected
-        self.state = state
     }
 }
 
