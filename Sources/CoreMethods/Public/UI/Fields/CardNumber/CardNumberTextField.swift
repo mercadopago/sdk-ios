@@ -57,6 +57,10 @@ public final class CardNumberTextField: PCITextField {
     /// Callback triggered when the field focus state changes.
     /// - Parameter isFocused: True when field gains focus, false when it loses focus
     public var onFocusChanged: ((Bool) -> Void)?
+    
+    /// Callback triggered when the length of input change
+    /// - Parameter length: Length of security code
+    public var onLengthChanged: ((Int) -> Void)?
 
     ///
     /// Callback triggered when a validation error occurs.
@@ -164,11 +168,13 @@ public final class CardNumberTextField: PCITextField {
             guard let self else { return }
             
             let inputLength = text.count
+            self.onLengthChanged?(inputLength)
+            
             let currentBin = getBin(text)
 
             let previousBinPrefix = self.previousBin
 
-            if inputLength >= self.binLength && currentBin != previousBinPrefix {
+            if inputLength >= self.binLength && currentBin != previousBinPrefix || inputLength == 0  {
                 self.previousBin = currentBin
                 self.onBinChanged?(currentBin)
             }

@@ -100,14 +100,16 @@ final class CardFormViewController: UIViewController {
 
         // Handle BIN number changes (first 6-8 digits)
         field.onBinChanged = { [weak self] bin in
-            Task { [weak self] in
-                
-                // Payment Method, Issuer and Installment call
-                // ViewModel Handle bin change use CoreMethods SDK to retrive card information and update UI
-                await self?.viewModel.handleBinChange(bin)
-                await self?.updateInstallmentsUI()
-                await self?.updateCardImageUI()
-                await self?.updateCardConfigurationUI()
+            if !bin.isEmpty {
+                Task { [weak self] in
+                    
+                    // Payment Method, Issuer and Installment call
+                    // ViewModel Handle bin change use CoreMethods SDK to retrive card information and update UI
+                    await self?.viewModel.handleBinChange(bin)
+                    await self?.updateInstallmentsUI()
+                    await self?.updateCardImageUI()
+                    await self?.updateCardConfigurationUI()
+                }
             }
         }
 
@@ -144,6 +146,16 @@ final class CardFormViewController: UIViewController {
                 type: .function,
                 title: "onError - CardNumberTextFieldView",
                 object: error
+            )
+        }
+        
+        // Handle length changes
+        field.onLengthChanged = { [weak self] length in
+            print("CardNumberField length:", length)
+            DebugLogger.shared.log(
+                type: .function,
+                title: "onLengthChanged - CardNumberField",
+                object: length
             )
         }
 

@@ -65,6 +65,9 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
 
     /// A closure that is called when a validation error occurs.
     public var onError: (CardNumberError) -> Void
+    
+    /// A closure that is called when the input length changes.
+    public var onLengthChanged: ((Int) -> Void)?
 
     @Binding var textField: CardNumberTextField?
 
@@ -93,10 +96,11 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         placeholder: String? = nil,
         isEnabled: Binding<Bool> = .constant(true),
         keyboardAppearance: UIKeyboardAppearance = .default,
+        onLengthChanged: ((Int) -> Void)? = nil,
         onBinChanged: @escaping ((String) -> Void),
         onLastFourDigitsFilled: @escaping ((String) -> Void),
         onFocusChanged: @escaping ((Bool) -> Void),
-        onError: @escaping ((CardNumberError) -> Void)
+        onError: @escaping ((CardNumberError) -> Void),
     ) {
         self.style = style
         self.maxLength = maxLength
@@ -104,6 +108,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         self.placeholder = placeholder
         self._isEnabled = isEnabled
         self.keyboardAppearance = keyboardAppearance
+        self.onLengthChanged = onLengthChanged
         self.onBinChanged = onBinChanged
         self.onLastFourDigitsFilled = onLastFourDigitsFilled
         self.onFocusChanged = onFocusChanged
@@ -127,6 +132,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         textField.isEnabled = self.isEnabled
         textField.keyboardAppearance = self.keyboardAppearance
 
+        textField.onLengthChanged = self.onLengthChanged
         textField.onBinChanged = self.onBinChanged
         textField.onLastFourDigitsFilled = self.onLastFourDigitsFilled
         textField.onFocusChanged = self.onFocusChanged

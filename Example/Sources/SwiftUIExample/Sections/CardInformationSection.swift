@@ -74,12 +74,20 @@ struct CardInformationSection: View {
             style: style,
             placeholder: "Número do cartão",
             
+            /// Track input length for UX feedback
+            onLengthChanged: { length in
+                print("length")
+                DebugLogger.shared.log(type: .function, title: "onLengthChanged - CardNumberTextFieldView", object: length)
+            },
+            
             /// BIN Change Handler - Core Integration Point
             /// Called when first 6-8 digits are entered
             /// Triggers payment method detection and installment lookup
             onBinChanged: { bin in
-                Task {
-                    await viewModel.handleBinChange(bin)
+                if !bin.isEmpty {
+                    Task {
+                        await viewModel.handleBinChange(bin)
+                    }
                 }
             },
             
