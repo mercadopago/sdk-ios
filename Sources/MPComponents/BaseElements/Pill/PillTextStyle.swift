@@ -44,8 +44,7 @@ package struct PillTextStyle: TextStyle {
             .content
             .font(theme.typography.body.extraSmallSemibold)
             .foregroundColor(pillType.textColor(from: theme.colors))
-            .padding(.horizontal, theme.spacings.s)
-            .padding(.vertical, theme.spacings.xxs)
+            .padding(.horizontal, theme.spacings.xs)
             .background(
                 RoundedRectangle(cornerRadius: theme.borderRadius.s)
                     .fill(
