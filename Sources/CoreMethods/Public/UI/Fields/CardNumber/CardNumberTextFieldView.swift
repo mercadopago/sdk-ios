@@ -100,7 +100,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         onBinChanged: @escaping ((String) -> Void),
         onLastFourDigitsFilled: @escaping ((String) -> Void),
         onFocusChanged: @escaping ((Bool) -> Void),
-        onError: @escaping ((CardNumberError) -> Void),
+        onError: @escaping ((CardNumberError) -> Void)
     ) {
         self.style = style
         self.maxLength = maxLength
