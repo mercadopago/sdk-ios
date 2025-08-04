@@ -9,7 +9,7 @@ import SwiftUI
 import MPFoundation
 
 /// Defines the content to be displayed on the trailing side of a ListItem.
-public enum ListItemTrailingContent: Equatable {
+package enum ListItemTrailingContent: Equatable {
     /// No content is displayed.
     case none
     
@@ -22,7 +22,7 @@ public enum ListItemTrailingContent: Equatable {
 }
 
 
-public struct ListItem: View {
+package struct ListItem: View {
     @Environment(\.listItemStyle) private var style
     @Environment(\.isEnabled) private var isEnabled: Bool
     @Environment(\.hasError) private var hasError: Bool
@@ -32,7 +32,7 @@ public struct ListItem: View {
     let isSelected: Bool
     let onSelectionChanged: (Bool) -> Void
 
-    public init(
+    package init(
         title: String,
         trailingContent: ListItemTrailingContent = .none,
         isSelected: Bool,
@@ -44,7 +44,7 @@ public struct ListItem: View {
         self.onSelectionChanged = onSelectionChanged
     }
     
-    public var body: some View {        
+    package var body: some View {        
         let configuration: ListItemStyleConfiguration = .init(
             toggle: toggleView,
             primaryText: titleView,

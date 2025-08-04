@@ -9,9 +9,9 @@ import SwiftUI
 import MPFoundation
 
 
-public protocol ListItemStyle: StyleProtocol, Identifiable where Configuration == ListItemStyleConfiguration {}
+package protocol ListItemStyle: StyleProtocol, Identifiable where Configuration == ListItemStyleConfiguration {}
 
-public struct DefaultListItemStyle: ListItemStyle {
+package struct DefaultListItemStyle: ListItemStyle {
     public var id: UUID = .init()
 
     @Environment(\.checkoutTheme) var theme: MPTheme

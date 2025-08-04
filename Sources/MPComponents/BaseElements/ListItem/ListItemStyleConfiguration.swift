@@ -7,31 +7,31 @@
 
 import SwiftUI
 
-public struct ListItemStyleConfiguration {
-    public struct Toggle: View {
+package struct ListItemStyleConfiguration {
+    package struct Toggle: View {
         public let body: AnyView
     }
     
-    public struct PrimaryText: View {
+    package struct PrimaryText: View {
         public let body: AnyView
     }
     
-    public struct SecondaryText: View {
+    package struct SecondaryText: View {
         public let body: AnyView
     }
     
-    public struct Badge: View {
+    package struct Badge: View {
         public let body: AnyView
     }
     
-    public let toggle: Toggle
-    public let primaryText: PrimaryText
-    public let secondaryText: SecondaryText?
-    public let badge: Badge?
-    public let isSelected: Bool
+    package let toggle: Toggle
+    package let primaryText: PrimaryText
+    package let secondaryText: SecondaryText?
+    package let badge: Badge?
+    package let isSelected: Bool
     
     @MainActor
-    public init(
+    package init(
         toggle: some View,
         primaryText: some View,
         secondaryText: (some View)? = nil,
@@ -59,7 +59,7 @@ extension EnvironmentValues {
     }
 }
 
-public extension View {
+package extension View {
     /// Sets the style for `ListItem` views within this view.
     ///
     /// - Parameter style: The `ListItemStyle` to apply.
