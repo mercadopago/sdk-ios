@@ -8,6 +8,20 @@
 import SwiftUI
 import MPFoundation
 
+/// Defines the content to be displayed on the trailing side of a ListItem.
+public enum ListItemTrailingContent: Equatable {
+    /// No content is displayed.
+    case none
+    
+    /// A simple text label.
+    case text(String)
+    
+    /// A pill-style badge, using the existing Pill component.
+    /// The associated type defaults to `.success`.
+    case pill(text: String, type: PillType = .success)
+}
+
+
 public struct ListItem: View {
     @Environment(\.listItemStyle) private var style
     @Environment(\.isEnabled) private var isEnabled: Bool
@@ -36,7 +50,7 @@ public struct ListItem: View {
             primaryText: titleView,
             secondaryText: secondaryTextView,
             badge: badgeView,
-            isSelected: isSelected,
+            isSelected: isSelected
         )
         
         AnyView(

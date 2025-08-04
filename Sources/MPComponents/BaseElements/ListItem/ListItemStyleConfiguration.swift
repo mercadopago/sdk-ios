@@ -36,8 +36,7 @@ public struct ListItemStyleConfiguration {
         primaryText: some View,
         secondaryText: (some View)? = nil,
         badge: (some View)? = nil,
-        isSelected: Bool,
-        state: ListItemState = .unselected
+        isSelected: Bool
     ) {
         self.toggle = Toggle(body: AnyView(toggle))
         self.primaryText = PrimaryText(body: AnyView(primaryText))
