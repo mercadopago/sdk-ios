@@ -27,7 +27,7 @@ package struct RadioToggleStyle: ToggleStyle {
     package func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: 8) {
             Button(action: {
-                if !isEnabled {
+                if isEnabled {
                     configuration.isOn.toggle()
                 }
             }) {

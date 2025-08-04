@@ -23,8 +23,7 @@ final class RadioButtonSnapshotTests: XCTestCase {
     func test_idleStateOff() {
         let view = createRadioButton(
             text: "Idle Option",
-            isOn: false,
-            state: .idle
+            isOn: false
         )
         
         assertSnapshot(
@@ -37,8 +36,7 @@ final class RadioButtonSnapshotTests: XCTestCase {
     func test_idleStateOn() {
         let view = createRadioButton(
             text: "Idle Option",
-            isOn: true,
-            state: .idle
+            isOn: true
         )
         
         assertSnapshot(
@@ -54,7 +52,7 @@ final class RadioButtonSnapshotTests: XCTestCase {
         let view = createRadioButton(
             text: "Disabled Option",
             isOn: false,
-            state: .disabled
+            disabled: true
         )
         
         assertSnapshot(
@@ -68,7 +66,7 @@ final class RadioButtonSnapshotTests: XCTestCase {
         let view = createRadioButton(
             text: "Disabled Option",
             isOn: true,
-            state: .disabled
+            disabled: true
         )
         
         assertSnapshot(
@@ -84,7 +82,7 @@ final class RadioButtonSnapshotTests: XCTestCase {
         let view = createRadioButton(
             text: "Error Option",
             isOn: false,
-            state: .error
+            hasError: true
         )
         
         assertSnapshot(
@@ -98,7 +96,7 @@ final class RadioButtonSnapshotTests: XCTestCase {
         let view = createRadioButton(
             text: "Error Option",
             isOn: true,
-            state: .error
+            hasError: true
         )
         
         assertSnapshot(
@@ -116,8 +114,8 @@ final class RadioButtonSnapshotTests: XCTestCase {
                 Text("Idle")
                     .font(.headline)
                 HStack(spacing: 20) {
-                    createRadioButton(text: "Off", isOn: false, state: .idle)
-                    createRadioButton(text: "On", isOn: true, state: .idle)
+                    createRadioButton(text: "Off", isOn: false)
+                    createRadioButton(text: "On", isOn: true)
                 }
             }
             
@@ -125,8 +123,8 @@ final class RadioButtonSnapshotTests: XCTestCase {
                 Text("Disabled")
                     .font(.headline)
                 HStack(spacing: 20) {
-                    createRadioButton(text: "Off", isOn: false, state: .disabled)
-                    createRadioButton(text: "On", isOn: true, state: .disabled)
+                    createRadioButton(text: "Off", isOn: false, disabled: true)
+                    createRadioButton(text: "On", isOn: true, disabled: true)
                 }
             }
             
@@ -134,8 +132,8 @@ final class RadioButtonSnapshotTests: XCTestCase {
                 Text("Error")
                     .font(.headline)
                 HStack(spacing: 20) {
-                    createRadioButton(text: "Off", isOn: false, state: .error)
-                    createRadioButton(text: "On", isOn: true, state: .error)
+                    createRadioButton(text: "Off", isOn: false, hasError: true)
+                    createRadioButton(text: "On", isOn: true, hasError: true)
                 }
             }
         }
@@ -154,11 +152,14 @@ final class RadioButtonSnapshotTests: XCTestCase {
     private func createRadioButton(
         text: String,
         isOn: Bool,
-        state: RadioButtonState
+        hasError: Bool = false,
+        disabled: Bool = false
     ) -> some View {
         Toggle(text, isOn: .constant(isOn))
-            .toggleStyle(.radio(state: state))
+            .toggleStyle(.radio)
             .font(.system(size: 16))
+            .hasError(hasError)
+            .disabled(disabled)
             .environment(\.checkoutTheme, MPLightTheme())
             .frame(maxWidth: .infinity, alignment: .leading)
     }
