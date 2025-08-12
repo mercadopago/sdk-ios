@@ -13,9 +13,7 @@ final class ApplePayUseCaseTests: XCTestCase {
 
     // MARK: - Stubs
     private enum ApplePayTokenStub {
-        static let validToken = MPApplePayToken(
-            token: ""
-        )
+        static let validToken = MPApplePayToken(id: "some_token_id", bin: "123456")
     }
 
     private enum APIErrorStub {
@@ -40,7 +38,8 @@ final class ApplePayUseCaseTests: XCTestCase {
         let receivedToken = try await sut.createToken(paymentToken)
 
         // Assert
-        XCTAssertEqual(receivedToken.token, ApplePayTokenStub.validToken.token)
+        XCTAssertEqual(receivedToken.id, ApplePayTokenStub.validToken.id)
+        XCTAssertEqual(receivedToken.bin, ApplePayTokenStub.validToken.bin)
         
         let callCount = await repositoryMock.createTokenCallCount
         XCTAssertEqual(callCount, 1)

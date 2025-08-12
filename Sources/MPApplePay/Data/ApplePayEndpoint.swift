@@ -12,10 +12,12 @@ import Foundation
 #endif
 
 private enum ConstantsApplePay {
-    static let baseURL = "https://api.mercadopago.com"
+    // Base aligns with cURL host and path prefix; APIVersion appends "/v1/"
+    static let baseURL = "https://api.mercadopago.com/platforms/pci/applepay"
 }
 
 /// Endpoints
+/// Apple Pay tokenization endpoints.
 enum ApplePayEndpoint {
     case postToken(body: ApplePayRequestBody)
 }
@@ -44,7 +46,7 @@ extension ApplePayEndpoint: RequestEndpoint {
     var path: String {
         switch self {
         case .postToken:
-            return "authenticate"
+            return "tokenize"
         }
     }
 
@@ -52,7 +54,8 @@ extension ApplePayEndpoint: RequestEndpoint {
     var headers: [String: String] {
         return [
             "Content-Type": "application/json",
-            "X-Product-id": MPSDKProduct.id
+            "X-Product-id": MPSDKProduct.id,
+            "Authorization": "Bearer \(MercadoPagoSDK.shared.getPublicKey())"
         ]
     }
 

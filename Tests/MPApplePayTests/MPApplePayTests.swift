@@ -3,7 +3,6 @@ import XCTest
 import PassKit
 @testable import MPApplePay
 
-extension PKPaymentToken: @unchecked @retroactive Sendable {}
 
 final class MPApplePayTests: XCTestCase {
 
@@ -15,9 +14,7 @@ final class MPApplePayTests: XCTestCase {
 
     // MARK: - Stubs
     private enum ApplePayTokenStub {
-        static let validToken = MPApplePayToken(
-            token: "token_data"
-        )
+        static let validToken = MPApplePayToken(id: "token_id", bin: "123456")
     }
 
     private enum APIErrorStub {
@@ -42,7 +39,8 @@ final class MPApplePayTests: XCTestCase {
         let receivedToken = try await sut.createToken(paymentToken)
 
         // Assert
-        XCTAssertEqual(receivedToken.token, ApplePayTokenStub.validToken.token)
+        XCTAssertEqual(receivedToken.id, ApplePayTokenStub.validToken.id)
+        XCTAssertEqual(receivedToken.bin, ApplePayTokenStub.validToken.bin)
         let callCount = await useCaseMock.createTokenCallCount
         XCTAssertEqual(callCount, 1)
     }
