@@ -9,6 +9,7 @@ import Foundation
 import PassKit
 #if SWIFT_PACKAGE
     @_exported import MPCore
+    import MPAnalytics
 #endif
 
 /// Primary entry point for Apple Pay tokenization with Mercado Pago.
@@ -22,19 +23,28 @@ import PassKit
 /// let token = try await mpApplePay.createToken(payment.token)
 /// print(token.id)
 /// ```
-public struct MPApplePay {
+public final class MPApplePay: Sendable {
     
     private let useCase: ApplePayUseCaseProtocol
     
+    typealias Dependency = HasAnalytics
+    let dependencies: Dependency
+    
+    struct Analytics {
+        static let tokenization = "/checkout_api_native/core_methods/tokenization"
+    }
+    
     public init() {
-        let networkDependency = CoreDependencyContainer.shared
-        let repository = MPApplePayRepository(dependencies: networkDependency)
+        let container = CoreDependencyContainer.shared
+        self.dependencies = container
+        let repository = MPApplePayRepository(dependencies: container)
         let useCase = ApplePayUseCase(repository: repository)
         
         self.useCase = useCase
     }
     
-    init(_ useCase: ApplePayUseCaseProtocol) {
+    init(dependencies: Dependency, _ useCase: ApplePayUseCaseProtocol) {
+        self.dependencies = dependencies
         self.useCase = useCase
     }
 }
@@ -45,6 +55,28 @@ extension MPApplePay {
     /// - Returns: A `MPApplePayToken` with an identifier and BIN information when available.
     /// - Throws: Errors originating from the underlying network request or response decoding.
     public func createToken(_ paymentToken: PKPaymentToken) async throws -> MPApplePayToken {
-        return try await useCase.createToken(paymentToken)
+        do {
+            let token = try await useCase.createToken(paymentToken)
+            
+            Task {
+                await self.dependencies.analytics
+                    .trackEvent(Analytics.tokenization)
+                    .setEventData(ApplePayEventData())
+                    .send()
+            }
+            
+            return token
+            
+        } catch {
+            Task {
+                await self.dependencies.analytics
+                    .trackEvent(Analytics.tokenization + "/error")
+                    .setEventData(ApplePayEventData())
+                    .setError(error.localizedDescription)
+                    .send()
+            }
+            
+            throw error
+        }
     }
 }

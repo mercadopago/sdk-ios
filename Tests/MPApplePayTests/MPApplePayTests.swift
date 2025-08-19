@@ -1,15 +1,16 @@
 
 import XCTest
 import PassKit
+import CommonTests
 @testable import MPApplePay
-
 
 final class MPApplePayTests: XCTestCase {
 
     // MARK: - Typealias
     private typealias SUT = (
         sut: MPApplePay,
-        useCase: ApplePayUseCaseMock
+        useCase: ApplePayUseCaseMock,
+        dependencies: MockDependencyContainer
     )
 
     // MARK: - Stubs
@@ -24,16 +25,24 @@ final class MPApplePayTests: XCTestCase {
     // MARK: - SUT Factory
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> SUT {
         let useCaseMock = ApplePayUseCaseMock()
-        let sut = MPApplePay(useCaseMock)
-        return (sut: sut, useCase: useCaseMock)
+        let dependencies = MockDependencyContainer()
+        let sut = MPApplePay(dependencies: dependencies, useCaseMock)
+        return (sut: sut, useCase: useCaseMock, dependencies: dependencies)
     }
 
     // MARK: - Tests
     func test_createToken_whenUseCaseSucceeds_shouldReturnToken() async throws {
         // Arrange
-        let (sut, useCaseMock) = makeSUT()
+        let (sut, useCaseMock, dependencies) = makeSUT()
         await useCaseMock.setCreateToken(result: .success(ApplePayTokenStub.validToken))
         let paymentToken = PKPaymentToken()
+
+        // Expectation for analytics send
+        let sendExpectation = expectation(description: "analytics send - success")
+        sendExpectation.expectedFulfillmentCount = 1
+        await dependencies.mockAnalytics.mock.updateSendCallback {
+            sendExpectation.fulfill()
+        }
 
         // Act
         let receivedToken = try await sut.createToken(paymentToken)
@@ -43,14 +52,29 @@ final class MPApplePayTests: XCTestCase {
         XCTAssertEqual(receivedToken.bin, ApplePayTokenStub.validToken.bin)
         let callCount = await useCaseMock.createTokenCallCount
         XCTAssertEqual(callCount, 1)
+
+        await fulfillment(of: [sendExpectation], timeout: 1.0)
+
+        // Verify analytics messages
+        let messages = await dependencies.mockAnalytics.mock.getMessages()
+        XCTAssertTrue(messages.contains(.track(path: "/checkout_api_native/core_methods/tokenization")))
+        XCTAssertTrue(messages.contains(.setEventData(["type_wallet": "applepay"])))
+        XCTAssertTrue(messages.contains(.send))
     }
 
     func test_createToken_whenUseCaseFails_shouldThrowError() async {
         // Arrange
-        let (sut, useCaseMock) = makeSUT()
+        let (sut, useCaseMock, dependencies) = makeSUT()
         let expectedError = APIErrorStub.genericError
         await useCaseMock.setCreateToken(result: .failure(expectedError))
         let paymentToken = PKPaymentToken()
+
+        // Expect both initial "tokenization" send and error send
+        let sendExpectation = expectation(description: "analytics send - error path")
+        sendExpectation.expectedFulfillmentCount = 1
+        await dependencies.mockAnalytics.mock.updateSendCallback {
+            sendExpectation.fulfill()
+        }
 
         // Act & Assert
         do {
@@ -61,6 +85,14 @@ final class MPApplePayTests: XCTestCase {
             let callCount = await useCaseMock.createTokenCallCount
             XCTAssertEqual(callCount, 1)
         }
+
+        await fulfillment(of: [sendExpectation], timeout: 1.0)
+
+        // Verify analytics includes error tracking
+        let messages = await dependencies.mockAnalytics.mock.getMessages()
+        XCTAssertTrue(messages.contains(.track(path: "/checkout_api_native/core_methods/tokenization/error")))
+        XCTAssertTrue(messages.contains(.setEventData(["type_wallet": "applepay"])))
+        XCTAssertTrue(messages.contains(.setError(expectedError.localizedDescription)))
     }
 }
 
