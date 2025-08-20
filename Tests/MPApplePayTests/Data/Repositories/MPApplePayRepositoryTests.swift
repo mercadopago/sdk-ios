@@ -33,7 +33,7 @@ final class MPApplePayRepositoryTests: XCTestCase {
         let paymentToken = PKPaymentToken()
 
         // Act
-        let token = try await sut.createToken(payment: paymentToken)
+        let token = try await sut.createToken(payment: paymentToken, status: nil)
 
         // Assert
         XCTAssertEqual(token.id, expectedResponse.id)
@@ -49,7 +49,7 @@ final class MPApplePayRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.createToken(payment: paymentToken)
+            _ = try await sut.createToken(payment: paymentToken, status: nil)
             XCTFail("Expected error to be thrown")
         } catch let error as APIClientError {
             guard case let .networkError(inner as URLError) = error else {

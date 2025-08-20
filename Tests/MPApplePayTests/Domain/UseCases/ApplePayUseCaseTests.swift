@@ -35,7 +35,7 @@ final class ApplePayUseCaseTests: XCTestCase {
         let paymentToken = PKPaymentToken()
 
         // Act
-        let receivedToken = try await sut.createToken(paymentToken)
+        let receivedToken = try await sut.createToken(paymentToken, status: nil)
 
         // Assert
         XCTAssertEqual(receivedToken.id, ApplePayTokenStub.validToken.id)
@@ -54,7 +54,7 @@ final class ApplePayUseCaseTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.createToken(paymentToken)
+            _ = try await sut.createToken(paymentToken, status: nil)
             XCTFail("Expected createToken to throw an error, but it did not.")
         } catch {
             XCTAssertEqual(error as NSError, expectedError)
@@ -76,7 +76,7 @@ private actor ApplePayRepositoryMock: ApplePayRepositoryProtocol {
         self.createTokenResult = result
     }
 
-    func createToken(payment: PKPaymentToken) async throws -> MPApplePayToken {
+    func createToken(payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken {
         createTokenCallCount += 1
         switch createTokenResult {
         case .success(let token):

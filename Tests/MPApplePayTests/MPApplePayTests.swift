@@ -106,7 +106,7 @@ private actor ApplePayUseCaseMock: @preconcurrency ApplePayUseCaseProtocol {
         createTokenResult = result
     }
 
-    func createToken(_ payment: PKPaymentToken) async throws -> MPApplePayToken {
+    func createToken(_ payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken {
         createTokenCallCount += 1
         switch createTokenResult {
         case .success(let token):
