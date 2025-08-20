@@ -14,7 +14,8 @@ import PassKit
 /// Abstraction of Apple Pay tokenization business rules.
 protocol ApplePayUseCaseProtocol: Sendable {
     func createToken(
-        _ payment: PKPaymentToken
+        _ payment: PKPaymentToken,
+        status: String?
     ) async throws -> MPApplePayToken
 }
 
@@ -33,7 +34,7 @@ final class ApplePayUseCase: ApplePayUseCaseProtocol {
     /// Exchanges an Apple Pay token with the backend.
     /// - Parameter payment: `PKPaymentToken` received from Apple Pay sheet.
     /// - Returns: `MPApplePayToken` with backend token data.
-    func createToken(_ payment: PKPaymentToken) async throws -> MPApplePayToken {
-        try await repository.createToken(payment: payment)
+    func createToken(_ payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken {
+        try await repository.createToken(payment: payment, status: status)
     }
 }

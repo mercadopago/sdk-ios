@@ -51,14 +51,16 @@ public final class MPApplePay: Sendable {
 
 extension MPApplePay {
     /// Exchanges an Apple Pay payment token for a Mercado Pago token.
-    /// - Parameter paymentToken: The `PKPaymentToken` obtained from Apple Pay.
+    /// - Parameters:
+    ///   - paymentToken:  The `PKPaymentToken` obtained from Apple Pay.
+    ///   - status: This parameter only will be using for testing payments Link for status: https://www.mercadopago.com.br/developers/pt/docs/checkout-api/integration-test/test-cards
     /// - Returns: A `MPApplePayToken` with an identifier and BIN information when available.
     /// - Throws: Errors originating from the underlying network request or response decoding.
-    public func createToken(_ paymentToken: PKPaymentToken) async throws -> MPApplePayToken {
+    public func createToken(_ paymentToken: PKPaymentToken, status: String? = nil) async throws -> MPApplePayToken {
         do {
-            let token = try await useCase.createToken(paymentToken)
+            let token = try await useCase.createToken(paymentToken, status: status)
             
-            Task {
+            Task.detached {
                 await self.dependencies.analytics
                     .trackEvent(Analytics.tokenization)
                     .setEventData(ApplePayEventData())
@@ -68,7 +70,7 @@ extension MPApplePay {
             return token
             
         } catch {
-            Task {
+            Task.detached {
                 await self.dependencies.analytics
                     .trackEvent(Analytics.tokenization + "/error")
                     .setEventData(ApplePayEventData())

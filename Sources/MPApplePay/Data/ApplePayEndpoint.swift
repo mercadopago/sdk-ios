@@ -19,7 +19,7 @@ private enum ConstantsApplePay {
 /// Endpoints
 /// Apple Pay tokenization endpoints.
 enum ApplePayEndpoint {
-    case postToken(body: ApplePayRequestBody)
+    case postToken(body: ApplePayRequestBody, status: String?)
 }
 
 /// Extension to conform to `RequestEndpoint`.
@@ -52,11 +52,19 @@ extension ApplePayEndpoint: RequestEndpoint {
 
     /// Request headers.
     var headers: [String: String] {
-        return [
+        var defaultHeaders = [
             "Content-Type": "application/json",
             "X-Product-id": MPSDKProduct.id,
-            "Authorization": "Bearer \(MercadoPagoSDK.shared.getPublicKey())"
+            "X-Public-key": "\(MercadoPagoSDK.shared.getPublicKey())",
         ]
+        
+        switch self {
+        case let .postToken(_, status):
+            defaultHeaders["X-Test-Status"] = status
+        }
+        
+        return defaultHeaders
+
     }
 
     /// Request URL parameters.
@@ -67,7 +75,7 @@ extension ApplePayEndpoint: RequestEndpoint {
     /// Request body data.
     var body: Data? {
         switch self {
-        case let .postToken(body):
+        case let .postToken(body,_):
             let httpBody = try? JSONEncoder().encode(body)
             return httpBody
         }
