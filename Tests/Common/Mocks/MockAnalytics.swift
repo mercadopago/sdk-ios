@@ -111,6 +111,12 @@ package final class MockAnalytics: AnalyticsInterface {
 
         package func updateSendCallback(_ callback: @escaping () -> Void) {
             self.sendCallback = callback
+
+            // If a send message was already recorded before the callback was set,
+            // trigger the callback immediately to avoid missing the event in async tests.
+            if self.messages.contains(.send) {
+                callback()
+            }
         }
     }
 
