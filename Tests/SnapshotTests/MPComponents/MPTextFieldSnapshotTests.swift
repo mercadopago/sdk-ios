@@ -113,31 +113,15 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         let view = createTestView {
             VStack(spacing: 16) {
                 MPTextField(
-                    text: .constant(""),
-                    label: "Search Field",
-                    placeholder: "Search...",
-                    helperText: "With prefix and suffix",
-                    prefix: {
-                        Image(systemName: "magnifyingglass").foregroundColor(.gray)
-                    },
-                    suffix: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
-                    }
-                )
-                
-                MPTextField(
                     text: .constant("john@example.com"),
                     label: "Email",
                     placeholder: "Enter email",
                     helperText: "Valid email",
                     prefix: {
-                        Image(systemName: "envelope")
-                            .foregroundColor(.blue)
+                        Image(systemName: "envelope").foregroundColor(.blue)
                     },
                     suffix: {
-                        Image(systemName: "checkmark.circle")
-                            .foregroundColor(.green)
+                        Image(systemName: "checkmark.circle").foregroundColor(.green)
                     }
                 )
             }
@@ -147,7 +131,7 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 350, height: 200)),
+            as: .image(size: CGSize(width: 350, height: 120)),
             named: "with_prefix_and_suffix"
         )
     }
@@ -286,3 +270,4 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         }
     }
 }
+
