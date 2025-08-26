@@ -6,7 +6,7 @@
 //
 
 import UIKit
-@_exported import uSDK
+import uSDK
 
 protocol ThreeDSTransactionProtocol: Sendable {
     var id: String { get }
