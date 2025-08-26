@@ -43,7 +43,6 @@ public enum MPThreeDSError: Error {
 /// let config = ThreeDSConfig(customization: customization)
 /// let threeDS = MPThreeDS(config: config)
 ///
-/// // Modern async/await usage
 /// do {
 ///     // Get authentication parameters
 ///     var authData = try threeDS.getAuthenticationRequestParameters(
