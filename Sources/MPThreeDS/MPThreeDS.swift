@@ -44,17 +44,20 @@ public enum MPThreeDSError: Error {
 /// let config = ThreeDSConfig(customization: customization)
 /// let threeDS = MPThreeDS(config: config)
 ///
-/// // Requesting authentication
+/// // Getting authentication parameters
 /// do {
-///     let result = try await threeDS.requestChallenge(
-///         cardtoken: "card_token",
+///     var authData = try threeDS.getAuthenticationRequestParameters(
 ///         paymentMethodId: "visa"
 ///     )
 ///     
-///     if result.status == .challenge {
+///     // Send authData.parameters to your backend for challenge verification
+///     // If backend returns challenge parameters, start the challenge:
+///     if challengeParametersFromBackend != nil {
+///
+///         authData.challengeParameters = challengeParametersFromBackend
 ///         await threeDS.startChallenge(
 ///             from: navigationController,
-///             data: result
+///             data: authData
 ///         )
 ///     }
 /// } catch {
@@ -107,23 +110,42 @@ public class MPThreeDS: NSObject {
         }
     }
     
+    /// Returns security warnings generated during 3DS SDK initialization.
+    ///
+    /// The 3DS SDK performs several security checks during initialization time to assess
+    /// the safety of the mobile device environment. These checks may produce warnings
+    /// that help determine whether it's safe to initiate 3D Secure authentication.
+    ///
+    /// - Returns: Array of ``MPThreeDSWarning`` objects containing security warning details.
+    ///
     public func getWarnings() -> [MPThreeDSWarning] {
         return threeDSSDK.getWarnings()
     }
     
-    /// Requests 3D Secure authentication for a specific card.
+    /// Requests 3D Secure authentication parameters for a specific payment method.
     ///
-    /// This method initiates the 3DS authentication process, collecting device information and return
+    /// This method initiates the 3DS authentication process by collecting device information
+    /// and generating the necessary parameters that should be sent to your backend for
+    /// challenge verification.
     ///
     /// - Parameters:
     ///   - paymentMethodId: Payment method ID (e.g., "visa", "master", "amex").
     ///
-    /// - Returns: ``MPThreeDSAuthRequestParameters``  authentication parameters.
+    /// - Returns: ``MPThreeDSAuthenticated`` containing authentication parameters and transaction reference.
     ///
     /// - Throws: ``MPThreeDSError`` if any error occurs during the process.
     ///
     /// ## Example
-    ///
+    /// ```swift
+    /// do {
+    ///     let authData = try threeDS.getAuthenticationRequestParameters(paymentMethodId: "visa")
+    ///     // Send authData.parameters to your backend
+    /// } catch MPThreeDSError.noDirectoryServerAvailable {
+    ///     print("Payment method not supported for 3DS")
+    /// } catch {
+    ///     print("3DS authentication failed: \(error)")
+    /// }
+    /// ```
     public func getAuthenticationRequestParameters(
         paymentMethodId: String
     ) throws(MPThreeDSError) -> MPThreeDSAuthenticated {
@@ -158,12 +180,13 @@ public class MPThreeDS: NSObject {
     
     /// Starts the 3D Secure challenge by presenting the interface to the user.
     ///
-    /// This method should be called when ``requestChallenge(cardtoken:paymentMethodId:)`` 
-    /// returns a status of `.challenge`. It presents the 3DS authentication interface to the user.
+    /// This method should be called when your backend determines that a challenge is required
+    /// and returns challenge parameters. It presents the 3DS authentication interface to the user.
     ///
     /// - Parameters:
     ///   - navigationController: Navigation controller to present the challenge interface.
-    ///   - data: Authentication data returned by ``requestChallenge(cardtoken:paymentMethodId:)``.
+    ///   - data: Authentication data returned by ``getAuthenticationRequestParameters(paymentMethodId:)``.
+    ///   - timeOut: Challenge timeout in seconds. Default is 20 seconds.
     ///
     /// - Important: This method must be called on the main thread.
     /// - Note: Configure ``challengeDelegate`` before calling this method to receive result callbacks.
