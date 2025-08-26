@@ -37,28 +37,47 @@ public enum MPThreeDSError: Error {
 /// ```swift
 /// // Basic initialization
 /// let threeDS = MPThreeDS()
-/// threeDS.challengeDelegate = self
 ///
 /// // With custom configuration
 /// let customization = UUiCustomization()
 /// let config = ThreeDSConfig(customization: customization)
 /// let threeDS = MPThreeDS(config: config)
 ///
-/// // Getting authentication parameters
+/// // Modern async/await usage
 /// do {
+///     // Get authentication parameters
 ///     var authData = try threeDS.getAuthenticationRequestParameters(
 ///         paymentMethodId: "visa"
 ///     )
 ///     
 ///     // Send authData.parameters to your backend for challenge verification
 ///     // If backend returns challenge parameters, start the challenge:
-///     if challengeParametersFromBackend != nil {
-///
-///         authData.challengeParameters = challengeParametersFromBackend
-///         await threeDS.startChallenge(
+///     if let challengeParams = challengeParametersFromBackend {
+///         authData.challengeParameters = challengeParams
+///         
+///         let result = await threeDS.startChallenge(
 ///             from: navigationController,
 ///             data: authData
 ///         )
+///         
+///         switch result {
+///         case .completed(let status, let transactionId):
+///             if status == "Y" {
+///                 // Authentication successful - proceed with payment
+///                 proceedWithPayment(transactionId: transactionId)
+///             } else {
+///                 // Authentication failed or declined
+///                 handleAuthenticationFailure(status: status)
+///             }
+///         case .cancelled:
+///             showMessage("Authentication was cancelled")
+///         case .timedout:
+///             showMessage("Authentication timed out")
+///         case .protocolError(_, let error):
+///             handleError(error)
+///         case .runtimeError(let error):
+///             handleError(error)
+///         }
 ///     }
 /// } catch {
 ///     print("Authentication error: \(error)")
@@ -74,7 +93,12 @@ public class MPThreeDS: NSObject {
     ///
     /// Configure this delegate to receive notifications about the 3DS challenge result.
     /// The delegate will be called when the challenge is completed, cancelled, times out, or fails.
+    /// 
+    /// - Note: This delegate is also called when using the async/await API for backward compatibility.
     public weak var challengeDelegate: MPThreeDSChallengeDelegate?
+    
+    /// Internal continuation for async/await support.
+    private var challengeContinuation: CheckedContinuation<MPThreeDSChallengeResult, Never>?
     
     /// Initializes a new instance of MPThreeDS.
     ///
@@ -178,35 +202,51 @@ public class MPThreeDS: NSObject {
         return .init(parameters: authenticationRequestParameters, transaction: transaction)
     }
     
-    /// Starts the 3D Secure challenge by presenting the interface to the user.
+    /// Starts the 3D Secure challenge and returns the result asynchronously.
     ///
     /// This method should be called when your backend determines that a challenge is required
-    /// and returns challenge parameters. It presents the 3DS authentication interface to the user.
+    /// and returns challenge parameters. It presents the 3DS authentication interface to the user
+    /// and returns the authentication result.
     ///
     /// - Parameters:
     ///   - navigationController: Navigation controller to present the challenge interface.
     ///   - data: Authentication data returned by ``getAuthenticationRequestParameters(paymentMethodId:)``.
     ///   - timeOut: Challenge timeout in seconds. Default is 20 seconds.
     ///
+    /// - Returns: ``MPThreeDSChallengeResult`` containing the authentication outcome.
+    ///
     /// - Important: This method must be called on the main thread.
-    /// - Note: Configure ``challengeDelegate`` before calling this method to receive result callbacks.
     ///
     /// ## Example
     /// ```swift
-    /// // Configure the delegate first
-    /// threeDS.challengeDelegate = self
-    ///
-    /// // Start the challenge
-    /// await threeDS.startChallenge(
-    ///     from: self.navigationController!,
-    ///     data: authenticationResult
-    /// )
-    ///
-    /// // The result will be reported via delegate:
-    /// extension MyViewController: MPThreeDSChallengeDelegate {
-    ///     func completed(transactionStatus: String, transactionId: String) {
-    ///         print("Challenge completed: \(transactionStatus)")
+    /// do {
+    ///     var authData = try threeDS.getAuthenticationRequestParameters(paymentMethodId: "visa")
+    ///     authData.challengeParameters = challengeParametersFromBackend
+    ///     
+    ///     let result = await threeDS.startChallenge(
+    ///         from: navigationController,
+    ///         data: authData
+    ///     )
+    ///     
+    ///     switch result {
+    ///     case .completed(let status, let transactionId):
+    ///         if status == "Y" {
+    ///             // Authentication successful
+    ///             proceedWithPayment(transactionId: transactionId)
+    ///         } else {
+    ///             handleAuthenticationFailure(status: status)
+    ///         }
+    ///     case .cancelled:
+    ///         showMessage("Authentication was cancelled")
+    ///     case .timedout:
+    ///         showMessage("Authentication timed out")
+    ///     case .protocolError(let transactionId, let error):
+    ///         handleProtocolError(error, transactionId: transactionId)
+    ///     case .runtimeError(let error):
+    ///         handleRuntimeError(error)
     ///     }
+    /// } catch {
+    ///     handleError(error)
     /// }
     /// ```
     @MainActor
@@ -214,24 +254,42 @@ public class MPThreeDS: NSObject {
         from navigationController: UINavigationController,
         data: MPThreeDSAuthenticated,
         timeOut: Int32 = 20
-    ) async {
+    ) async -> MPThreeDSChallengeResult {
         guard let challengeParameters = data.challengeParameters else {
-            assertionFailure("Challenge parameters missing.")
-            return
+            return .runtimeError(error: MPThreeDSChallengeError(
+                code: "MISSING_CHALLENGE_PARAMS",
+                errorType: .runtimeError,
+                message: "Challenge parameters are required but missing",
+                detail: "Ensure challengeParameters is set on MPThreeDSAuthenticated before calling startChallenge"
+            ))
         }
         
-        data.transaction.doChallenge(
-            navigationController,
-            challengeParameters: challengeParameters,
-            challengeStatusReceiver: self,
-            timeOut: timeOut
-        )
+        return await withCheckedContinuation { continuation in
+            self.challengeContinuation = continuation
+            
+            data.transaction.doChallenge(
+                navigationController,
+                challengeParameters: challengeParameters,
+                challengeStatusReceiver: self,
+                timeOut: timeOut
+            )
+        }
     }
 }
 
 extension MPThreeDS: ThreeDSChallengeStatusReceiver {
 
     func completed(transactionStatus: String, transactionId: String) {
+        let result = MPThreeDSChallengeResult.completed(
+            transactionStatus: transactionStatus,
+            transactionId: transactionId
+        )
+        
+        if let continuation = challengeContinuation {
+            continuation.resume(returning: result)
+            challengeContinuation = nil
+        }
+        
         challengeDelegate?.completed(
             transactionStatus: transactionStatus,
             transactionId: transactionId
@@ -239,10 +297,24 @@ extension MPThreeDS: ThreeDSChallengeStatusReceiver {
     }
 
     func cancelled() {
+        let result = MPThreeDSChallengeResult.cancelled
+        
+        if let continuation = challengeContinuation {
+            continuation.resume(returning: result)
+            challengeContinuation = nil
+        }
+        
         challengeDelegate?.cancelled()
     }
 
     func timedout() {
+        let result = MPThreeDSChallengeResult.timedout
+        
+        if let continuation = challengeContinuation {
+            continuation.resume(returning: result)
+            challengeContinuation = nil
+        }
+        
         challengeDelegate?.timedout()
     }
 
@@ -254,6 +326,16 @@ extension MPThreeDS: ThreeDSChallengeStatusReceiver {
             detail: detail
         )
         
+        let result = MPThreeDSChallengeResult.protocolError(
+            transactionId: transactionId,
+            error: challengeError
+        )
+        
+        if let continuation = challengeContinuation {
+            continuation.resume(returning: result)
+            challengeContinuation = nil
+        }
+        
         challengeDelegate?.protocolError?(
             transactionId: transactionId,
             error: challengeError
@@ -261,13 +343,20 @@ extension MPThreeDS: ThreeDSChallengeStatusReceiver {
     }
 
     func runtimeError(code: String, message: String) {
-        let error = MPThreeDSChallengeError(
+        let challengeError = MPThreeDSChallengeError(
             code: code,
             errorType: .runtimeError,
             message: message,
             detail: nil
         )
         
-        challengeDelegate?.runtimeError?(error: error)
+        let result = MPThreeDSChallengeResult.runtimeError(error: challengeError)
+        
+        if let continuation = challengeContinuation {
+            continuation.resume(returning: result)
+            challengeContinuation = nil
+        }
+        
+        challengeDelegate?.runtimeError?(error: challengeError)
     }
 }
