@@ -19,10 +19,6 @@ public enum MPThreeDSError: Error {
     
     /// Failed to obtain authentication request parameters.
     case authenticationRequestParameters
-    
-    /// Error during the authentication process.
-    /// - Parameter message: Detailed error message.
-    case authentication(message: String)
 }
 
 /// Main class for 3D Secure authentication.
@@ -111,10 +107,13 @@ public class MPThreeDS: NSObject {
         }
     }
     
+    public func getWarnings() -> [MPThreeDSWarning] {
+        return threeDSSDK.getWarnings()
+    }
+    
     /// Requests 3D Secure authentication for a specific card.
     ///
-    /// This method initiates the 3DS authentication process, collecting device information
-    /// and communicating with the 3DS server to determine if a challenge is required.
+    /// This method initiates the 3DS authentication process, collecting device information and return
     ///
     /// - Parameters:
     ///   - paymentMethodId: Payment method ID (e.g., "visa", "master", "amex").
@@ -124,19 +123,7 @@ public class MPThreeDS: NSObject {
     /// - Throws: ``MPThreeDSError`` if any error occurs during the process.
     ///
     /// ## Example
-    /// ```swift
-    /// do {
-    ///     let result = try await threeDS.getAuthenticationRequestParameters(
-    ///         cardtoken: "mp_token_123456",
-    ///         paymentMethodId: "visa"
-    ///     )
     ///
-    /// } catch MPThreeDSError.noDirectoryServerAvailable {
-    ///     print("Payment method does not support 3DS")
-    /// } catch {
-    ///     print("Authentication error: \(error)")
-    /// }
-    /// ```
     public func getAuthenticationRequestParameters(
         paymentMethodId: String
     ) throws(MPThreeDSError) -> MPThreeDSAuthenticated {
@@ -202,7 +189,8 @@ public class MPThreeDS: NSObject {
     @MainActor
     public func startChallenge(
         from navigationController: UINavigationController,
-        data: MPThreeDSAuthenticated
+        data: MPThreeDSAuthenticated,
+        timeOut: Int32 = 20
     ) async {
         guard let challengeParameters = data.challengeParameters else {
             assertionFailure("Challenge parameters missing.")
@@ -213,29 +201,29 @@ public class MPThreeDS: NSObject {
             navigationController,
             challengeParameters: challengeParameters,
             challengeStatusReceiver: self,
-            timeOut: 20
+            timeOut: timeOut
         )
     }
 }
 
 extension MPThreeDS: ThreeDSChallengeStatusReceiver {
 
-    public func completed(transactionStatus: String, transactionId: String) {
+    func completed(transactionStatus: String, transactionId: String) {
         challengeDelegate?.completed(
             transactionStatus: transactionStatus,
             transactionId: transactionId
         )
     }
 
-    public func cancelled() {
+    func cancelled() {
         challengeDelegate?.cancelled()
     }
 
-    public func timedout() {
+    func timedout() {
         challengeDelegate?.timedout()
     }
 
-    public func protocolError(transactionId: String, code: String, message: String, detail: String?) {
+    func protocolError(transactionId: String, code: String, message: String, detail: String?) {
         let challengeError = MPThreeDSChallengeError(
             code: code,
             errorType: .protocolError,
@@ -249,7 +237,7 @@ extension MPThreeDS: ThreeDSChallengeStatusReceiver {
         )
     }
 
-    public func runtimeError(code: String, message: String) {
+    func runtimeError(code: String, message: String) {
         let error = MPThreeDSChallengeError(
             code: code,
             errorType: .runtimeError,

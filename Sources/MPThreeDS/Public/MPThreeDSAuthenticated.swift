@@ -8,7 +8,7 @@
 public struct MPThreeDSAuthenticated: Sendable {
     public let parameters: MPThreeDSAuthRequestParameters
     public var challengeParameters: MPThreeDSChallengeParameters?
-    public let transaction: ThreeDSTransactionProtocol
+    let transaction: ThreeDSTransactionProtocol
     
     public struct MPThreeDSChallengeParameters: Sendable {
         public var threeDSServerTransID: String

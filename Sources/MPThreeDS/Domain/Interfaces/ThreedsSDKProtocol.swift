@@ -8,7 +8,7 @@
 import UIKit
 @_exported import uSDK
 
-public protocol ThreeDSTransactionProtocol: Sendable {
+protocol ThreeDSTransactionProtocol: Sendable {
     var id: String { get }
     func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParameters?
     func doChallenge(
@@ -19,7 +19,7 @@ public protocol ThreeDSTransactionProtocol: Sendable {
     )
 }
 
-public protocol ThreeDSSDKProtocol {
+protocol ThreeDSSDKProtocol {
     func initialize(
         config: ThreeDSConfig,
         locale: String,
@@ -30,9 +30,11 @@ public protocol ThreeDSSDKProtocol {
         directoryServerId: String,
         messageVersion: String
     ) -> ThreeDSTransactionProtocol?
+    
+    func getWarnings() -> [MPThreeDSWarning]
 }
 
-public protocol ThreeDSChallengeStatusReceiver: AnyObject {
+protocol ThreeDSChallengeStatusReceiver: AnyObject {
     func completed(transactionStatus: String, transactionId: String)
     func cancelled()
     func timedout()

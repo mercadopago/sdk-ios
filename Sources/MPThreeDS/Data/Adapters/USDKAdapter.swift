@@ -35,6 +35,19 @@ final class USDKAdapter: ThreeDSSDKProtocol {
         }
         return UTransactionAdapter(transaction: transaction)
     }
+    
+    
+    func getWarnings() -> [MPThreeDSWarning] {
+        let warnings = UThreeDS2ServiceImpl.shared().getWarnings()?.map { warning in
+            return MPThreeDSWarning(
+                id: warning.getID(),
+                message: warning.getMessage(),
+                severity: MPThreeDSWarning.Severity(rawValue: warning.getSeverity().rawValue) ?? .none
+            )
+        }
+        
+        return warnings ?? []
+    }
 }
 
 // MARK: - Adapter for UTransaction
