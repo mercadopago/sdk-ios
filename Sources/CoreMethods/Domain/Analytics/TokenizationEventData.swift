@@ -15,7 +15,8 @@ struct TokenizationEventData: AnalyticsEventData {
     func toDictionary() -> [String: any Sendable] {
         return [
             "is_saved_card": self.isSaveCard,
-            "identity_document_type": self.documentType
+            "identity_document_type": self.documentType,
+            "type_wallet": "coremethods",
         ]
     }
 }
