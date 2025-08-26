@@ -10,10 +10,10 @@ import UIKit
 
 public protocol ThreeDSTransactionProtocol: Sendable {
     var id: String { get }
-    func getAuthenticationRequestParameters() -> ThreeDSAuthRequestParameters?
+    func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParameters?
     func doChallenge(
         _ navigationController: UINavigationController,
-        challengeParameters: ThreeDSChallengeParameters,
+        challengeParameters: MPThreeDSAuthenticated.MPThreeDSChallengeParameters,
         challengeStatusReceiver: ThreeDSChallengeStatusReceiver,
         timeOut: Int32
     )
@@ -47,18 +47,3 @@ public struct ThreeDSConfig {
         self.customization = customization
     }
 }
-
-public struct ThreeDSAuthRequestParameters {
-    public let sdkAppId: String
-    public let deviceData: String
-    public let sdkEphemeralPublicKey: String
-    public let sdkReferenceNumber: String
-    public let sdkTransactionId: String
-}
-
-public struct ThreeDSChallengeParameters {
-    public let threeDSServerTransactionID: String
-    public let acsTransactionID: String
-    public let acsRefNumber: String
-    public let acsSignedContent: String
-} 

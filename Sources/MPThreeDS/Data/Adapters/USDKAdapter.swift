@@ -49,12 +49,12 @@ final class UTransactionAdapter: ThreeDSTransactionProtocol {
         return transaction.description
     }
     
-    func getAuthenticationRequestParameters() -> ThreeDSAuthRequestParameters? {
+    func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParameters? {
         guard let params = transaction.getAuthenticationRequestParameters() else {
             return nil
         }
         
-        return ThreeDSAuthRequestParameters(
+        return .init(
             sdkAppId: params.getSDKAppID(),
             deviceData: params.getDeviceData(),
             sdkEphemeralPublicKey: params.getSDKEphemeralPublicKey(),
@@ -65,14 +65,14 @@ final class UTransactionAdapter: ThreeDSTransactionProtocol {
     
     func doChallenge(
         _ navigationController: UINavigationController,
-        challengeParameters: ThreeDSChallengeParameters,
+        challengeParameters: MPThreeDSAuthenticated.MPThreeDSChallengeParameters,
         challengeStatusReceiver: ThreeDSChallengeStatusReceiver,
         timeOut: Int32
     ) {
         let uChallengeParams = UChallengeParameters(
-            threeDSServerTransactionID: challengeParameters.threeDSServerTransactionID,
-            acsTransactionID: challengeParameters.acsTransactionID,
-            acsRefNumber: challengeParameters.acsRefNumber,
+            threeDSServerTransactionID: challengeParameters.threeDSServerTransID,
+            acsTransactionID: challengeParameters.acsTransID,
+            acsRefNumber: challengeParameters.acsReferenceNumber,
             acsSignedContent: challengeParameters.acsSignedContent
         )
         

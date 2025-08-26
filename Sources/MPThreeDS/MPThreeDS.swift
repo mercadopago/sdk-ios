@@ -69,7 +69,6 @@ public enum MPThreeDSError: Error {
 public class MPThreeDS: NSObject {
 
     private let messageVersion = "2.2.0"
-    private let useCase = ThreeDSUseCase()
     private let threeDSSDK: ThreeDSSDKProtocol
     
     /// Delegate to receive callbacks from the challenge process.
@@ -118,39 +117,29 @@ public class MPThreeDS: NSObject {
     /// and communicating with the 3DS server to determine if a challenge is required.
     ///
     /// - Parameters:
-    ///   - cardtoken: Card token for authentication.
     ///   - paymentMethodId: Payment method ID (e.g., "visa", "master", "amex").
     ///
-    /// - Returns: ``MPThreeDSAuthenticated`` containing the authentication status and challenge parameters.
+    /// - Returns: ``MPThreeDSAuthRequestParameters``  authentication parameters.
     ///
     /// - Throws: ``MPThreeDSError`` if any error occurs during the process.
     ///
     /// ## Example
     /// ```swift
     /// do {
-    ///     let result = try await threeDS.requestChallenge(
+    ///     let result = try await threeDS.getAuthenticationRequestParameters(
     ///         cardtoken: "mp_token_123456",
     ///         paymentMethodId: "visa"
     ///     )
-    ///     
-    ///     switch result.status {
-    ///     case .challenge:
-    ///         // Challenge required - call startChallenge()
-    ///         await startChallenge(from: navigationController, data: result)
-    ///     case .notAuthorized:
-    ///         // Authentication completed without challenge
-    ///         print("Authentication completed")
-    ///     }
+    ///
     /// } catch MPThreeDSError.noDirectoryServerAvailable {
     ///     print("Payment method does not support 3DS")
     /// } catch {
     ///     print("Authentication error: \(error)")
     /// }
     /// ```
-    public func requestChallenge(
-        cardtoken: String,
+    public func getAuthenticationRequestParameters(
         paymentMethodId: String
-    ) async throws(MPThreeDSError) -> MPThreeDSAuthenticated {
+    ) throws(MPThreeDSError) -> MPThreeDSAuthenticated {
         /**
          Gets the Directory Server from the selected Payment Method ID
          */
@@ -177,16 +166,7 @@ public class MPThreeDS: NSObject {
             throw .authenticationRequestParameters
         }
         
-        do {
-            return try await useCase.authenticatedThreeDS(
-                transaction: transaction,
-                token: cardtoken,
-                authenticationParams: authenticationRequestParameters
-            )
-            
-        } catch {
-            throw .authentication(message: error.localizedDescription)
-        }
+        return .init(parameters: authenticationRequestParameters, transaction: transaction)
     }
     
     /// Starts the 3D Secure challenge by presenting the interface to the user.
@@ -224,16 +204,14 @@ public class MPThreeDS: NSObject {
         from navigationController: UINavigationController,
         data: MPThreeDSAuthenticated
     ) async {
-        let challengeParams = ThreeDSChallengeParameters(
-            threeDSServerTransactionID: data.parameters.threeDSServerTransID,
-            acsTransactionID: data.parameters.acsTransID,
-            acsRefNumber: data.parameters.acsReferenceNumber,
-            acsSignedContent: data.parameters.acsSignedContent
-        )
+        guard let challengeParameters = data.challengeParameters else {
+            assertionFailure("Challenge parameters missing.")
+            return
+        }
         
         data.transaction.doChallenge(
             navigationController,
-            challengeParameters: challengeParams,
+            challengeParameters: challengeParameters,
             challengeStatusReceiver: self,
             timeOut: 20
         )
