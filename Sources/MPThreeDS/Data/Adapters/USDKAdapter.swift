@@ -9,7 +9,6 @@ import Foundation
 @preconcurrency import uSDK
 
 final class USDKAdapter: ThreeDSSDKProtocol {
-    
     func initialize(
         config: ThreeDSConfig,
         locale: String,
@@ -60,6 +59,10 @@ final class UTransactionAdapter: ThreeDSTransactionProtocol {
     
     var id: String {
         return transaction.description
+    }
+    
+    func close() throws {
+        try transaction.close()
     }
     
     func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParameters? {

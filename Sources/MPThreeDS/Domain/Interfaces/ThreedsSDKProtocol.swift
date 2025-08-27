@@ -17,6 +17,8 @@ protocol ThreeDSTransactionProtocol: Sendable {
         challengeStatusReceiver: ThreeDSChallengeStatusReceiver,
         timeOut: Int32
     )
+    
+    func close() throws
 }
 
 protocol ThreeDSSDKProtocol {
@@ -31,7 +33,7 @@ protocol ThreeDSSDKProtocol {
         messageVersion: String
     ) -> ThreeDSTransactionProtocol?
     
-    func getWarnings() -> [MPThreeDSWarning]
+    func getWarnings() -> [MPThreeDSWarning]    
 }
 
 protocol ThreeDSChallengeStatusReceiver: AnyObject {

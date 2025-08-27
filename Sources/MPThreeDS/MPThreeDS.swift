@@ -88,6 +88,8 @@ public class MPThreeDS: NSObject {
     private let messageVersion = "2.2.0"
     private let threeDSSDK: ThreeDSSDKProtocol
     
+    private var parameters: MPThreeDSParameters?
+    
     /// Delegate to receive callbacks from the challenge process.
     ///
     /// Configure this delegate to receive notifications about the 3DS challenge result.
@@ -201,11 +203,15 @@ public class MPThreeDS: NSObject {
         
         let warnings = getWarnings()
         
-        return .init(
+        let createParameters: MPThreeDSParameters = .init(
             authenticationRequestParameters: authenticationRequestParameters,
             warnings: warnings,
             transaction: transaction
         )
+        
+        parameters = createParameters
+        
+        return createParameters
     }
     
     /// Starts the 3D Secure challenge and returns the result asynchronously.
@@ -281,11 +287,29 @@ public class MPThreeDS: NSObject {
             )
         }
     }
+    
+    /**
+     The close method is called to clean up resources that are held by the Transaction object. It shall be called when the transaction is completed. The following are some examples of transaction completion events:
+     
+     - The Cardholder completes the challenge.
+     - An error occurs
+     - The Cardholder chooses to cancel the transaction.
+     - The ACS recommends a challenge, but the Merchant overrides the recommendation and chooses to complete the transaction without a challenge
+     */
+    public func close() throws {
+        try parameters?.transaction.close()
+    }
 }
 
 extension MPThreeDS: ThreeDSChallengeStatusReceiver {
 
     func completed(transactionStatus: String, transactionId: String) {
+        do {
+            try parameters?.transaction.close()
+        } catch {
+            print("Error for closing transaction: \(error)")
+        }
+        
         let result = MPThreeDSChallengeResult.completed(
             transactionStatus: transactionStatus,
             transactionId: transactionId
@@ -303,6 +327,12 @@ extension MPThreeDS: ThreeDSChallengeStatusReceiver {
     }
 
     func cancelled() {
+        do {
+            try parameters?.transaction.close()
+        } catch {
+            print("Error for closing transaction: \(error)")
+        }
+        
         let result = MPThreeDSChallengeResult.cancelled
         
         if let continuation = challengeContinuation {
@@ -314,6 +344,12 @@ extension MPThreeDS: ThreeDSChallengeStatusReceiver {
     }
 
     func timedout() {
+        do {
+            try parameters?.transaction.close()
+        } catch {
+            print("Error for closing transaction: \(error)")
+        }
+        
         let result = MPThreeDSChallengeResult.timedout
         
         if let continuation = challengeContinuation {
@@ -325,6 +361,12 @@ extension MPThreeDS: ThreeDSChallengeStatusReceiver {
     }
 
     func protocolError(transactionId: String, code: String, message: String, detail: String?) {
+        do {
+            try parameters?.transaction.close()
+        } catch {
+            print("Error for closing transaction: \(error)")
+        }
+        
         let challengeError = MPThreeDSChallengeError(
             code: code,
             errorType: .protocolError,
