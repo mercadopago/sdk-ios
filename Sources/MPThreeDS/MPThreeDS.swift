@@ -163,7 +163,7 @@ public class MPThreeDS: NSObject {
     /// ## Example
     /// ```swift
     /// do {
-    ///     let authData = try threeDS.getAuthenticationRequestParameters(paymentMethodId: "visa")
+    ///     let authData = try threeDS.requestParameters(paymentMethodId: "visa")
     ///     // Send authData.parameters to your backend
     /// } catch MPThreeDSError.noDirectoryServerAvailable {
     ///     print("Payment method not supported for 3DS")
@@ -171,7 +171,7 @@ public class MPThreeDS: NSObject {
     ///     print("3DS authentication failed: \(error)")
     /// }
     /// ```
-    public func getAuthenticationRequestParameters(
+    public func requestParameters(
         paymentMethodId: String
     ) throws(MPThreeDSError) -> MPThreeDSParameters {
         /**
