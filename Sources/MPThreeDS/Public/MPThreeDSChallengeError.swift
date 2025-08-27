@@ -27,7 +27,7 @@ import Foundation
 ///     }
 /// }
 /// ```
-@objc public class MPThreeDSChallengeError: NSObject {
+public final class MPThreeDSChallengeError: Sendable {
     /// Error code identifying the specific type of failure.
     ///
     /// Standard error codes as defined by the 3DS specification.
@@ -76,7 +76,7 @@ import Foundation
 ///
 /// Differentiates between protocol-level errors (issues with 3DS communication)
 /// and runtime errors (SDK or system-level issues).
-public enum MPThreeDSChallengeErrorType {
+public enum MPThreeDSChallengeErrorType: Sendable {
     /// Protocol-level error in 3DS communication.
     ///
     /// Indicates an error in the 3DS protocol communication between
