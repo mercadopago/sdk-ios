@@ -17,18 +17,21 @@
 /// 2. Send the `parameters` to your backend for server-side validation  
 /// 3. If challenge is required, populate `challengeParameters` with server response
 /// 4. Use this object with ``MPThreeDS/startChallenge(from:data:timeOut:)``
-public struct MPThreeDSAuthenticated: Sendable {
+public struct MPThreeDSParameters: Sendable {
     /// Initial authentication request parameters to send to your backend.
     ///
     /// These parameters contain device information and SDK data required 
     /// for the 3DS server to determine if a challenge is needed.
-    public let parameters: MPThreeDSAuthRequestParameters
+    public let authenticationRequestParameters: MPThreeDSAuthRequestParameters
     
     /// Challenge parameters received from your backend when challenge is required.
     ///
     /// Set this property with data received from your backend when the 3DS server
     /// determines that user challenge is necessary. Required for ``MPThreeDS/startChallenge(from:data:timeOut:)``.
     public var challengeParameters: MPThreeDSChallengeParameters?
+    
+    /// Security warnings generated during 3DS SDK initialization.
+    public let warnings: [MPThreeDSWarning]
     
     /// Internal transaction reference for SDK operations.
     let transaction: ThreeDSTransactionProtocol

@@ -13,7 +13,7 @@ protocol ThreeDSTransactionProtocol: Sendable {
     func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParameters?
     func doChallenge(
         _ navigationController: UINavigationController,
-        challengeParameters: MPThreeDSAuthenticated.MPThreeDSChallengeParameters,
+        challengeParameters: MPThreeDSParameters.MPThreeDSChallengeParameters,
         challengeStatusReceiver: ThreeDSChallengeStatusReceiver,
         timeOut: Int32
     )

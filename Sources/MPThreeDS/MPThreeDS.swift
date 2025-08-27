@@ -154,7 +154,7 @@ public class MPThreeDS: NSObject {
     /// - Parameters:
     ///   - paymentMethodId: Payment method ID (e.g., "visa", "master", "amex").
     ///
-    /// - Returns: ``MPThreeDSAuthenticated`` containing authentication parameters and transaction reference.
+    /// - Returns: ``MPThreeDSParameters`` containing authentication parameters and transaction reference.
     ///
     /// - Throws: ``MPThreeDSError`` if any error occurs during the process.
     ///
@@ -171,7 +171,7 @@ public class MPThreeDS: NSObject {
     /// ```
     public func getAuthenticationRequestParameters(
         paymentMethodId: String
-    ) throws(MPThreeDSError) -> MPThreeDSAuthenticated {
+    ) throws(MPThreeDSError) -> MPThreeDSParameters {
         /**
          Gets the Directory Server from the selected Payment Method ID
          */
@@ -198,7 +198,14 @@ public class MPThreeDS: NSObject {
             throw .authenticationRequestParameters
         }
         
-        return .init(parameters: authenticationRequestParameters, transaction: transaction)
+        
+        let warnings = getWarnings()
+        
+        return .init(
+            authenticationRequestParameters: authenticationRequestParameters,
+            warnings: warnings,
+            transaction: transaction
+        )
     }
     
     /// Starts the 3D Secure challenge and returns the result asynchronously.
@@ -251,10 +258,10 @@ public class MPThreeDS: NSObject {
     @MainActor
     public func startChallenge(
         from navigationController: UINavigationController,
-        data: MPThreeDSAuthenticated,
+        parameters: MPThreeDSParameters,
         timeOut: Int32 = 20
     ) async -> MPThreeDSChallengeResult {
-        guard let challengeParameters = data.challengeParameters else {
+        guard let challengeParameters = parameters.challengeParameters else {
             return .runtimeError(error: MPThreeDSChallengeError(
                 code: "MISSING_CHALLENGE_PARAMS",
                 errorType: .runtimeError,
@@ -266,7 +273,7 @@ public class MPThreeDS: NSObject {
         return await withCheckedContinuation { continuation in
             self.challengeContinuation = continuation
             
-            data.transaction.doChallenge(
+            parameters.transaction.doChallenge(
                 navigationController,
                 challengeParameters: challengeParameters,
                 challengeStatusReceiver: self,

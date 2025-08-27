@@ -78,7 +78,7 @@ final class UTransactionAdapter: ThreeDSTransactionProtocol {
     
     func doChallenge(
         _ navigationController: UINavigationController,
-        challengeParameters: MPThreeDSAuthenticated.MPThreeDSChallengeParameters,
+        challengeParameters: MPThreeDSParameters.MPThreeDSChallengeParameters,
         challengeStatusReceiver: ThreeDSChallengeStatusReceiver,
         timeOut: Int32
     ) {
