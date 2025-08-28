@@ -38,7 +38,7 @@ public final class MPApplePay: Sendable {
         let container = CoreDependencyContainer.shared
         self.dependencies = container
         let repository = MPApplePayRepository(dependencies: container)
-        let useCase = ApplePayUseCase(repository: repository)
+        let useCase = ApplePayUseCase(dependencies: container, repository: repository)
         
         self.useCase = useCase
     }
@@ -46,6 +46,76 @@ public final class MPApplePay: Sendable {
     init(dependencies: Dependency, _ useCase: ApplePayUseCaseProtocol) {
         self.dependencies = dependencies
         self.useCase = useCase
+    }
+}
+
+public extension MPApplePay {
+
+    // MARK: - Public Functions
+
+    /**
+     Returns the list of card networks that Mercado Pago supports for Apple Pay transactions.
+     
+     - Note: Currently, the supported networks are: Visa, Mastercard, and Maestro.
+     
+     - Returns: An array of `PKPaymentNetwork` containing the compatible card networks.
+     */
+    func supportedPKPaymentNetworks() -> [PKPaymentNetwork] {
+        return [
+            .masterCard,
+            .maestro,
+            .visa,
+        ]
+    }
+     
+    /**
+     Creates and pre-configures a `PKPaymentRequest` object with recommended default values for Mercado Pago.
+     
+     This convenience method simplifies the creation of the payment request by automatically configuring
+     the `merchantIdentifier`, the supported payment networks (`supportedNetworks`), the 3D Secure capability (`merchantCapabilities`),
+     the country code (`countryCode`), and the currency code (`currencyCode`).
+     
+     - Important: You still **must** configure the `paymentSummaryItems` property of the returned object
+     to detail the purchase items and the total amount.
+     
+     - Parameters:
+        - merchantIdentifier: Your Apple Merchant ID.
+        - currencyCode: The three-letter ISO 4217 currency code for the transaction (e.g., "USD" for US Dollar).
+     
+     - Returns: A `PKPaymentRequest` instance ready to be used after adding the `paymentSummaryItems`.
+     */
+    func paymentRequest(
+        withMerchantIdentifier merchantIdentifier: String,
+        currency currencyCode: String
+    ) -> PKPaymentRequest {
+        let paymentRequest = PKPaymentRequest()
+        
+        paymentRequest.merchantIdentifier = merchantIdentifier
+        paymentRequest.supportedNetworks = supportedPKPaymentNetworks()
+        paymentRequest.merchantCapabilities = .capability3DS
+        paymentRequest.countryCode = String(MercadoPagoSDK.shared.configuration?.country.rawValue.dropLast() ?? "")
+        paymentRequest.currencyCode = currencyCode.uppercased()
+         
+        return paymentRequest
+    }
+     
+    /**
+     Checks if the user's device can make Apple Pay payments through one of the networks
+     supported by Mercado Pago.
+     
+     This function checks two conditions:
+     1. Whether the device hardware supports Apple Pay.
+     2. Whether the user has at least one card added to their Apple Wallet from a compatible network
+        (Visa, Mastercard, or Maestro).
+     
+     - Tip: Use this method to decide whether the Apple Pay button should be displayed in your user interface.
+     
+     - Returns: `true` if Apple Pay payments are possible; otherwise, `false`.
+     */
+    func canMakePayments() -> Bool {
+        return PKPaymentAuthorizationController.canMakePayments(
+            usingNetworks: self.supportedPKPaymentNetworks()
+        )
     }
 }
 
