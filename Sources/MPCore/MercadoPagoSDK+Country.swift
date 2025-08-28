@@ -7,7 +7,7 @@
 
 extension MercadoPagoSDK {
     @frozen
-    public enum Country: Sendable {
+    public enum Country: String, Sendable {
         case BRA
         case ARG
         case COL

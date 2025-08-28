@@ -18,7 +18,7 @@ protocol ApplePayRepositoryProtocol: Sendable {
     /// Creates an Apple Pay token using backend tokenization endpoint.
     /// - Parameter payment: The Apple Pay payment token.
     /// - Returns: A public `MPApplePayToken` with token id and optional bin info.
-    func createToken(payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken
+    func createToken(payment: PKPaymentToken, status: String?, device: Data) async throws -> MPApplePayToken
 }
 
 /// Default implementation of `ApplePayRepositoryProtocol` backed by `NetworkService`.
@@ -40,8 +40,8 @@ final class MPApplePayRepository: ApplePayRepositoryProtocol {
     /// Sends a tokenization request to the backend.
     /// - Parameter payment: `PKPaymentToken` provided by Apple Pay.
     /// - Returns: `MPApplePayToken` on success.
-    func createToken(payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken {
-        let body: ApplePayRequestBody = .init(paymentToken: payment)
+    func createToken(payment: PKPaymentToken, status: String?, device: Data) async throws -> MPApplePayToken {
+        let body: ApplePayRequestBody = .init(paymentToken: payment, device: device)
 
         let response: MPTokenResponse = try await self.dependencies.networkService.request(
             Endpoint.postToken(body: body, status: status)

@@ -22,19 +22,29 @@ protocol ApplePayUseCaseProtocol: Sendable {
 final class ApplePayUseCase: ApplePayUseCaseProtocol {
 
     private let repository: ApplePayRepositoryProtocol
+    
+    typealias Dependency = HasFingerPrint
+
+    let dependencies: Dependency
 
     /// Creates a use case instance.
+    /// - Parameter dependencies: Dependencies of UseCase
     /// - Parameter repository: Repository responsible for network operations.
     init(
+        dependencies: Dependency,
         repository: ApplePayRepositoryProtocol
     ) {
         self.repository = repository
+        self.dependencies = dependencies
     }
 
     /// Exchanges an Apple Pay token with the backend.
     /// - Parameter payment: `PKPaymentToken` received from Apple Pay sheet.
     /// - Returns: `MPApplePayToken` with backend token data.
     func createToken(_ payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken {
-        try await repository.createToken(payment: payment, status: status)
+        
+        let deviceData = await dependencies.fingerPrint.getDeviceData() ?? Data()
+
+        return try await repository.createToken(payment: payment, status: status, device: deviceData)
     }
 }

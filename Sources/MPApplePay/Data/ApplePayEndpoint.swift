@@ -76,7 +76,7 @@ extension ApplePayEndpoint: RequestEndpoint {
     var body: Data? {
         switch self {
         case let .postToken(body,_):
-            let httpBody = try? JSONEncoder().encode(body)
+            let httpBody = body.toJSONData()
             return httpBody
         }
     }

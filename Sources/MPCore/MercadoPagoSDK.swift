@@ -28,7 +28,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     public struct Configuration: Sendable {
         let publicKey: String
         package let locale: String
-        let country: MercadoPagoSDK.Country
+        package let country: MercadoPagoSDK.Country
 
         /// Initialize SDK configuration
         /// - Parameters:
