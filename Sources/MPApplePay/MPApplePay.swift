@@ -60,7 +60,7 @@ public extension MPApplePay {
      
      - Returns: An array of `PKPaymentNetwork` containing the compatible card networks.
      */
-    func supportedPKPaymentNetworks() -> [PKPaymentNetwork] {
+    static func supportedPKPaymentNetworks() -> [PKPaymentNetwork] {
         return [
             .masterCard,
             .maestro,
@@ -84,7 +84,7 @@ public extension MPApplePay {
      
      - Returns: A `PKPaymentRequest` instance ready to be used after adding the `paymentSummaryItems`.
      */
-    func paymentRequest(
+    static func paymentRequest(
         withMerchantIdentifier merchantIdentifier: String,
         currency currencyCode: String
     ) -> PKPaymentRequest {
@@ -112,7 +112,7 @@ public extension MPApplePay {
      
      - Returns: `true` if Apple Pay payments are possible; otherwise, `false`.
      */
-    func canMakePayments() -> Bool {
+    static func canMakePayments() -> Bool {
         return PKPaymentAuthorizationController.canMakePayments(
             usingNetworks: self.supportedPKPaymentNetworks()
         )
