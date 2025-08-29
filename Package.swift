@@ -14,11 +14,6 @@ let package = Package(
         .library(
             name: "CoreMethods",
             targets: ["CoreMethods"]
-        ),
-        
-        .library(
-            name: "MPApplePay",
-            targets: ["MPApplePay"]
         )
     ],
     dependencies: [
