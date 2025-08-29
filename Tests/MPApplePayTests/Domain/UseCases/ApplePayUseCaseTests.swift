@@ -1,6 +1,7 @@
 
 import XCTest
 import PassKit
+import CommonTests
 @testable import MPApplePay
 
 final class ApplePayUseCaseTests: XCTestCase {
@@ -22,8 +23,9 @@ final class ApplePayUseCaseTests: XCTestCase {
 
     // MARK: - SUT Factory
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> SUT {
+        let container = MockDependencyContainer()
         let repositoryMock = ApplePayRepositoryMock()
-        let useCase = ApplePayUseCase(repository: repositoryMock)
+        let useCase = ApplePayUseCase(dependencies: container, repository: repositoryMock)
         return (sut: useCase, repository: repositoryMock)
     }
 
@@ -68,7 +70,6 @@ final class ApplePayUseCaseTests: XCTestCase {
 
 // MARK: - Mock
 private actor ApplePayRepositoryMock: ApplePayRepositoryProtocol {
-
     private(set) var createTokenCallCount = 0
     private var createTokenResult: Result<MPApplePayToken, Error>!
 
@@ -76,7 +77,7 @@ private actor ApplePayRepositoryMock: ApplePayRepositoryProtocol {
         self.createTokenResult = result
     }
 
-    func createToken(payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken {
+    func createToken(payment: PKPaymentToken, status: String?, device: Data) async throws -> MPApplePayToken {
         createTokenCallCount += 1
         switch createTokenResult {
         case .success(let token):
