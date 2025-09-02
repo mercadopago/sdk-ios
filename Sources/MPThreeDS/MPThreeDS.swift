@@ -88,7 +88,7 @@ public class MPThreeDS: NSObject {
     private let messageVersion = "2.2.0"
     private let threeDSSDK: ThreeDSSDKProtocol
     
-    private var parameters: MPThreeDSParameters?
+    internal var parameters: MPThreeDSParameters?
     
     /// Delegate to receive callbacks from the challenge process.
     ///
@@ -99,7 +99,7 @@ public class MPThreeDS: NSObject {
     public weak var challengeDelegate: MPThreeDSChallengeDelegate?
     
     /// Internal continuation for async/await support.
-    private var challengeContinuation: CheckedContinuation<MPThreeDSChallengeResult, Never>?
+    internal var challengeContinuation: CheckedContinuation<MPThreeDSChallengeResult, Never>?
     
     /// Initializes a new instance of MPThreeDS.
     ///
@@ -199,7 +199,6 @@ public class MPThreeDS: NSObject {
         guard let authenticationRequestParameters = transaction.getAuthenticationRequestParameters() else {
             throw .authenticationRequestParameters
         }
-        
         
         let warnings = getWarnings()
         
@@ -304,110 +303,3 @@ public class MPThreeDS: NSObject {
     }
 }
 
-extension MPThreeDS: ThreeDSChallengeStatusReceiver {
-
-    func completed(transactionStatus: String, transactionId: String) {
-        do {
-            try parameters?.transaction.close()
-        } catch {
-            print("Error for closing transaction: \(error)")
-        }
-        
-        let result = MPThreeDSChallengeResult.completed(
-            transactionStatus: transactionStatus,
-            transactionId: transactionId
-        )
-        
-        if let continuation = challengeContinuation {
-            continuation.resume(returning: result)
-            challengeContinuation = nil
-        }
-        
-        challengeDelegate?.completed(
-            transactionStatus: transactionStatus,
-            transactionId: transactionId
-        )
-    }
-
-    func cancelled() {
-        do {
-            try parameters?.transaction.close()
-        } catch {
-            print("Error for closing transaction: \(error)")
-        }
-        
-        let result = MPThreeDSChallengeResult.cancelled
-        
-        if let continuation = challengeContinuation {
-            continuation.resume(returning: result)
-            challengeContinuation = nil
-        }
-        
-        challengeDelegate?.cancelled()
-    }
-
-    func timedout() {
-        do {
-            try parameters?.transaction.close()
-        } catch {
-            print("Error for closing transaction: \(error)")
-        }
-        
-        let result = MPThreeDSChallengeResult.timedout
-        
-        if let continuation = challengeContinuation {
-            continuation.resume(returning: result)
-            challengeContinuation = nil
-        }
-        
-        challengeDelegate?.timedout()
-    }
-
-    func protocolError(transactionId: String, code: String, message: String, detail: String?) {
-        do {
-            try parameters?.transaction.close()
-        } catch {
-            print("Error for closing transaction: \(error)")
-        }
-        
-        let challengeError = MPThreeDSChallengeError(
-            code: code,
-            errorType: .protocolError,
-            message: message,
-            detail: detail
-        )
-        
-        let result = MPThreeDSChallengeResult.protocolError(
-            transactionId: transactionId,
-            error: challengeError
-        )
-        
-        if let continuation = challengeContinuation {
-            continuation.resume(returning: result)
-            challengeContinuation = nil
-        }
-        
-        challengeDelegate?.protocolError?(
-            transactionId: transactionId,
-            error: challengeError
-        )
-    }
-
-    func runtimeError(code: String, message: String) {
-        let challengeError = MPThreeDSChallengeError(
-            code: code,
-            errorType: .runtimeError,
-            message: message,
-            detail: nil
-        )
-        
-        let result = MPThreeDSChallengeResult.runtimeError(error: challengeError)
-        
-        if let continuation = challengeContinuation {
-            continuation.resume(returning: result)
-            challengeContinuation = nil
-        }
-        
-        challengeDelegate?.runtimeError?(error: challengeError)
-    }
-}
