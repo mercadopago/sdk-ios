@@ -14,7 +14,7 @@ import Foundation
 /// Set your delegate on the ``MPThreeDS`` instance before calling 
 /// ``MPThreeDS/startChallenge(from:data:timeOut:)`` to receive callbacks.
 ///
-@objc public protocol MPThreeDSChallengeDelegate: AnyObject {
+public protocol MPThreeDSChallengeDelegate: AnyObject {
     /// Called when the 3D Secure challenge completes successfully.
     ///
     func completed(transactionStatus: String, transactionId: String)
@@ -38,7 +38,7 @@ import Foundation
     /// - Parameters:
     ///   - transactionId: Unique identifier for the failed transaction
     ///   - error: Detailed error information including code and message
-    @objc optional func protocolError(transactionId: String, error: MPThreeDSChallengeError)
+    func protocolError(transactionId: String, error: MPThreeDSChallengeError)
     
     /// Called when a runtime error occurs within the 3DS SDK.
     ///
@@ -47,5 +47,5 @@ import Foundation
     /// These errors typically require technical intervention.
     ///
     /// - Parameter error: Detailed error information including code and message
-    @objc optional func runtimeError(error: MPThreeDSChallengeError)
+    func runtimeError(error: MPThreeDSChallengeError)
 }

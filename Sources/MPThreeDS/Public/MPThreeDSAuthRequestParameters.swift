@@ -14,14 +14,14 @@
 ///
 /// ## Integration Flow
 ///
-/// 1. Obtain these parameters from ``MPThreeDS/getAuthenticationRequestParameters(paymentMethodId:)``
+/// 1. Obtain these parameters from ``MPThreeDS/requestParameterspaymentMethodId:)``
 /// 2. Send all parameters to your backend API
 /// 3. Your backend forwards them to the 3DS server for authentication
 /// 4. Based on the server response, either complete the flow or start a challenge
 ///
 /// ## Example
 /// ```swift
-/// let authData = try threeDS.getAuthenticationRequestParameters(paymentMethodId: "visa")
+/// let authData = try threeDS.requestParameters(paymentMethodId: "visa")
 /// let params = authData.parameters
 ///
 /// // Send to your backend

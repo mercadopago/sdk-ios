@@ -13,7 +13,7 @@
 ///
 /// ## Usage
 /// 
-/// 1. Obtain this object from ``MPThreeDS/getAuthenticationRequestParameters(paymentMethodId:)``
+/// 1. Obtain this object from ``MPThreeDS/requestParameters(paymentMethodId:)``
 /// 2. Send the `parameters` to your backend for server-side validation  
 /// 3. If challenge is required, populate `challengeParameters` with server response
 /// 4. Use this object with ``MPThreeDS/startChallenge(from:data:timeOut:)``

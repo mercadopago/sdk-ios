@@ -232,7 +232,10 @@ public class MPThreeDS: NSObject {
     /// ## Example
     /// ```swift
     /// do {
-    ///     var authData = try threeDS.getAuthenticationRequestParameters(paymentMethodId: "visa")
+    ///     var authData = try threeDS.requestParameters(paymentMethodId: "visa")
+    ///
+    ///     let challengeParametersFromBackend = requestServer(authData.authenticationRequestParameters)
+    ///
     ///     authData.challengeParameters = challengeParametersFromBackend
     ///     
     ///     let result = await threeDS.startChallenge(
