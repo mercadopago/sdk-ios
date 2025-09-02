@@ -5,7 +5,6 @@
 //  Created by Guilherme Prata Costa on 21/07/25.
 //
 
-
 import Foundation
 
 /// Error information for 3D Secure challenge failures.

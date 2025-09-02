@@ -7,20 +7,6 @@
 import MPCore
 import UIKit
 
-/// Errors that can occur during the 3D Secure authentication process.
-///
-/// This enum defines all possible errors that can be returned during the 3DS authentication flow.
-public enum MPThreeDSError: Error {
-    /// No directory server is available for the specified payment method.
-    case noDirectoryServerAvailable
-    
-    /// Failed to create a 3DS transaction.
-    case transaction
-    
-    /// Failed to obtain authentication request parameters.
-    case authenticationRequestParameters
-}
-
 /// Main class for 3D Secure authentication.
 ///
 /// `MPThreeDS` provides a simplified interface for implementing 3D Secure authentication in iOS applications.
@@ -174,16 +160,13 @@ public class MPThreeDS: NSObject {
     public func requestParameters(
         paymentMethodId: String
     ) throws(MPThreeDSError) -> MPThreeDSParameters {
-        /**
-         Gets the Directory Server from the selected Payment Method ID
-         */
+        
+        /// Gets the Directory Server from the selected Payment Method ID
         guard let directoryServer = MPThreeDSDirectoryServer(rawValue: paymentMethodId) else {
             throw .noDirectoryServerAvailable
         }
 
-        /**
-         Creates an instance of Transaction. 3DS Requestor App gets the data that is required to perform the transaction.
-         */
+        /// Creates an instance of Transaction. 3DS Requestor App gets the data that is required to perform the transaction.
         guard let transaction = threeDSSDK.createTransaction(
             directoryServerId: directoryServer.id,
             messageVersion: messageVersion
@@ -191,11 +174,9 @@ public class MPThreeDS: NSObject {
             throw .transaction
         }
 
-        /**
-         When the 3DS Requestor App calls this method, the 3DS SDK encrypts the
-         device information that it collects during initialization and sends this information along with the SDK information to
-         the 3DS Requestor App.
-         */
+        /// When the 3DS Requestor App calls this method, the 3DS SDK encrypts the
+        /// device information that it collects during initialization and sends this information along with the SDK information to
+        /// the 3DS Requestor App.
         guard let authenticationRequestParameters = transaction.getAuthenticationRequestParameters() else {
             throw .authenticationRequestParameters
         }
@@ -290,16 +271,13 @@ public class MPThreeDS: NSObject {
         }
     }
     
-    /**
-     The close method is called to clean up resources that are held by the Transaction object. It shall be called when the transaction is completed. The following are some examples of transaction completion events:
-     
-     - The Cardholder completes the challenge.
-     - An error occurs
-     - The Cardholder chooses to cancel the transaction.
-     - The ACS recommends a challenge, but the Merchant overrides the recommendation and chooses to complete the transaction without a challenge
-     */
+    /// The close method is called to clean up resources that are held by the Transaction object. It shall be called when the transaction is completed. The following are some examples of transaction completion events:
+    ///
+    /// - The Cardholder completes the challenge.
+    /// - An error occurs
+    /// - The Cardholder chooses to cancel the transaction.
+    /// - The ACS recommends a challenge, but the Merchant overrides the recommendation and chooses to complete the transaction without a challenge
     public func close() throws {
         try parameters?.transaction.close()
     }
 }
-

@@ -5,7 +5,6 @@
 //  Created by Guilherme Prata Costa on 21/07/25.
 //
 
-
 import Foundation
 
 /// Delegate protocol for receiving 3D Secure challenge result callbacks.
