@@ -11,17 +11,17 @@ import SwiftUI
 package extension View {
     // Only enable parameter accessible
     func tooltip<TooltipContent: View>(
-        _ enabled: Bool = true,
+        _ enabled: Binding<Bool> = .constant(false),
         @ViewBuilder content: @escaping () -> TooltipContent
     ) -> some View {
-        let config: TooltipConfig = DefaultTooltipConfig.shared
+        let config: TooltipConfig = DefaultTooltipConfig()
 
         return modifier(TooltipModifier(enabled: enabled, config: config, content: content))
     }
 
     // Only enable and config available
     func tooltip<TooltipContent: View>(
-        _ enabled: Bool = true,
+        _ enabled: Binding<Bool>,
         config: TooltipConfig,
         @ViewBuilder content: @escaping () -> TooltipContent
     ) -> some View {
@@ -30,25 +30,14 @@ package extension View {
 
     // Enable and side are available
     func tooltip<TooltipContent: View>(
-        _ enabled: Bool = true,
+        _ enabled: Binding<Bool>,
         side: TooltipSide,
+        type: TooltipType = .blue,
         @ViewBuilder content: @escaping () -> TooltipContent
     ) -> some View {
-        var config = DefaultTooltipConfig.shared
+        var config: TooltipConfig = DefaultTooltipConfig()
         config.side = side
-
-        return modifier(TooltipModifier(enabled: enabled, config: config, content: content))
-    }
-    
-    // Enable, side and config parameters available
-    func tooltip<TooltipContent: View>(
-        _ enabled: Bool = true,
-        side: TooltipSide,
-        config: TooltipConfig,
-        @ViewBuilder content: @escaping () -> TooltipContent
-    ) -> some View {
-        var config = config
-        config.side = side
+        config.type = type
 
         return modifier(TooltipModifier(enabled: enabled, config: config, content: content))
     }

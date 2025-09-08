@@ -8,4 +8,5 @@
 
 package struct Logos {
     package static let errorFilled = "Error-Filled"
+    package static let close = "Close"
 }

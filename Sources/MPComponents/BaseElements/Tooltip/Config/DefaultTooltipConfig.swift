@@ -7,53 +7,81 @@
 
 
 import SwiftUI
+import MPFoundation
+
+package enum TooltipType {
+    case blue
+    case dark
+}
 
 package struct DefaultTooltipConfig: TooltipConfig {
-    static let shared = DefaultTooltipConfig()
-
-    public var side: TooltipSide = .bottom
-    public var margin: CGFloat = 8
-    public var zIndex: Double = 10000
+    package var side: TooltipSide = .top
+    package var margin: CGFloat = 8
+    package var zIndex: Double = 10000
     
-    public var width: CGFloat?
-    public var height: CGFloat?
+    package var width: CGFloat?
+    package var height: CGFloat?
 
-    public var borderRadius: CGFloat = 8
-    public var borderRadiusStyle: RoundedCornerStyle = .circular
-    public var borderWidth: CGFloat = 2
-    public var borderColor: Color = Color.primary
-    public var backgroundColor: Color = Color.clear
-    public var shadowColor: Color = .clear
-    public var shadowRadius: CGFloat = 0
-    public var shadowOffset: CGPoint = .zero
-
-    public var contentPaddingLeft: CGFloat = 8
-    public var contentPaddingRight: CGFloat = 8
-    public var contentPaddingTop: CGFloat = 4
-    public var contentPaddingBottom: CGFloat = 4
-
-    public var contentPaddingEdgeInsets: EdgeInsets {
-        EdgeInsets(
-            top: contentPaddingTop,
-            leading: contentPaddingLeft,
-            bottom: contentPaddingBottom,
-            trailing: contentPaddingRight
-        )
-    }
-
-    public var showArrow: Bool = true
-    public var arrowWidth: CGFloat = 12
-    public var arrowHeight: CGFloat = 6
-    public var arrowType: ArrowType = .default
+    package var showArrow: Bool = true
+    package var arrowWidth: CGFloat = 12
+    package var arrowHeight: CGFloat = 6
+    package var arrowType: ArrowType = .default
     
-    public var enableAnimation: Bool = false
-    public var animationOffset: CGFloat = 10
-    public var animationTime: Double = 1
-    public var animation: Optional<Animation> = .easeInOut
+    package var enableAnimation: Bool = false
+    package var animationOffset: CGFloat = 10
+    package var animationTime: Double = 1
+    package var animation: Optional<Animation> = .easeInOut
+    
+    package var type: TooltipType = .blue
 
-    public init() {}
+    package init() {}
 
-    public init(side: TooltipSide) {
+    package init(side: TooltipSide, type: TooltipType) {
         self.side = side
+        self.type = type
+    }
+    
+    // MARK: - Theme-based methods
+    
+    package func borderRadius(from theme: MPTheme) -> CGFloat {
+        return theme.borderRadius.s
+    }
+    
+    package func borderWidth(from theme: MPTheme) -> CGFloat {
+        return theme.outline.xs
+    }
+    
+    package func borderColor(from theme: MPTheme) -> Color {
+        return .clear
+    }
+    
+    package func backgroundColor(from theme: MPTheme) -> Color {
+        switch type {
+        case .blue:
+            return theme.colors.accent
+        case .dark:
+            return theme.colors.backgroundInverted
+        }
+    }
+    
+    package func shadowColor(from theme: MPTheme) -> Color {
+        return theme.colors.outlineSecondary.opacity(0.0)
+    }
+    
+    package func shadowRadius(from theme: MPTheme) -> CGFloat {
+        return theme.spacings.xxs
+    }
+    
+    package func shadowOffset(from theme: MPTheme) -> CGPoint {
+        return CGPoint(x: 0, y: theme.spacings.xxs/2)
+    }
+    
+    package func contentPadding(from theme: MPTheme) -> EdgeInsets {
+        return EdgeInsets(
+            top: theme.spacings.m,
+            leading: theme.spacings.m,
+            bottom: theme.spacings.m,
+            trailing: theme.spacings.m
+        )
     }
 }

@@ -7,18 +7,26 @@
 
 
 import SwiftUI
+import MPFoundation
 
 struct TooltipModifier<TooltipContent: View>: ViewModifier {
+    // MARK: - Environment
+    @Environment(\.checkoutTheme) var theme: MPTheme
+    
     // MARK: - Uninitialised properties
-    var enabled: Bool
+    @Binding var enabled: Bool
     var config: TooltipConfig
     var content: TooltipContent
 
 
     // MARK: - Initialisers
 
-    init(enabled: Bool, config: TooltipConfig, @ViewBuilder content: @escaping () -> TooltipContent) {
-        self.enabled = enabled
+    init(
+        enabled: Binding<Bool>,
+        config: TooltipConfig,
+        @ViewBuilder content: @escaping () -> TooltipContent
+    ){
+        self._enabled = enabled
         self.config = config
         self.content = content()
     }
@@ -37,6 +45,9 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     var actualArrowHeight: CGFloat { self.showArrow ? config.arrowHeight : 0 }
 
     var arrowOffsetX: CGFloat {
+        let borderRadius = config.borderRadius(from: theme)
+        let borderWidth = config.borderWidth(from: theme)
+        
         switch config.side {
         case .bottom, .center, .top:
             return 40
@@ -45,19 +56,22 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
         case .topLeft, .bottomLeft:
             return (contentWidth / 2
                 + config.arrowHeight / 2
-                - config.borderRadius / 2
-                - config.borderWidth / 2)
+                - borderRadius / 2
+                - borderWidth / 2)
         case .right:
             return -(contentWidth / 2 + config.arrowHeight / 2)
         case .topRight, .bottomRight:
             return -(contentWidth / 2
                 + config.arrowHeight / 2
-                - config.borderRadius / 2
-                - config.borderWidth / 2)
+                - borderRadius / 2
+                - borderWidth / 2)
         }
     }
 
     var arrowOffsetY: CGFloat {
+        let borderRadius = config.borderRadius(from: theme)
+        let borderWidth = config.borderWidth(from: theme)
+        
         switch config.side {
         case .left, .center, .right:
             return 0
@@ -66,15 +80,15 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
         case .topRight, .topLeft:
             return (contentHeight / 2
                 + config.arrowHeight / 2
-                - config.borderRadius / 2
-                - config.borderWidth / 2)
+                - borderRadius / 2
+                - borderWidth / 2)
         case .bottom:
             return -(contentHeight / 2 + config.arrowHeight / 2)
         case .bottomLeft, .bottomRight:
             return -(contentHeight / 2
                 + config.arrowHeight / 2
-                - config.borderRadius / 2
-                - config.borderWidth / 2)
+                - borderRadius / 2
+                - borderWidth / 2)
         }
     }
 
@@ -87,7 +101,7 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
         case .right, .topRight, .bottomRight:
             return g.size.width + config.margin + actualArrowHeight + animationOffset
         case .top, .center, .bottom:
-            return (g.size.width - contentWidth) / 1.1
+            return (g.size.width - contentWidth) / 1.35
         }
     }
 
@@ -135,12 +149,15 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             return AnyView(EmptyView())
         }
 
+        let borderColor = config.borderColor(from: theme)
+        let backgroundColor = config.backgroundColor(from: theme)
+
         return AnyView(arrowShape(
-            angle: arrowAngle, borderColor: config.borderColor
+            angle: arrowAngle, borderColor: borderColor
         )
         .background(arrowShape(angle: arrowAngle)
         .frame(width: config.arrowWidth, height: config.arrowHeight)
-        .foregroundColor(config.backgroundColor)).frame(width: config.arrowWidth, height: config.arrowHeight)
+        .foregroundColor(backgroundColor)).frame(width: config.arrowWidth, height: config.arrowHeight)
         .offset(x: CGFloat(Int(self.arrowOffsetX)), y: CGFloat(Int(self.arrowOffsetY))))
     }
 
@@ -161,17 +178,19 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             return AnyView(EmptyView())
         }
         
+        let borderWidth = config.borderWidth(from: theme)
+        
         return AnyView(
             ZStack {
                 Rectangle()
                     .frame(
-                        width: self.contentWidth + config.borderWidth * 2,
-                        height: self.contentHeight + config.borderWidth * 2)
+                        width: self.contentWidth + borderWidth * 2,
+                        height: self.contentHeight + borderWidth * 2)
                     .foregroundColor(.white)
                 Rectangle()
                     .frame(
                         width: config.arrowWidth,
-                        height: config.arrowHeight + config.borderWidth)
+                        height: config.arrowHeight + borderWidth)
                     .rotationEffect(Angle(radians: arrowAngle))
                     .offset(
                         x: self.arrowOffsetX,
@@ -184,29 +203,51 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     }
 
     var tooltipBody: some View {
-        GeometryReader { g in
+        let borderRadius = config.borderRadius(from: theme)
+        let borderWidth = config.borderWidth(from: theme)
+        let borderColor = config.borderColor(from: theme)
+        let backgroundColor = config.backgroundColor(from: theme)
+        let shadowColor = config.shadowColor(from: theme)
+        let shadowRadius = config.shadowRadius(from: theme)
+        let shadowOffset = config.shadowOffset(from: theme)
+        let contentPadding = config.contentPadding(from: theme)
+        
+        return GeometryReader { g in
             ZStack {
-                RoundedRectangle(cornerRadius: config.borderRadius, style: config.borderRadiusStyle)
-                    .stroke(config.borderWidth == 0 ? Color.clear : config.borderColor)
+                RoundedRectangle(cornerRadius: borderRadius, style: .circular)
+                    .stroke(borderWidth == 0 ? Color.clear : borderColor, lineWidth: borderWidth)
                     .frame(width: contentWidth, height: contentHeight)
                     .mask(self.arrowCutoutMask)
                     .background(
-                        RoundedRectangle(cornerRadius: config.borderRadius)
-                            .foregroundColor(config.backgroundColor)
+                        RoundedRectangle(cornerRadius: borderRadius)
+                            .foregroundColor(backgroundColor)
                     )
-                    .shadow(color: config.shadowColor,
-                            radius: config.shadowRadius,
-                            x: config.shadowOffset.x,
-                            y: config.shadowOffset.y)
+                    .shadow(color: shadowColor,
+                            radius: shadowRadius,
+                            x: shadowOffset.x,
+                            y: shadowOffset.y)
                 
                 ZStack {
-                    content
-                        .padding(config.contentPaddingEdgeInsets)
-                        .frame(
-                            width: config.width,
-                            height: config.height
-                        )
-                        .fixedSize(horizontal: config.width == nil, vertical: true)
+                    HStack(alignment: .top, spacing: 0) {
+                        content
+                            .frame(
+                                maxWidth: config.width,
+                                maxHeight: config.height
+                            )
+                            .fixedSize(horizontal: config.width == nil, vertical: true)
+                            .multilineTextAlignment(.leading)
+                            .padding(.trailing, theme.spacings.xs)
+                        
+                        Button(action: {
+                            enabled = false
+                        }) {
+                            Image(Logos.close, bundle: .bundleMP)
+                                .frame(width: 16, height: 16)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.top, -4)
+                    }
+                    .padding(contentPadding)
                 }
                 .background(self.sizeMeasurer)
                 .overlay(self.arrowView)
@@ -228,41 +269,78 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     }
 }
 
+
+#if DEBUG
+import SwiftUI
+
 struct Tooltip_Previews: PreviewProvider {
-    static var previews: some View {
-
-        let side: TooltipSide = .top
-
-        var config1 = DefaultTooltipConfig(side: side)
-        config1.backgroundColor = .black
-
-        let config2 = DefaultTooltipConfig(side: side)
-
-        var config3 = DefaultTooltipConfig(side: side)
-        config3.backgroundColor = .green
-        config3.borderColor = .red
-        config1.side = .top
+    struct PreviewHost: View {
+        let config1 = DefaultTooltipConfig(side: .top, type: .blue)
+        let config2 = DefaultTooltipConfig(side: .top, type: .dark)
         
-        return VStack {
-            HStack {
-                Text("Say....................").tooltip(config: config1) {
-                    Text("Something nice!")
-                        .foregroundColor(.white)
-                }.padding(54)
-            }
-            HStack {
-                Text("Say...").tooltip(config: config2) {
-                    Text("Something nice!")
-                        .foregroundColor(.black)
-                }.padding(54)
-            }
-            HStack {
-                Text("Say...").tooltip(config: config3) {
-                    Text("Something nice!")
-                        .foregroundColor(.black)
-                }.padding(54)
+        @State var enabled1 = true
+        @State var enabled2 = false
+
+        public init() {}
+
+        public var body: some View {
+            ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
+                VStack {
+                    HStack {
+                        Button(action: {
+                            enabled1 = !enabled1
+                        }) {
+                            Image(systemName: "info.circle")
+                                .frame(height: 30)
+                        }
+                        .tooltip($enabled1, config: config1) {
+                            VStack(alignment: .leading) {
+                                Text("Title")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                
+                                Text("Text description.")
+                                    .font(.body)
+                                    .foregroundColor(.white)
+                            }
+                        }
+
+                    }
+                    .padding(80)
+                    
+                    HStack {
+                        Text("Text 123")
+                            .tooltip($enabled2, config: config2) {
+                                VStack(alignment: .leading) {
+                                    Text("Title")
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                    
+                                    Text("Text description.")
+                                        .font(.body)
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .onTapGesture {
+                                enabled2 = !enabled2
+                            }
+
+                    }
+                    .padding(80)
+                    
+                    
+                }
             }
         }
-        .previewDevice(PreviewDevice(rawValue: "iPhone 14"))
+    }
+    static var previews: some View {
+        Group {
+            PreviewHost()
+                .previewDisplayName("Light")
+        }
     }
 }
+
+#endif
