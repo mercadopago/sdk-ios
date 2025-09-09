@@ -62,7 +62,6 @@ package struct DefaultTooltipConfig: TooltipConfig {
     /// Style of the tooltip arrow. Defaults to `.default`.
     package var arrowType: ArrowType = .default
     
-    
     /// Visual theme type for the tooltip. Defaults to `.blue`.
     package var type: TooltipType = .blue
 

@@ -27,4 +27,3 @@ package enum ArrowType: Sendable {
     /// its rotation based on the tooltip's `TooltipSide` position.
     case `default`
 }
-

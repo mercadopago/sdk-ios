@@ -53,9 +53,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     
     /// The current animation offset for movement effects.
     @State private var currentAnimationOffset: CGFloat = 0
-    
-    /// The current animation configuration being applied.
-    @State private var currentAnimation: Optional<Animation> = nil
 
     // MARK: - Computed Properties
 
@@ -192,8 +189,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             let shape = ArrowShape()
                 .rotation(Angle(radians: angle))
                 .foregroundColor(tooltipConfiguration.backgroundColor(from: theme))
-
-            
             
             return AnyView(shape)
         }
@@ -227,7 +222,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             }
         )
     }
-
 
     private var mainTooltipView: some View {
         let borderRadius = tooltipConfiguration.borderRadius(from: theme)
@@ -286,7 +280,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
         }
     }
 
-
     func body(content: Content) -> some View {
         content
             .onTapGesture {
@@ -295,7 +288,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             .overlay(isTooltipEnabled ? mainTooltipView.transition(.opacity) : nil)
     }
 }
-
 
 #if DEBUG
 import SwiftUI
@@ -315,7 +307,7 @@ struct TooltipModifier_Previews: PreviewProvider {
                             .font(.title)
                             .foregroundColor(.blue)
                             .tooltip(type: .dark) {
-                                Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão ou no app do seu banco ou carteira digital.")
+                                Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
                                     .textStyle(.bodySmallRegular(colorType: .inverted))
                             }
                     }
@@ -331,7 +323,7 @@ struct TooltipModifier_Previews: PreviewProvider {
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
                                     
-                                    Text("This tooltip uses the dark theme for better contrast.")
+                                    Text("This tooltip uses the Blue theme for better contrast.")
                                         .font(.body)
                                         .foregroundColor(.white)
                                 }
