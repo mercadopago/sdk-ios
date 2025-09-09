@@ -34,9 +34,11 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     // MARK: - Initializers
 
     init(
+        isTooltipEnabled: Bool = false,
         config: TooltipConfig,
         @ViewBuilder content: @escaping () -> TooltipContent
     ) {
+        self.isTooltipEnabled = isTooltipEnabled
         self.tooltipConfiguration = config
         self.tooltipContent = content()
     }
