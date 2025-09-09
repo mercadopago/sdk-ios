@@ -20,19 +20,17 @@ package extension View {
     /// (top), theming (blue), and behavior (no animation, with arrow).
     ///
     /// - Parameters:
-    ///   - enabled: A binding that controls tooltip visibility. Defaults to `false`.
     ///   - content: A view builder that creates the tooltip's content.
     /// - Returns: The modified view with tooltip functionality.
     ///
     /// ## Example Usage
     ///
     /// ```swift
-    /// @State private var showTooltip = false
-    /// 
+    ///
     /// Button("Info") {
-    ///     showTooltip.toggle()
+    ///
     /// }
-    /// .tooltip($showTooltip) {
+    /// .tooltip() {
     ///     Text("This provides additional information")
     ///         .foregroundColor(.white)
     /// }
@@ -50,7 +48,6 @@ package extension View {
     /// You can provide any custom configuration that conforms to `TooltipConfig`.
     ///
     /// - Parameters:
-    ///   - enabled: A binding that controls tooltip visibility.
     ///   - config: A custom configuration object defining tooltip behavior and appearance.
     ///   - content: A view builder that creates the tooltip's content.
     /// - Returns: The modified view with tooltip functionality.
@@ -65,7 +62,7 @@ package extension View {
     /// customConfig.showArrow = false
     /// 
     /// Image(systemName: "info.circle")
-    ///     .tooltip($showTooltip, config: customConfig) {
+    ///     .tooltip(config: customConfig) {
     ///         VStack {
     ///             Text("Custom Tooltip")
     ///                 .font(.headline)
@@ -88,8 +85,6 @@ package extension View {
     /// common customizations (positioning and theme) without creating a full configuration.
     ///
     /// - Parameters:
-    ///   - enabled: A binding that controls tooltip visibility.
-    ///   - side: The side where the tooltip should appear relative to the target view.
     ///   - type: The visual theme type for the tooltip. Defaults to `.blue`.
     ///   - content: A view builder that creates the tooltip's content.
     /// - Returns: The modified view with tooltip functionality.
@@ -100,7 +95,7 @@ package extension View {
     /// @State private var showTooltip = false
     /// 
     /// Text("Hover target")
-    ///     .tooltip($showTooltip, side: .bottom, type: .dark) {
+    ///     .tooltip(type: .dark) {
     ///         Text("This tooltip appears below with dark theme")
     ///             .foregroundColor(.white)
     ///     }

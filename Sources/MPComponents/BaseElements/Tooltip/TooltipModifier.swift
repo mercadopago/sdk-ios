@@ -18,7 +18,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     
     // MARK: - Environment
     
-    /// The current theme providing design system values.
     @Environment(\.checkoutTheme) var theme: MPTheme
     
     // MARK: - Configuration Properties
@@ -34,12 +33,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
 
     // MARK: - Initializers
 
-    /// Creates a new tooltip modifier with the specified configuration.
-    ///
-    /// - Parameters:
-    ///   - enabled: A binding that controls tooltip visibility.
-    ///   - config: The configuration object defining tooltip behavior.
-    ///   - content: A closure that creates the tooltip's content view.
     init(
         config: TooltipConfig,
         @ViewBuilder content: @escaping () -> TooltipContent
@@ -75,9 +68,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     }
 
     /// Calculates the horizontal arrow offset based on tooltip positioning.
-    ///
-    /// This computed property determines the arrow's horizontal position relative to the tooltip
-    /// center, taking into account border radius and width for corner positioning adjustments.
     private var arrowHorizontalOffset: CGFloat {
         let borderRadius = tooltipConfiguration.borderRadius(from: theme)
         let borderWidth = tooltipConfiguration.borderWidth(from: theme)
@@ -103,9 +93,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     }
 
     /// Calculates the vertical arrow offset based on tooltip positioning.
-    ///
-    /// This computed property determines the arrow's vertical position relative to the tooltip
-    /// center, taking into account border radius and width for corner positioning adjustments.
     private var arrowVerticalOffset: CGFloat {
         let borderRadius = tooltipConfiguration.borderRadius(from: theme)
         let borderWidth = tooltipConfiguration.borderWidth(from: theme)
@@ -133,12 +120,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     // MARK: - Positioning Helper Methods
 
     /// Calculates the horizontal offset for tooltip positioning.
-    ///
-    /// This method determines where to horizontally position the tooltip relative to its target view,
-    /// taking into account the tooltip side, margins, arrow height, and current animation offset.
-    ///
-    /// - Parameter geometry: The geometry of the target view.
-    /// - Returns: The horizontal offset in points.
     private func calculateHorizontalOffset(for geometry: GeometryProxy) -> CGFloat {
         switch tooltipConfiguration.side {
         case .left, .topLeft, .bottomLeft:
@@ -151,12 +132,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     }
 
     /// Calculates the vertical offset for tooltip positioning.
-    ///
-    /// This method determines where to vertically position the tooltip relative to its target view,
-    /// taking into account the tooltip side, margins, arrow height, and current animation offset.
-    ///
-    /// - Parameter geometry: The geometry of the target view.
-    /// - Returns: The vertical offset in points.
     private func calculateVerticalOffset(for geometry: GeometryProxy) -> CGFloat {
         switch tooltipConfiguration.side {
         case .top, .topRight, .topLeft:
@@ -176,7 +151,7 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     /// which is then used for precise positioning calculations.
     private var contentSizeMeasurer: some View {
         GeometryReader { geometry in
-            Text("")
+            Color.clear
                 .onAppear {
                     self.tooltipContentWidth = self.tooltipConfiguration.width ?? geometry.size.width
                     self.tooltipContentHeight = self.tooltipConfiguration.height ?? geometry.size.height
@@ -185,12 +160,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     }
 
     /// Creates the arrow view with proper styling and positioning.
-    ///
-    /// This computed property generates the tooltip's pointing arrow, including both
-    /// the stroke (border) and fill layers. The arrow is positioned and rotated based
-    /// on the tooltip's side configuration.
-    ///
-    /// - Returns: A view containing the styled arrow, or an empty view if no arrow is needed.
     private var tooltipArrowView: some View {
         guard let arrowAngle = tooltipConfiguration.side.getArrowAngleRadians() else {
             return AnyView(EmptyView())
@@ -214,14 +183,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     }
 
     /// Creates an arrow shape with the specified angle and optional border color.
-    ///
-    /// This method generates the appropriate arrow shape based on the configuration's
-    /// arrow type and applies the necessary rotation and styling.
-    ///
-    /// - Parameters:
-    ///   - angle: The rotation angle for the arrow in radians.
-    ///   - borderColor: Optional border color for the arrow stroke.
-    /// - Returns: A view containing the styled arrow shape.
     private func createArrowShape(angle: Double) -> AnyView {
         switch tooltipConfiguration.arrowType {
         case .default:
@@ -233,12 +194,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     }
 
     /// Creates a mask that cuts out the arrow area from the tooltip border.
-    ///
-    /// This computed property generates a composited mask that allows the arrow to appear
-    /// as if it's seamlessly connected to the tooltip body by removing the border where
-    /// the arrow connects.
-    ///
-    /// - Returns: A view used as a mask to create the arrow cutout effect.
     private var arrowCutoutMask: some View {
         guard let arrowAngle = tooltipConfiguration.side.getArrowAngleRadians() else {
             return AnyView(EmptyView())
@@ -275,16 +230,19 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
         
         return GeometryReader { geometry in
             ZStack {
-                RoundedRectangle(cornerRadius: borderRadius, style: .circular)
-                    .frame(
-                        width: tooltipContentWidth,
-                        height: tooltipContentHeight
-                    )
-                    .mask(arrowCutoutMask)
-                    .background(
-                        RoundedRectangle(cornerRadius: borderRadius)
-                            .foregroundColor(backgroundColor)
-                    )
+                RoundedRectangle(
+                    cornerRadius: borderRadius, style: .circular
+                )
+                .stroke(lineWidth: 0)
+                .frame(
+                    width: tooltipContentWidth,
+                    height: tooltipContentHeight
+                )
+                .mask(arrowCutoutMask)
+                .background(
+                    RoundedRectangle(cornerRadius: borderRadius)
+                        .foregroundColor(backgroundColor)
+                )
                 
                 ZStack {
                     HStack(alignment: .top) {
@@ -338,18 +296,7 @@ import SwiftUI
 
 struct TooltipModifier_Previews: PreviewProvider {
     struct TooltipPreviewHost: View {
-        
-        // MARK: - State
-        
-        @State private var showBlueTooltip = true
-        @State private var showDarkTooltip = false
-        @State private var showAnimatedTooltip = false
-
-        // MARK: - Initializer
-        
         public init() {}
-
-        // MARK: - View Body
         
         public var body: some View {
             ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
@@ -359,21 +306,21 @@ struct TooltipModifier_Previews: PreviewProvider {
                             .fontWeight(.semibold)
                         
                         Image(systemName: "info.circle")
-                        .font(.title)
-                        .foregroundColor(.blue)
-                        .tooltip(type: .dark) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão ou no app do seu banco ou carteira digital.")
-                                .textStyle(.bodySmallRegular(colorType: .inverted))
-                        }
+                            .font(.title)
+                            .foregroundColor(.blue)
+                            .tooltip(type: .dark) {
+                                Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão ou no app do seu banco ou carteira digital.")
+                                    .textStyle(.bodySmallRegular(colorType: .inverted))
+                            }
                     }
                     
                     VStack {
-                        Text("TSecond text")
+                        Text("Second text")
                             .padding()
                             .cornerRadius(8)
-                            .tooltip(type: .dark) {
+                            .tooltip(type: .blue) {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Dark Theme")
+                                    Text("Blue Theme")
                                         .font(.headline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
@@ -382,9 +329,6 @@ struct TooltipModifier_Previews: PreviewProvider {
                                         .font(.body)
                                         .foregroundColor(.white)
                                 }
-                            }
-                            .onTapGesture {
-                                showDarkTooltip.toggle()
                             }
                     }
                     
