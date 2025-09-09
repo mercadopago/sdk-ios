@@ -184,10 +184,14 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
 
     /// Creates an arrow shape with the specified angle and optional border color.
     private func createArrowShape(angle: Double) -> AnyView {
+        
         switch tooltipConfiguration.arrowType {
         case .default:
             let shape = ArrowShape()
                 .rotation(Angle(radians: angle))
+                .foregroundColor(tooltipConfiguration.backgroundColor(from: theme))
+
+            
             
             return AnyView(shape)
         }
