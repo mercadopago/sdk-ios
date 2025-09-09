@@ -14,10 +14,15 @@ let package = Package(
         .library(
             name: "CoreMethods",
             targets: ["CoreMethods"]
+        ),
+        .library(
+            name: "MercadoPagoCheckout",
+            targets: ["MercadoPagoCheckout"]
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.6")
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.6"),
+        .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.61.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -52,11 +57,12 @@ let package = Package(
         
         .target(
             name: "MercadoPagoCheckout",
-            dependencies: ["MPComponents", "CoreMethods"]
+            dependencies: ["MPComponents", "CoreMethods"],
         ),
         .target(
             name: "MPComponents",
-            dependencies: ["MPFoundation"]
+            dependencies: ["MPFoundation"],
+            plugins: [.plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")]
         ),
         .target(
             name: "MPFoundation",
