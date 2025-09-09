@@ -98,30 +98,6 @@ package protocol TooltipConfig: Sendable {
     /// This property allows for future arrow style variations.
     var arrowType: ArrowType { get set }
     
-    // MARK: - Animation Configuration
-    
-    /// Whether to enable subtle animation effects for the tooltip.
-    ///
-    /// When enabled, the tooltip will have a gentle movement animation
-    /// that draws attention to its appearance.
-    var enableAnimation: Bool { get set }
-    
-    /// The distance the tooltip moves during animation, in points.
-    ///
-    /// This creates a subtle "bounce" or "float" effect when the tooltip appears.
-    var animationOffset: CGFloat { get set }
-    
-    /// The duration of each animation cycle, in seconds.
-    ///
-    /// This controls how long each animation movement takes to complete.
-    var animationTime: Double { get set }
-    
-    /// The animation curve used for tooltip animations.
-    ///
-    /// When `nil`, no animation is applied. Common values include
-    /// `.easeInOut`, `.spring()`, or custom animation curves.
-    var animation: Optional<Animation> { get set }
-    
     // MARK: - Visual Style
     
     /// The visual theme type for the tooltip.
@@ -145,36 +121,12 @@ package protocol TooltipConfig: Sendable {
     /// - Returns: The border width value in points, or 0 for no border.
     func borderWidth(from theme: MPTheme) -> CGFloat
     
-    /// Returns the border color for the tooltip based on the current theme.
-    ///
-    /// - Parameter theme: The current `MPTheme` providing design system colors.
-    /// - Returns: The `Color` to use for the tooltip border, or `.clear` for no border.
-    func borderColor(from theme: MPTheme) -> Color
-    
     /// Returns the background color for the tooltip based on the current theme.
     ///
     /// - Parameter theme: The current `MPTheme` providing design system colors.
     /// - Returns: The `Color` to use for the tooltip background.
     func backgroundColor(from theme: MPTheme) -> Color
-    
-    /// Returns the shadow color for the tooltip based on the current theme.
-    ///
-    /// - Parameter theme: The current `MPTheme` providing design system colors.
-    /// - Returns: The `Color` to use for the tooltip drop shadow.
-    func shadowColor(from theme: MPTheme) -> Color
-    
-    /// Returns the shadow blur radius for the tooltip based on the current theme.
-    ///
-    /// - Parameter theme: The current `MPTheme` providing design system values.
-    /// - Returns: The shadow blur radius in points.
-    func shadowRadius(from theme: MPTheme) -> CGFloat
-    
-    /// Returns the shadow offset for the tooltip based on the current theme.
-    ///
-    /// - Parameter theme: The current `MPTheme` providing design system values.
-    /// - Returns: A `CGPoint` representing the shadow's x and y offset.
-    func shadowOffset(from theme: MPTheme) -> CGPoint
-    
+        
     /// Returns the content padding for the tooltip based on the current theme.
     ///
     /// - Parameter theme: The current `MPTheme` providing design system spacing values.

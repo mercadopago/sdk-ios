@@ -14,25 +14,6 @@ import MPFoundation
 /// logic for tooltips. It automatically calculates optimal positioning based on
 /// the target view's geometry and the configured tooltip side.
 ///
-/// ## Usage
-///
-/// This modifier is typically used through the `View.tooltip()` extension methods
-/// rather than directly. However, it can be applied manually when needed:
-///
-/// ```swift
-/// Text("Target view")
-///     .modifier(TooltipModifier(
-///         enabled: $showTooltip,
-///         config: DefaultTooltipConfig(),
-///         content: { Text("Tooltip content") }
-///     ))
-/// ```
-///
-/// ## Implementation Details
-///
-/// The modifier uses geometry readers to calculate precise positioning and employs
-/// overlays to render tooltips above the target view. Arrow positioning is mathematically
-/// calculated based on the tooltip side and content dimensions.
 struct TooltipModifier<TooltipContent: View>: ViewModifier {
     
     // MARK: - Environment
@@ -43,7 +24,7 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     // MARK: - Configuration Properties
     
     /// Controls whether the tooltip is currently visible.
-    @Binding var isTooltipEnabled: Bool
+    @State var isTooltipEnabled: Bool = false
     
     /// The configuration object defining tooltip behavior and appearance.
     var tooltipConfiguration: TooltipConfig
@@ -60,11 +41,9 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     ///   - config: The configuration object defining tooltip behavior.
     ///   - content: A closure that creates the tooltip's content view.
     init(
-        enabled: Binding<Bool>,
         config: TooltipConfig,
         @ViewBuilder content: @escaping () -> TooltipContent
     ) {
-        self._isTooltipEnabled = enabled
         self.tooltipConfiguration = config
         self.tooltipContent = content()
     }
@@ -72,10 +51,10 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     // MARK: - State Properties
 
     /// The calculated width of the tooltip content.
-    @State private var tooltipContentWidth: CGFloat = 10
+    @State private var tooltipContentWidth: CGFloat = 0
     
     /// The calculated height of the tooltip content.
-    @State private var tooltipContentHeight: CGFloat = 10
+    @State private var tooltipContentHeight: CGFloat = 0
     
     /// The current animation offset for movement effects.
     @State private var currentAnimationOffset: CGFloat = 0
@@ -105,7 +84,7 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
         
         switch tooltipConfiguration.side {
         case .bottom, .center, .top:
-            return 40
+            return 0
         case .left:
             return (tooltipContentWidth / 2 + tooltipConfiguration.arrowHeight / 2)
         case .topLeft, .bottomLeft:
@@ -167,7 +146,7 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
         case .right, .topRight, .bottomRight:
             return geometry.size.width + tooltipConfiguration.margin + effectiveArrowHeight + currentAnimationOffset
         case .top, .center, .bottom:
-            return (geometry.size.width - tooltipContentWidth) / 1.35
+            return (geometry.size.width - tooltipContentWidth) / 2
         }
     }
 
@@ -186,30 +165,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             return geometry.size.height + tooltipConfiguration.margin + effectiveArrowHeight + currentAnimationOffset
         case .left, .center, .right:
             return (geometry.size.height - tooltipContentHeight) / 2
-        }
-    }
-    
-    // MARK: - Animation Management
-    
-    /// Initiates the continuous animation cycle for the tooltip.
-    ///
-    /// This method creates a repeating animation sequence that provides subtle movement
-    /// to draw attention to the tooltip. The animation alternates between the configured
-    /// offset and zero, creating a gentle "breathing" or "floating" effect.
-    ///
-    /// The animation only runs when enabled in the configuration and continues until
-    /// the tooltip is dismissed or animations are disabled.
-    private func startAnimationCycle() {
-        guard tooltipConfiguration.enableAnimation else { return }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + tooltipConfiguration.animationTime) {
-            self.currentAnimationOffset = self.tooltipConfiguration.animationOffset
-            self.currentAnimation = self.tooltipConfiguration.animation
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + self.tooltipConfiguration.animationTime * 0.1) {
-                self.currentAnimationOffset = 0
-                self.startAnimationCycle()
-            }
         }
     }
 
@@ -241,11 +196,10 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             return AnyView(EmptyView())
         }
 
-        let borderColor = tooltipConfiguration.borderColor(from: theme)
         let backgroundColor = tooltipConfiguration.backgroundColor(from: theme)
 
         return AnyView(
-            createArrowShape(angle: arrowAngle, borderColor: borderColor)
+            createArrowShape(angle: arrowAngle)
                 .background(
                     createArrowShape(angle: arrowAngle)
                         .frame(width: tooltipConfiguration.arrowWidth, height: tooltipConfiguration.arrowHeight)
@@ -268,15 +222,12 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     ///   - angle: The rotation angle for the arrow in radians.
     ///   - borderColor: Optional border color for the arrow stroke.
     /// - Returns: A view containing the styled arrow shape.
-    private func createArrowShape(angle: Double, borderColor: Color? = nil) -> AnyView {
+    private func createArrowShape(angle: Double) -> AnyView {
         switch tooltipConfiguration.arrowType {
         case .default:
             let shape = ArrowShape()
                 .rotation(Angle(radians: angle))
             
-            if let borderColor = borderColor {
-                return AnyView(shape.stroke(borderColor))
-            }
             return AnyView(shape)
         }
     }
@@ -313,70 +264,53 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
                     .offset(x: arrowHorizontalOffset, y: arrowVerticalOffset)
                     .foregroundColor(.black)
             }
-            .compositingGroup()
-            .luminanceToAlpha()
         )
     }
 
-    /// The main tooltip view containing content, styling, and positioning logic.
-    ///
-    /// This computed property creates the complete tooltip view including:
-    /// - Background with border and shadow
-    /// - Content layout with close button
-    /// - Arrow attachment
-    /// - Precise positioning relative to target view
-    ///
-    /// The view uses geometry readers for dynamic positioning and applies all
-    /// configured styling from the theme system.
+
     private var mainTooltipView: some View {
         let borderRadius = tooltipConfiguration.borderRadius(from: theme)
-        let borderWidth = tooltipConfiguration.borderWidth(from: theme)
-        let borderColor = tooltipConfiguration.borderColor(from: theme)
         let backgroundColor = tooltipConfiguration.backgroundColor(from: theme)
-        let shadowColor = tooltipConfiguration.shadowColor(from: theme)
-        let shadowRadius = tooltipConfiguration.shadowRadius(from: theme)
-        let shadowOffset = tooltipConfiguration.shadowOffset(from: theme)
         let contentPadding = tooltipConfiguration.contentPadding(from: theme)
         
         return GeometryReader { geometry in
             ZStack {
                 RoundedRectangle(cornerRadius: borderRadius, style: .circular)
-                    .stroke(borderWidth == 0 ? Color.clear : borderColor, lineWidth: borderWidth)
-                    .frame(width: tooltipContentWidth, height: tooltipContentHeight)
+                    .frame(
+                        width: tooltipContentWidth,
+                        height: tooltipContentHeight
+                    )
                     .mask(arrowCutoutMask)
                     .background(
                         RoundedRectangle(cornerRadius: borderRadius)
                             .foregroundColor(backgroundColor)
                     )
-                    .shadow(
-                        color: shadowColor,
-                        radius: shadowRadius,
-                        x: shadowOffset.x,
-                        y: shadowOffset.y
-                    )
                 
                 ZStack {
-                    HStack(alignment: .top, spacing: 0) {
+                    HStack(alignment: .top) {
                         tooltipContent
                             .frame(
                                 maxWidth: tooltipConfiguration.width,
                                 maxHeight: tooltipConfiguration.height
                             )
-                            .fixedSize(horizontal: tooltipConfiguration.width == nil, vertical: true)
-                            .multilineTextAlignment(.leading)
-                            .padding(.trailing, theme.spacings.xs)
+                            .fixedSize(
+                                horizontal: tooltipConfiguration.width == nil,
+                                vertical: true
+                            )
                         
                         Button(action: {
-                            isTooltipEnabled = false
+                            isTooltipEnabled.toggle()
                         }) {
                             Image(Logos.close, bundle: .bundleMP)
-                                .frame(width: 16, height: 16)
-                                .foregroundColor(.white)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 20, height: 20)
+                                .foregroundColor(theme.colors.textInverted)
                         }
-                        .padding(.top, -4)
                     }
-                    .padding(contentPadding)
                 }
+                .padding(contentPadding)
                 .background(contentSizeMeasurer)
                 .overlay(tooltipArrowView)
             }
@@ -384,25 +318,16 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
                 x: calculateHorizontalOffset(for: geometry),
                 y: calculateVerticalOffset(for: geometry)
             )
-            .animation(currentAnimation)
             .zIndex(tooltipConfiguration.zIndex)
-            .onAppear {
-                startAnimationCycle()
-            }
         }
     }
 
-    // MARK: - ViewModifier Implementation
 
-    /// The main body method required by the `ViewModifier` protocol.
-    ///
-    /// This method applies the tooltip overlay to the target view when enabled.
-    /// The tooltip appears with a fade transition for smooth user experience.
-    ///
-    /// - Parameter content: The target view that will display the tooltip.
-    /// - Returns: The content view with tooltip overlay applied when enabled.
     func body(content: Content) -> some View {
         content
+            .onTapGesture {
+                isTooltipEnabled.toggle()
+            }
             .overlay(isTooltipEnabled ? mainTooltipView.transition(.opacity) : nil)
     }
 }
@@ -411,20 +336,8 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
 #if DEBUG
 import SwiftUI
 
-/// Preview provider for tooltip functionality testing and demonstration.
 struct TooltipModifier_Previews: PreviewProvider {
-    /// Host view containing multiple tooltip examples for testing different configurations.
     struct TooltipPreviewHost: View {
-        // MARK: - Configuration Examples
-        
-        let blueTopTooltipConfig = DefaultTooltipConfig(side: .bottom, type: .blue)
-        let darkBottomTooltipConfig = DefaultTooltipConfig(side: .bottom, type: .dark)
-        
-        var animatedTooltipConfig: DefaultTooltipConfig {
-            var config = DefaultTooltipConfig(side: .right, type: .blue)
-            config.enableAnimation = true
-            return config
-        }
         
         // MARK: - State
         
@@ -440,42 +353,25 @@ struct TooltipModifier_Previews: PreviewProvider {
         
         public var body: some View {
             ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
-                VStack(spacing: 60) {
-                    // Basic blue tooltip example
+                VStack(spacing: 20) {
                     VStack {
-                        Text("Blue Tooltip Example")
+                        Text("First text")
                             .fontWeight(.semibold)
                         
-                        Button(action: {
-                            showBlueTooltip.toggle()
-                        }) {
-                            Image(systemName: "info.circle")
-                                .font(.title)
-                                .foregroundColor(.blue)
-                        }
-                        .tooltip($showBlueTooltip, config: blueTopTooltipConfig) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Informational Tooltip")
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                
-                                Text("This tooltip")
-                                    .font(.body)
-                                    .foregroundColor(.white)
-                            }
+                        Image(systemName: "info.circle")
+                        .font(.title)
+                        .foregroundColor(.blue)
+                        .tooltip(type: .dark) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão ou no app do seu banco ou carteira digital.")
+                                .textStyle(.bodySmallRegular(colorType: .inverted))
                         }
                     }
                     
-                    // Dark tooltip example
                     VStack {
-                        Text("Dark Tooltip Example")
-                            .fontWeight(.semibold)
-                        
-                        Text("Tap to show tooltip")
+                        Text("TSecond text")
                             .padding()
                             .cornerRadius(8)
-                            .tooltip($showDarkTooltip, config: darkBottomTooltipConfig) {
+                            .tooltip(type: .dark) {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Dark Theme")
                                         .font(.headline)
@@ -492,25 +388,6 @@ struct TooltipModifier_Previews: PreviewProvider {
                             }
                     }
                     
-                    // Animated tooltip example
-                    VStack {
-                        Text("Animated Tooltip Example")
-                            .fontWeight(.semibold)
-                        
-                        Button(action: {
-                            showAnimatedTooltip.toggle()
-                        }) {
-                            Text("Toggle Animated Tooltip")
-                                .padding()
-                                .background(Color.green.opacity(0.2))
-                                .cornerRadius(8)
-                        }
-                        .tooltip($showAnimatedTooltip, config: animatedTooltipConfig) {
-                            Text("This tooltip has animation enabled!")
-                                .font(.body)
-                                .foregroundColor(.white)
-                        }
-                    }
                 }
                 .padding(40)
             }

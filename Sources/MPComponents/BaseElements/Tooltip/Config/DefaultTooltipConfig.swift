@@ -45,10 +45,10 @@ package struct DefaultTooltipConfig: TooltipConfig {
     package var zIndex: Double = 10000
     
     /// Optional width constraint. When nil, tooltip sizes to content.
-    package var width: CGFloat?
+    package var width: CGFloat? = 246
     
     /// Optional height constraint. When nil, tooltip sizes to content.
-    package var height: CGFloat?
+    package var height: CGFloat? = 112
 
     /// Whether to display the pointing arrow. Defaults to `true`.
     package var showArrow: Bool = true
@@ -62,17 +62,6 @@ package struct DefaultTooltipConfig: TooltipConfig {
     /// Style of the tooltip arrow. Defaults to `.default`.
     package var arrowType: ArrowType = .default
     
-    /// Whether subtle animations are enabled. Defaults to `false`.
-    package var enableAnimation: Bool = false
-    
-    /// Distance of animation movement. Defaults to 10 points.
-    package var animationOffset: CGFloat = 10
-    
-    /// Duration of each animation cycle. Defaults to 1 second.
-    package var animationTime: Double = 1
-    
-    /// Animation curve for movements. Defaults to `.easeInOut`.
-    package var animation: Optional<Animation> = .easeInOut
     
     /// Visual theme type for the tooltip. Defaults to `.blue`.
     package var type: TooltipType = .blue
@@ -106,11 +95,6 @@ package struct DefaultTooltipConfig: TooltipConfig {
         return theme.outline.xs
     }
     
-    /// Returns a clear border color for borderless tooltips.
-    package func borderColor(from theme: MPTheme) -> Color {
-        return .clear
-    }
-    
     /// Returns the appropriate background color based on tooltip type.
     ///
     /// - `.blue`: Uses theme accent color for informational tooltips
@@ -122,21 +106,6 @@ package struct DefaultTooltipConfig: TooltipConfig {
         case .dark:
             return theme.colors.backgroundInverted
         }
-    }
-    
-    /// Returns a transparent shadow color for minimal visual impact.
-    package func shadowColor(from theme: MPTheme) -> Color {
-        return .clear
-    }
-    
-    /// Returns a subtle shadow radius from the design system.
-    package func shadowRadius(from theme: MPTheme) -> CGFloat {
-        return theme.spacings.xxs
-    }
-    
-    /// Returns a minimal downward shadow offset for subtle depth.
-    package func shadowOffset(from theme: MPTheme) -> CGPoint {
-        return CGPoint(x: 0, y: theme.spacings.xxs/2)
     }
     
     /// Returns consistent medium padding for tooltip content.

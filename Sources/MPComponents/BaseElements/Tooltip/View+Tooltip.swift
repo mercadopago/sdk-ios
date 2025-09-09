@@ -38,11 +38,10 @@ package extension View {
     /// }
     /// ```
     func tooltip<TooltipContent: View>(
-        _ enabled: Binding<Bool> = .constant(false),
         @ViewBuilder content: @escaping () -> TooltipContent
     ) -> some View {
         let config: TooltipConfig = DefaultTooltipConfig()
-        return modifier(TooltipModifier(enabled: enabled, config: config, content: content))
+        return modifier(TooltipModifier(config: config, content: content))
     }
 
     /// Adds a tooltip with custom configuration to the view.
@@ -77,11 +76,10 @@ package extension View {
     ///     }
     /// ```
     func tooltip<TooltipContent: View>(
-        _ enabled: Binding<Bool>,
         config: TooltipConfig,
         @ViewBuilder content: @escaping () -> TooltipContent
     ) -> some View {
-        modifier(TooltipModifier(enabled: enabled, config: config, content: content))
+        modifier(TooltipModifier(config: config, content: content))
     }
 
     /// Adds a tooltip with specific positioning and theming to the view.
@@ -111,16 +109,13 @@ package extension View {
     ///     }
     /// ```
     func tooltip<TooltipContent: View>(
-        _ enabled: Binding<Bool>,
-        side: TooltipSide,
         type: TooltipType = .blue,
         @ViewBuilder content: @escaping () -> TooltipContent
     ) -> some View {
         var config: TooltipConfig = DefaultTooltipConfig()
-        config.side = side
         config.type = type
 
-        return modifier(TooltipModifier(enabled: enabled, config: config, content: content))
+        return modifier(TooltipModifier(config: config, content: content))
     }
 }
 
