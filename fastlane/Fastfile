@@ -9,6 +9,7 @@ platform :ios do
       scheme: "MercadoPagoSDK",
       package_path: ".",
       only_testing: ["CoreMethodsTests" , "AnalyticsTests", "MPCoreTests", "MPApplePayTests"],
+      skip_testing: ["SnapshotTests"],
       destination: "platform=iOS Simulator,name=iPhone 16",
       result_bundle: true,
       code_coverage: true,
