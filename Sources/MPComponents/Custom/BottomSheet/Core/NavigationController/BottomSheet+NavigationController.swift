@@ -121,13 +121,13 @@ extension BottomSheet {
 
             guard
                 let viewController = container as? UIViewController,
-                viewController === topViewController, // Only react to top VC changes
-                !isUpdatingNavigationStack // Don't update if a push/pop is already in progress
+                viewController === topViewController,
+                !isUpdatingNavigationStack
             else { return }
 
             let updateAction = { [weak self] in
                 self?.updateSelfPreferredContentSize()
-                self?.view.layoutIfNeeded() // Ensure layout reflects new preferred size
+                self?.view.layoutIfNeeded()
             }
 
             if canAnimatePreferredContentSizeUpdates {
@@ -155,8 +155,6 @@ extension BottomSheet {
             applyChanges()
 
             if let coordinator = transitionCoordinator, animated, coordinator.isAnimated {
-                // If the change is animated and a transition coordinator exists,
-                // update preferredContentSize alongside the transition.
                 coordinator.animate(
                     alongsideTransition: { [weak self] _ in
                         self?.updateSelfPreferredContentSize()
@@ -168,7 +166,6 @@ extension BottomSheet {
                     }
                 )
             } else {
-                // If not animated or no coordinator, update directly and reset state.
                 isUpdatingNavigationStack = false
                 updateSelfPreferredContentSize()
                 // If not animated, likely means it's an immediate change or initial setup.
@@ -181,11 +178,6 @@ extension BottomSheet {
         /// It includes `additionalSafeAreaInsets` to ensure content is not obscured.
         private func updateSelfPreferredContentSize() {
             guard let topVC = topViewController else {
-                // If no topViewController, perhaps set to a minimal default or zero.
-                // This depends on desired behavior for an empty navigation stack.
-                // For now, let's assume it might result in zero or rely on system defaults.
-                // A width of view.bounds.width and height of 0 is a safe bet if content should disappear.
-                // However, a navigation controller usually has at least one VC.
                 if view.bounds.width > .zero {
                     preferredContentSize = CGSize(width: view.bounds.width, height: .zero)
                 }
@@ -193,7 +185,6 @@ extension BottomSheet {
             }
             
             var newHeight = topVC.preferredContentSize.height
-            // Add vertical safe area insets that this navigation controller itself contributes.
             // This ensures the child's preferredContentSize is correctly represented *within* this nav controller.
             newHeight += additionalSafeAreaInsets.top + additionalSafeAreaInsets.bottom
 
@@ -220,7 +211,6 @@ extension BottomSheet.NavigationController: UINavigationControllerDelegate {
     ) -> UIViewControllerAnimatedTransitioning? {
         
         if operation == .push {
-            // Setup custom interactive pop transition for the view controller being pushed.
             toVC.setupCustomInteractivePopTransition()
         }
 

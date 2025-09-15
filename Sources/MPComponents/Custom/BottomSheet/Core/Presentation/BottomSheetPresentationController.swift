@@ -8,18 +8,6 @@
 import Combine
 import UIKit
 
-/// A protocol adopted by view controllers that are presented within a bottom sheet
-/// and contain primary scrollable content.
-///
-/// The `BottomSheetPresentationController` uses the `scrollView` property to
-/// coordinate pan gestures, allowing simultaneous scrolling of the content and
-/// interactive dismissal of the bottom sheet.
-protocol ScrollableBottomSheetPresentedController: AnyObject {
-    /// The main `UIScrollView` instance within the presented view controller.
-    /// This scroll view's gestures will be coordinated with the sheet's dismissal gesture.
-    var scrollView: UIScrollView? { get }
-}
-
 /// Manages the presentation and transition of a view controller as a modal bottom sheet.
 ///
 /// `BottomSheetPresentationController` is a subclass of `UIPresentationController`
@@ -30,8 +18,6 @@ protocol ScrollableBottomSheetPresentedController: AnyObject {
 /// - Handling interactive dismissal via pan gestures.
 /// - Dynamically adjusting the sheet's height based on the `preferredContentSize`
 ///   of the presented view controller.
-/// - Coordinating gestures with any `UIScrollView` provided by a
-///   `ScrollableBottomSheetPresentedController`.
 final class BottomSheetPresentationController: UIPresentationController {
     // MARK: - Nested Types
 
@@ -82,12 +68,6 @@ final class BottomSheetPresentationController: UIPresentationController {
 
     /// The accumulated vertical translation from a pan gesture used for interactive dismissal.
     private var dismissalPanTranslation: CGFloat = 0
-    /// The vertical translation of a pan gesture on a tracked scroll view.
-    private var scrollViewPanTranslation: CGFloat = 0
-    /// The last recorded content offset from a pan gesture on a tracked scroll view before sheet dragging began.
-    private var lastScrollViewContentOffsetBeforeSheetDrag: CGPoint = .zero
-    /// `true` if the current drag gesture, originating from a scroll view, has transitioned to dragging the entire sheet.
-    private var didTransitionToSheetDragFromScrollView = false
 
     /// The controller managing an interactive dismissal transition.
     private var interactionController: UIPercentDrivenInteractiveTransition?
@@ -99,10 +79,6 @@ final class BottomSheetPresentationController: UIPresentationController {
     /// The internally managed pull bar view, displayed at the top of the sheet if configured.
     /// This view is an instance of `BottomSheetPresentationController.PullBar`.
     private var pullBarView: BottomSheetPresentationController.PullBar?
-
-    /// The scroll view being tracked for coordinated gesture handling.
-    /// Set if the presented view controller conforms to `ScrollableBottomSheetPresentedController`.
-    private weak var trackedScrollView: UIScrollView?
 
     /// Cached safe area insets from the container view's window. Updated during layout.
     private var cachedSafeAreaInsets: UIEdgeInsets = .zero
@@ -151,14 +127,6 @@ final class BottomSheetPresentationController: UIPresentationController {
         view.addGestureRecognizer(panRecognizer)
         panRecognizer.delegate = self
     }
-    
-    /// Stops tracking the current scroll view, if any.
-    private func removeScrollTrackingIfNeeded() {
-        // If a scroll view was being tracked, its delegate might have been this presentation controller.
-        // Consider if the original delegate needs to be restored here if it was stored.
-        // For now, just nil out the reference.
-        trackedScrollView = nil
-    }
 
     // MARK: - UIPresentationController Overrides
 
@@ -187,7 +155,6 @@ final class BottomSheetPresentationController: UIPresentationController {
     override func dismissalTransitionDidEnd(_ completed: Bool) {
         if completed {
             removeContentDimmingViewAndPullBar()
-            removeScrollTrackingIfNeeded()
             state = .dismissed
             dismissalHandler.didEndDismissal()
         } else {
@@ -465,10 +432,9 @@ final class BottomSheetPresentationController: UIPresentationController {
             return .zero
         }
 
-        let windowSafeAreaInsets = cachedSafeAreaInsets // Use cached insets
+        let windowSafeAreaInsets = cachedSafeAreaInsets
 
         var contentHeight = presentedViewController.preferredContentSize.height
-        // Add bottom safe area, assuming preferredContentSize does not include it.
         // This behavior might need adjustment if SwiftUI views calculate preferredContentSize differently.
         contentHeight += windowSafeAreaInsets.bottom
 
@@ -512,102 +478,6 @@ final class BottomSheetPresentationController: UIPresentationController {
     }
 }
 
-// MARK: - UIScrollViewDelegate Conformance
-extension BottomSheetPresentationController: UIScrollViewDelegate {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        // Prevent scrolling past the top if content is smaller than the frame
-        if !scrollView.isContentAtTopBoundary,
-           scrollView.contentSize.height.isAlmostEqual(to: scrollView.frame.height - scrollView.adjustedContentInset.verticalInsets) {
-            scrollView.bounds.origin.y = -scrollView.adjustedContentInset.top
-        }
-
-        let previousScrollViewPanTranslation = scrollViewPanTranslation
-        scrollViewPanTranslation = scrollView.panGestureRecognizer.translation(in: scrollView).y
-
-        didTransitionToSheetDragFromScrollView = shouldTransitionToSheetDrag(following: scrollView)
-        if didTransitionToSheetDragFromScrollView {
-            startInteractiveDismissalIfNeeded()
-            dismissalPanTranslation += scrollViewPanTranslation - previousScrollViewPanTranslation
-
-            // Pin scroll view content to top while dragging the sheet
-            scrollView.bounds.origin.y = -scrollView.adjustedContentInset.top
-            updateDismissalProgress(verticalTranslation: dismissalPanTranslation)
-        } else {
-            // Store the current pan translation if not dragging the sheet yet.
-            // This helps determine the "actual" drag once sheet drag starts.
-            lastScrollViewContentOffsetBeforeSheetDrag = scrollView.panGestureRecognizer.translation(in: scrollView)
-        }
-    }
-
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        isDraggingSheetInProgress = true
-        didTransitionToSheetDragFromScrollView = false
-        dismissalPanTranslation = 0
-        lastScrollViewContentOffsetBeforeSheetDrag = .zero
-    }
-
-    func scrollViewWillEndDragging(
-        _ scrollView: UIScrollView,
-        withVelocity velocity: CGPoint,
-        targetContentOffset: UnsafeMutablePointer<CGPoint>
-    ) {
-        if didTransitionToSheetDragFromScrollView {
-            let sheetDragVelocity = scrollView.panGestureRecognizer.velocity(in: presentedView)
-            let accumulatedSheetTranslation = dismissalPanTranslation
-            
-            let isMovingDownwardsFast = sheetDragVelocity.y > configuration.dragDismissVelocityThreshold
-            let hasTranslatedEnough = accumulatedSheetTranslation > (presentedView?.bounds.height ?? 0) * configuration.dragDismissTranslationThreshold
-
-            if isMovingDownwardsFast || hasTranslatedEnough {
-                 completeInteractiveDismissal(cancelled: false)
-            } else {
-                 completeInteractiveDismissal(cancelled: true)
-            }
-        } else if interactionController != nil {
-            // If an interaction was started but we didn't transition to sheet drag, cancel it.
-            completeInteractiveDismissal(cancelled: true)
-        }
-
-        dismissalPanTranslation = 0
-        scrollViewPanTranslation = 0
-        lastScrollViewContentOffsetBeforeSheetDrag = .zero
-        didTransitionToSheetDragFromScrollView = false
-        isDraggingSheetInProgress = false
-    }
-
-    /// Starts an interactive dismissal if one isn't already in progress and dismissal is allowed.
-    private func startInteractiveDismissalIfNeeded() {
-        guard interactionController == nil, dismissalHandler.canBeDismissed else {
-            return
-        }
-        startInteractiveDismissal()
-    }
-
-    /// Determines if a drag gesture on the `scrollView` should transition to dragging the entire sheet.
-    ///
-    /// This occurs if:
-    /// - The scroll view is being actively tracked.
-    /// - An interactive sheet dismissal is allowed and not already in progress via another gesture.
-    /// - The scroll view is at its top content boundary and the user is panning downwards,
-    ///   OR an interactive dismissal is already in progress (implying the sheet is being dragged).
-    ///
-    /// - Parameter scrollView: The `UIScrollView` whose pan gesture is being evaluated.
-    /// - Returns: `true` if the gesture should start dragging the sheet, `false` otherwise.
-    private func shouldTransitionToSheetDrag(following scrollView: UIScrollView) -> Bool { // Renamed
-        guard scrollView.isTracking, isInteractiveTransitionCanBeHandled else {
-            return false
-        }
-
-        if let currentProgress = interactionController?.percentComplete, currentProgress > 0 {
-            // If a sheet drag is already in progress, continue it.
-            return true
-        }
-        
-        // Transition to sheet drag if scroll view is at top and user scrolls down.
-        return scrollView.isContentAtTopBoundary && scrollView.isPanningDownwards
-    }
-}
-
 // MARK: - UIGestureRecognizerDelegate Conformance
 extension BottomSheetPresentationController: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -615,7 +485,6 @@ extension BottomSheetPresentationController: UIGestureRecognizerDelegate {
             return false
         }
         // Allow pan gesture to begin if the sheet is presented and the initial pan is generally downwards.
-        // This is a preliminary check; coordination with scroll views is handled by other delegate methods.
         let translationInPresentedView = panGesture.translation(in: presentedView)
         return state == .presented && translationInPresentedView.y >= 0
     }
@@ -624,12 +493,6 @@ extension BottomSheetPresentationController: UIGestureRecognizerDelegate {
         _ gestureRecognizer: UIGestureRecognizer,
         shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
-        // This presentation controller's pan gesture (for sheet dismissal)
-        // should wait for the tracked scroll view's pan gesture to fail.
-        // This means if the scroll view can scroll, it will, before the sheet starts dismissing.
-        if otherGestureRecognizer === trackedScrollView?.panGestureRecognizer {
-            return true
-        }
         return false
     }
     
@@ -637,19 +500,10 @@ extension BottomSheetPresentationController: UIGestureRecognizerDelegate {
         _ gestureRecognizer: UIGestureRecognizer,
         shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
-        // This method is often used to make a gesture recognizer defer to another.
-        // If 'otherGestureRecognizer' is the pan gesture of our tracked scroll view,
-        // and we are *not yet* dragging the sheet (i.e., the scroll view should be scrolling),
-        // then our pan gesture (on the sheet itself or pull bar) should be required to fail by the scroll view's gesture.
-        // This helps the scroll view's gesture take precedence when appropriate.
-        if otherGestureRecognizer === trackedScrollView?.panGestureRecognizer && !didTransitionToSheetDragFromScrollView {
-            return true
-        }
         return false
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        // Do not process gestures if a navigation transition (within the sheet) is in progress.
         return !isNavigationTransitionInProgress
     }
 }
@@ -664,7 +518,6 @@ extension BottomSheetPresentationController: UINavigationControllerDelegate {
         didShow viewController: UIViewController,
         animated: Bool
     ) {
-        trackScrollView(inside: viewController)
         isNavigationTransitionInProgress = false
         
         // After navigation, the content and thus preferred size might change.
@@ -678,26 +531,6 @@ extension BottomSheetPresentationController: UINavigationControllerDelegate {
         animated: Bool
     ) {
         isNavigationTransitionInProgress = true
-    }
-
-    /// Tracks the primary scroll view within the given view controller, if it conforms to
-    /// `ScrollableBottomSheetPresentedController`.
-    ///
-    /// - Parameter viewController: The view controller to check for a scroll view.
-    private func trackScrollView(inside viewController: UIViewController) {
-        removeScrollTrackingIfNeeded() // Untrack previous scroll view
-
-        if let scrollableVC = viewController as? ScrollableBottomSheetPresentedController,
-           let scrollView = scrollableVC.scrollView {
-            trackedScrollView = scrollView
-            // IMPORTANT: Setting this presentation controller as the scroll view's delegate
-            // can override the view controller's own scroll view delegate.
-            // For robust coordination without hijacking, consider using KVO on contentOffset
-            // or specific UIGestureRecognizerDelegate methods to coordinate between the
-            // sheet's pan gesture and the scroll view's pan gesture.
-            // If this controller *must* be the delegate, the original delegate should be stored and restored.
-            // scrollView.delegate = self // This line was commented out in the original, maintaining that.
-        }
     }
 }
 
@@ -727,7 +560,6 @@ extension BottomSheetPresentationController: UIViewControllerAnimatedTransitioni
             applyStyleToPresentedView()
         }
 
-        // Ensure views have correct layout before calculating frames
         sourceVC.view.layoutIfNeeded()
         destinationVC.view.layoutIfNeeded()
         
@@ -748,7 +580,6 @@ extension BottomSheetPresentationController: UIViewControllerAnimatedTransitioni
         let completion = { (finished: Bool) in
             let success = finished && !transitionContext.transitionWasCancelled
             if !success && isPresenting {
-                // If presentation was cancelled or failed, remove the presented view.
                 viewToAnimate.removeFromSuperview()
             }
             transitionContext.completeTransition(success)
@@ -776,18 +607,5 @@ extension BottomSheetPresentationController: UIViewControllerAnimatedTransitioni
         // This method is called when a non-interactive transition animation finishes,
         // or when an interactive transition is completed or cancelled.
         // Can be used for final cleanup if needed, beyond what transitionContext.completeTransition offers.
-    }
-}
-
-// MARK: - Private UIScrollView Helper Extensions
-private extension UIScrollView {
-    /// `true` if the scroll view is currently being panned downwards by the user.
-    var isPanningDownwards: Bool {
-        panGestureRecognizer.velocity(in: nil).y > 0
-    }
-
-    /// `true` if the scroll view's content is at (or scrolled above) its top boundary.
-    var isContentAtTopBoundary: Bool { // Renamed from isContentOriginInBounds
-        contentOffset.y <= -adjustedContentInset.top
     }
 }
