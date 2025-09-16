@@ -112,7 +112,6 @@ extension BottomSheet {
             return poppedViewControllers
         }
 
-
         /// Called when the `preferredContentSize` of a child view controller changes.
         /// This navigation controller updates its own `preferredContentSize` to reflect the change,
         /// which in turn can cause the presenting `BottomSheet.PresentationController` to resize the sheet.
@@ -159,7 +158,7 @@ extension BottomSheet {
                     alongsideTransition: { [weak self] _ in
                         self?.updateSelfPreferredContentSize()
                     },
-                    completion: { [weak self] context in
+                    completion: { [weak self] _ in
                         self?.isUpdatingNavigationStack = false
                         self?.updateSelfPreferredContentSize()
                         self?.canAnimatePreferredContentSizeUpdates = true

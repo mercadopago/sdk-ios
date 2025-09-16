@@ -43,7 +43,7 @@ extension UIViewController {
             #selector(viewWillAppear(_:)): #selector(swizzled_viewWillAppear(_:)),
             #selector(viewDidAppear(_:)): #selector(swizzled_viewDidAppear(_:)),
             #selector(viewWillDisappear(_:)): #selector(swizzled_viewWillDisappear(_:)),
-            #selector(viewDidDisappear(_:)): #selector(swizzled_viewDidDisappear(_:)),
+            #selector(viewDidDisappear(_:)): #selector(swizzled_viewDidDisappear(_:))
         ]
 
         for (originalSelector, swizzledSelector) in originalToSwizzled {
@@ -52,10 +52,19 @@ extension UIViewController {
                 let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)
             else { return }
 
-            let didAddMethod = class_addMethod(self, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
+            let didAddMethod = class_addMethod(
+                self, originalSelector, 
+                method_getImplementation(swizzledMethod),
+                method_getTypeEncoding(swizzledMethod)
+            )
 
             if didAddMethod {
-                class_replaceMethod(self, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+                class_replaceMethod(
+                    self,
+                    swizzledSelector,
+                    method_getImplementation(originalMethod),
+                    method_getTypeEncoding(originalMethod)
+                )
             } else {
                 method_exchangeImplementations(originalMethod, swizzledMethod)
             }

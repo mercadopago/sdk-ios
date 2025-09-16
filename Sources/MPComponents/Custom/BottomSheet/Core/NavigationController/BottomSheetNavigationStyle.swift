@@ -75,10 +75,12 @@ final class BottomSheetNavigationAnimatedTransitioning: NSObject, UIViewControll
         destinationView.updateConstraintsIfNeeded()
         destinationView.setNeedsLayout()
         destinationView.layoutIfNeeded()
+        
+        let safeAreaBottomAndTop = destinationView.safeAreaInsets.top + destinationView.safeAreaInsets.bottom
 
         let preferredContentSize = CGSize(
             width: destinationViewController.preferredContentSize.width,
-            height: destinationViewController.preferredContentSize.height + destinationView.safeAreaInsets.top + destinationView.safeAreaInsets.bottom
+            height: destinationViewController.preferredContentSize.height + safeAreaBottomAndTop
         )
 
         var maxHeight = containerViewWindow.bounds.size.height - containerViewWindow.safeAreaInsets.top
@@ -137,6 +139,12 @@ final class BottomSheetNavigationAnimatedTransitioning: NSObject, UIViewControll
         }
 
         let duration = transitionDuration(using: transitionContext)
-        UIView.animate(withDuration: duration, delay: 0, options: .curveLinear, animations: animations, completion: completion)
+        UIView.animate(
+            withDuration: duration,
+            delay: 0,
+            options: .curveLinear,
+            animations: animations,
+            completion: completion
+        )
     }
 }

@@ -592,7 +592,8 @@ extension BottomSheetPresentationController: UIViewControllerAnimatedTransitioni
             }
         }
         
-        let animationOptions: UIView.AnimationOptions = transitionContext.isInteractive ? .curveLinear : configuration.animationCurve
+        let animationOptions: UIView.AnimationOptions =
+        transitionContext.isInteractive ? .curveLinear : configuration.animationCurve
         
         UIView.animate(
             withDuration: transitionDuration(using: transitionContext),

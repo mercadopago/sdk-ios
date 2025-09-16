@@ -26,7 +26,6 @@ package extension BottomSheet {
         /// specialized hosting controller) when it's added to a parent navigation controller.
         weak var navigationController: BottomSheet.NavigationController?
         
-
         /// Initializes a new `BottomSheet.Router`.
         public init() {}
 

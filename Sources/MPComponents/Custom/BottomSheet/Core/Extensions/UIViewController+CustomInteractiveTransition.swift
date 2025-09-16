@@ -46,7 +46,12 @@ extension UIViewController {
 
         gestureRecognizer.addTarget(self, action: #selector(handleGestureRecognizer))
         customInteractivePopGestureRecognizer = gestureRecognizer
-        objc_setAssociatedObject(self, &Self.gestureRecognizerDelegateKey, gestureRecognizerDelegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        objc_setAssociatedObject(
+            self,
+            &Self.gestureRecognizerDelegateKey,
+            gestureRecognizerDelegate,
+            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        )
     }
 
     // MARK: - Private methods

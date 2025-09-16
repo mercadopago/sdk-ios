@@ -92,8 +92,12 @@ final class DefaultBottomSheetModalDismissalHandler: @preconcurrency BottomSheet
 
 package extension UIViewController {
     private(set) var bottomSheetTransitionDelegate: UIViewControllerTransitioningDelegate? {
-        get { objc_getAssociatedObject(self, &Self.bottomSheetTransitionDelegateKey) as? UIViewControllerTransitioningDelegate }
-        set { objc_setAssociatedObject(self, &Self.bottomSheetTransitionDelegateKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get {
+            objc_getAssociatedObject(self, &Self.bottomSheetTransitionDelegateKey) as? UIViewControllerTransitioningDelegate
+        }
+        set {
+            objc_setAssociatedObject(self, &Self.bottomSheetTransitionDelegateKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
     }
 
     private static var bottomSheetTransitionDelegateKey: UInt8 = 0
@@ -137,7 +141,6 @@ package extension UIViewController {
         )
     }
     
-    
     func setupBottomSheet<Content: View>(
         configuration: BottomSheet.Configuration,
         screen: () -> Content,
@@ -160,12 +163,12 @@ package extension UIViewController {
             height: configuration.maxHeightInitial
         )
 
-        hostingController.onHeightDidChange = { [weak hostingController] heightCalculatedByDHC in
-            guard let hc = hostingController else { return }
-            if abs(hc.preferredContentSize.height - heightCalculatedByDHC) > 0.5 && heightCalculatedByDHC > 0 {
-                hc.preferredContentSize = CGSize(
-                    width: hc.view.bounds.width > 0 ? hc.view.bounds.width : initialWidth,
-                    height: heightCalculatedByDHC
+        hostingController.onHeightDidChange = { [weak hostingController] heightCalculatedByHC in
+            guard let hosting = hostingController else { return }
+            if abs(hosting.preferredContentSize.height - heightCalculatedByHC) > 0.5 && heightCalculatedByHC > 0 {
+                hosting.preferredContentSize = CGSize(
+                    width: hosting.view.bounds.width > 0 ? hosting.view.bounds.width : initialWidth,
+                    height: heightCalculatedByHC
                 )
             }
         }
