@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-package extension BottomSheet {
+extension BottomSheet {
     
     /// A specialized `BaseHostingController` designed to host SwiftUI views
     /// within the BottomSheet's navigation system, managed by a `BottomSheet.Router`.

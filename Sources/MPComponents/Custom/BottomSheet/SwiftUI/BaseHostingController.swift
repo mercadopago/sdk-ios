@@ -12,12 +12,12 @@ import SwiftUI
 /// This controller is designed to be subclassed by other custom hosting controllers
 /// that need to adapt their UIKit layout based on the height of their SwiftUI content.
 /// It uses an `onHeightDidChange` callback to notify of height changes.
-package class BaseHostingController<Content: View>: UIHostingController<Content> {
+ class BaseHostingController<Content: View>: UIHostingController<Content> {
 
     private var lastKnownHeight: CGFloat = 0
-    public var onHeightDidChange: ((CGFloat) -> Void)?
+    var onHeightDidChange: ((CGFloat) -> Void)?
 
-    package override init(rootView: Content) {
+    override init(rootView: Content) {
         super.init(rootView: rootView)
         if #available(iOS 16.0, *) {
             self.sizingOptions = [.intrinsicContentSize]
@@ -29,7 +29,7 @@ package class BaseHostingController<Content: View>: UIHostingController<Content>
         fatalError("init(coder:) has not been implemented")
     }
 
-    package override func viewDidLayoutSubviews() {
+    override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         let currentViewWidth = view.bounds.width
