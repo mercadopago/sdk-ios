@@ -157,7 +157,7 @@ package extension UIViewController {
         
         hostingController.preferredContentSize = CGSize(
             width: initialWidth,
-            height: 400
+            height: configuration.maxHeightInitial
         )
 
         hostingController.onHeightDidChange = { [weak hostingController] heightCalculatedByDHC in

@@ -17,7 +17,7 @@ package extension BottomSheet {
     /// `navigationController` property is typically configured by an instance of
     /// `BottomSheet.NavigationHost` (or a similar hosting controller) when it's
     /// integrated into the view controller hierarchy.
-    class Router: ObservableObject {
+    package class Router: ObservableObject {
 
         /// A weak reference to the `UIViewController` that serves as the navigation backbone
         /// for the bottom sheet content. This is usually an instance of `BottomSheet.NavigationController`.
@@ -57,19 +57,14 @@ package extension BottomSheet {
                 router: self
             )
 
-            // Configure the onHeightDidChange callback. This allows the hosting controller
-            // to update its preferredContentSize when its SwiftUI content's height changes,
-            // which in turn signals the BottomSheet.NavigationController (and subsequently the
-            // BottomSheet.PresentationController) to adjust the sheet's size.
             destinationHost.onHeightDidChange = { [weak destinationHost, weak navController] newHeight in
-                guard let strongHost = destinationHost, let strongNavController = navController else { return }
+                guard let destination = destinationHost, let nav = navController else { return }
                 
-                if abs(strongHost.preferredContentSize.height - newHeight) > 0.5 && newHeight > 0 {
-                    let currentWidth = strongHost.view.bounds.width > 0 ?
-                                       strongHost.view.bounds.width :
-                                       strongNavController.view.bounds.width 
+                if abs(destination.preferredContentSize.height - newHeight) > 0.5 && newHeight > 0 {
+                    let currentWidth = destination.view.bounds.width > 0 ?
+                    destination.view.bounds.width : nav.view.bounds.width
                     
-                    strongHost.preferredContentSize = CGSize(
+                    destination.preferredContentSize = CGSize(
                         width: currentWidth,
                         height: newHeight
                     )

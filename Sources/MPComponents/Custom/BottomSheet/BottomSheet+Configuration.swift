@@ -104,7 +104,7 @@ package extension BottomSheet {
                 
                 /// An example appearance for the pull bar featuring a white-to-transparent gradient.
                 public static let `defaultWithGradient`: Appearance = Appearance(
-                    height: 30.0, // Gradient might look better with more height
+                    height: 30.0,
                     gradientBackground: .defaultWhiteToTransparent
                 )
             }
@@ -198,7 +198,8 @@ package extension BottomSheet {
         var animationCurve: UIView.AnimationOptions { .curveEaseInOut }
         var dragDismissVelocityThreshold: CGFloat { 300 }
         var dragDismissTranslationThreshold: CGFloat { 0.3 }
-
+        
+        var maxHeightInitial: CGFloat { 400.0 }
 
         // MARK: - Initialization
 

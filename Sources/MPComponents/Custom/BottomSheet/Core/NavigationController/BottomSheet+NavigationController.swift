@@ -185,12 +185,10 @@ extension BottomSheet {
             }
             
             var newHeight = topVC.preferredContentSize.height
-            // This ensures the child's preferredContentSize is correctly represented *within* this nav controller.
             newHeight += additionalSafeAreaInsets.top + additionalSafeAreaInsets.bottom
 
             let newWidth = view.bounds.width > 0 ? view.bounds.width : UIScreen.main.bounds.width
             
-            // Only update if the size actually changes to avoid unnecessary layout passes.
             if preferredContentSize.width != newWidth || preferredContentSize.height != newHeight.pixelCeiled {
                  preferredContentSize = CGSize(
                      width: newWidth,

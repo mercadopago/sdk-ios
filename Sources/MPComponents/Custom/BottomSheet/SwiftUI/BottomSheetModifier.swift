@@ -33,7 +33,47 @@ struct BottomSheetModifier<Screen: View>: ViewModifier {
 }
 
 extension View {
-    public func bottomSheet<Screen: View>(
+    /// Presents a bottom sheet with custom content when a binding to a Boolean value is true.
+    ///
+    /// Use this modifier to present a modal view that rises from the bottom of the screen.
+    /// The bottom sheet supports internal navigation when paired with a `BottomSheet.Router`
+    /// available in the environment.
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// struct ExampleView: View {
+    ///     @State private var isPresented: Bool = false
+    ///     @EnvironmentObject var router: BottomSheet.Router
+    ///
+    ///     var body: some View {
+    ///         VStack {
+    ///             Button("Show Bottom Sheet") {
+    ///                 isPresented = true
+    ///             }
+    ///         }
+    ///         .bottomSheet($isPresented) {
+    ///             VStack(spacing: 20) {
+    ///                 Text("Initial Page")
+    ///
+    ///                 Button("Navigate") {
+    ///                     router.push {
+    ///                         Text("Next Page")
+    ///                     }
+    ///                 }
+    ///             }
+    ///             .padding()
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - isPresented: A binding to a Boolean value that determines whether
+    ///     to present the bottom sheet.
+    ///   - content: A view builder that creates the content to display
+    ///     inside the bottom sheet.
+    package func bottomSheet<Screen: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder content: @escaping () -> Screen
     ) -> some View {
