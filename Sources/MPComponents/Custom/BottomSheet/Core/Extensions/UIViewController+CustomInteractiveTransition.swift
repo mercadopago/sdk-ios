@@ -7,8 +7,6 @@
 import UIKit
 
 extension UIViewController {
-    // MARK: - Public properties
-
     private(set) var customInteractivePopGestureRecognizer: UIGestureRecognizer? {
         get { objc_getAssociatedObject(self, &Self.gestureRecognizerKey) as? UIGestureRecognizer }
         set { objc_setAssociatedObject(self, &Self.gestureRecognizerKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
@@ -28,21 +26,14 @@ extension UIViewController {
         set { objc_setAssociatedObject(self, &Self.transitionKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
 
-    // MARK: - Public methods
-
     func setupCustomInteractivePopTransition() {
         let gestureRecognizer = UIScreenEdgePanGestureRecognizer()
         gestureRecognizer.edges = .left
         let gestureRecognizerDelegate = GestureRecognizerDelegate(navigationItem: navigationItem)
         gestureRecognizer.delegate = gestureRecognizerDelegate
 
-        if let view = viewIfLoaded {
-            view.addGestureRecognizer(gestureRecognizer)
-        } else {
-            subscribe(onEvent: .viewDidLoad) { [unowned self] in
-                view.addGestureRecognizer(gestureRecognizer)
-            }
-        }
+        loadViewIfNeeded()
+        view.addGestureRecognizer(gestureRecognizer)
 
         gestureRecognizer.addTarget(self, action: #selector(handleGestureRecognizer))
         customInteractivePopGestureRecognizer = gestureRecognizer

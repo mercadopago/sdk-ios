@@ -14,7 +14,7 @@ struct BottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
 
     let bottomSheetConfiguration: BottomSheet.Configuration
     
-    @State private var router = BottomSheet.Router()
+    let router = BottomSheet.Router()
 
     func makeUIViewController(context: Context) -> UIViewController {
         let presenterVC = UIViewController()
