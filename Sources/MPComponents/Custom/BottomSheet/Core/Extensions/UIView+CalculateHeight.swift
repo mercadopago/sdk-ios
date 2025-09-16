@@ -20,7 +20,8 @@ extension UIView {
         ).height
 
         if idealHeight == 0 || idealHeight >= UIView.layoutFittingExpandedSize.height {
-            let sizeThatFitsHeight = self.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)).height
+            let size = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
+            let sizeThatFitsHeight = self.sizeThatFits(size).height
             if sizeThatFitsHeight > 0 && sizeThatFitsHeight < UIView.layoutFittingExpandedSize.height {
                 idealHeight = sizeThatFitsHeight
             }

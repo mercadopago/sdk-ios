@@ -182,11 +182,13 @@ final class BottomSheetPresentationController: UIPresentationController {
     override func preferredContentSizeDidChange(
         forChildContentContainer container: UIContentContainer
     ) {
+        let isReadyForPreferred = state == .presented || state == .presenting
+        
         guard
             let presentedView = presentedView,
             containerView != nil,
             container === presentedViewController,
-            (state == .presented || state == .presenting)
+            isReadyForPreferred
         else {
             if container === presentedViewController {
                 updatePresentedViewFrame()
@@ -282,7 +284,8 @@ final class BottomSheetPresentationController: UIPresentationController {
         let translation = panGesture.translation(in: presentedView)
         
         let isMovingDownwardsFast = velocity.y > configuration.dragDismissVelocityThreshold
-        let hasTranslatedEnough = translation.y > (presentedView?.bounds.height ?? 0) * configuration.dragDismissTranslationThreshold
+        let height = (presentedView?.bounds.height ?? 0) * configuration.dragDismissTranslationThreshold
+        let hasTranslatedEnough = translation.y > height
 
         if isMovingDownwardsFast || hasTranslatedEnough {
             completeInteractiveDismissal(cancelled: false)
@@ -435,7 +438,6 @@ final class BottomSheetPresentationController: UIPresentationController {
         let windowSafeAreaInsets = cachedSafeAreaInsets
 
         var contentHeight = presentedViewController.preferredContentSize.height
-        // This behavior might need adjustment if SwiftUI views calculate preferredContentSize differently.
         contentHeight += windowSafeAreaInsets.bottom
 
         var maxSheetHeight = containerView.bounds.height - windowSafeAreaInsets.top
@@ -509,9 +511,6 @@ extension BottomSheetPresentationController: UIGestureRecognizerDelegate {
 }
 
 // MARK: - UINavigationControllerDelegate Conformance
-// This conformance is for cases where the BottomSheetPresentationController itself might be
-// set as a delegate to a UINavigationController it is presenting, or for observing
-// navigation events within a presented UINavigationController if it's not self-delegating.
 extension BottomSheetPresentationController: UINavigationControllerDelegate {
     func navigationController(
         _ navigationController: UINavigationController,
@@ -519,10 +518,6 @@ extension BottomSheetPresentationController: UINavigationControllerDelegate {
         animated: Bool
     ) {
         isNavigationTransitionInProgress = false
-        
-        // After navigation, the content and thus preferred size might change.
-        // The presented navigation controller should update its preferredContentSize,
-        // which will trigger `preferredContentSizeDidChange` on this presentation controller.
     }
 
     func navigationController(

@@ -93,10 +93,17 @@ final class DefaultBottomSheetModalDismissalHandler: @preconcurrency BottomSheet
 package extension UIViewController {
     private(set) var bottomSheetTransitionDelegate: UIViewControllerTransitioningDelegate? {
         get {
-            objc_getAssociatedObject(self, &Self.bottomSheetTransitionDelegateKey) as? UIViewControllerTransitioningDelegate
+            objc_getAssociatedObject(
+                self, &Self.bottomSheetTransitionDelegateKey
+            ) as? UIViewControllerTransitioningDelegate
         }
         set {
-            objc_setAssociatedObject(self, &Self.bottomSheetTransitionDelegateKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(
+                self,
+                &Self.bottomSheetTransitionDelegateKey,
+                newValue,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         }
     }
 
@@ -110,8 +117,11 @@ package extension UIViewController {
     ) {
         weak var presentingViewController = self
         weak var currentBottomSheetTransitionDelegate: UIViewControllerTransitioningDelegate?
-        let presentationControllerFactory = DefaultBottomSheetPresentationControllerFactory(configuration: configuration) {
-            DefaultBottomSheetModalDismissalHandler(presentingViewController: presentingViewController, canBeDismissed: canBeDismissed) {
+        let factory = DefaultBottomSheetPresentationControllerFactory(configuration: configuration) {
+            DefaultBottomSheetModalDismissalHandler(
+                presentingViewController: presentingViewController,
+                canBeDismissed: canBeDismissed
+            ) {
                 if currentBottomSheetTransitionDelegate === presentingViewController?.bottomSheetTransitionDelegate {
                     presentingViewController?.bottomSheetTransitionDelegate = nil
                 }
@@ -119,7 +129,7 @@ package extension UIViewController {
             }
         }
         bottomSheetTransitionDelegate = BottomSheetTransitioningDelegate(
-            presentationControllerFactory: presentationControllerFactory
+            presentationControllerFactory: factory
         )
         currentBottomSheetTransitionDelegate = bottomSheetTransitionDelegate
         viewController.transitioningDelegate = bottomSheetTransitionDelegate
