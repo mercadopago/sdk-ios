@@ -23,7 +23,9 @@ struct BottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        guard uiViewController.view.window != nil || (isPresented && uiViewController.presentedViewController == nil) else {
+        guard
+            uiViewController.view.window != nil || (isPresented && uiViewController.presentedViewController == nil)
+        else {
              if isPresented && uiViewController.presentedViewController == nil {
                   DispatchQueue.main.async {
                       self.present(on: uiViewController, context: context)
@@ -37,7 +39,9 @@ struct BottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
         } else {
             if let presentedVC = uiViewController.presentedViewController,
                presentedVC.isBeingDismissed == false &&
-                (presentedVC is BottomSheet.NavigationController || presentedVC.presentingViewController === uiViewController) {
+                (presentedVC is BottomSheet.NavigationController ||
+                 presentedVC.presentingViewController === uiViewController
+                ) {
                  uiViewController.dismiss(animated: true)
             }
         }

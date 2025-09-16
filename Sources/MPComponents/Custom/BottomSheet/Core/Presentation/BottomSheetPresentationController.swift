@@ -143,7 +143,7 @@ final class BottomSheetPresentationController: UIPresentationController {
             // Pull bar and safe area insets are configured in containerViewDidLayoutSubviews
             // as they depend on the final frame of the presented view.
         } else {
-            removeContentDimmingViewAndPullBar() // Ensure cleanup if presentation was cancelled
+            removeContentDimmingViewAndPullBar()
             state = .dismissed
         }
     }

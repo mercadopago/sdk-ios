@@ -213,7 +213,7 @@ extension BottomSheet.NavigationController: UINavigationControllerDelegate {
 
         lastTransitionFromViewController = fromVC
         
-        return BottomSheetNavigationAnimatedTransitioning(
+        return SheetNavigationAnimatedTransitioning(
             operation: operation,
             configuration: sheetConfiguration
         )

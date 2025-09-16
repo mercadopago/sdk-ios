@@ -8,7 +8,7 @@
 import UIKit
 import SwiftUI
 
-final class DefaultBottomSheetPresentationControllerFactory: @preconcurrency BottomSheetPresentationControllerFactory {
+final class SheetPresentationControllerFactory: @preconcurrency BottomSheetPresentationControllerFactory {
     // MARK: - Nested types
 
     public typealias DismissalHandlerProvider = () -> BottomSheetModalDismissalHandler
@@ -117,7 +117,7 @@ package extension UIViewController {
     ) {
         weak var presentingViewController = self
         weak var currentBottomSheetTransitionDelegate: UIViewControllerTransitioningDelegate?
-        let factory = DefaultBottomSheetPresentationControllerFactory(configuration: configuration) {
+        let factory = SheetPresentationControllerFactory(configuration: configuration) {
             DefaultBottomSheetModalDismissalHandler(
                 presentingViewController: presentingViewController,
                 canBeDismissed: canBeDismissed

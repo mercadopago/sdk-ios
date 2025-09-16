@@ -6,7 +6,7 @@
 //
 import UIKit
 
-final class BottomSheetNavigationAnimatedTransitioning: NSObject, UIViewControllerAnimatedTransitioning {
+final class SheetNavigationAnimatedTransitioning: NSObject, UIViewControllerAnimatedTransitioning {
     // MARK: - Private
 
     private let operation: UINavigationController.Operation
