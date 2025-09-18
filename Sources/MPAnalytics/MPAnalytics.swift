@@ -183,9 +183,7 @@ package final class MPAnalytics: AnalyticsInterface {
     // MARK: - Interface Implementation
 
     package func initialize(version: String, siteID: String) async {
-        MPAnalyticsConfiguration.version = version
-        MPAnalyticsConfiguration.siteID = siteID
-        MPAnalyticsConfiguration.sessionID = UUID().uuidString
+        await MPAnalyticsConfiguration.shared.initialize(version: version, siteID: siteID)
     }
 
     @discardableResult
@@ -228,8 +226,8 @@ package final class MPAnalytics: AnalyticsInterface {
     ///
     /// - Note: Actual data sending implementation should be added in the future.
     package func send() async {
-        guard !MPAnalyticsConfiguration.version.isEmpty,
-              !MPAnalyticsConfiguration.siteID.isEmpty else {
+        guard await !MPAnalyticsConfiguration.shared.version.isEmpty,
+              await !MPAnalyticsConfiguration.shared.siteID.isEmpty else {
             return
         }
         let payload = await buildPayload()
@@ -264,7 +262,7 @@ package final class MPAnalytics: AnalyticsInterface {
             "path": self.track.getPath(),
             "user": [
                 "uid": identifierVendor,
-                "melidata_session_id": MPAnalyticsConfiguration.sessionID
+                "melidata_session_id": await MPAnalyticsConfiguration.shared.sessionID
             ],
             "type": self.track.getType().rawValue,
             "id": UUID().uuidString,
@@ -273,8 +271,8 @@ package final class MPAnalytics: AnalyticsInterface {
             "application": [
                 "app_name": self.sellerInfo.getBundleIdentifier(),
                 "business": "mercadopago",
-                "site_id": MPAnalyticsConfiguration.siteID,
-                "version": MPAnalyticsConfiguration.version
+                "site_id": await MPAnalyticsConfiguration.shared.siteID,
+                "version": await MPAnalyticsConfiguration.shared.version
             ],
             "device": [
                 "platform": "/mobile/ios",
