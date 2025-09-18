@@ -89,7 +89,7 @@ final class SheetNavigationAnimatedTransitioning: NSObject, UIViewControllerAnim
         }
 
         let targetSize = CGSize(
-            width: preferredContentSize.width,
+            width: containerBounds.width,
             height: min(preferredContentSize.height, maxHeight)
         )
 
@@ -109,12 +109,22 @@ final class SheetNavigationAnimatedTransitioning: NSObject, UIViewControllerAnim
         containerView.addSubview(separatorView)
 
         let animations = {
-            let frame = CGRect(origin: .zero, size: targetSize)
+            let visibleFrame = CGRect(origin: .zero, size: targetSize)
 
-            topView.frame = topViewFrame(isPushing ? frame : containerBounds, isPushing)
+            let offRightFrame = visibleFrame.offsetBy(dx: containerBounds.width, dy: 0)
+            let offLeftFrame = visibleFrame.offsetBy(dx: -containerBounds.width, dy: 0)
+
+            if isPushing {
+                // Bring destination in from the right, move source to the left
+                topView.frame = visibleFrame
+                bottomView.frame = offLeftFrame
+            } else {
+                // Pop: bring source back from the left, move destination to the right
+                topView.frame = offRightFrame
+                bottomView.frame = visibleFrame
+            }
+
             topView.layoutIfNeeded()
-
-            bottomView.frame = bottomViewFrame(frame, isPushing)
             bottomView.layoutIfNeeded()
 
             separatorView.frame = CGRect(

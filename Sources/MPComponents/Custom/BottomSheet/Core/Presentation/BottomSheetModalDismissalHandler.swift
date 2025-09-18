@@ -5,7 +5,7 @@
 //  Created by Guilherme Prata Costa on 11/09/25.
 //
 
-public protocol BottomSheetModalDismissalHandler {
+protocol BottomSheetModalDismissalHandler {
     var canBeDismissed: Bool { get }
 
     func performDismissal(animated: Bool)

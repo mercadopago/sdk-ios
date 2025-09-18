@@ -37,6 +37,11 @@ extension BottomSheet {
         /// The configuration for the bottom sheet presentation, passed down to transition animators.
         private let sheetConfiguration: BottomSheet.Configuration
 
+        /// Keeps a reference to the initial top view controller so we can
+        /// apply a max-height cap only for the first screen presented inside
+        /// the navigation stack.
+        private weak var initialTopViewController: UIViewController?
+
         // MARK: - Initialization
 
         /// Initializes a `BottomSheet.NavigationController` with a root view controller and configuration.
@@ -47,6 +52,7 @@ extension BottomSheet {
         public init(rootViewController: UIViewController, configuration: BottomSheet.Configuration) {
             self.sheetConfiguration = configuration
             super.init(rootViewController: rootViewController)
+            self.initialTopViewController = rootViewController
         }
 
         /// Standard non-bottom-sheet initializer.
@@ -185,6 +191,11 @@ extension BottomSheet {
             
             var newHeight = topVC.preferredContentSize.height
             newHeight += additionalSafeAreaInsets.top + additionalSafeAreaInsets.bottom
+
+            // Apply an initial height cap only for the very first screen.
+            if topVC === initialTopViewController {
+                newHeight = min(newHeight, sheetConfiguration.maxHeightInitial)
+            }
 
             let newWidth = view.bounds.width > 0 ? view.bounds.width : UIScreen.main.bounds.width
             
