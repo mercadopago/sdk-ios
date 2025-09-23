@@ -8,7 +8,7 @@
 import Foundation
 
 package enum Constants {
-    static let baseURL = "https://api.mercadopago.com/cho-off/beta"
+    static let baseURL = "https://api.mercadopago.com/cho-off"
 }
 
 /// Endpoints
