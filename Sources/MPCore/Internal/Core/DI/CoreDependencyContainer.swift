@@ -49,7 +49,7 @@ package final class CoreDependencyContainer: DI {
 
     /// Private initializer configuring default services
     package init(
-        networkService: NetworkServiceProtocol = NetworkService(),
+        networkService: NetworkServiceProtocol = NetworkService()
     ) {
         self.networkService = networkService
         self.fingerPrint = FingerPrint()
