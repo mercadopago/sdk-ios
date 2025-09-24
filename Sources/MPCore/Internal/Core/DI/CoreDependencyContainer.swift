@@ -10,8 +10,11 @@ import Foundation
     import MPAnalytics
 #endif
 
+package protocol HasNoDependency: Sendable {}
+
+
 /// Protocol combining core SDK dependencies for analytics and networking
-typealias DI = Sendable & HasAnalytics & HasNetwork & HasKeyChain & HasFingerPrint
+typealias DI = Sendable & HasNoDependency & HasAnalytics & HasNetwork & HasFingerPrint
 
 /// Main dependency container managing SDK services
 ///
@@ -39,8 +42,6 @@ package final class CoreDependencyContainer: DI {
         return MPAnalytics()
     }
 
-    package let keyChainService: KeyChainManagerProtocol
-
     package let fingerPrint: FingerPrintProtocol
 
     /// Shared singleton instance of the container
@@ -49,10 +50,8 @@ package final class CoreDependencyContainer: DI {
     /// Private initializer configuring default services
     package init(
         networkService: NetworkServiceProtocol = NetworkService(),
-        keyChainService: KeyChainManagerProtocol = KeychainManager()
     ) {
         self.networkService = networkService
-        self.keyChainService = keyChainService
         self.fingerPrint = FingerPrint()
     }
 }

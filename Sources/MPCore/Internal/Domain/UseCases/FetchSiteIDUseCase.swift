@@ -19,7 +19,7 @@ enum FetchSiteIDUseCaseFactory {
 final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
     private let repository: SiteRepositoryProtocol
 
-    typealias Dependency = HasKeyChain
+    typealias Dependency = HasNoDependency
 
     private let dependencies: Dependency
 
@@ -33,20 +33,10 @@ final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
 
     func getSiteID(with publicKey: String, and country: MercadoPagoSDK.Country) async -> String {
         do {
-            if let siteCache = try await dependencies
-                .keyChainService
-                .retrieve(account: publicKey) {
-                return siteCache
-            }
-
             let response = try await repository.getID()
 
-            try await self.dependencies
-                .keyChainService
-                .save(response.id, account: publicKey)
-
             return response.id
-
+            
         } catch _ as APIClientError {
             if self.currentRetry < self.maxRetry {
                 self.currentRetry += 1

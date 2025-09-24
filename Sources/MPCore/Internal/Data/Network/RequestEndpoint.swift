@@ -39,6 +39,12 @@ package protocol RequestEndpoint {
 
     /// API version used by the endpoint.
     var apiVersion: APIVersion { get }
+
+    /// Indicates if this request can use URLCache.
+    var isCacheable: Bool { get }
+
+    /// The cache policy to use when `isCacheable` is true.
+    var cachePolicy: NSURLRequest.CachePolicy { get }
 }
 
 package extension RequestEndpoint {
@@ -68,7 +74,12 @@ package extension RequestEndpoint {
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = headers
         request.httpBody = body
+        request.cachePolicy = isCacheable ? cachePolicy : .reloadIgnoringLocalCacheData
 
         return request
     }
+
+    var isCacheable: Bool { false }
+
+    var cachePolicy: NSURLRequest.CachePolicy { .useProtocolCachePolicy }
 }

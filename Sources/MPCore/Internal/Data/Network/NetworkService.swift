@@ -10,10 +10,21 @@ package final class NetworkService: NetworkServiceProtocol {
     // MARK: - Properties
 
     private let session: URLSessionProtocol
-
     // MARK: - Initialization
 
     init(session: URLSessionProtocol = URLSession.shared) {
+        let urlSessionConfiguration: URLSessionConfiguration = .default
+        if let cachesURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
+            let diskCacheURL = cachesURL.appendingPathComponent("MPCache")
+
+            let cache = URLCache(
+                memoryCapacity: 20 * 1024 * 1024,
+                diskCapacity: 200 * 1024 * 1024,
+                directory: diskCacheURL
+            )
+            urlSessionConfiguration.urlCache = cache
+        }
+        
         self.session = session
     }
 
@@ -59,7 +70,6 @@ private extension NetworkService {
                     throw APIClientError.statusCode(httpResponse.statusCode)
                 }
             }
-
             return data
         } catch let error as URLError {
             throw APIClientError.networkError(error)

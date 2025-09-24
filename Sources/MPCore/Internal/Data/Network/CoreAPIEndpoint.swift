@@ -66,4 +66,22 @@ extension CoreAPIEndpoint: RequestEndpoint {
             return nil
         }
     }
+
+    var isCacheable: Bool {
+        switch self {
+        case .getSiteID:
+            return true
+        }
+    }
+
+    var cachePolicy: NSURLRequest.CachePolicy {
+        switch self {
+        case .getSiteID:
+            return .returnCacheDataElseLoad
+        }
+    }
+
+    var cacheTTLSeconds: TimeInterval? {
+        return nil
+    }
 }
