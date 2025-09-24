@@ -17,9 +17,10 @@ package final class NetworkService: NetworkServiceProtocol {
         if let cachesURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
             let diskCacheURL = cachesURL.appendingPathComponent("MPCache")
 
+            // Memory 10 MB e disk 100MB
             let cache = URLCache(
-                memoryCapacity: 20 * 1024 * 1024,
-                diskCapacity: 200 * 1024 * 1024,
+                memoryCapacity: 10 * 1024 * 1024,
+                diskCapacity: 100 * 1024 * 1024,
                 directory: diskCacheURL
             )
             urlSessionConfiguration.urlCache = cache
