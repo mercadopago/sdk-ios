@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'MercadoPagoSDKCoreMethods'
-  s.version = '0.1.6'
+  s.version = '0.1.7'
   s.summary          = 'Unified MercadoPago SDK for iOS payment processing'
   s.description      = 'CoreMethods is a comprehensive payment processing library for MercadoPago on iOS. It provides secure credit card tokenization, PCI DSS compliance capabilities,  This SDK enables developers to implement secure payment solutions while maintaining industry security standards.'
   s.homepage         = 'https://github.com/mercadopago/sdk-ios'
