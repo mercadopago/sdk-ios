@@ -12,7 +12,6 @@ import Foundation
 #endif
 
 private enum ConstantsApplePay {
-    // Base aligns with cURL host and path prefix; APIVersion appends "/v1/"
     static let baseURL = "https://api.mercadopago.com/platforms/pci/applepay"
 }
 

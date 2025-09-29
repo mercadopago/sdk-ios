@@ -71,7 +71,6 @@ final class MercadoPagoSDKTests: XCTestCase {
             messages,
             [
                 .initialize(version: MPSDKVersion.version, siteID: "MLB"),
-                .initialize(version: MPSDKVersion.version, siteID: "MLB"),
                 .track(path: "/checkout_api_native/initialize"),
                 .setEventData(expectEventData.toDictionary()),
                 .send
