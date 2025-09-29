@@ -73,19 +73,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
                 version: MPSDKVersion.version,
                 siteID: configuration.country.getSiteId()
             )
-
-            let siteID = await siteIDUseCase.getSiteID(
-                with: configuration.publicKey,
-                and: configuration.country
-            )
             
-            assert(siteID == configuration.country.getSiteId(), SDKError.countryInvalid.rawValue)
-
-            await self.dependencies.analytics.initialize(
-                version: MPSDKVersion.version,
-                siteID: siteID
-            )
-
             await sendInitializeAnalyticsEvent()
         }
     }

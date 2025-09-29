@@ -361,7 +361,11 @@ public final class CoreMethods: Sendable {
 
         return try await executeWithTracking(
             operation: {
-                try await self.paymentMethodUseCase.getPaymentMethods(params: params)
+                if !bin.isEmpty {
+                    try await self.paymentMethodUseCase.getPaymentMethods(params: params)
+                } else {
+                    throw CoreMethodsError.binIsEmpty
+                }
             },
             path: AnalyticsPath.paymentMethods,
             extractEventData: { result -> PaymentMethodEventData? in
