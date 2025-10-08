@@ -6,7 +6,7 @@
 //
 
 public struct APIErrorResponse: Codable, Equatable, Sendable {
-    let code: String
+    public let code: String
     let message: String
 
     package init(code: String, message: String) {
