@@ -178,8 +178,8 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
                     x: CGFloat(Int(arrowHorizontalOffset)), 
                     y: CGFloat(Int(arrowVerticalOffset))
                 )
+                .accessibility(hidden: true)
         )
-        .accessibility(hidden: true)
     }
 
     /// Creates an arrow shape with the specified angle and optional border color.

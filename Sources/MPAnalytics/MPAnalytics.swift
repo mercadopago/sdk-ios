@@ -44,6 +44,19 @@ package extension AnalyticsEventData {
             return false
         #endif
     }
+    
+    func isFromAppStore() -> Bool {
+        guard let receiptURL = Bundle.main.appStoreReceiptURL else {
+            return false
+        }
+        
+        do {
+            let isReachable = try receiptURL.checkResourceIsReachable()
+            return isReachable
+        } catch {
+            return false
+        }
+    }
 }
 
 private enum APIAnalytics {

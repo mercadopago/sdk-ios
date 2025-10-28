@@ -15,14 +15,9 @@ import Foundation
 public final class MercadoPagoSDK: @unchecked Sendable {
     public static let shared: MercadoPagoSDK = {
         let container = CoreDependencyContainer.shared
-        let useCase = FetchSiteIDUseCaseFactory.make(dependencies: container)
 
-        return MercadoPagoSDK(dependencies: container, useCase: useCase)
+        return MercadoPagoSDK(dependencies: container)
     }()
-
-    var siteIDUseCase: FetchSiteIDUseCaseProtocol
-
-    private let lock = NSLock()
 
     /// Configuration options for MercadoPagoSDK
     public struct Configuration: Sendable {
@@ -54,9 +49,8 @@ public final class MercadoPagoSDK: @unchecked Sendable {
 
     private let dependencies: Dependency
 
-    init(dependencies: Dependency, useCase: FetchSiteIDUseCaseProtocol) {
+    init(dependencies: Dependency) {
         self.dependencies = dependencies
-        self.siteIDUseCase = useCase
     }
 
     /// Initialize the SDK with required configuration
@@ -69,6 +63,27 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         self.isInitialized = true
 
         self.analyticsMonitoringTask = Task(priority: .background) {
+            await self.dependencies.analytics.initialize(
+                version: MPSDKVersion.version,
+                siteID: configuration.country.getSiteId()
+            )
+            
+            await sendInitializeAnalyticsEvent()
+        }
+    }
+    
+    /// New configuration of SDK with a different public key or locale
+    /// - Parameter configuration: SDK configuration options
+    public func setNewConfiguration(_ configuration: Configuration) {
+        assert(
+            self.isInitialized,
+            SDKError.notInitialized.rawValue
+        )
+        
+        self.configuration = configuration
+        self.analyticsMonitoringTask?.cancel()
+        
+        self.analyticsMonitoringTask = Task(priority: .utility) {
             await self.dependencies.analytics.initialize(
                 version: MPSDKVersion.version,
                 siteID: configuration.country.getSiteId()
