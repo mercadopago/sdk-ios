@@ -36,7 +36,9 @@ import Foundation
 ///     )
 /// }
 /// ```
-public final class CoreMethods: Sendable {
+public final actor CoreMethods: Sendable {
+    
+    public let support3DS: Bool
     
     // MARK: Use Cases
     internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
@@ -49,19 +51,48 @@ public final class CoreMethods: Sendable {
 
     let dependencies: Dependency
     
+    private let messageVersion = "2.2.0"
+    
+    internal let threeDSSDK: ThreeDSSDKProtocol?
+    
+    @MainActor
+    internal var transaction: ThreeDSTransactionProtocol?
+    
+    @MainActor
+    internal var challengeContinuation: CheckedContinuation<MPThreeDSChallengeResult, Never>?
+    
+    @MainActor
+    public weak var challengeDelegate: MPThreeDSChallengeDelegate?
+
+    
     // MARK: - Initialization
     /// Initializes a new instance of CoreMethods with default dependencies.
     ///
     /// This initializer sets up the class with the standard implementation of core methods.
     /// Use this initializer for production code.
     ///
-    public init() {
+    public init(support3DS: Bool = false) {
         self.dependencies = CoreDependencyContainer.shared
         self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies)
         self.identificationTypeUseCase = IdentificationTypesUseCase()
         self.installmentsUseCase = InstallmentsUseCase()
         self.paymentMethodUseCase = PaymentMethodUseCase()
         self.issuerUseCase = IssuerUseCase()
+        self.support3DS = support3DS
+        
+        self.threeDSSDK = support3DS ? USDKAdapter() : nil
+
+        if support3DS {
+            let locale = MercadoPagoSDK.shared.configuration?.locale ?? "en_US"
+            self.threeDSSDK?.initialize(
+                config: ThreeDSConfig(),
+                locale: locale
+            ) { error in
+                if let error = error {
+                    print("3DS SDK failed to initialize: \(error)")
+                }
+            }
+        }
     }
 
     /// Initializes a new instance of CoreMethods with custom dependencies.
@@ -75,7 +106,8 @@ public final class CoreMethods: Sendable {
         identificationTypeUseCase: IdentificationTypesUseCaseProtocol,
         installmentsUseCase: InstallmentsUseCaseProtocol,
         paymentMethodUseCase: PaymentMethodUseCaseProtocol,
-        issuerUseCase: IssuerUseCaseProtocol
+        issuerUseCase: IssuerUseCaseProtocol,
+        threeDSSDK: ThreeDSSDKProtocol
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
@@ -83,6 +115,8 @@ public final class CoreMethods: Sendable {
         self.installmentsUseCase = installmentsUseCase
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
+        self.threeDSSDK = threeDSSDK
+        self.support3DS = true
     }
     
     // MARK: Create Token
@@ -455,7 +489,7 @@ internal extension CoreMethods {
     ) async throws -> CardToken {
         return try await executeWithTracking(
             operation: {
-                return try await self.generateTokenUseCase
+                let response = try await self.generateTokenUseCase
                     .tokenize(
                         cardNumber: cardNumber,
                         expirationDateMonth: expirationDateMonth,
@@ -466,6 +500,13 @@ internal extension CoreMethods {
                         identificationType: documentType,
                         identificationNumber: documentNumber
                     )
+                
+                
+                if support3DS {
+                    try await createTransation(response)
+                }
+                
+                return response
             },
             path: AnalyticsPath.tokenization,
             extractEventData: { _ -> TokenizationEventData? in
@@ -476,6 +517,26 @@ internal extension CoreMethods {
             }
         )
 
+    }
+    
+    @MainActor
+    func createTransation(_ response: CardToken) async throws {
+        guard let directoryServer = MPThreeDSDirectoryServer(rawValue: response.token) else {
+            return
+        }
+        
+        self.transaction = self.threeDSSDK?.createTransaction(
+            directoryServerId: directoryServer.id,
+            messageVersion: messageVersion
+        )
+        
+        guard var parameters = self.transaction?.getAuthenticationRequestParameters() else{
+            return
+        }
+                            
+        parameters.token = response.token
+        
+        let _ = try await self.generateTokenUseCase.sendDeviceData(parameters)
     }
 }
 

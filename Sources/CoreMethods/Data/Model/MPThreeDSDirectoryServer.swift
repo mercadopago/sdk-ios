@@ -17,18 +17,7 @@ import Foundation
 /// - **Visa**: Both credit and debit cards
 /// - **Mastercard**: Both credit and debit cards  
 /// - **American Express**: Credit cards
-///
-/// ## Usage
-/// ```swift
-/// // Automatic mapping from payment method ID
-/// let directoryServer = MPThreeDSDirectoryServer(rawValue: "visa")
-/// print(directoryServer?.id) // "A000000003"
 /// 
-/// // Check if payment method supports 3DS
-/// if MPThreeDSDirectoryServer(rawValue: paymentMethodId) != nil {
-///     // 3DS is supported for this payment method
-/// }
-/// ```
 public enum MPThreeDSDirectoryServer: String {
     /// Visa credit cards.
     case visa
