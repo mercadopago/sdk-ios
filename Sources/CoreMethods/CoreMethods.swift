@@ -38,20 +38,15 @@ import Foundation
 /// ```
 public final actor CoreMethods: Sendable {
     
-    public let support3DS: Bool
-    
-    // MARK: Use Cases
-    internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
-    private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
-    private let installmentsUseCase: InstallmentsUseCaseProtocol
-    private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
-    private let issuerUseCase: IssuerUseCaseProtocol
+    public struct Configuration: Sendable {
+        public var support3DS: Bool = false
+        
+         let messageVersion = "2.2.0"
 
-    typealias Dependency = HasAnalytics & HasFingerPrint
-
-    let dependencies: Dependency
+        public init() {}
+    }
     
-    private let messageVersion = "2.2.0"
+    internal let configuration: Configuration
     
     internal let threeDSSDK: ThreeDSSDKProtocol?
     
@@ -63,6 +58,18 @@ public final actor CoreMethods: Sendable {
     
     @MainActor
     public weak var challengeDelegate: MPThreeDSChallengeDelegate?
+    
+    
+    // MARK: Use Cases
+    internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
+    private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
+    private let installmentsUseCase: InstallmentsUseCaseProtocol
+    private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
+    private let issuerUseCase: IssuerUseCaseProtocol
+
+    typealias Dependency = HasAnalytics & HasFingerPrint
+
+    let dependencies: Dependency
 
     
     // MARK: - Initialization
@@ -71,18 +78,19 @@ public final actor CoreMethods: Sendable {
     /// This initializer sets up the class with the standard implementation of core methods.
     /// Use this initializer for production code.
     ///
-    public init(support3DS: Bool = false) {
+    public init(configuration: Configuration = Configuration()) {
         self.dependencies = CoreDependencyContainer.shared
         self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies)
         self.identificationTypeUseCase = IdentificationTypesUseCase()
         self.installmentsUseCase = InstallmentsUseCase()
         self.paymentMethodUseCase = PaymentMethodUseCase()
         self.issuerUseCase = IssuerUseCase()
-        self.support3DS = support3DS
         
-        self.threeDSSDK = support3DS ? USDKAdapter() : nil
+        self.configuration = configuration
+        
+        self.threeDSSDK = configuration.support3DS ? USDKAdapter() : nil
 
-        if support3DS {
+        if configuration.support3DS {
             let locale = MercadoPagoSDK.shared.configuration?.locale ?? "en_US"
             self.threeDSSDK?.initialize(
                 config: ThreeDSConfig(),
@@ -116,7 +124,7 @@ public final actor CoreMethods: Sendable {
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
         self.threeDSSDK = threeDSSDK
-        self.support3DS = true
+        self.configuration = Configuration()
     }
     
     // MARK: Create Token
@@ -502,7 +510,7 @@ internal extension CoreMethods {
                     )
                 
                 
-                if support3DS {
+                if configuration.support3DS {
                     try await createTransation(response)
                 }
                 
@@ -527,7 +535,7 @@ internal extension CoreMethods {
         
         self.transaction = self.threeDSSDK?.createTransaction(
             directoryServerId: directoryServer.id,
-            messageVersion: messageVersion
+            messageVersion: configuration.messageVersion
         )
         
         guard var parameters = self.transaction?.getAuthenticationRequestParameters() else{
