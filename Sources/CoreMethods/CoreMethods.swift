@@ -39,9 +39,10 @@ import Foundation
 public final actor CoreMethods {
     
     public struct Configuration: Sendable {
-        public var support3DS: Bool = false
         
-        let messageVersion = "2.2.0"
+        public var supportCapabilities: [CoreMethods.Capabilities] = []
+        
+        internal let messageVersion = "2.2.0"
 
         public init() {}
     }
@@ -59,13 +60,14 @@ public final actor CoreMethods {
     @MainActor
     public weak var challengeDelegate: MPThreeDSChallengeDelegate?
     
-    
     // MARK: Use Cases
     internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
     private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
     private let installmentsUseCase: InstallmentsUseCaseProtocol
     private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
     private let issuerUseCase: IssuerUseCaseProtocol
+    internal let capabilityUseCase: CapabilityUseCaseProtocol
+
 
     typealias Dependency = HasAnalytics & HasFingerPrint
 
@@ -80,17 +82,19 @@ public final actor CoreMethods {
     ///
     public init(configuration: Configuration = Configuration()) {
         self.dependencies = CoreDependencyContainer.shared
-        self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies)
-        self.identificationTypeUseCase = IdentificationTypesUseCase()
-        self.installmentsUseCase = InstallmentsUseCase()
-        self.paymentMethodUseCase = PaymentMethodUseCase()
-        self.issuerUseCase = IssuerUseCase()
+        let repository = CoreMethodsRepository()
+        self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies, repository: repository)
+        self.identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
+        self.installmentsUseCase = InstallmentsUseCase(repository: repository)
+        self.paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        self.issuerUseCase = IssuerUseCase(repository: repository)
+        self.capabilityUseCase = CapabilityUseCase(repository: repository)
         
         self.configuration = configuration
         
-        self.threeDSSDK = configuration.support3DS ? USDKAdapter() : nil
+        self.threeDSSDK = configuration.supportCapabilities.contains(.support3DS) ? USDKAdapter() : nil
 
-        if configuration.support3DS {
+        if configuration.supportCapabilities.contains(.support3DS)  {
             let locale = MercadoPagoSDK.shared.configuration?.locale ?? "en_US"
             self.threeDSSDK?.initialize(
                 config: ThreeDSConfig(),
@@ -115,7 +119,8 @@ public final actor CoreMethods {
         installmentsUseCase: InstallmentsUseCaseProtocol,
         paymentMethodUseCase: PaymentMethodUseCaseProtocol,
         issuerUseCase: IssuerUseCaseProtocol,
-        threeDSSDK: ThreeDSSDKProtocol
+        threeDSSDK: ThreeDSSDKProtocol,
+        capabilityUseCase: CapabilityUseCaseProtocol
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
@@ -124,6 +129,7 @@ public final actor CoreMethods {
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
         self.threeDSSDK = threeDSSDK
+        self.capabilityUseCase = capabilityUseCase
         self.configuration = Configuration()
     }
     
@@ -510,7 +516,7 @@ internal extension CoreMethods {
                     )
                 
                 
-                if configuration.support3DS {
+                if configuration.supportCapabilities.contains(.support3DS)  {
                     try await createTransation(response)
                 }
                 
@@ -525,25 +531,5 @@ internal extension CoreMethods {
             }
         )
 
-    }
-    
-    @MainActor
-    func createTransation(_ response: CardToken) async throws {
-        guard let directoryServer = MPThreeDSDirectoryServer(rawValue: response.token) else {
-            return
-        }
-        
-        self.transaction = self.threeDSSDK?.createTransaction(
-            directoryServerId: directoryServer.id,
-            messageVersion: configuration.messageVersion
-        )
-        
-        guard var parameters = self.transaction?.getAuthenticationRequestParameters() else{
-            return
-        }
-                            
-        parameters.token = response.token
-        
-        let _ = try await self.generateTokenUseCase.sendDeviceData(parameters)
     }
 }

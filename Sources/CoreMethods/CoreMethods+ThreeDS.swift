@@ -7,89 +7,6 @@
 import UIKit
 
 extension CoreMethods {
-    
-    /// Starts the 3D Secure challenge and returns the result asynchronously.
-    ///
-    /// This method should be called when your backend determines that a challenge is required
-    /// and returns challenge parameters. It presents the 3DS authentication interface to the user
-    /// and returns the authentication result.
-    ///
-    /// - Parameters:
-    ///   - navigationController: Navigation controller to present the challenge interface.
-    ///   - data: Authentication data returned by ``getAuthenticationRequestParameters(paymentMethodId:)``.
-    ///   - timeOut: Challenge timeout in seconds. Default is 20 seconds.
-    ///
-    /// - Returns: ``MPThreeDSChallengeResult`` containing the authentication outcome.
-    ///
-    /// - Important: This method must be called on the main thread.
-    ///
-    /// ## Example
-    /// ```swift
-    /// do {
-    ///     var responseToken = try coreMethods.createToken(
-    ///                          cardNumber: CardNumberTextField,
-    ///                          expirationDate: ExpirationDateTextfield,
-    ///                          securityCode: SecurityCodeTextField,
-    ///                          cardHolderName: String?
-    ///                         )
-    ///
-    ///     let challengeParametersFromBackend = requestServer(responseToken.token)
-    ///
-    ///     let challengeParameters = MPThreeDSChallengeParameters(
-    ///                                 threeDSServerTransID: challengeParametersFromBackend.threeDSServerTransID ,
-    ///                                 acsReferenceNumber: challengeParametersFromBackend.acsReferenceNumber
-    ///                                 dsTransID: challengeParametersFromBackend.dsTransID
-    ///                                 acsTransID: challengeParametersFromBackend.acsTransID
-    ///                                 acsSignedContent: challengeParametersFromBackend.acsSignedContent
-    ///                               )
-    ///
-    ///     let result = await coreMethods.startChallenge(
-    ///         from: navigationController,
-    ///         challengeParameters: challengeParameters
-    ///     )
-    ///
-    ///     switch result {
-    ///     case .completed(let status, let transactionId):
-    ///         if status == "Y" {
-    ///             // Authentication successful
-    ///             proceedWithPayment(transactionId: transactionId)
-    ///         } else {
-    ///             handleAuthenticationFailure(status: status)
-    ///         }
-    ///     case .cancelled:
-    ///         showMessage("Authentication was cancelled")
-    ///     case .timedout:
-    ///         showMessage("Authentication timed out")
-    ///     case .protocolError(let transactionId, let error):
-    ///         handleProtocolError(error, transactionId: transactionId)
-    ///     case .runtimeError(let error):
-    ///         handleRuntimeError(error)
-    ///     }
-    /// } catch {
-    ///     handleError(error)
-    /// }
-    /// ```
-    ///
-    @MainActor
-    public func startChallenge(
-        from navigationController: UINavigationController,
-        challengeParameters: MPThreeDSChallengeParameters,
-        timeOut: Int32 = 20
-    ) async -> MPThreeDSChallengeResult {
-
-        return await withCheckedContinuation { continuation in
-            self.challengeContinuation = continuation
-
-            self.transaction?.doChallenge(
-                navigationController,
-                challengeParameters: challengeParameters,
-                challengeStatusReceiver: self,
-                timeOut: timeOut
-            )
-        }
-    }
-    
-    
     /// Returns security warnings generated during 3DS SDK initialization.
     ///
     /// The 3DS SDK performs several security checks during initialization time to assess
@@ -102,6 +19,32 @@ extension CoreMethods {
         return threeDSSDK?.getWarnings() ?? []
     }
     
+    @MainActor
+    public func startChallenge(
+        from navigationController: UINavigationController,
+        capabilityID: String,
+        timeOut: Int32 = 20
+    ) async throws -> MPThreeDSChallengeResult {
+        
+        do {
+            let challengeParameters = try await self.capabilityUseCase.getChallengeParameters(capabilityID)
+            
+            return await withCheckedContinuation { continuation in
+                self.challengeContinuation = continuation
+
+                self.transaction?.doChallenge(
+                    navigationController,
+                    challengeParameters: challengeParameters,
+                    challengeStatusReceiver: self,
+                    timeOut: timeOut
+                )
+            }
+
+        } catch {
+            throw error
+        }
+    }
+    
     /// The close method is called to clean up resources that are held by the Transaction object. It shall be called when the transaction is completed. The following are some examples of transaction completion events:
     ///
     /// - The Cardholder completes the challenge.
@@ -111,6 +54,26 @@ extension CoreMethods {
     @MainActor
     public func close() throws {
         try self.transaction?.close()
+    }
+    
+    @MainActor
+    func createTransation(_ response: CardToken) async throws {
+        guard let directoryServer = MPThreeDSDirectoryServer(rawValue: response.token) else {
+            return
+        }
+        
+        self.transaction = self.threeDSSDK?.createTransaction(
+            directoryServerId: directoryServer.id,
+            messageVersion: configuration.messageVersion
+        )
+        
+        guard var parameters = self.transaction?.getAuthenticationRequestParameters() else{
+            return
+        }
+                            
+        parameters.token = response.token
+        
+        let _ = try await self.generateTokenUseCase.sendDeviceData(parameters)
     }
 }
 

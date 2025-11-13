@@ -12,7 +12,7 @@ protocol IssuerUseCaseProtocol: Sendable {
 final class IssuerUseCase: IssuerUseCaseProtocol {
     private let repository: CoreMethodsRepositoryProtocol
 
-    init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {
+    init(repository: CoreMethodsRepositoryProtocol) {
         self.repository = repository
     }
 

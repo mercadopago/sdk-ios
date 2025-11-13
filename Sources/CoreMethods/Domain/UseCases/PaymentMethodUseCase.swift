@@ -12,7 +12,7 @@ protocol PaymentMethodUseCaseProtocol: Sendable {
 final class PaymentMethodUseCase: PaymentMethodUseCaseProtocol {
     private let repository: CoreMethodsRepositoryProtocol
 
-    init(repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()) {
+    init(repository: CoreMethodsRepositoryProtocol) {
         self.repository = repository
     }
 
