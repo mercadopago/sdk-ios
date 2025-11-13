@@ -73,7 +73,7 @@ extension CoreMethods {
                             
         parameters.token = response.token
         
-        let _ = try await self.generateTokenUseCase.sendDeviceData(parameters)
+        let _ = try await self.capabilityUseCase.sendDeviceData(parameters)
     }
 }
 

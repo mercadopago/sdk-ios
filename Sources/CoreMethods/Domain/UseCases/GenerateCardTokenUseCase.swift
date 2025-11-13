@@ -20,9 +20,6 @@ protocol GenerateCardTokenUseCaseProtocol: Sendable {
         identificationType: String?,
         identificationNumber: String?
     ) async throws -> CardToken
-    
-    
-    func sendDeviceData(_ requestParameters: MPThreeDSAuthRequestParametersBody) async throws -> MPThreeDSResponse
 }
 
 final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
@@ -38,10 +35,6 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
     ) {
         self.repository = repository
         self.dependencies = dependencies
-    }
-    
-    func sendDeviceData(_ requestParameters: MPThreeDSAuthRequestParametersBody) async throws -> MPThreeDSResponse {
-        return try await repository.postSDKData(requestParameters)
     }
 
     func tokenize(
