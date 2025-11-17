@@ -44,7 +44,7 @@ protocol ThreeDSChallengeStatusReceiver: AnyObject, Sendable {
     func runtimeError(code: String, message: String)
 }
 
-public struct ThreeDSConfig {
+public struct ThreeDSConfig: @unchecked Sendable {
     public var customization: UUiCustomization
     
     public init(customization: UUiCustomization = UUiCustomization()) {
