@@ -12,16 +12,17 @@ struct CardFormBrick: View {
     
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading) {
+            MPHeader(
+                title: "Product",
+                onBack: {
+                    print("Back tapped")
+                }
+            ) {
                 Spacer()
                 NavigationLink(destination: InstallmentScreen()) {
                     Text("Choose Installment")
                 }
             }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .navigationBarTitle("Insira seu cartão")
-            .withHeader()
         }
     }
 }

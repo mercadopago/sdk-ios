@@ -9,13 +9,13 @@ import SwiftUI
 
 struct InstallmentScreen: View {
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Installment")
+        MPHeader(
+            title: "Product",
+            onBack: {
+                print("Back tapped")
+            }
+        ) {
             Spacer()
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .navigationBarTitle("Escolha sua parcela", displayMode: .large)
-        .withHeader()
     }
 }
