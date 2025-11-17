@@ -37,12 +37,6 @@ package struct MPHeaderStyleConfiguration {
     /// Visible height of sub-header (after collapse calculation)
     package let subHeaderVisibleHeight: CGFloat
     
-    /// Binding to update header height
-    package let headerHeightBinding: Binding<CGFloat>
-    
-    /// Binding to update sub-header height
-    package let subHeaderHeightBinding: Binding<CGFloat>
-    
     /// Current scroll offset (negative when scrolled down)
     package let scrollOffset: CGFloat
     
@@ -55,8 +49,6 @@ package struct MPHeaderStyleConfiguration {
         collapseProgress: CGFloat,
         subHeaderHeight: CGFloat,
         subHeaderVisibleHeight: CGFloat,
-        headerHeightBinding: Binding<CGFloat>,
-        subHeaderHeightBinding: Binding<CGFloat>,
         scrollOffset: CGFloat
     ) {
         self.mainHeader = MainHeader(body: AnyView(mainHeader))
@@ -64,8 +56,6 @@ package struct MPHeaderStyleConfiguration {
         self.collapseProgress = collapseProgress
         self.subHeaderHeight = subHeaderHeight
         self.subHeaderVisibleHeight = subHeaderVisibleHeight
-        self.headerHeightBinding = headerHeightBinding
-        self.subHeaderHeightBinding = subHeaderHeightBinding
         self.scrollOffset = scrollOffset
     }
 }

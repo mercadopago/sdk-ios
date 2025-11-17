@@ -28,13 +28,6 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
                 .padding(.vertical, theme.spacings.xs)
                 .background(headerBackgroundView(configuration))
                 .animation(.easeInOut(duration: 0.2))
-                .background(
-                    GeometryReader { geo in
-                        Color.clear.onAppear {
-                            configuration.headerHeightBinding.wrappedValue = geo.size.height
-                        }
-                    }
-                )
             
             // Sub Header with collapse animations
             configuration.subHeader
@@ -50,11 +43,6 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
                         )
                     }
                 )
-                .onPreferenceChange(SubHeaderHeightKey.self) { newHeight in
-                    if configuration.subHeaderHeightBinding.wrappedValue != newHeight {
-                        configuration.subHeaderHeightBinding.wrappedValue = newHeight
-                    }
-                }
                 .frame(height: configuration.subHeaderVisibleHeight, alignment: .top)
                 .opacity(1 - configuration.collapseProgress)
                 .offset(y: -(configuration.subHeaderHeight - configuration.subHeaderVisibleHeight))
@@ -72,7 +60,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
         
         ZStack {
             if configuration.scrollOffset < -epsilon {
-                Color.white.opacity(0.98)
+                theme.colors.backgroundPrimary.opacity(0.98)
             } else {
                 Color.clear
             }
@@ -157,7 +145,7 @@ struct MPHeader_Previews: PreviewProvider {
                     self.presentationMode.wrappedValue.dismiss()
                 }
             ) {
-                VStack(spacing: 20) {
+                VStack(spacing: 0) {
                     ForEach(0..<30) { i in
                         Text("Line \(i)")
                             .frame(maxWidth: .infinity)

@@ -35,14 +35,6 @@ import MPFoundation
 /// }
 /// ```
 ///
-/// ## Features
-///
-/// - **Automatic Collapse**: The large title smoothly collapses as the user scrolls
-/// - **Navigation Back**: Built-in back button with customizable action
-/// - **Trailing Actions**: Support for custom actions (buttons, icons, etc.)
-/// - **Customizable Style**: Apply custom styles via `mpHeaderStyle(_:)`
-/// - **Safe Area Handling**: Automatically handles safe areas and notch
-///
 package struct MPHeader<Content: View, TrailingActions: View>: View {
     
     // MARK: - Properties
@@ -55,12 +47,13 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
     // MARK: - Environment
     
     @Environment(\.mpHeaderStyle) private var style: any MPHeaderStyle
+    @Environment(\.checkoutTheme) var theme: MPTheme
     
     // MARK: - State
     
     @State private var scrollOffset: CGFloat = 0
-    @State private var headerHeight: CGFloat = 68
-    @State private var subHeaderHeight: CGFloat = 60
+    @State private var headerHeight: CGFloat = 30
+    @State private var subHeaderHeight: CGFloat = 20
     @State private var safeAreaTop: CGFloat = 0
     
     private let epsilon = 0.00001
@@ -95,7 +88,7 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
                 ScrollViewWithOffset(offset: $scrollOffset) {
                     VStack(spacing: 0) {
                         Color.clear
-                            .frame(height: headerInset)
+                            .frame(height: headerInset(safeAreaTop: geometry.safeAreaInsets.top))
                         
                         content
                     }
@@ -107,16 +100,13 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
                     // Safe area container (notch area)
                     Color.clear
                         .frame(height: 0)
-                        .background(Color.white.edgesIgnoringSafeArea(.all))
+                        .background(theme.colors.backgroundPrimary.edgesIgnoringSafeArea(.all))
                     
                     // Main and sub headers
                     headerContent
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
                 .zIndex(1)
-            }
-            .onAppear {
-                safeAreaTop = geometry.safeAreaInsets.top
             }
         }
         .navigationBarHidden(true)
@@ -131,8 +121,6 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
             collapseProgress: collapseProgress,
             subHeaderHeight: subHeaderHeight,
             subHeaderVisibleHeight: subHeaderVisibleHeight,
-            headerHeightBinding: $headerHeight,
-            subHeaderHeightBinding: $subHeaderHeight,
             scrollOffset: scrollOffset
         )
         
@@ -155,7 +143,7 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
             
             // Title (appears when collapsed)
             Text(title)
-                .font(.system(size: 17, weight: .semibold))
+                .textStyle(.bodyMediumSemibold())
                 .lineLimit(1)
                 .opacity(collapseProgress)
                 .frame(maxWidth: .infinity)
@@ -175,7 +163,7 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
     private var subHeaderView: some View {
         HStack {
             Text(title)
-                .font(.system(size: 28, weight: .bold))
+                .textStyle(.titleSmallSemibold())
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -194,10 +182,9 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
         subHeaderHeight * (1 - collapseProgress)
     }
     
-    /// Total inset for content positioning
-    private var headerInset: CGFloat {
+    private func headerInset(safeAreaTop: CGFloat) -> CGFloat {
         let totalInset = safeAreaTop + headerHeight + subHeaderVisibleHeight
-        return max(totalInset, 100)
+        return max(totalInset, 40)
     }
 }
 
