@@ -64,7 +64,7 @@ final class UTransactionAdapter: ThreeDSTransactionProtocol {
         try transaction.close()
     }
     
-    func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParameters? {
+    func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParametersBody? {
         guard let params = transaction.getAuthenticationRequestParameters() else {
             return nil
         }
@@ -80,7 +80,7 @@ final class UTransactionAdapter: ThreeDSTransactionProtocol {
     
     func doChallenge(
         _ navigationController: UINavigationController,
-        challengeParameters: MPThreeDSParameters.MPThreeDSChallengeParameters,
+        challengeParameters: MPThreeDSChallengeParameters,
         challengeStatusReceiver: ThreeDSChallengeStatusReceiver,
         timeOut: Int32
     ) {

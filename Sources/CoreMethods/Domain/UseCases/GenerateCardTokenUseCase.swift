@@ -31,7 +31,7 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
 
     init(
         dependencies: Dependency,
-        repository: CoreMethodsRepositoryProtocol = CoreMethodsRepository()
+        repository: CoreMethodsRepositoryProtocol
     ) {
         self.repository = repository
         self.dependencies = dependencies

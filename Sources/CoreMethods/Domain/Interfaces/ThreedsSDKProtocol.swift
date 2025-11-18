@@ -10,10 +10,10 @@ import uSDK
 
 protocol ThreeDSTransactionProtocol: Sendable {
     var id: String { get }
-    func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParameters?
+    func getAuthenticationRequestParameters() -> MPThreeDSAuthRequestParametersBody?
     func doChallenge(
         _ navigationController: UINavigationController,
-        challengeParameters: MPThreeDSParameters.MPThreeDSChallengeParameters,
+        challengeParameters: MPThreeDSChallengeParameters,
         challengeStatusReceiver: ThreeDSChallengeStatusReceiver,
         timeOut: Int32
     )
@@ -21,7 +21,7 @@ protocol ThreeDSTransactionProtocol: Sendable {
     func close() throws
 }
 
-protocol ThreeDSSDKProtocol {
+protocol ThreeDSSDKProtocol: Sendable {
     func initialize(
         config: ThreeDSConfig,
         locale: String,
@@ -36,7 +36,7 @@ protocol ThreeDSSDKProtocol {
     func getWarnings() -> [MPThreeDSWarning]    
 }
 
-protocol ThreeDSChallengeStatusReceiver: AnyObject {
+protocol ThreeDSChallengeStatusReceiver: AnyObject, Sendable {
     func completed(transactionStatus: String, transactionId: String)
     func cancelled()
     func timedout()
@@ -44,7 +44,7 @@ protocol ThreeDSChallengeStatusReceiver: AnyObject {
     func runtimeError(code: String, message: String)
 }
 
-public struct ThreeDSConfig {
+public struct ThreeDSConfig: @unchecked Sendable {
     public var customization: UUiCustomization
     
     public init(customization: UUiCustomization = UUiCustomization()) {

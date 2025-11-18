@@ -36,7 +36,29 @@ import Foundation
 ///     )
 /// }
 /// ```
-public final class CoreMethods: Sendable {
+public final actor CoreMethods {
+    
+    public struct Configuration: Sendable {
+        
+        public var supportCapabilities: [CoreMethods.Capabilities] = []
+        
+        internal let messageVersion = "2.2.0"
+
+        public init() {}
+    }
+    
+    internal let configuration: Configuration
+    
+    internal let threeDSSDK: ThreeDSSDKProtocol?
+    
+    @MainActor
+    internal var transaction: ThreeDSTransactionProtocol?
+    
+    @MainActor
+    internal var challengeContinuation: CheckedContinuation<MPThreeDSChallengeResult, Never>?
+    
+    @MainActor
+    public weak var challengeDelegate: MPThreeDSChallengeDelegate?
     
     // MARK: Use Cases
     internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
@@ -44,10 +66,13 @@ public final class CoreMethods: Sendable {
     private let installmentsUseCase: InstallmentsUseCaseProtocol
     private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
     private let issuerUseCase: IssuerUseCaseProtocol
+    internal let capabilityUseCase: CapabilityUseCaseProtocol
+
 
     typealias Dependency = HasAnalytics & HasFingerPrint
 
     let dependencies: Dependency
+
     
     // MARK: - Initialization
     /// Initializes a new instance of CoreMethods with default dependencies.
@@ -55,13 +80,31 @@ public final class CoreMethods: Sendable {
     /// This initializer sets up the class with the standard implementation of core methods.
     /// Use this initializer for production code.
     ///
-    public init() {
+    public init(configuration: Configuration = Configuration()) {
         self.dependencies = CoreDependencyContainer.shared
-        self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies)
-        self.identificationTypeUseCase = IdentificationTypesUseCase()
-        self.installmentsUseCase = InstallmentsUseCase()
-        self.paymentMethodUseCase = PaymentMethodUseCase()
-        self.issuerUseCase = IssuerUseCase()
+        let repository = CoreMethodsRepository()
+        self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies, repository: repository)
+        self.identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
+        self.installmentsUseCase = InstallmentsUseCase(repository: repository)
+        self.paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        self.issuerUseCase = IssuerUseCase(repository: repository)
+        self.capabilityUseCase = CapabilityUseCase(repository: repository)
+        
+        self.configuration = configuration
+        
+        self.threeDSSDK = configuration.supportCapabilities.contains(.support3DS) ? USDKAdapter() : nil
+
+        if configuration.supportCapabilities.contains(.support3DS)  {
+            let locale = MercadoPagoSDK.shared.configuration?.locale ?? "en_US"
+            self.threeDSSDK?.initialize(
+                config: ThreeDSConfig(),
+                locale: locale
+            ) { error in
+                if let error = error {
+                    print("3DS SDK failed to initialize: \(error)")
+                }
+            }
+        }
     }
 
     /// Initializes a new instance of CoreMethods with custom dependencies.
@@ -75,7 +118,9 @@ public final class CoreMethods: Sendable {
         identificationTypeUseCase: IdentificationTypesUseCaseProtocol,
         installmentsUseCase: InstallmentsUseCaseProtocol,
         paymentMethodUseCase: PaymentMethodUseCaseProtocol,
-        issuerUseCase: IssuerUseCaseProtocol
+        issuerUseCase: IssuerUseCaseProtocol,
+        threeDSSDK: ThreeDSSDKProtocol,
+        capabilityUseCase: CapabilityUseCaseProtocol
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
@@ -83,6 +128,9 @@ public final class CoreMethods: Sendable {
         self.installmentsUseCase = installmentsUseCase
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
+        self.threeDSSDK = threeDSSDK
+        self.capabilityUseCase = capabilityUseCase
+        self.configuration = Configuration()
     }
     
     // MARK: Create Token
@@ -455,7 +503,7 @@ internal extension CoreMethods {
     ) async throws -> CardToken {
         return try await executeWithTracking(
             operation: {
-                return try await self.generateTokenUseCase
+                let response = try await self.generateTokenUseCase
                     .tokenize(
                         cardNumber: cardNumber,
                         expirationDateMonth: expirationDateMonth,
@@ -466,6 +514,13 @@ internal extension CoreMethods {
                         identificationType: documentType,
                         identificationNumber: documentNumber
                     )
+                
+                
+                if configuration.supportCapabilities.contains(.support3DS)  {
+                    try await createTransation(response)
+                }
+                
+                return response
             },
             path: AnalyticsPath.tokenization,
             extractEventData: { _ -> TokenizationEventData? in
@@ -476,54 +531,5 @@ internal extension CoreMethods {
             }
         )
 
-    }
-}
-
-// MARK: Execute Operation of Core Methods
-extension CoreMethods {
-    internal enum AnalyticsPath {
-        static let identificationTypes = "/checkout_api_native/core_methods/identification_types"
-        static let installments = "/checkout_api_native/core_methods/installments"
-        static let paymentMethods = "/checkout_api_native/core_methods/payment_methods"
-        static let tokenization = "/checkout_api_native/core_methods/tokenization"
-        static let issuers = "/checkout_api_native/core_methods/issuers"
-    }
-
-    func executeWithTracking<T: Sendable>(
-        operation: @Sendable () async throws -> T,
-        path: String,
-        extractEventData: (@Sendable (T?) async -> (any AnalyticsEventData)?)? = nil
-    ) async throws -> T {
-        do {
-            let result = try await operation()
-
-            Task(priority: .low) {
-                let event = await self.dependencies.analytics.trackEvent(path)
-
-                if let extractEventData,
-                   let eventData = await extractEventData(result) {
-                    await event.setEventData(eventData)
-                }
-
-                await event.send()
-            }
-
-            return result
-        } catch {
-            Task(priority: .low) {
-                let event = await self.dependencies.analytics
-                    .trackEvent(path + "/error")
-                    .setError("\(error)")
-
-                if let extractEventData,
-                   let eventData = await extractEventData(nil) {
-                    await event.setEventData(eventData)
-                }
-
-                await event.send()
-            }
-
-            throw error
-        }
     }
 }

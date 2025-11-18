@@ -32,7 +32,7 @@ let package = Package(
         ),
         .target(
             name: "CoreMethods",
-            dependencies: ["MPCore"]
+            dependencies: ["MPCore", "uSDK"]
         ),
         .target(
             name: "MPAnalytics"
@@ -46,11 +46,6 @@ let package = Package(
         .binaryTarget(
             name: "uSDK",
             path: "Sources/Frameworks/uSDK.xcframework"
-        ),
-        
-        .target(
-            name: "MPThreeDS",
-            dependencies: ["MPCore", "uSDK"]
         ),
         
         
