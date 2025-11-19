@@ -130,7 +130,6 @@ package extension View {
     }
 }
 
-
 // MARK: - Preview
 
 #if DEBUG
@@ -146,8 +145,8 @@ struct MPHeader_Previews: PreviewProvider {
                 }
             ) {
                 VStack(spacing: 0) {
-                    ForEach(0..<30) { i in
-                        Text("Line \(i)")
+                    ForEach(0..<30) { line in
+                        Text("Line \(line)")
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(.red))
@@ -160,7 +159,6 @@ struct MPHeader_Previews: PreviewProvider {
         }
     }
     
-    
     static var previews: some View {
         NavigationView {
             MPHeader(
@@ -170,8 +168,8 @@ struct MPHeader_Previews: PreviewProvider {
                 }
             ) {
                 VStack(spacing: 20) {
-                    ForEach(0..<30) { i in
-                        Text("Line \(i)")
+                    ForEach(0..<30) { line in
+                        Text("Line \(line)")
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(.red))

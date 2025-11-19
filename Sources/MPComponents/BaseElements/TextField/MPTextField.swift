@@ -7,9 +7,6 @@
 
 import SwiftUI
 import MPFoundation
-
-import SwiftUI
-
 /// A highly customizable text field for SwiftUI.
 ///
 /// The field supports multiple visual states, validation, formatting, and full

@@ -59,4 +59,3 @@ package struct MPHeaderStyleConfiguration {
         self.scrollOffset = scrollOffset
     }
 }
-

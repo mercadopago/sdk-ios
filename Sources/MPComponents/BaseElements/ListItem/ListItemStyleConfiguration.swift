@@ -46,8 +46,6 @@ package struct ListItemStyleConfiguration {
     }
 }
 
-
-
 private struct ListItemStyleKey: @preconcurrency EnvironmentKey {
     @MainActor static var defaultValue: any ListItemStyle = DefaultListItemStyle()
 }

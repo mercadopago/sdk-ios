@@ -7,7 +7,6 @@
 import SwiftUI
 @_exported import MPFoundation
 
-
 public protocol StyleProtocol: DynamicProperty, Sendable {
     associatedtype Configuration
     associatedtype Body: View
