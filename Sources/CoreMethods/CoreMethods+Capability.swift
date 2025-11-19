@@ -67,13 +67,13 @@ extension CoreMethods {
             messageVersion: configuration.messageVersion
         )
         
-        guard var parameters = self.transaction?.getAuthenticationRequestParameters() else{
+        guard var parameters = self.transaction?.getAuthenticationRequestParameters() else {
             return
         }
                             
         parameters.token = response.token
         
-        let _ = try await self.capabilityUseCase.sendDeviceData(parameters)
+        _ = try await self.capabilityUseCase.sendDeviceData(parameters)
     }
 }
 

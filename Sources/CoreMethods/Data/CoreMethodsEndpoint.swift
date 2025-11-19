@@ -90,7 +90,7 @@ extension CoreMethodsEndpoint: RequestEndpoint {
     /// Request URL parameters.
     var urlParams: [String: any CustomStringConvertible] {
         switch self {
-        case .postCardToken, .getIdentificationTypes,.postSDKData:
+        case .postCardToken, .getIdentificationTypes, .postSDKData:
             return [:]
         case let .getInstallments(params):
             return [

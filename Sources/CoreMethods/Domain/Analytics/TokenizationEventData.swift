@@ -16,7 +16,7 @@ struct TokenizationEventData: AnalyticsEventData {
         return [
             "is_saved_card": self.isSaveCard,
             "identity_document_type": self.documentType,
-            "type_wallet": "coremethods",
+            "type_wallet": "coremethods"
         ]
     }
 }
