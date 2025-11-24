@@ -174,7 +174,7 @@ public final class CardNumberTextField: PCITextField {
 
             let previousBinPrefix = self.previousBin
 
-            if inputLength >= self.binLength && currentBin != previousBinPrefix || inputLength == 0  {
+            if inputLength >= self.binLength && currentBin != previousBinPrefix || inputLength == 0 {
                 self.previousBin = currentBin
                 self.onBinChanged?(currentBin)
             }

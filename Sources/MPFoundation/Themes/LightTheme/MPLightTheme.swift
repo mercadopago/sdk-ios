@@ -110,7 +110,7 @@ public struct LightOutline: MPOutline {
 // swiftlint:enable identifier_name
 
 @MainActor
-fileprivate enum FontName: String {
+package enum FontName: String {
     case semiBold = "ProximaNova-SemiBold"
     case regular = "ProximaNova-Regular"
 

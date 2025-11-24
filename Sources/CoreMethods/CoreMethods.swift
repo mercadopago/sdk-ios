@@ -68,12 +68,10 @@ public final actor CoreMethods {
     private let issuerUseCase: IssuerUseCaseProtocol
     internal let capabilityUseCase: CapabilityUseCaseProtocol
 
-
     typealias Dependency = HasAnalytics & HasFingerPrint
 
     let dependencies: Dependency
 
-    
     // MARK: - Initialization
     /// Initializes a new instance of CoreMethods with default dependencies.
     ///
@@ -94,7 +92,7 @@ public final actor CoreMethods {
         
         self.threeDSSDK = configuration.supportCapabilities.contains(.support3DS) ? USDKAdapter() : nil
 
-        if configuration.supportCapabilities.contains(.support3DS)  {
+        if configuration.supportCapabilities.contains(.support3DS) {
             let locale = MercadoPagoSDK.shared.configuration?.locale ?? "en_US"
             self.threeDSSDK?.initialize(
                 config: ThreeDSConfig(),
@@ -515,8 +513,7 @@ internal extension CoreMethods {
                         identificationNumber: documentNumber
                     )
                 
-                
-                if configuration.supportCapabilities.contains(.support3DS)  {
+                if configuration.supportCapabilities.contains(.support3DS) {
                     try await createTransation(response)
                 }
                 

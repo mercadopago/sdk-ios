@@ -8,7 +8,6 @@
 import SwiftUI
 import MPFoundation
 
-
 package protocol ListItemStyle: StyleProtocol, Identifiable where Configuration == ListItemStyleConfiguration {}
 
 package struct DefaultListItemStyle: ListItemStyle {

@@ -14,7 +14,7 @@ import Foundation
 /// Your backend will use these parameters to communicate with the 3DS server
 /// and determine if a challenge is required.
 ///
-struct MPThreeDSAuthRequestParametersBody: Sendable, Codable{
+struct MPThreeDSAuthRequestParametersBody: Sendable, Codable {
     /// SDK App ID that identifies the 3DS SDK.
     let sdkAppId: String
     
@@ -34,13 +34,12 @@ struct MPThreeDSAuthRequestParametersBody: Sendable, Codable{
     var token: String = ""
 }
 
-
 extension MPThreeDSAuthRequestParametersBody {
     /// Converts the `MPThreeDSAuthRequestParametersBody` data to JSON format for use in a request body.
     ///
     /// - Returns: A `Data` object representing the post data in JSON format, or `nil` if the conversion fails.
     func toJSONData() -> Data? {
-        var jsonObject: [String: Any] = [
+        let jsonObject: [String: Any] = [
             "sdk_app_id": sdkAppId,
             "device_data": deviceData,
             "sdk_ephemeral_public_key": sdkEphemeralPublicKey,

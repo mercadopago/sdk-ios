@@ -69,6 +69,21 @@ package struct MPButtonStyle: ButtonStyle {
     }
 }
 
+
+package struct MPBackButtonStyle: ButtonStyle {
+
+    @Environment(\.checkoutTheme) var theme: MPTheme
+    
+    package func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundColor(theme.colors.accent)
+            .padding()
+            .background(theme.colors.secondary)
+            .cornerRadius(theme.borderRadius.s)
+    }
+}
+
+
 package extension View {
     func mpButtonStyle(variant: MPButtonStyle.Variant, size: MPButtonStyle.Size = .medium) -> some View {
         self.buttonStyle(MPButtonStyle(variant: variant, size: size))

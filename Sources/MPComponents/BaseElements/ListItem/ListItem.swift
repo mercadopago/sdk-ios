@@ -21,7 +21,6 @@ package enum ListItemTrailingContent: Equatable {
     case pill(text: String, type: PillType = .success)
 }
 
-
 package struct ListItem: View {
     @Environment(\.listItemStyle) private var style
     @Environment(\.isEnabled) private var isEnabled: Bool
@@ -61,7 +60,6 @@ package struct ListItem: View {
             if isEnabled { self.onSelectionChanged(true) }
         }
     }
-    
     
     @ViewBuilder
     private var titleView: some View {
@@ -104,7 +102,6 @@ package struct ListItem: View {
     }
 }
 
-
 #Preview {
     VStack(spacing: 16) {
         // Basic list item without trailing content
@@ -129,5 +126,3 @@ package struct ListItem: View {
     .padding()
     .loadMPFonts()
 }
-
-
