@@ -35,7 +35,7 @@ import MPFoundation
 /// }
 /// ```
 ///
-package struct MPHeader<Content: View, TrailingActions: View>: View {
+package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: View {
     
     // MARK: - Properties
     
@@ -43,6 +43,7 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
     private let onBack: () -> Void
     private let trailingActions: TrailingActions
     private let content: Content
+    private let footer: Footer
     
     // MARK: - Environment
     
@@ -71,11 +72,13 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
         title: String,
         onBack: @escaping () -> Void = {},
         @ViewBuilder trailingActions: () -> TrailingActions = { EmptyView() },
+        @ViewBuilder footer: () -> Footer = { EmptyView() },
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.onBack = onBack
         self.trailingActions = trailingActions()
+        self.footer = footer()
         self.content = content()
     }
     
@@ -85,15 +88,21 @@ package struct MPHeader<Content: View, TrailingActions: View>: View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
                 // Scrollable content with offset tracking
-                ScrollViewWithOffset(offset: $scrollOffset) {
-                    VStack(spacing: 0) {
-                        Color.clear
-                            .frame(height: headerInset(safeAreaTop: geometry.safeAreaInsets.top))
-                        
-                        content
+                
+                VStack(spacing: 0) {
+                    ScrollViewWithOffset(offset: $scrollOffset) {
+                        VStack(spacing: 0) {
+                            Color.clear
+                                .frame(height: headerInset(safeAreaTop: geometry.safeAreaInsets.top))
+                            
+                            content
+                        }
                     }
+                    
+                    footer
+                        .zIndex(2)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 // Header container
                 VStack(spacing: 0) {
@@ -194,13 +203,15 @@ extension MPHeader where TrailingActions == EmptyView {
     package init(
         title: String,
         onBack: @escaping () -> Void = {},
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder footer: () -> Footer,
     ) {
         self.init(
             title: title,
             onBack: onBack,
             trailingActions: { EmptyView() },
-            content: content
+            footer: footer,
+            content: content,
         )
     }
 }
