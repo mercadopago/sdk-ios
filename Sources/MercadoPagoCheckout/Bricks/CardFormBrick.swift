@@ -16,6 +16,8 @@ struct CardFormBrick: View {
     @State private var cardHolder: String = ""
     @State private var expirationDate: String = ""
     @State private var securityCode: String = ""
+    
+    @State private var openDocumentsSheet: Bool = false
 
     var body: some View {
         NavigationView {
@@ -96,24 +98,27 @@ struct CardFormBrick: View {
             label: "Documento do titular",
             placeholder: "999.999.999-99",
             prefix: {
-                HStack {
-                    Text("CPF")
-                        .textStyle(.bodyMediumRegular(colorType: .secondary))
-                    
-                    Image(systemName: "chevron.down")
-                        .renderingMode(.template)
-                        .foregroundColor(theme.colors.outlinePrimary)
-                        .padding(.horizontal,theme.spacings.xs)
+                Button {
+                    openDocumentsSheet.toggle()
+                } label: {
+                    HStack {
+                        Text("CPF")
+                            .textStyle(.bodyMediumRegular(colorType: .secondary))
+                        
+                        Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
+                            .renderingMode(.template)
+                            .foregroundColor(theme.colors.outlinePrimary)
+                            .padding(.horizontal,theme.spacings.xs)
+                    }
+                    .frame(maxHeight: .infinity)
+                    .overlay(
+                        Rectangle()
+                            .frame(width: theme.outline.xxs)
+                            .foregroundColor(theme.colors.outlinePrimary),
+                        alignment: .trailing
+                    )
+                    .padding(.leading,theme.spacings.s)
                 }
-                .frame(maxHeight: .infinity)
-                .overlay(
-                    Rectangle()
-                        .frame(width: theme.outline.xxs)
-                        .foregroundColor(theme.colors.outlinePrimary),
-                    alignment: .trailing
-                )
-                .padding(.leading,theme.spacings.s)
-                
             }
         )
     }
