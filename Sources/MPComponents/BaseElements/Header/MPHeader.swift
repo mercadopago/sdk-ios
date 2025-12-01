@@ -204,7 +204,7 @@ extension MPHeader where TrailingActions == EmptyView {
         title: String,
         onBack: @escaping () -> Void = {},
         @ViewBuilder content: () -> Content,
-        @ViewBuilder footer: () -> Footer,
+        @ViewBuilder footer: () -> Footer
     ) {
         self.init(
             title: title,
