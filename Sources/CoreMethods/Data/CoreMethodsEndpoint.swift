@@ -74,10 +74,12 @@ extension CoreMethodsEndpoint: RequestEndpoint {
     var headers: [String: String] {
         switch self {
             
-        case .postCardToken:
+        case .postCardToken(let body):
             return [
                 "Content-Type": "application/json",
-                "X-Product-id": MPSDKProduct.id
+                "X-Product-id": MPSDKProduct.id,
+                "Meli-Session-id": body.session ?? "",
+                "SDK-version": body.sdkVersion ?? ""
             ]
             
         default:

@@ -7,13 +7,13 @@
 import Foundation
 
 package actor MPAnalyticsConfiguration {
-    static let shared = MPAnalyticsConfiguration()
+    package static let shared = MPAnalyticsConfiguration()
 
-    var version = ""
+    package var version = ""
 
     var siteID = ""
 
-    var sessionID = ""
+    package var sessionID = ""
     
     private init() {}
     
