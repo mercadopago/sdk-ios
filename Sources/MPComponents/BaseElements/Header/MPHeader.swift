@@ -211,7 +211,7 @@ extension MPHeader where TrailingActions == EmptyView {
             onBack: onBack,
             trailingActions: { EmptyView() },
             footer: footer,
-            content: content,
+            content: content
         )
     }
 }
