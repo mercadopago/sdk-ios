@@ -48,13 +48,13 @@ struct CardFormBrick: View {
                         text: $cardNumber,
                         label: "Número do cartão",
                         placeholder: "1234 1234 1234 1234",
-                        keyboard: .numberPad
+                        keyboard: .numberPad,
                     )
                     
                     MPTextField(
                         text: $cardHolder,
                         label: "Nome do titular",
-                        placeholder: "Ex.: Maria Lopes"
+                        placeholder: "Ex.: Maria Lopes",
                     )
                     
                     HStack(spacing: theme.spacings.xl) {
@@ -62,7 +62,7 @@ struct CardFormBrick: View {
                             text: $expirationDate,
                             label: "Vencimento",
                             placeholder: "MM/AA",
-                            keyboard: .numberPad
+                            keyboard: .numberPad,
                         )
                         
                         MPTextField(
