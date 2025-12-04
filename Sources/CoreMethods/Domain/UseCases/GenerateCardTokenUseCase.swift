@@ -8,6 +8,7 @@
 import Foundation
 #if SWIFT_PACKAGE
     import MPCore
+    import MPAnalytics
 #endif
 protocol GenerateCardTokenUseCaseProtocol: Sendable {
     func tokenize(
@@ -48,6 +49,9 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
         identificationNumber: String?
     ) async throws -> CardToken {
         var buyerIdentification: BuyerIdentification?
+        
+        let session = await MPAnalyticsConfiguration.shared.sessionID
+        let version = await MPAnalyticsConfiguration.shared.version
 
         if let cardHolderName {
             buyerIdentification = BuyerIdentification(
@@ -66,7 +70,9 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
             securityCode: securityCodeInput,
             cardId: cardID,
             buyerIdentification: buyerIdentification,
-            device: deviceData
+            device: deviceData,
+            session: session,
+            sdkVersion: version
         )
 
         let response = try await repository.generateCardToken(cardData)
