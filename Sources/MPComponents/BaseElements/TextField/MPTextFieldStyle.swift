@@ -37,22 +37,22 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
 
             
             // Field
-            HStack(spacing: theme.spacings.xs) {
-                if let prefix = configuration.prefix {
-                    prefix
-                }
-                
+            HStack(spacing: 0) {
+                configuration.prefix
+                    .frame(maxHeight: .infinity)
+               
                 configuration
                     .field
                     .font(theme.typography.body.medium.regular)
                     .foregroundColor(textColor(state: configuration.state, role: .text))
+                    .padding(theme.spacings.s)
+
                 
-                if let suffix = configuration.suffix {
-                    suffix
-                }
+                configuration.suffix
+                    .frame(maxHeight: .infinity)
             }
-            .padding(theme.spacings.s)
             .background(backgroundColor(for: configuration.state, theme: theme))
+            .cornerRadius(theme.borderRadius.xs)
             .overlay(
                 RoundedRectangle(cornerRadius: theme.borderRadius.xs)
                     .stroke(

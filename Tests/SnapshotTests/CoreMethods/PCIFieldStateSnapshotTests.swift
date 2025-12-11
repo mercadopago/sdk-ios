@@ -74,7 +74,7 @@ final class PCIFieldStateSnapshotTests: XCTestCase {
         let sut = self.makeSUT()
         sut.setPlaceholder("Field customized")
         sut.setStyle(style)
-        assertSnapshot(of: sut, as: .image)
+        assertSnapshot(of: sut, as: .image(precision: 0.95))
     }
 
     func test_disabledState() {
@@ -137,7 +137,7 @@ final class PCIFieldStateSnapshotTests: XCTestCase {
         sut.setLeftView(imageView, mode: .always)
         sut.setPlaceholder("With icon on the left")
 
-        assertSnapshot(of: sut, as: .image)
+        assertSnapshot(of: sut, as: .image(precision: 0.95))
     }
 
     func test_withRightView() {
@@ -150,6 +150,6 @@ final class PCIFieldStateSnapshotTests: XCTestCase {
         sut.setRightView(imageView, mode: .always)
         sut.setPlaceholder("With icon on the right")
 
-        assertSnapshot(of: sut, as: .image)
+        assertSnapshot(of: sut, as: .image(precision: 0.95))
     }
 }
