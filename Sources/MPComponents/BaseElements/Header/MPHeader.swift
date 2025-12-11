@@ -134,7 +134,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
         )
         
         return AnyView(
-            style.makeBody(configuration: configuration)
+            style.resolve(configuration: configuration)
         )
     }
     

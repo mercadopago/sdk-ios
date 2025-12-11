@@ -65,7 +65,7 @@ package struct MPFooter: View {
         )
         
         return AnyView(
-            style.makeBody(configuration: configuration)
+            style.resolve(configuration: configuration)
         )
     }
     
