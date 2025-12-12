@@ -28,7 +28,7 @@ extension MPStrings {
         // MARK: - Card Number
         
         /// Card number field strings
-        package enum CardNumber {
+        package enum CardNumber: Sendable {
             /// Field label
             package static var label: String { localized("card_number.label") }
             

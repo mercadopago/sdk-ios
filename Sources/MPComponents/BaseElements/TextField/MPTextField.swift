@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import MPFoundation
 /// A highly customizable text field for SwiftUI.
 ///
@@ -61,6 +62,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     // MARK: - Editing State
     @State private var isEditing: Bool = false
+    @State private var hasBeenTouched: Bool = false
     @State internal var internalState: MPTextFieldState = .idle
 
     // MARK: - Init
@@ -142,28 +144,38 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     @ViewBuilder
     private func fieldView() -> some View {
-        let binding = Binding<String>(
-            get: { text },
-            set: { newValue in
-                guard !isReadOnly && isEnabled else { return }
-                let formatted = formatter?.formatOnChange(newValue) ?? newValue
-                self.text = formatted
-                // Live validation while editing
-                updateStateOnChange(
-                    isEditing: isEditing
-                )
-            }
-        )
-
         TextField(
             placeholder ?? "",
-            text: binding,
+            text: $text,
             onEditingChanged: { editing in
                 self.isEditing = editing
                 self.onEditingChanged?(editing)
+                
+                // Mark as touched when user leaves the field
+                if !editing && !hasBeenTouched {
+                    hasBeenTouched = true
+                }
+                
+                // Validate on blur (when user leaves the field)
+                if !editing && hasBeenTouched {
+                    updateStateOnBlur()
+                }
             },
             onCommit: { handleCommit() }
         )
+        .onReceive(Just(text)) { newValue in
+            guard !isReadOnly && isEnabled else { return }
+            let formatted = formatter?.formatOnChange(newValue) ?? newValue
+            if formatted != newValue {
+                self.text = formatted
+            }
+            // Only validate while editing if field was already touched
+            if hasBeenTouched {
+                updateStateOnChange(isEditing: isEditing)
+            } else if isEditing {
+                internalState = .focused
+            }
+        }
         .autocapitalization(.none)
         .keyboardType(keyboard)
         .textContentType(contentType)
@@ -241,6 +253,21 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     }
 
     private func updateStateOnCommit() {
+        hasBeenTouched = true
+        guard isEnabled && !isReadOnly else { return }
+        if let validator {
+            switch validator.validate(text) {
+            case .valid:
+                internalState = .idle
+            case .invalid(let message):
+                internalState = .error(message)
+            }
+        } else {
+            internalState = .idle
+        }
+    }
+    
+    private func updateStateOnBlur() {
         guard isEnabled && !isReadOnly else { return }
         if let validator {
             switch validator.validate(text) {
