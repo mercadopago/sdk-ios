@@ -13,13 +13,13 @@ struct CardFormScreen: View {
     
     @Environment(\.presentationMode) var presentationMode
     
-    //Card Form Fields
+    // Card Form Fields
     @State private var cardNumber: String = ""
     @State private var cardHolder: String = ""
     @State private var expirationDate: String = ""
     @State private var securityCode: String = ""
     
-    // Document Field
+    //  Document Field
     @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
     @State private var openDocumentsSheet: Bool = false
 
@@ -40,7 +40,7 @@ struct CardFormScreen: View {
                                 
                         }
                         .mpButtonStyle(variant: .loud)
-                        .padding(.horizontal,theme.spacings.s)
+                        .padding(.horizontal, theme.spacings.s)
                         .hidden()
                         
                         MPFooter(
@@ -50,7 +50,7 @@ struct CardFormScreen: View {
                     }
                 }
             ) {
-                VStack(spacing: theme.spacings.xl ){
+                VStack(spacing: theme.spacings.xl) {
                     MPTextField(
                         text: $cardNumber,
                         label: MPStrings.CardForm.CardNumber.label,
@@ -81,7 +81,7 @@ struct CardFormScreen: View {
                                 Image(systemName: "questionmark.circle")
                                     .renderingMode(.template)
                                     .foregroundColor(theme.colors.accent)
-                                    .padding(.horizontal,theme.spacings.s)
+                                    .padding(.horizontal, theme.spacings.s)
 
                             }
                         )
@@ -95,8 +95,6 @@ struct CardFormScreen: View {
             .background(theme.colors.backgroundPrimary)
         }
     }
-    
-    
     
     @ViewBuilder
     func documentField() -> some View {
@@ -115,7 +113,7 @@ struct CardFormScreen: View {
                         Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
                             .renderingMode(.template)
                             .foregroundColor(theme.colors.outlinePrimary)
-                            .padding(.horizontal,theme.spacings.xs)
+                            .padding(.horizontal, theme.spacings.xs)
                     }
                     .frame(maxHeight: .infinity)
                     .overlay(
@@ -124,7 +122,7 @@ struct CardFormScreen: View {
                             .foregroundColor(theme.colors.outlinePrimary),
                         alignment: .trailing
                     )
-                    .padding(.leading,theme.spacings.s)
+                    .padding(.leading, theme.spacings.s)
                 }
             }
         )
