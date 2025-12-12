@@ -48,6 +48,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - setup_environment
       - run:
           name: Run Snapshot Tests
           command: bundle exec fastlane snapshot_tests
