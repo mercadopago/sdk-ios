@@ -13,6 +13,9 @@ commands:
     steps:
       - macos/install-rosetta
       - run:
+          name: Set Ruby Version
+          command: echo "chruby 3.3" >> $BASH_ENV
+      - run:
           name: Install Dependencies
           command: make setup
 
