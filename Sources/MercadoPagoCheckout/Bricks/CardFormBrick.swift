@@ -20,4 +20,3 @@ public struct CardFormBrick: View {
         }
     }
 }
-
