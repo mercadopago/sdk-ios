@@ -6,6 +6,7 @@ import Foundation
 
 let package = Package(
     name: "MercadoPagoSDK",
+    defaultLocalization: "es-AR",
     platforms: [
         .iOS(.v13)
     ],
