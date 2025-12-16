@@ -13,12 +13,15 @@ public struct IdentificationType: Sendable, Equatable, Hashable {
     public let minLenght: Int
     public let maxLenght: Int
     
+    package let placeholder: String
+    
     public init(id: String, name: String, type: String, minLenght: Int, maxLenght: Int) {
         self.id = id
         self.name = name
         self.type = type
         self.minLenght = minLenght
         self.maxLenght = maxLenght
+        self.placeholder = ""
     }
     
     public init(name: String) {
@@ -27,5 +30,6 @@ public struct IdentificationType: Sendable, Equatable, Hashable {
         self.type = ""
         self.minLenght = 0
         self.maxLenght = 0
+        self.placeholder = ""
     }
 }
