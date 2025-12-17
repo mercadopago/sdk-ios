@@ -6,7 +6,7 @@ orbs:
 executors:
   default:
     macos:
-      xcode: 16.4
+      xcode: 26.1.1
 
 commands:
   setup_environment:
