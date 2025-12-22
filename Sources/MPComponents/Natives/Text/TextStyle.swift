@@ -91,17 +91,17 @@ public enum TextStyleColorType: CaseIterable, Identifiable, Sendable {
     public func color(from colorTokens: MPColors) -> Color {
         switch self {
         case .primary:
-            return colorTokens.textPrimary
+            return colorTokens.text.primary
         case .secondary:
-            return colorTokens.textSecondary
+            return colorTokens.text.secondary
         case .accent:
-            return colorTokens.textAccent
+            return colorTokens.text.accent
         case .disabled:
-            return colorTokens.textDisabled
+            return colorTokens.text.disabled
         case .negative:
-            return colorTokens.textNegative
+            return colorTokens.feedback.textNegativeLoud
         case .inverted:
-            return colorTokens.textInverted
+            return colorTokens.text.inverse
         }
     }
 }
@@ -129,7 +129,7 @@ package enum TextStyleCase: String, CaseIterable, Identifiable {
         case .titleSmallSemibold:
             return theme.typography.title.smallSemibold
         case .bodyMediumRegular:
-            return theme.typography.body.medium.regular
+            return theme.typography.body.medium.bold
         case .bodyMediumSemibold:
             return theme.typography.body.medium.semibold
         case .bodySmallRegular:
