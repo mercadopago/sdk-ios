@@ -86,12 +86,12 @@ package struct DefaultTooltipConfig: TooltipConfig {
     
     /// Returns the standard border radius from the design system.
     package func borderRadius(from theme: MPTheme) -> CGFloat {
-        return theme.borderRadius.s
+        return theme.borderRadius.large
     }
     
     /// Returns a minimal border width from the design system.
     package func borderWidth(from theme: MPTheme) -> CGFloat {
-        return theme.outline.xs
+        return theme.borderWidth.medium
     }
     
     /// Returns the appropriate background color based on tooltip type.
@@ -101,19 +101,19 @@ package struct DefaultTooltipConfig: TooltipConfig {
     package func backgroundColor(from theme: MPTheme) -> Color {
         switch type {
         case .blue:
-            return theme.colors.accent
+            return theme.colors.interactive.fillLoudIdle
         case .dark:
-            return theme.colors.backgroundInverted
+            return theme.colors.fill.inverse
         }
     }
     
     /// Returns consistent medium padding for tooltip content.
     package func contentPadding(from theme: MPTheme) -> EdgeInsets {
         return EdgeInsets(
-            top: theme.spacings.m,
-            leading: theme.spacings.m,
-            bottom: theme.spacings.m,
-            trailing: theme.spacings.m
+            top: theme.spacings.xtiny,
+            leading: theme.spacings.xtiny,
+            bottom: theme.spacings.xtiny,
+            trailing: theme.spacings.xtiny
         )
     }
 }

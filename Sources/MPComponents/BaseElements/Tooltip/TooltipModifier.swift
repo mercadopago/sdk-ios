@@ -265,7 +265,7 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 20, height: 20)
-                                .foregroundColor(theme.colors.textInverted)
+                                .foregroundColor(theme.colors.text.inverse)
                         }
                     }
                 }
