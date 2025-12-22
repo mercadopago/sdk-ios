@@ -44,9 +44,9 @@ package struct PillTextStyle: TextStyle {
             .content
             .font(theme.typography.body.extraSmallSemibold)
             .foregroundColor(pillType.textColor(from: theme.colors))
-            .padding(.horizontal, theme.spacings.xs)
+            .padding(.horizontal, theme.spacings.xmicro)
             .background(
-                RoundedRectangle(cornerRadius: theme.borderRadius.s)
+                RoundedRectangle(cornerRadius: theme.borderRadius.large)
                     .fill(
                         pillType.backgroundColor(from: theme.colors)
                     )
@@ -68,7 +68,7 @@ public enum PillType: CaseIterable, Identifiable, Sendable {
     public func backgroundColor(from color: MPColors) -> Color {
         switch self {
         case .success:
-            return color.feedbackPositiveSecondary
+            return color.feedback.fillPositiveQuiet
         }
     }
     
@@ -79,7 +79,7 @@ public enum PillType: CaseIterable, Identifiable, Sendable {
     public func textColor(from color: MPColors) -> Color {
         switch self {
         case .success:
-            return color.feedbackPositive
+            return color.feedback.textPositiveLoud
         }
     }
 }
