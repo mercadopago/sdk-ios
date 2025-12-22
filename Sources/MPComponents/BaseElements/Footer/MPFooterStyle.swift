@@ -22,25 +22,25 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
     package func makeBody(configuration: MPFooterStyleConfiguration) -> some View {
         VStack(spacing: 0) {
             // Content area
-            VStack(spacing: theme.spacings.xs) {
+            VStack(spacing: theme.spacings.xmicro) {
                 // Summary line
                 configuration.summaryLine
-                    .padding(.horizontal, theme.spacings.m)
-                    .padding(.top, theme.spacings.m)
+                    .padding(.horizontal, theme.spacings.xtiny)
+                    .padding(.top, theme.spacings.xtiny)
                 
                 // Description line (if present)
                 if configuration.hasDescription {
                     configuration.descriptionLine
-                        .padding(.horizontal, theme.spacings.m)
-                        .padding(.bottom, theme.spacings.m)
+                        .padding(.horizontal, theme.spacings.xtiny)
+                        .padding(.bottom, theme.spacings.xtiny)
                 } else {
                     Color.clear
-                        .frame(height: theme.spacings.m)
+                        .frame(height: theme.spacings.xtiny)
                 }
             }
-            .background(theme.colors.backgroundPrimary)
+            .background(theme.colors.background.primary)
             .background(
-            theme.colors.backgroundPrimary
+            theme.colors.background.primary
                 .shadow(
                     color: Color.black.opacity(0.1),
                     radius: 8, x: 0, y: -4
