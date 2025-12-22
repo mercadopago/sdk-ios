@@ -16,7 +16,6 @@ package struct MPButtonStyle: ButtonStyle {
 
     package enum Size {
         case large
-        case medium
     }
     
     @Environment(\.checkoutTheme) var theme: MPTheme
@@ -64,7 +63,6 @@ package struct MPButtonStyle: ButtonStyle {
     private func getSizeMetrics() -> MPButtonSize {
         switch size {
         case .large: return theme.buttons.sizes.large
-        case .medium: return theme.buttons.sizes.medium
         }
     }
 }
@@ -85,7 +83,7 @@ package struct MPBackButtonStyle: ButtonStyle {
 
 
 package extension View {
-    func mpButtonStyle(variant: MPButtonStyle.Variant, size: MPButtonStyle.Size = .medium) -> some View {
+    func mpButtonStyle(variant: MPButtonStyle.Variant, size: MPButtonStyle.Size = .large) -> some View {
         self.buttonStyle(MPButtonStyle(variant: variant, size: size))
     }
 }
@@ -96,7 +94,7 @@ package extension View {
 struct ButtonStyleView: View {
     let size: MPButtonStyle.Size
 
-    init(size: MPButtonStyle.Size = .medium) {
+    init(size: MPButtonStyle.Size = .large) {
         self.size = size
     }
     
