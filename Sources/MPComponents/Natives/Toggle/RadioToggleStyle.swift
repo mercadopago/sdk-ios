@@ -25,6 +25,8 @@ package struct RadioToggleStyle: ToggleStyle {
     @Environment(\.hasError) private var hasError: Bool
     
     package func makeBody(configuration: Configuration) -> some View {
+        let appearance = theme.toggles.radio
+        
         HStack(spacing: 8) {
             Button(action: {
                 if isEnabled {
@@ -33,21 +35,17 @@ package struct RadioToggleStyle: ToggleStyle {
             }) {
                 Circle()
                     .stroke(
-                        strokeColor(isOn: configuration.isOn),
-                        lineWidth: 2
+                        strokeColor(isOn: configuration.isOn, appearance: appearance),
+                        lineWidth: appearance.strokeWidth
                     )
-                    .frame(width: 16, height: 16)
+                    .frame(width: appearance.size, height: appearance.size)
                     .overlay(
                         Circle()
                             .fill(
-                                fillColor(
-                                    isOn: configuration.isOn
-                                )
+                                fillColor(isOn: configuration.isOn, appearance: appearance)
                             )
-                            .frame(width: 9, height: 9)
-                            .opacity(
-                                configuration.isOn ? 1 : 0
-                            )
+                            .frame(width: appearance.innerSize, height: appearance.innerSize)
+                            .opacity(configuration.isOn ? 1 : 0)
                     )
             }
             .buttonStyle(PlainButtonStyle())
@@ -57,29 +55,29 @@ package struct RadioToggleStyle: ToggleStyle {
         }
     }
     
-    private func strokeColor(isOn: Bool) -> Color {
+    private func strokeColor(isOn: Bool, appearance: MPToggleAppearance) -> Color {
         if !isEnabled {
-            return theme.colors.textDisabled
+            return appearance.strokeColorDisabled
         }
 
         if hasError {
-            return theme.colors.textNegative
+            return appearance.strokeColorError
         }
 
-        return isOn ? theme.colors.accent : theme.colors.textSecondary
+        return isOn ? appearance.strokeColorSelected : appearance.strokeColorIdle
     }
 
     /// Returns the inner fill color based on state
-    private func fillColor(isOn: Bool) -> Color {
+    private func fillColor(isOn: Bool, appearance: MPToggleAppearance) -> Color {
         if !isEnabled {
-            return theme.colors.textDisabled
+            return appearance.fillColorDisabled
         }
 
         if hasError {
-            return theme.colors.textNegative
+            return appearance.fillColorError
         }
 
-        return theme.colors.accent
+        return appearance.fillColorSelected
     }
 }
 
@@ -95,5 +93,3 @@ package extension ToggleStyle where Self == RadioToggleStyle {
     Toggle("Label", isOn: .constant(true))
         .toggleStyle(.radio)
 }
-
-
