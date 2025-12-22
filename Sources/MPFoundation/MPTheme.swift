@@ -16,7 +16,6 @@ public protocol MPTheme: Sendable {
     var typography: MPTypography { get set }
     
     var buttons: MPButtons { get set }
-
 }
 
 public enum UserInterfaceStyle {
@@ -25,8 +24,53 @@ public enum UserInterfaceStyle {
     case darkMode
 }
 
-// MARK: - Color Definitions
+// MARK: - Color Protocols (New Structure)
+
+public protocol MPBackgroundColors: Sendable {
+    var primary: Color { get }
+    var secondary: Color { get }
+}
+
+public protocol MPTextColorTokens: Sendable {
+    var primary: Color { get }
+    var secondary: Color { get }
+    var accent: Color { get }
+    var inverse: Color { get }
+    var disabled: Color { get }
+    var negative: Color { get }
+}
+
+public protocol MPInteractiveColors: Sendable {
+    var fillLoudIdle: Color { get }
+    var fillLoudHover: Color { get }
+    var fillLoudActive: Color { get }
+    var fillQuietIdle: Color { get }
+    var fillQuietHover: Color { get }
+    var fillQuietActive: Color { get }
+    var fillMuteIdle: Color { get }
+    var fillMuteHover: Color { get }
+    var fillMuteActive: Color { get }
+}
+
+public protocol MPFeedbackColorTokens: Sendable {
+    var fillPositiveLoud: Color { get }
+    var fillPositiveQuiet: Color { get }
+    var fillNegativeLoud: Color { get }
+    var fillNegativeQuiet: Color { get }
+    var textPositiveLoud: Color { get }
+    var textNegativeLoud: Color { get }
+    var borderNegativeLoud: Color { get }
+}
+
+// MARK: - Color Definitions (Legacy + New)
 public protocol MPColors: Sendable {
+    // === NEW TOKENS ===
+    var background: MPBackgroundColors { get }
+    var text: MPTextColorTokens { get }
+    var interactive: MPInteractiveColors { get }
+    var feedback: MPFeedbackColorTokens { get }
+    
+    // === LEGACY TOKENS (mantidos para compatibilidade) ===
     // Accent
     var accent: Color { get set }
     var accentFirstVariant: Color { get set }

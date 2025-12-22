@@ -5,7 +5,6 @@
 //  Created by Guilherme Prata Costa on 10/06/25.
 //
 
-
 import SwiftUI
 
 // MARK: - MPLightTheme Implementation
@@ -40,7 +39,53 @@ public struct MPLightTheme: MPTheme {
     }
 }
 
+// MARK: - New Color Token Implementations
+
+public struct LightBackgroundColors: MPBackgroundColors {
+    public var primary = Color(hex: 0xFFFFFF)
+    public var secondary = Color(hex: 0xE7E9F3)
+}
+
+public struct LightTextColorTokens: MPTextColorTokens {
+    public var primary = Color(hex: 0x282834)
+    public var secondary = Color(hex: 0x646587)
+    public var accent = Color(hex: 0x434CE4)
+    public var inverse = Color(hex: 0xFFFFFF)
+    public var disabled = Color(hex: 0x9C9EBF)
+    public var negative = Color(hex: 0xC4031D)
+}
+
+public struct LightInteractiveColors: MPInteractiveColors {
+    public var fillLoudIdle = Color(hex: 0x434CE4)
+    public var fillLoudHover = Color(hex: 0x353AC5)
+    public var fillLoudActive = Color(hex: 0x272C96)
+    public var fillQuietIdle = Color(hex: 0xE9F1FF)
+    public var fillQuietHover = Color(hex: 0xDEE9FF)
+    public var fillQuietActive = Color(hex: 0xC6D8FF)
+    public var fillMuteIdle = Color(hex: 0xFFFFFF, alpha: 0)
+    public var fillMuteHover = Color(hex: 0xE9F1FF)
+    public var fillMuteActive = Color(hex: 0xDEE9FF)
+}
+
+public struct LightFeedbackColorTokens: MPFeedbackColorTokens {
+    public var fillPositiveLoud = Color(hex: 0x1F8923)
+    public var fillPositiveQuiet = Color(hex: 0xDEFADE)
+    public var fillNegativeLoud = Color(hex: 0xC4031D)
+    public var fillNegativeQuiet = Color(hex: 0xFFE5E9)
+    public var textPositiveLoud = Color(hex: 0x1F8923)
+    public var textNegativeLoud = Color(hex: 0xC4031D)
+    public var borderNegativeLoud = Color(hex: 0xED314A)
+}
+
+// MARK: - LightColors (Legacy + New)
 public struct LightColors: MPColors {
+    // === NEW TOKENS ===
+    public var background: MPBackgroundColors = LightBackgroundColors()
+    public var text: MPTextColorTokens = LightTextColorTokens()
+    public var interactive: MPInteractiveColors = LightInteractiveColors()
+    public var feedback: MPFeedbackColorTokens = LightFeedbackColorTokens()
+    
+    // === LEGACY TOKENS ===
     // Accent
     public var accent = Color(hex: 0x3483FA)
     public var accentFirstVariant = Color(hex: 0x2968c8)
