@@ -145,7 +145,71 @@ fileprivate extension Font {
     }
 }
 
+// MARK: - Typography
 public struct LightTypography: MPTypography {
+    
+    public var heading = MPHeadingStyle(
+        size10: MPFontStyle(
+            regular: .custom(.regular, size: 10),
+            semibold: .custom(.semiBold, size: 10),
+            bold: .custom(.bold, size: 10)
+        ),
+        size12: MPFontStyle(
+            regular: .custom(.regular, size: 12),
+            semibold: .custom(.semiBold, size: 12),
+            bold: .custom(.bold, size: 12)
+        ),
+        size14: MPFontStyle(
+            regular: .custom(.regular, size: 14),
+            semibold: .custom(.semiBold, size: 14),
+            bold: .custom(.bold, size: 14)
+        ),
+        size16: MPFontStyle(
+            regular: .custom(.regular, size: 16),
+            semibold: .custom(.semiBold, size: 16),
+            bold: .custom(.bold, size: 16)
+        ),
+        size18: MPFontStyle(
+            regular: .custom(.regular, size: 18),
+            semibold: .custom(.semiBold, size: 18),
+            bold: .custom(.bold, size: 18)
+        ),
+        size20: MPFontStyle(
+            regular: .custom(.regular, size: 20),
+            semibold: .custom(.semiBold, size: 20),
+            bold: .custom(.bold, size: 20)
+        ),
+        size24: MPFontStyle(
+            regular: .custom(.regular, size: 24),
+            semibold: .custom(.semiBold, size: 24),
+            bold: .custom(.semiBold, size: 24)
+        ),
+        size28: MPFontStyle(
+            regular: .custom(.regular, size: 28),
+            semibold: .custom(.semiBold, size: 28),
+            bold: .custom(.bold, size: 28)
+        ),
+        size32: MPFontStyle(
+            regular: .custom(.regular, size: 32),
+            semibold: .custom(.semiBold, size: 32),
+            bold: .custom(.bold, size: 32)
+        ),
+        size40: MPFontStyle(
+            regular: .custom(.regular, size: 40),
+            semibold: .custom(.semiBold, size: 40),
+            bold: .custom(.bold, size: 40)
+        ),
+        size48: MPFontStyle(
+            regular: .custom(.regular, size: 48),
+            semibold: .custom(.semiBold, size: 48),
+            bold: .custom(.bold, size: 48)
+        ),
+        size56: MPFontStyle(
+            regular: .custom(.regular, size: 56),
+            semibold: .custom(.semiBold, size: 56),
+            bold: .custom(.bold, size: 56)
+        )
+    )
 
     public var title = MPTitleStyle(
         smallSemibold: .custom(.semiBold, size: 20)
