@@ -60,7 +60,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
         
         ZStack {
             if configuration.scrollOffset < -epsilon {
-                theme.colors.background.primary.opacity(0.98)
+                theme.colors.fill.defaultOnScroll
             } else {
                 Color.clear
             }

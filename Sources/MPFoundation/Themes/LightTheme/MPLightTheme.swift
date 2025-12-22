@@ -87,7 +87,7 @@ public struct LightFillColors: MPFillColors {
     public var disabled = Color(hex: 0xD0D4E6)
     public var accentLoud = Color(hex: 0x434CE4)
     public var accentQuiet = Color(hex: 0xE9F1FF)
-    public var defaultOnScroll = Color(hex: 0xFFFFFF, alpha: 0.6)
+    public var defaultOnScroll = Color(hex: 0xFFFFFF, alpha: 0.98)
     
     public init() {}
 }
