@@ -48,6 +48,8 @@ public protocol MPTextColorTokens: Sendable {
     var inverse: Color { get }
     var disabled: Color { get }
     var negative: Color { get }
+    var linkIdle: Color { get }
+    var linkActive: Color { get }
 }
 
 public protocol MPInteractiveColors: Sendable {
