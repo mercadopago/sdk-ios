@@ -24,6 +24,8 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
 
     @MainActor
     public func makeBody(configuration: MPTextFieldStyleConfiguration) -> some View {
+        let appearance = theme.textFields.standard
+        
         VStack(alignment: .leading) {
             
             // Title
@@ -31,8 +33,8 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                 label
                     .body
                     .font(theme.typography.body.small.regular)
-                    .foregroundColor(textColor(state: configuration.state, role: .label))
-                    .padding(.bottom, theme.spacings.xxs)
+                    .foregroundColor(labelColor(state: configuration.state, appearance: appearance))
+                    .padding(.bottom, theme.spacings.xnano)
             }
 
             
@@ -44,22 +46,20 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                 configuration
                     .field
                     .font(theme.typography.body.medium.regular)
-                    .foregroundColor(textColor(state: configuration.state, role: .text))
-                    .padding(theme.spacings.s)
+                    .foregroundColor(textColor(state: configuration.state, appearance: appearance))
+                    .padding(theme.spacings.micro)
 
                 
                 configuration.suffix
                     .frame(maxHeight: .infinity)
             }
-            .background(backgroundColor(for: configuration.state, theme: theme))
-            .cornerRadius(theme.borderRadius.xs)
+            .background(backgroundColor(for: configuration.state, appearance: appearance))
+            .cornerRadius(appearance.cornerRadius)
             .overlay(
-                RoundedRectangle(cornerRadius: theme.borderRadius.xs)
+                RoundedRectangle(cornerRadius: appearance.cornerRadius)
                     .stroke(
-                        borderColor(
-                            for: configuration.state
-                        ),
-                        lineWidth: borderWidth(for: configuration.state)
+                        borderColor(for: configuration.state, appearance: appearance),
+                        lineWidth: borderWidth(for: configuration.state, appearance: appearance)
                     )
             )
 
@@ -70,60 +70,73 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 16, height: 16)
-                        .foregroundColor(.red)
+                        .foregroundColor(appearance.helperColorError)
 
                     helper
                         .font(theme.typography.body.extraSmallSemibold)
-                        .foregroundColor(textColor(state: configuration.state, role: .helper))
+                        .foregroundColor(appearance.helperColorError)
                 }
             }
         }
         .animation(.easeInOut(duration: 0.15))
     }
 
-    private func textColor(state: MPTextFieldState, role: TextRole) -> Color {
-        switch (state, role) {
-        case (.disabled, _):
-            return theme.colors.textDisabled
-        case (.readOnly, _):
-            return role == .text ? theme.colors.textSecondary : theme.colors.textSecondary
-        case (.error, .helper), (.focusError, .helper), (.error, .label), (.focusError, .label):
-            return theme.colors.textNegative
+    private func labelColor(state: MPTextFieldState, appearance: MPTextFieldAppearance) -> Color {
+        switch state {
+        case .disabled:
+            return appearance.labelColorDisabled
+        case .error, .focusError:
+            return appearance.labelColorError
         default:
-            return theme.colors.textPrimary
+            return appearance.labelColor
         }
     }
 
-    private func backgroundColor(for state: MPTextFieldState, theme: MPTheme) -> Color {
+    private func textColor(state: MPTextFieldState, appearance: MPTextFieldAppearance) -> Color {
+        switch state {
+        case .disabled:
+            return appearance.textColorDisabled
+        case .readOnly:
+            return appearance.textColorReadOnly
+        default:
+            return appearance.textColor
+        }
+    }
+
+    private func backgroundColor(for state: MPTextFieldState, appearance: MPTextFieldAppearance) -> Color {
         switch state {
         case .readOnly:
-            return theme.colors.backgroundSecondary
+            return appearance.backgroundColorReadOnly
         case .disabled:
-            return theme.colors.backgroundTertiary
+            return appearance.backgroundColorDisabled
+        case .error, .focusError:
+            return appearance.backgroundColorError
+        case .focused:
+            return appearance.backgroundColorFocused
         default:
-            return theme.colors.backgroundPrimary
+            return appearance.backgroundColor
         }
     }
 
-    private func borderColor(for state: MPTextFieldState) -> Color {
+    private func borderColor(for state: MPTextFieldState, appearance: MPTextFieldAppearance) -> Color {
         switch state {
         case .error, .focusError:
-            return theme.colors.feedbackNegative
+            return appearance.borderColorError
         case .focused:
-            return theme.colors.accent
+            return appearance.borderColorFocused
         case .disabled:
-            return theme.colors.outlineSecondary
+            return appearance.borderColorDisabled
         default:
-            return theme.colors.outlinePrimary
+            return appearance.borderColor
         }
     }
 
-    private func borderWidth(for state: MPTextFieldState) -> CGFloat {
+    private func borderWidth(for state: MPTextFieldState, appearance: MPTextFieldAppearance) -> CGFloat {
         switch state {
         case .focused, .focusError:
-            return theme.outline.xs
+            return appearance.borderWidthFocused
         default:
-            return theme.outline.xxs
+            return appearance.borderWidth
         }
     }
 }
