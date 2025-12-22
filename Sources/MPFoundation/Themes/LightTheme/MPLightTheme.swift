@@ -63,7 +63,7 @@ public struct LightTextColorTokens: MPTextColorTokens {
     public var inverse = Color(hex: 0xFFFFFF)
     public var disabled = Color(hex: 0x9C9EBF)
     public var negative = Color(hex: 0xC4031D)
-    public var linkIdle = Color(hex: 0x434CE4)
+    public var linkIdle = Color(hex: 0x9C9EBF)
     public var linkActive = Color(hex: 0x272C96)
 }
 
