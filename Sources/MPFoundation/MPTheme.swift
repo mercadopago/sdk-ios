@@ -32,6 +32,15 @@ public protocol MPBackgroundColors: Sendable {
     var secondary: Color { get }
 }
 
+public protocol MPFillColors: Sendable {
+    var primary: Color { get }
+    var secondary: Color { get }
+    var inverse: Color { get }
+    var disabled: Color { get }
+    var accentLoud: Color { get }
+    var accentQuiet: Color { get }
+}
+
 public protocol MPTextColorTokens: Sendable {
     var primary: Color { get }
     var secondary: Color { get }
@@ -67,6 +76,7 @@ public protocol MPFeedbackColorTokens: Sendable {
 public protocol MPColors: Sendable {
     // New tokens
     var background: MPBackgroundColors { get }
+    var fill: MPFillColors { get }
     var text: MPTextColorTokens { get }
     var interactive: MPInteractiveColors { get }
     var feedback: MPFeedbackColorTokens { get }

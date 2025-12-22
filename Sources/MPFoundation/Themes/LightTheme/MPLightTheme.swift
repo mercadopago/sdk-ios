@@ -47,6 +47,15 @@ public struct LightBackgroundColors: MPBackgroundColors {
     public var secondary = Color(hex: 0xE7E9F3)
 }
 
+public struct LightFillColors: MPFillColors {
+    public var primary = Color(hex: 0xFFFFFF)
+    public var secondary = Color(hex: 0xD0D4E6)
+    public var inverse = Color(hex: 0x282834)
+    public var disabled = Color(hex: 0xD0D4E6)
+    public var accentLoud = Color(hex: 0x434CE4)
+    public var accentQuiet = Color(hex: 0xE9F1FF)
+}
+
 public struct LightTextColorTokens: MPTextColorTokens {
     public var primary = Color(hex: 0x282834)
     public var secondary = Color(hex: 0x646587)
@@ -80,6 +89,7 @@ public struct LightFeedbackColorTokens: MPFeedbackColorTokens {
 
 public struct LightColors: MPColors {
     public var background: MPBackgroundColors = LightBackgroundColors()
+    public var fill: MPFillColors = LightFillColors()
     public var text: MPTextColorTokens = LightTextColorTokens()
     public var interactive: MPInteractiveColors = LightInteractiveColors()
     public var feedback: MPFeedbackColorTokens = LightFeedbackColorTokens()
