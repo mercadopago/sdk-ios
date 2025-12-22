@@ -18,7 +18,7 @@ package struct DefaultListItemStyle: ListItemStyle {
     @MainActor
     public func makeBody(configuration: ListItemStyleConfiguration) -> some View {
         VStack {
-            HStack(spacing: theme.spacings.s) {
+            HStack(spacing: theme.spacings.micro) {
                 configuration.toggle
                 
                 configuration.primaryText
@@ -35,7 +35,7 @@ package struct DefaultListItemStyle: ListItemStyle {
                 }
                 
             }
-            .padding(theme.spacings.xs)
+            .padding(theme.spacings.xmicro)
             
             Divider()
         }
