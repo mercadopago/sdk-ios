@@ -38,6 +38,7 @@ package struct MPButtonStyle: ButtonStyle {
 
         HStack {
             configuration.label
+                .frame(maxWidth: .infinity)
         }
         .padding(sizeMetrics.padding)
         .font(sizeMetrics.font)
@@ -102,6 +103,10 @@ struct ButtonStyleView: View {
         VStack(alignment: .center, spacing: 16) {
             Spacer()
             
+            Button("Label") { print("Button Pressed!") }
+
+                .mpButtonStyle(variant: .loud, size: size)
+
             Text("Button Style - Loud")
                 .font(.headline)
             Group {
