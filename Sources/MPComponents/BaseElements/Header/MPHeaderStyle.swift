@@ -24,16 +24,16 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
         VStack(spacing: 0) {
             // Main Header with blur effect and height measurement
             configuration.mainHeader
-                .padding(.horizontal, theme.spacings.m)
-                .padding(.vertical, theme.spacings.xs)
+                .padding(.horizontal, theme.spacings.xtiny)
+                .padding(.vertical, theme.spacings.xmicro)
                 .background(headerBackgroundView(configuration))
                 .animation(.easeInOut(duration: 0.2))
             
             // Sub Header with collapse animations
             configuration.subHeader
-                .padding(.horizontal, theme.spacings.m)
+                .padding(.horizontal, theme.spacings.xtiny)
                 .padding(.vertical,
-                         configuration.subHeaderVisibleHeight > 24 ? theme.spacings.xs : 0
+                         configuration.subHeaderVisibleHeight > 24 ? theme.spacings.xmicro : 0
                 )
                 .background(
                     GeometryReader { geo in
@@ -60,7 +60,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
         
         ZStack {
             if configuration.scrollOffset < -epsilon {
-                theme.colors.backgroundPrimary.opacity(0.98)
+                theme.colors.background.primary.opacity(0.98)
             } else {
                 Color.clear
             }
