@@ -15,9 +15,11 @@ public struct MPButtonAppearance: Sendable {
     
     public var pressedBackgroundColor: Color
     public var pressedForegroundColor: Color
-    
+        
     public var disabledBackgroundColor: Color
     public var disabledForegroundColor: Color
+    
+    public var loadingColor: Color
     
     public init(
         backgroundColor: Color,
@@ -26,6 +28,7 @@ public struct MPButtonAppearance: Sendable {
         pressedForegroundColor: Color,
         disabledBackgroundColor: Color,
         disabledForegroundColor: Color,
+        loadingColor: Color,
         borderColor: Color,
         borderWidth: CGFloat,
         cornerRadius: CGFloat
@@ -39,6 +42,7 @@ public struct MPButtonAppearance: Sendable {
         self.pressedForegroundColor = pressedForegroundColor
         self.disabledBackgroundColor = disabledBackgroundColor
         self.disabledForegroundColor = disabledForegroundColor
+        self.loadingColor = loadingColor
     }
 }
 
@@ -71,6 +75,7 @@ public struct MPButtons: Sendable {
             pressedForegroundColor: colors.text.inverse,
             disabledBackgroundColor: colors.fill.disabled,
             disabledForegroundColor: colors.text.disabled,
+            loadingColor: colors.interactive.fillLoudActive,
             borderColor: .clear,
             borderWidth: 0,
             cornerRadius: radios.medium
@@ -79,11 +84,12 @@ public struct MPButtons: Sendable {
         // Quiet - Secondary action button
         self.quiet = MPButtonAppearance(
             backgroundColor: colors.interactive.fillQuietIdle,
-            foregroundColor: colors.text.accent,
+            foregroundColor: colors.text.linkIdle,
             pressedBackgroundColor: colors.interactive.fillQuietActive,
             pressedForegroundColor: colors.text.linkIdle,
             disabledBackgroundColor: colors.fill.disabled,
             disabledForegroundColor: colors.text.disabled,
+            loadingColor: colors.interactive.fillQuietActive,
             borderColor: .clear,
             borderWidth: 0,
             cornerRadius: radios.medium
@@ -92,11 +98,12 @@ public struct MPButtons: Sendable {
         // Transparent - Tertiary action button
         self.transparent = MPButtonAppearance(
             backgroundColor: colors.interactive.fillMuteIdle,
-            foregroundColor: colors.text.accent,
+            foregroundColor: colors.text.linkIdle,
             pressedBackgroundColor: colors.interactive.fillMuteActive,
             pressedForegroundColor: colors.text.linkIdle,
             disabledBackgroundColor: .clear,
             disabledForegroundColor: colors.text.disabled,
+            loadingColor: colors.interactive.fillMuteActive,
             borderColor: .clear,
             borderWidth: 0,
             cornerRadius: radios.xsmall
@@ -114,3 +121,7 @@ public struct MPButtons: Sendable {
         )
     }
 }
+
+
+
+
