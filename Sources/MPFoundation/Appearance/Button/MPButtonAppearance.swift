@@ -100,7 +100,7 @@ public struct MPButtons: Sendable {
         
         self.sizes = ButtonSizes(
             large: MPButtonSize(
-                font: typography.body.medium.semibold,
+                font: .custom(.semiBold, size: 14),
                 padding: EdgeInsets(
                     top: spacings.s,
                     leading: spacings.xl,
@@ -109,7 +109,7 @@ public struct MPButtons: Sendable {
                 )
             ),
             medium: MPButtonSize(
-                font: typography.body.small.semibold,
+                font: .custom(.semiBold, size: 14),
                 padding: EdgeInsets(
                     top: spacings.xxs,
                     leading: spacings.s,
