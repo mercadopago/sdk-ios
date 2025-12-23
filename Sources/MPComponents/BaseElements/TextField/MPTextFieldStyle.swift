@@ -11,31 +11,32 @@ import MPFoundation
 /// A style protocol for `MPTextField` enabling custom skins.
 package protocol MPTextFieldStyle: StyleProtocol, Identifiable where Configuration == MPTextFieldStyleConfiguration {}
 
-/// Default visual style for `MPTextField` using theme tokens.
+/// Default visual style for `MPTextField` using theme appearance tokens.
 package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
     public var id: UUID = .init()
     @Environment(\.checkoutTheme) var theme: MPTheme
     
-    private enum TextRole {
-        case label, text, helper
+    /// Returns the appearance configuration for the TextField.
+    private var appearance: MPTextFieldAppearance {
+        theme.textFields.standard
     }
 
     public init() {}
 
     @MainActor
     public func makeBody(configuration: MPTextFieldStyleConfiguration) -> some View {
+        let stateAppearance = appearance(for: configuration.state)
+        
         VStack(alignment: .leading) {
-            
-            // Title
+            // Label
             if let label = configuration.label {
                 label
                     .body
-                    .font(theme.typography.body.small.regular)
-                    .foregroundColor(textColor(state: configuration.state, role: .label))
-                    .padding(.bottom, theme.spacings.xxs)
+                    .font(appearance.labelFont)
+                    .foregroundColor(stateAppearance.labelColor)
+                    .padding(.bottom, theme.spacings.xnano)
             }
 
-            
             // Field
             HStack(spacing: 0) {
                 configuration.prefix
@@ -43,27 +44,25 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                
                 configuration
                     .field
-                    .font(theme.typography.body.medium.regular)
-                    .foregroundColor(textColor(state: configuration.state, role: .text))
-                    .padding(theme.spacings.s)
+                    .font(appearance.textFont)
+                    .foregroundColor(stateAppearance.textColor)
+                    .padding(appearance.padding)
 
-                
                 configuration.suffix
                     .frame(maxHeight: .infinity)
             }
-            .background(backgroundColor(for: configuration.state, theme: theme))
-            .cornerRadius(theme.borderRadius.xs)
+            .background(stateAppearance.backgroundColor)
+            .cornerRadius(appearance.cornerRadius)
             .overlay(
-                RoundedRectangle(cornerRadius: theme.borderRadius.xs)
+                RoundedRectangle(cornerRadius: appearance.cornerRadius)
                     .stroke(
-                        borderColor(
-                            for: configuration.state
-                        ),
-                        lineWidth: borderWidth(for: configuration.state)
+                        stateAppearance.borderColor,
+                        lineWidth: stateAppearance.borderWidth
                     )
             )
             .frame(maxHeight: 44)
 
+            // Helper text (shown on error states)
             if let helper = configuration.helper, configuration.state.hasError {
                 HStack(alignment: .center) {
                     Image(Logos.errorFilled, bundle: .bundleMP)
@@ -71,60 +70,32 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 16, height: 16)
-                        .foregroundColor(.red)
+                        .foregroundColor(stateAppearance.helperColor)
 
                     helper
-                        .font(theme.typography.body.extraSmallSemibold)
-                        .foregroundColor(textColor(state: configuration.state, role: .helper))
+                        .font(appearance.helperFont)
+                        .foregroundColor(stateAppearance.helperColor)
                 }
             }
         }
         .animation(.easeInOut(duration: 0.15))
     }
 
-    private func textColor(state: MPTextFieldState, role: TextRole) -> Color {
-        switch (state, role) {
-        case (.disabled, _):
-            return theme.colors.textDisabled
-        case (.readOnly, _):
-            return role == .text ? theme.colors.textSecondary : theme.colors.textSecondary
-        case (.error, .helper), (.focusError, .helper), (.error, .label), (.focusError, .label):
-            return theme.colors.textNegative
-        default:
-            return theme.colors.textPrimary
-        }
-    }
-
-    private func backgroundColor(for state: MPTextFieldState, theme: MPTheme) -> Color {
+    /// Returns the state-specific appearance for a given TextField state.
+    private func appearance(for state: MPTextFieldState) -> MPTextFieldStateAppearance {
         switch state {
-        case .readOnly:
-            return theme.colors.backgroundSecondary
-        case .disabled:
-            return theme.colors.backgroundTertiary
-        default:
-            return theme.colors.backgroundPrimary
-        }
-    }
-
-    private func borderColor(for state: MPTextFieldState) -> Color {
-        switch state {
-        case .error, .focusError:
-            return theme.colors.feedbackNegative
+        case .idle:
+            return appearance.idle
         case .focused:
-            return theme.colors.accent
+            return appearance.focused
+        case .error:
+            return appearance.error
+        case .focusError:
+            return appearance.focusError
+        case .readOnly:
+            return appearance.readOnly
         case .disabled:
-            return theme.colors.outlineSecondary
-        default:
-            return theme.colors.outlinePrimary
-        }
-    }
-
-    private func borderWidth(for state: MPTextFieldState) -> CGFloat {
-        switch state {
-        case .focused, .focusError:
-            return theme.outline.xs
-        default:
-            return theme.outline.xxs
+            return appearance.disabled
         }
     }
 }

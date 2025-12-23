@@ -16,7 +16,9 @@ public protocol MPTheme: Sendable {
     var outline: MPOutline { get set }
     var typography: MPTypography { get set }
     
+    // Component Appearances
     var buttons: MPButtons { get set }
+    var textFields: MPTextFields { get set }
 }
 
 public enum UserInterfaceStyle {
