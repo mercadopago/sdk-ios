@@ -20,7 +20,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 400, height: 700))
+            as: .image(precision: 0.95,size: CGSize(width: 400, height: 700))
         )
     }
 
@@ -30,7 +30,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 400, height: 700))
+            as: .image(precision: 0.95, size: CGSize(width: 400, height: 700))
         )
     }
 

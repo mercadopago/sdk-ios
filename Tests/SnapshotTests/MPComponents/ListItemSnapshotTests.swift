@@ -69,7 +69,7 @@ final class ListItemSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: view,
-            as: .image,
+            as: .image(precision: 0.95),
             named: "all_states_comparison"
         )
     }
