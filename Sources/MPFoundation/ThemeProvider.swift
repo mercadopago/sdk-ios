@@ -79,12 +79,10 @@ package struct ThemeProvider<Content: View>: View {
     }
 }
 
-
 package struct CheckoutThemeKey: @preconcurrency EnvironmentKey {
     @MainActor
     package static let defaultValue: MPTheme = MPLightTheme()
 }
-
 
 package extension EnvironmentValues {
     

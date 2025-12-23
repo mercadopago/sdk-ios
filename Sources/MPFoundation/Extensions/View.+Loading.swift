@@ -8,8 +8,8 @@ import SwiftUI
 
 package extension EnvironmentValues {
     var isLoading: Bool {
-        get { self[isLoadingKey.self] }
-        set { self[isLoadingKey.self] = newValue }
+        get { self[LoadingKey.self] }
+        set { self[LoadingKey.self] = newValue }
     }
 }
 
@@ -20,6 +20,6 @@ package extension View {
     }
 }
 
-private struct isLoadingKey: EnvironmentKey {
+private struct LoadingKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
