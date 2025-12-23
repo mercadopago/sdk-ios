@@ -19,6 +19,14 @@ struct CardFormScreen: View {
     @State private var expirationDate: String = ""
     @State private var securityCode: String = ""
     
+    // Formatters and Validators
+    private let cardNumberFormatter = CardNumberFormatter()
+    private let cardNumberValidator = CardNumberValidator()
+    private let expirationDateFormatter = ExpirationDateFormatter()
+    private let expirationDateValidator = ExpirationDateValidator()
+    private let securityCodeFormatter = SecurityCodeFormatter()
+    private let securityCodeValidator = SecurityCodeValidator()
+    
     //  Document Field
     @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
     @State private var openDocumentsSheet: Bool = false
@@ -51,12 +59,7 @@ struct CardFormScreen: View {
                 }
             ) {
                 VStack(spacing: theme.spacings.xl) {
-                    MPTextField(
-                        text: $cardNumber,
-                        label: MPStrings.CardForm.CardNumber.label,
-                        placeholder: MPStrings.CardForm.CardNumber.placeholder,
-                        keyboard: .numberPad
-                    )
+                    cardNumberField()
                     
                     MPTextField(
                         text: $cardHolder,
@@ -64,12 +67,17 @@ struct CardFormScreen: View {
                         placeholder: MPStrings.CardForm.CardHolder.placeholder
                     )
                     
-                    HStack(spacing: theme.spacings.xl) {
+                    HStack(
+                        alignment: .top,
+                        spacing: theme.spacings.xl
+                    ) {
                         MPTextField(
                             text: $expirationDate,
                             label: MPStrings.CardForm.Expiration.label,
                             placeholder: MPStrings.CardForm.Expiration.placeholder,
-                            keyboard: .numberPad
+                            keyboard: .numberPad,
+                            formatter: expirationDateFormatter,
+                            validator: expirationDateValidator
                         )
                         
                         MPTextField(
@@ -77,12 +85,13 @@ struct CardFormScreen: View {
                             label: MPStrings.CardForm.CVV.label,
                             placeholder: MPStrings.CardForm.CVV.placeholderDefault,
                             keyboard: .numberPad,
+                            formatter: securityCodeFormatter,
+                            validator: securityCodeValidator,
                             suffix: {
                                 Image(systemName: "questionmark.circle")
                                     .renderingMode(.template)
                                     .foregroundColor(theme.colors.accent)
                                     .padding(.horizontal, theme.spacings.s)
-
                             }
                         )
                     }
@@ -94,6 +103,18 @@ struct CardFormScreen: View {
             }
             .background(theme.colors.backgroundPrimary)
         }
+    }
+    
+    @ViewBuilder
+    func cardNumberField() -> some View {
+        MPTextField(
+            text: $cardNumber,
+            label: MPStrings.CardForm.CardNumber.label,
+            placeholder: MPStrings.CardForm.CardNumber.placeholder,
+            keyboard: .numberPad,
+            formatter: cardNumberFormatter,
+            validator: cardNumberValidator
+        )
     }
     
     @ViewBuilder

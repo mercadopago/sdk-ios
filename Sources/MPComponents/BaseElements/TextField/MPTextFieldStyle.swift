@@ -62,6 +62,7 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                         lineWidth: borderWidth(for: configuration.state)
                     )
             )
+            .frame(maxHeight: 44)
 
             if let helper = configuration.helper, configuration.state.hasError {
                 HStack(alignment: .center) {

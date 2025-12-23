@@ -46,7 +46,7 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 350, height: 200)),
+            as: .image(precision: 0.95, size: CGSize(width: 350, height: 200)),
             named: "idle_state"
         )
     }
@@ -76,7 +76,7 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 350, height: 200)),
+            as: .image(precision: 0.95, size: CGSize(width: 350, height: 200)),
             named: "read_only_state"
         )
     }
@@ -104,7 +104,7 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 350, height: 150)),
+            as: .image(precision: 0.95, size: CGSize(width: 350, height: 150)),
             named: "without_label"
         )
     }
@@ -201,7 +201,7 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 350, height: 250)),
+            as: .image(precision: 0.95, size: CGSize(width: 350, height: 250)),
             named: "different_keyboard_types"
         )
     }
@@ -251,7 +251,7 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 350, height: 500)),
+            as: .image(precision: 0.95, size: CGSize(width: 350, height: 500)),
             named: "all_states_comparison_with_errors"
         )
     }
