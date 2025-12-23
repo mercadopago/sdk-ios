@@ -228,7 +228,6 @@ public struct MPFontStyle: Sendable {
     }
 }
 
-
 public struct MPTitleStyle: Sendable {
     public var smallSemibold: Font
 }

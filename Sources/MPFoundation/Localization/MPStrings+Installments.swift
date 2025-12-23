@@ -26,4 +26,3 @@ extension MPStrings {
         package static var interestFree: String { localized("installments.interest_free") }
     }
 }
-
