@@ -47,12 +47,12 @@ public protocol MPTextColorTokens: Sendable {
     var accent: Color { get }
     var inverse: Color { get }
     var disabled: Color { get }
-    var negative: Color { get }
     var linkIdle: Color { get }
     var linkActive: Color { get }
 }
 
 public protocol MPInteractiveColors: Sendable {
+    // Fill
     var fillLoudIdle: Color { get }
     var fillLoudHover: Color { get }
     var fillLoudActive: Color { get }
@@ -62,16 +62,47 @@ public protocol MPInteractiveColors: Sendable {
     var fillMuteIdle: Color { get }
     var fillMuteHover: Color { get }
     var fillMuteActive: Color { get }
+    
+    // Border
+    var borderIdle: Color { get }
+    var borderActive: Color { get }
+    
+    // Icon
+    var iconIdle: Color { get }
+    var iconActive: Color { get }
+    var iconIdleAccent: Color { get }
+    var iconActiveAccent: Color { get }
 }
 
 public protocol MPFeedbackColorTokens: Sendable {
+    // Fill
     var fillPositiveLoud: Color { get }
     var fillPositiveQuiet: Color { get }
     var fillNegativeLoud: Color { get }
     var fillNegativeQuiet: Color { get }
+    var fillCautionLoud: Color { get }
+    var fillCautionQuiet: Color { get }
+    var fillInformativeLoud: Color { get }
+    var fillInformativeQuiet: Color { get }
+    
+    // Text
     var textPositiveLoud: Color { get }
     var textNegativeLoud: Color { get }
+    var textCautionLoud: Color { get }
+    var textInformativeLoud: Color { get }
+    
+    // Border
+    var borderPositiveLoud: Color { get }
     var borderNegativeLoud: Color { get }
+    var borderCautionLoud: Color { get }
+    var borderInformativeLoud: Color { get }
+}
+
+public protocol MPBorderColorTokens: Sendable {
+    var primary: Color { get }
+    var accent: Color { get }
+    var inverse: Color { get }
+    var disabled: Color { get }
 }
 
 // MARK: - Color Definitions
@@ -80,6 +111,7 @@ public protocol MPColors: Sendable {
     var background: MPBackgroundColors { get }
     var fill: MPFillColors { get }
     var text: MPTextColorTokens { get }
+    var border: MPBorderColorTokens { get }
     var interactive: MPInteractiveColors { get }
     var feedback: MPFeedbackColorTokens { get }
     

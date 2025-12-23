@@ -62,12 +62,12 @@ public struct LightTextColorTokens: MPTextColorTokens {
     public var accent = Color(hex: 0x434CE4)
     public var inverse = Color(hex: 0xFFFFFF)
     public var disabled = Color(hex: 0x9C9EBF)
-    public var negative = Color(hex: 0xC4031D)
     public var linkIdle = Color(hex: 0x9C9EBF)
     public var linkActive = Color(hex: 0x272C96)
 }
 
 public struct LightInteractiveColors: MPInteractiveColors {
+    // Fill
     public var fillLoudIdle = Color(hex: 0x434CE4)
     public var fillLoudHover = Color(hex: 0x353AC5)
     public var fillLoudActive = Color(hex: 0x272C96)
@@ -77,22 +77,57 @@ public struct LightInteractiveColors: MPInteractiveColors {
     public var fillMuteIdle = Color(hex: 0xFFFFFF, alpha: 0)
     public var fillMuteHover = Color(hex: 0xE9F1FF)
     public var fillMuteActive = Color(hex: 0xDEE9FF)
+    
+    // Border
+    public var borderIdle = Color(hex: 0x8788AB)
+    public var borderActive = Color(hex: 0x434CE4)
+    
+    // Icon
+    public var iconIdle = Color(hex: 0x646587)
+    public var iconActive = Color(hex: 0x282834)
+    public var iconIdleAccent = Color(hex: 0x434CE4)
+    public var iconActiveAccent = Color(hex: 0x272C96)
 }
 
 public struct LightFeedbackColorTokens: MPFeedbackColorTokens {
+    // Fill
     public var fillPositiveLoud = Color(hex: 0x1F8923)
     public var fillPositiveQuiet = Color(hex: 0xDEFADE)
+    
     public var fillNegativeLoud = Color(hex: 0xC4031D)
     public var fillNegativeQuiet = Color(hex: 0xFFE5E9)
+    
+    public var fillCautionLoud = Color(hex: 0xD74009)
+    public var fillCautionQuiet = Color(hex: 0xFFEDC7)
+    
+    public var fillInformativeLoud = Color(hex: 0x434CE4)
+    public var fillInformativeQuiet = Color(hex: 0xE9F1FF)
+    
+    // Text
     public var textPositiveLoud = Color(hex: 0x1F8923)
     public var textNegativeLoud = Color(hex: 0xC4031D)
+    public var textCautionLoud = Color(hex: 0xD74009)
+    public var textInformativeLoud = Color(hex: 0x434CE4)
+    
+    // Border
+    public var borderPositiveLoud = Color(hex: 0x14A919)
     public var borderNegativeLoud = Color(hex: 0xED314A)
+    public var borderCautionLoud = Color(hex: 0xF5A623)
+    public var borderInformativeLoud = Color(hex: 0x5C70FA)
+}
+
+public struct LightBorderColorTokens: MPBorderColorTokens {
+    public var primary = Color(hex: 0xD0D4E6)
+    public var accent = Color(hex: 0x434CE4)
+    public var inverse = Color(hex: 0xFFFFF)
+    public var disabled = Color(hex: 0xB5B9D4)
 }
 
 public struct LightColors: MPColors {
     public var background: MPBackgroundColors = LightBackgroundColors()
     public var fill: MPFillColors = LightFillColors()
     public var text: MPTextColorTokens = LightTextColorTokens()
+    public var border: MPBorderColorTokens = LightBorderColorTokens()
     public var interactive: MPInteractiveColors = LightInteractiveColors()
     public var feedback: MPFeedbackColorTokens = LightFeedbackColorTokens()
     
@@ -128,7 +163,6 @@ public struct LightColors: MPColors {
 // MARK: - Spacing Implementation
 
 public struct LightSpacings: MPSpacings {
-    // New tokens (Andes X)
     public var none: CGFloat = 0
     public var pico: CGFloat = 2
     public var xnano: CGFloat = 4
@@ -161,7 +195,6 @@ public struct LightSpacings: MPSpacings {
 // MARK: - Border Radius Implementation
 
 public struct LightBorderRadius: MPBorderRadius {
-    // New tokens (Andes X)
     public var none: CGFloat = 0
     public var tiny: CGFloat = 4
     public var xsmall: CGFloat = 6
