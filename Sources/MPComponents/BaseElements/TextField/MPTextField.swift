@@ -151,13 +151,15 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
                 self.isEditing = editing
                 self.onEditingChanged?(editing)
                 
-                // Mark as touched when user leaves the field
-                if !editing && !hasBeenTouched {
+                if editing {
+                    if hasBeenTouched {
+                        updateStateOnChange(isEditing: true)
+                    } else {
+                        internalState = .focused
+                    }
+                } else {
+                    // Mark as touched and validate on blur
                     hasBeenTouched = true
-                }
-                
-                // Validate on blur (when user leaves the field)
-                if !editing && hasBeenTouched {
                     updateStateOnBlur()
                 }
             },
@@ -192,14 +194,11 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     
     @ViewBuilder
     private var helperView: some View {
-        if shouldShowHelperOrError(for: currentState) {
-            Group {
-                if let helperText {
-                    Text(helperText)
-                }
-                else if let error = currentState.errorMessage {
-                    Text(error)
-                }
+        Group {
+            if let error = currentState.errorMessage {
+                Text(error)
+            } else if let helperText {
+                Text(helperText)
             }
         }
     }
@@ -283,7 +282,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     
     func shouldShowHelperOrError(for state: MPTextFieldState) -> Bool {
         if helperText != nil { return true }
-        if state.errorMessage != nil { return true }
         return false
     }
 }

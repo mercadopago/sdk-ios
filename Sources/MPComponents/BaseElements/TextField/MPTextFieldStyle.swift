@@ -28,13 +28,14 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
         let stateAppearance = appearance(for: configuration.state)
         
         VStack(alignment: .leading) {
+            
             // Label
             if let label = configuration.label {
                 label
                     .body
                     .font(appearance.labelFont)
                     .foregroundColor(stateAppearance.labelColor)
-                    .padding(.bottom, theme.spacings.xnano)
+                    .padding(.bottom, theme.spacings.pico)
             }
 
             // Field
@@ -63,18 +64,21 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             .frame(maxHeight: 44)
 
             // Helper text (shown on error states)
-            if let helper = configuration.helper, configuration.state.hasError {
+            if let helper = configuration.helper {
                 HStack(alignment: .center) {
-                    Image(Logos.errorFilled, bundle: .bundleMP)
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 16, height: 16)
-                        .foregroundColor(stateAppearance.helperColor)
+                    if configuration.state.hasError {
+                        Image(Logos.errorFilled, bundle: .bundleMP)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                            .foregroundColor(stateAppearance.helperColor)
+                    }
 
                     helper
                         .font(appearance.helperFont)
                         .foregroundColor(stateAppearance.helperColor)
+                    
                 }
             }
         }
@@ -83,6 +87,9 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
 
     /// Returns the state-specific appearance for a given TextField state.
     private func appearance(for state: MPTextFieldState) -> MPTextFieldStateAppearance {
+        print(state)
+        print(appearance.focused.borderWidth)
+
         switch state {
         case .idle:
             return appearance.idle
