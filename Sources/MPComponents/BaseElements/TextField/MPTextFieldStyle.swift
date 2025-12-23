@@ -87,6 +87,9 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
 
     /// Returns the state-specific appearance for a given TextField state.
     private func appearance(for state: MPTextFieldState) -> MPTextFieldStateAppearance {
+        print(state)
+        print(appearance.focused.borderWidth)
+
         switch state {
         case .idle:
             return appearance.idle
