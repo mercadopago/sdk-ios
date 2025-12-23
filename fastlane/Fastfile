@@ -10,7 +10,7 @@ platform :ios do
       package_path: ".",
       only_testing: ["CoreMethodsTests" , "AnalyticsTests", "MPCoreTests", "MPApplePayTests"],
       skip_testing: ["SnapshotTests"],
-      destination: "platform=iOS Simulator,name=iPhone 16",
+      destination: "platform=iOS Simulator,name=iPhone 17",
       result_bundle: true,
       code_coverage: true,
       output_directory: "fastlane/test_output",
@@ -30,7 +30,7 @@ platform :ios do
     scan(
       scheme: "MercadoPagoSDK-Package",
       package_path: ".",
-      destination: "platform=iOS Simulator,name=iPhone 16",
+      destination: "platform=iOS Simulator,name=iPhone 17",
       only_testing: ["SnapshotTests"],
       result_bundle: true,
       output_directory: "fastlane/snapshot_test_output",
@@ -43,7 +43,7 @@ platform :ios do
     scan(
       scheme: "MercadoPagoSDK-Package",
       package_path: ".",
-      destination: "platform=iOS Simulator,name=iPhone 16",
+      destination: "platform=iOS Simulator,name=iPhone 17",
       only_testing: ["SnapshotTests"],
       xcargs: "SNAPSHOT_RECORD_MODE=YES",
       result_bundle: true,

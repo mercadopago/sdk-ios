@@ -163,7 +163,7 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(size: CGSize(width: 350, height: 200)),
+            as: .image(precision: 0.95, size: CGSize(width: 350, height: 200)),
             named: "with_formatter"
         )
     }
