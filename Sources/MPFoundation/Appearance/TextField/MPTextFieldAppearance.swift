@@ -41,7 +41,8 @@ public struct MPTextFieldAppearance: Sendable {
     public var focusError: MPTextFieldStateAppearance
     public var readOnly: MPTextFieldStateAppearance
     public var disabled: MPTextFieldStateAppearance
-    
+
+    public var placeholderColor: Color
     public var cornerRadius: CGFloat
     public var labelFont: Font
     public var textFont: Font
@@ -55,6 +56,7 @@ public struct MPTextFieldAppearance: Sendable {
         focusError: MPTextFieldStateAppearance,
         readOnly: MPTextFieldStateAppearance,
         disabled: MPTextFieldStateAppearance,
+        placeholderColor: Color,
         cornerRadius: CGFloat,
         labelFont: Font,
         textFont: Font,
@@ -67,6 +69,7 @@ public struct MPTextFieldAppearance: Sendable {
         self.focusError = focusError
         self.readOnly = readOnly
         self.disabled = disabled
+        self.placeholderColor = placeholderColor
         self.cornerRadius = cornerRadius
         self.labelFont = labelFont
         self.textFont = textFont
@@ -100,7 +103,7 @@ public struct MPTextFields: Sendable {
                 textColor: colors.text.primary,
                 labelColor: colors.text.primary,
                 helperColor: colors.text.secondary,
-                borderColor: colors.fill.secondary,
+                borderColor: colors.interactive.borderIdle,
                 borderWidth: defaultBorderWidth
             ),
             focused: MPTextFieldStateAppearance(
@@ -143,6 +146,7 @@ public struct MPTextFields: Sendable {
                 borderColor: .clear,
                 borderWidth: defaultBorderWidth
             ),
+            placeholderColor: colors.text.secondary,
             cornerRadius: borderRadius.medium,
             labelFont: .custom(.regular, size: 14),
             textFont: .custom(.regular, size: 14),
