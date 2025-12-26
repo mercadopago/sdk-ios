@@ -40,18 +40,15 @@ struct CardFormScreen: View {
                 },
                 footer: {
                     VStack {
-                        Button {
-                        } label: {
-                            Text(MPStrings.CardForm.button)
-                                .padding(.vertical, theme.spacings.xs)
-                                
-                        }
-                        .mpButtonStyle(variant: .loud)
-                        .padding(.horizontal, theme.spacings.s)
+
                         
                         MPFooter(
                             label: MPStrings.CardForm.total,
-                            amount: MPStrings.formatPrice(100.0)
+                            amount: MPStrings.formatPrice(100.0),
+                            buttonLabel: MPStrings.CardForm.button,
+                            action: {
+                                print("action button")
+                            }
                         )
                     }
                 }

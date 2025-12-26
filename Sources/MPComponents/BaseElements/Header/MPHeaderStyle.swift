@@ -22,18 +22,19 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
     @MainActor
     package func makeBody(configuration: MPHeaderStyleConfiguration) -> some View {
         VStack(spacing: 0) {
-            // Main Header with blur effect and height measurement
+            // Main Header
             configuration.mainHeader
-                .padding(.horizontal, theme.spacings.m)
-                .padding(.vertical, theme.spacings.xs)
+                .padding(.horizontal, theme.spacings.xtiny)
+                .padding(.vertical, theme.spacings.micro)
                 .background(headerBackgroundView(configuration))
                 .animation(.easeInOut(duration: 0.2))
             
             // Sub Header with collapse animations
             configuration.subHeader
-                .padding(.horizontal, theme.spacings.m)
+                .padding(.horizontal, theme.spacings.xtiny)
                 .padding(.vertical,
-                         configuration.subHeaderVisibleHeight > 24 ? theme.spacings.xs : 0
+                         configuration.subHeaderVisibleHeight > 24 ?
+                         theme.spacings.xmicro : 0
                 )
                 .background(
                     GeometryReader { geo in

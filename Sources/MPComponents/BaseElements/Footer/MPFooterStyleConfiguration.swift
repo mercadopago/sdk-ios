@@ -19,6 +19,10 @@ package struct MPFooterStyleConfiguration {
         package let body: AnyView
     }
     
+    package struct Button: View {
+        package let body: AnyView
+    }
+    
     // MARK: - Properties
     
     /// Summary line view (with label and amount)
@@ -26,6 +30,9 @@ package struct MPFooterStyleConfiguration {
     
     /// Description line view (optional card/payment info)
     package let descriptionLine: DescriptionLine
+    
+    
+    package let button: Button
     
     /// Whether the footer has description information
     package let hasDescription: Bool
@@ -36,10 +43,12 @@ package struct MPFooterStyleConfiguration {
     package init(
         summaryLine: some View,
         descriptionLine: some View,
+        button: some View,
         hasDescription: Bool
     ) {
         self.summaryLine = SummaryLine(body: AnyView(summaryLine))
         self.descriptionLine = DescriptionLine(body: AnyView(descriptionLine))
+        self.button = Button(body: AnyView(button))
         self.hasDescription = hasDescription
     }
 }
