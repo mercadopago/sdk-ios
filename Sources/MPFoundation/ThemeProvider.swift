@@ -27,7 +27,6 @@ package struct ThemeProvider<Content: View>: View {
     /// The content view to wrap in the themed environment.
     private let content: () -> Content
     
-
     /// Initializes a `ThemeProvider` with optional light and dark themes.
     ///
     /// - Parameters:

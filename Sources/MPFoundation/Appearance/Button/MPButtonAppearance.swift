@@ -42,7 +42,6 @@ public struct MPButtonAppearance: Sendable {
     }
 }
 
-
 public struct MPButtons: Sendable {
     public var sizes: ButtonSizes
     
@@ -97,10 +96,9 @@ public struct MPButtons: Sendable {
             borderWidth: 0,
             cornerRadius: radios.xs
         )
-        
         self.sizes = ButtonSizes(
             large: MPButtonSize(
-                font: typography.body.medium.semibold,
+                font: .custom(.semiBold, size: 14),
                 padding: EdgeInsets(
                     top: spacings.s,
                     leading: spacings.xl,
@@ -109,7 +107,7 @@ public struct MPButtons: Sendable {
                 )
             ),
             medium: MPButtonSize(
-                font: typography.body.small.semibold,
+                font: .custom(.semiBold, size: 14),
                 padding: EdgeInsets(
                     top: spacings.xxs,
                     leading: spacings.s,
@@ -120,6 +118,3 @@ public struct MPButtons: Sendable {
         )
     }
 }
-
-
-

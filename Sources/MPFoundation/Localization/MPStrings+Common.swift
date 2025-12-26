@@ -47,4 +47,3 @@ extension MPStrings {
         package static var network: String { localized("error.network") }
     }
 }
-

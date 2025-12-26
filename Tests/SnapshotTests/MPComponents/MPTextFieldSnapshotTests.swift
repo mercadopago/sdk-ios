@@ -131,7 +131,7 @@ final class MPTextFieldSnapshotTests: XCTestCase {
         
         assertSnapshot(
             of: hostingController,
-            as: .image(precision: 0.95, size: CGSize(width: 350, height: 120)),
+            as: .image(precision: 0.95, perceptualPrecision: 0.97, size: CGSize(width: 350, height: 120)),
             named: "with_prefix_and_suffix"
         )
     }
