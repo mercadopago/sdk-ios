@@ -19,12 +19,10 @@ package struct DefaultListItemStyle: ListItemStyle {
     @MainActor
     public func makeBody(configuration: ListItemStyleConfiguration) -> some View {
         HStack(alignment: .center, spacing: theme.spacings.micro) {
-            // Icon - centralizado verticalmente
             if let leftImage = configuration.leftImage {
                 leftImage
             }
             
-            // Conteúdo - título/descrição alinhados com textRight/chevron
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 HStack(alignment: .top) {
                     configuration.title
@@ -40,7 +38,6 @@ package struct DefaultListItemStyle: ListItemStyle {
                         
                         if configuration.hasChevron {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(chevronColor(isSelected: configuration.isSelected))
                         }
                     }
@@ -84,8 +81,8 @@ package struct DefaultListItemStyle: ListItemStyle {
     
     private func chevronColor(isSelected: Bool) -> Color {
         if !isEnabled {
-            return theme.colors.text.disabled
+            return theme.colors.icon.disabled
         }
-        return isSelected ? theme.colors.text.accent : theme.colors.text.secondary
+        return theme.colors.icon.accent
     }
 }

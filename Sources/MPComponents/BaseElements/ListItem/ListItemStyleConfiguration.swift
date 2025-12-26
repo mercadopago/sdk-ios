@@ -60,6 +60,24 @@ extension EnvironmentValues {
     }
 }
 
+
+package extension ListItemStyle {
+    @MainActor
+    func resolve(configuration: Configuration) -> some View {
+        ResolvedListItemStyle(style: self, configuration: configuration)
+    }
+}
+
+private struct ResolvedListItemStyle<Style: ListItemStyle>: View {
+    let style: Style
+    let configuration: Style.Configuration
+
+    var body: some View {
+        style
+            .makeBody(configuration: configuration)
+    }
+}
+
 package extension View {
     /// Sets the style for `ListItem` views within this view.
     ///

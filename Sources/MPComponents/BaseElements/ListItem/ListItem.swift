@@ -45,7 +45,7 @@ package struct ListItem: View {
         )
         
         AnyView(
-            style.makeBody(configuration: configuration)
+            style.resolve(configuration: configuration)
         )
     }
     
