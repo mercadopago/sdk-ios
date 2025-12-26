@@ -53,7 +53,7 @@ struct CardFormScreen: View {
                     }
                 }
             ) {
-                VStack(spacing: theme.spacings.xl) {
+                VStack(spacing: theme.spacings.xsmall) {
                     cardNumberField()
                     
                     MPTextField(
@@ -64,7 +64,7 @@ struct CardFormScreen: View {
                     
                     HStack(
                         alignment: .top,
-                        spacing: theme.spacings.xl
+                        spacing: theme.spacings.xsmall
                     ) {
                         MPTextField(
                             text: $expirationDate,
@@ -85,8 +85,8 @@ struct CardFormScreen: View {
                             suffix: {
                                 Image(systemName: "questionmark.circle")
                                     .renderingMode(.template)
-                                    .foregroundColor(theme.colors.accent)
-                                    .padding(.horizontal, theme.spacings.s)
+                                    .foregroundColor(theme.colors.icon.accent)
+                                    .padding(.horizontal, theme.spacings.micro)
                             }
                         )
                     }
@@ -94,9 +94,9 @@ struct CardFormScreen: View {
                     documentField()
                     
                 }
-                .padding(.horizontal, theme.spacings.s)
+                .padding(.horizontal, theme.spacings.micro)
             }
-            .background(theme.colors.backgroundPrimary)
+            .background(theme.colors.background.primary)
         }
     }
     
@@ -128,17 +128,17 @@ struct CardFormScreen: View {
                         
                         Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
                             .renderingMode(.template)
-                            .foregroundColor(theme.colors.outlinePrimary)
-                            .padding(.horizontal, theme.spacings.xs)
+                            .foregroundColor(theme.textFields.standard.idle.borderColor)
+                            .padding(.horizontal, theme.spacings.xmicro)
                     }
                     .frame(maxHeight: .infinity)
                     .overlay(
                         Rectangle()
-                            .frame(width: theme.outline.xxs)
-                            .foregroundColor(theme.colors.outlinePrimary),
+                            .frame(width: theme.borderWidth.small)
+                            .foregroundColor(theme.textFields.standard.idle.borderColor),
                         alignment: .trailing
                     )
-                    .padding(.leading, theme.spacings.s)
+                    .padding(.leading, theme.spacings.micro)
                 }
             }
         )

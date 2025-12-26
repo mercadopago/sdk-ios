@@ -79,10 +79,10 @@ package struct MPFooter: View {
     
     @ViewBuilder
     private var summaryLineView: some View {
-        HStack(alignment: .center, spacing: theme.spacings.m) {
+        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
             // Label
             Text(label)
-                .textStyle(.bodyMediumSemibold())
+                .textStyle(.titleSmallSemibold())
                 .lineLimit(1)
             
             Spacer()
@@ -90,7 +90,7 @@ package struct MPFooter: View {
             // Amount
             Text(amount)
                 .textStyle(.titleSmallSemibold())
-                .foregroundColor(theme.colors.textPrimary)
+                .foregroundColor(theme.colors.text.primary)
                 .lineLimit(1)
         }
     }
