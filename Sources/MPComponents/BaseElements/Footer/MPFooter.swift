@@ -9,11 +9,6 @@ import SwiftUI
 import MPFoundation
 
 /// A footer component that displays payment summary information such as total amount and payment method details.
-///
-/// The footer consists of two main areas:
-/// - **Summary Line**: Displays a label (e.g., "Total") and an amount value
-/// - **Description Line**:  Description label
-///
 /// ## Usage
 ///
 /// ```swift
@@ -21,6 +16,10 @@ import MPFoundation
 ///     label: "Total",
 ///     amount: "R$ 500",
 ///     description: "Santander Crédito **** 4561"
+///     buttonLabel: "Pay",
+///     action: {
+///       print("action")
+///     }
 /// )
 /// ```
 ///
