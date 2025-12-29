@@ -119,6 +119,8 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
             }
         }
         .navigationBarHidden(true)
+        .background(theme.colors.background.primary.edgesIgnoringSafeArea(.all))
+        
     }
     
     // MARK: - Header Content
