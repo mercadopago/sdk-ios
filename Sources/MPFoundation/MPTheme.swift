@@ -249,28 +249,55 @@ public struct MPFontStyle: Sendable {
 public struct MPHeadingStyle: Sendable {
     public var huge: UIFont
     public var medium: UIFont
+    
+    public init(huge: UIFont, medium: UIFont) {
+        self.huge = huge
+        self.medium = medium
+    }
 }
 
 public struct MPLargeStyle: Sendable {
     public var `default`: UIFont
     public var emphasis: UIFont
+    
+    public init(default: UIFont, emphasis: UIFont) {
+        self.default = `default`
+        self.emphasis = emphasis
+    }
 }
 
 public struct MPMediumStyle: Sendable {
     public var `default`: UIFont
     public var emphasis: UIFont
     public var title: UIFont
+    
+    public init(default: UIFont, emphasis: UIFont, title: UIFont) {
+        self.default = `default`
+        self.emphasis = emphasis
+        self.title = title
+    }
 }
 
 public struct MPSmallStyle: Sendable {
     public var `default`: UIFont
     public var emphasis: UIFont
+    
+    public init(default: UIFont, emphasis: UIFont) {
+        self.default = `default`
+        self.emphasis = emphasis
+    }
 }
 
 public struct MPBodyStyle: Sendable {
     public var large: MPLargeStyle
     public var medium: MPMediumStyle
     public var small: MPSmallStyle
+    
+    public init(large: MPLargeStyle, medium: MPMediumStyle, small: MPSmallStyle) {
+        self.large = large
+        self.medium = medium
+        self.small = small
+    }
 }
 
 public protocol MPTypography: Sendable {

@@ -8,12 +8,12 @@ import SwiftUI
 
 // MARK: - MPLightTheme Implementation
 public struct MPLightTheme: MPTheme {
-    public var colors: MPColors = LightColors()
-    public var spacings: MPSpacings = LightSpacings()
-    public var borderRadius: MPBorderRadius = LightBorderRadius()
-    public var borderWidth: MPBorderWidth = LightBorderWidth()
-    public var outline: MPOutline = LightOutline()
-    public var typography: MPTypography = LightTypography()
+    public var colors: MPColors
+    public var spacings: MPSpacings
+    public var borderRadius: MPBorderRadius
+    public var borderWidth: MPBorderWidth
+    public var outline: MPOutline
+    public var typography: MPTypography
     
     // Component Appearances
     public var buttons: MPButtons
@@ -39,7 +39,15 @@ public struct MPLightTheme: MPTheme {
         self.textFields = textFields
     }
     
+    @MainActor
     public init() {
+        self.colors = LightColors()
+        self.spacings = LightSpacings()
+        self.borderRadius = LightBorderRadius()
+        self.borderWidth = LightBorderWidth()
+        self.outline = LightOutline()
+        self.typography = LightTypography()
+        
         self.buttons = MPButtons(
             colors: colors,
             radios: borderRadius,
@@ -308,7 +316,7 @@ extension View {
 
 extension UIFont {
     static func custom(_ name: FontName, size: CGFloat) -> UIFont {
-        UIFont(name: name.rawValue, size: size) ?? UIFont()
+        UIFont(name: name.rawValue, size: size)!
     }
     
     package func toFont() -> Font {
@@ -319,26 +327,33 @@ extension UIFont {
 
 public struct LightTypography: MPTypography {
     
-    public var heading: MPHeadingStyle = .init(
-        huge: .custom(.bold, size: 24),
-        medium: .custom(.bold, size: 16)
-    )
+    public var heading: MPHeadingStyle
     
-    public var body: MPBodyStyle = .init(
-        large: .init(
-            default: .custom(.regular, size: 18),
-            emphasis: .custom(.bold, size: 16)
-        ),
-        medium: .init(
-            default: .custom(.regular, size: 14),
-            emphasis: .custom(.semiBold, size: 14),
-            title: .custom(.semiBold, size: 14)
-        ),
-        small: .init(
-            default: .custom(.regular, size: 12),
-            emphasis: .custom(.semiBold, size: 12)
-        )
-    )
+    public var body: MPBodyStyle
 
-    public init() {}
+    @MainActor
+    public init() {
+        FontName.registerCustomFonts()
+        
+        self.heading = .init(
+            huge: .custom(.bold, size: 24),
+            medium: .custom(.bold, size: 16)
+        )
+        
+        self.body = .init(
+            large: .init(
+                default: .custom(.regular, size: 18),
+                emphasis: .custom(.bold, size: 16)
+            ),
+            medium: .init(
+                default: .custom(.regular, size: 14),
+                emphasis: .custom(.semiBold, size: 14),
+                title: .custom(.semiBold, size: 14)
+            ),
+            small: .init(
+                default: .custom(.regular, size: 12),
+                emphasis: .custom(.semiBold, size: 12)
+            )
+        )
+    }
 }
