@@ -40,7 +40,7 @@ final class TooltipSnapshotTests: XCTestCase {
                         .foregroundColor(.blue)
                         .tooltipTest(type: .dark) {
                             Text("Dark Theme.")
-                                .textStyle(.bodySmallRegular(colorType: .inverted))
+                                .textStyle(.bodyMedium(colorType: .inverted))
                         }
                     
                     Text("Second text")
