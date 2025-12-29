@@ -53,7 +53,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     // MARK: - State
     
     @State private var scrollOffset: CGFloat = 0
-    @State private var headerHeight: CGFloat = 50
+    @State private var headerHeight: CGFloat = 40
     @State private var subHeaderHeight: CGFloat = 40
     @State private var safeAreaTop: CGFloat = 0
     
