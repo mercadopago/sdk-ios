@@ -12,7 +12,6 @@ public struct MPLightTheme: MPTheme {
     public var spacings: MPSpacings
     public var borderRadius: MPBorderRadius
     public var borderWidth: MPBorderWidth
-    public var outline: MPOutline
     public var typography: MPTypography
     
     // Component Appearances
@@ -24,7 +23,6 @@ public struct MPLightTheme: MPTheme {
         spacings: MPSpacings,
         borderRadius: MPBorderRadius,
         borderWidth: MPBorderWidth,
-        outline: MPOutline,
         typography: MPTypography,
         buttons: MPButtons,
         textFields: MPTextFields
@@ -33,7 +31,6 @@ public struct MPLightTheme: MPTheme {
         self.spacings = spacings
         self.borderRadius = borderRadius
         self.borderWidth = borderWidth
-        self.outline = outline
         self.typography = typography
         self.buttons = buttons
         self.textFields = textFields
@@ -45,13 +42,11 @@ public struct MPLightTheme: MPTheme {
         self.spacings = LightSpacings()
         self.borderRadius = LightBorderRadius()
         self.borderWidth = LightBorderWidth()
-        self.outline = LightOutline()
         self.typography = LightTypography()
         
         self.buttons = MPButtons(
             colors: colors,
             radios: borderRadius,
-            outlines: outline,
             spacings: spacings,
             typography: typography
         )

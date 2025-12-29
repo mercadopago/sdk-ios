@@ -104,7 +104,7 @@ package extension View {
     ///     }
     /// ```
     func tooltip<TooltipContent: View>(
-        type: TooltipType = .blue,
+        type: TooltipType = .white,
         @ViewBuilder content: @escaping () -> TooltipContent
     ) -> some View {
         var config: TooltipConfig = DefaultTooltipConfig()

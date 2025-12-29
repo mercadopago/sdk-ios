@@ -63,7 +63,6 @@ public struct MPButtons: Sendable {
     public init(
         colors: MPColors,
         radios: MPBorderRadius,
-        outlines: MPOutline,
         spacings: MPSpacings,
         typography: MPTypography
     ) {
