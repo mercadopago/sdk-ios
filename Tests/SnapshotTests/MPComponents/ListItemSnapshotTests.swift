@@ -93,6 +93,7 @@ final class ListItemSnapshotTests: XCTestCase {
     }
     
     private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
+        FontName.registerCustomFonts()
         ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             VStack(alignment: .leading, spacing: 12) {
                 content()
