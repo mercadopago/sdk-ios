@@ -172,32 +172,6 @@ public struct LightColors: MPColors {
     public var interactive: MPInteractiveColors = LightInteractiveColors()
     public var feedback: MPFeedbackColorTokens = LightFeedbackColorTokens()
     
-    // Legacy tokens
-    public var accent = Color(hex: 0x3483FA)
-    public var accentFirstVariant = Color(hex: 0x2968c8)
-    public var accentSecondVariant = Color(hex: 0x1f4e96)
-    public var accentYellow = Color(hex: 0xffe600)
-    public var accentPositive = Color(hex: 0x00a650)
-    public var accentNegative = Color(hex: 0xf23d4f)
-    public var backgroundPrimary = Color(hex: 0xffffff)
-    public var backgroundSecondary = Color(hex: 0xf5f5f5)
-    public var backgroundTertiary = Color(hex: 0xededed)
-    public var backgroundInverted = Color(hex: 0x1a1a1a)
-    public var textPrimary = Color(hex: 0x1a1a1a)
-    public var textSecondary = Color(hex: 0x737373)
-    public var textAccent = Color(hex: 0x3483fa)
-    public var textDisabled = Color(hex: 0xbfbfbf)
-    public var textNegative = Color(hex: 0xf23d4f)
-    public var textInverted = Color(hex: 0xffffff)
-    public var secondary = Color(hex: 0xe3edfb)
-    public var secondaryFirstVariant = Color(hex: 0xd9e7fa)
-    public var secondarySecondVariant = Color(hex: 0xc6dcf7)
-    public var outlinePrimary = Color(hex: 0xbfbfbf)
-    public var outlineSecondary = Color(hex: 0xe5e5e5)
-    public var feedbackPositive = Color(hex: 0x00a650)
-    public var feedbackNegative = Color(hex: 0xf23d4f)
-    public var feedbackPositiveSecondary = Color(hex: 0xdcede4)
-    
     public init() {}
 }
 
@@ -219,17 +193,6 @@ public struct LightSpacings: MPSpacings {
     public var xlarge: CGFloat = 56
     public var huge: CGFloat = 64
     
-    // swiftlint:disable identifier_name
-    // Legacy tokens
-    public var xxs: CGFloat = 4.0
-    public var xs: CGFloat = 8.0
-    public var s: CGFloat = 12.0
-    public var m: CGFloat = 16.0
-    public var l: CGFloat = 20.0
-    public var xl: CGFloat = 24.0
-    public var xxl: CGFloat = 32.0
-    // swiftlint:enable identifier_name
-    
     public init() {}
 }
 
@@ -244,13 +207,6 @@ public struct LightBorderRadius: MPBorderRadius {
     public var large: CGFloat = 16
     public var xlarge: CGFloat = 20
     public var full: CGFloat = 9999
-    
-    // swiftlint:disable identifier_name
-    // Legacy tokens
-    public var xxs: CGFloat = 4.0
-    public var xs: CGFloat = 6.0
-    public var s: CGFloat = 16.0
-    // swiftlint:enable identifier_name
     
     public init() {}
 }
@@ -267,17 +223,7 @@ public struct LightBorderWidth: MPBorderWidth {
     public init() {}
 }
 
-// MARK: - Outline Implementation
-public struct LightOutline: MPOutline {
-    public var xxs: CGFloat = 1.0
-    public var xs: CGFloat = 2.0
-    
-    public init() {}
-}
-
 // MARK: - Font Registration
-
-
 package enum FontName: String {
     case bold = "Inter-Bold"
     case semiBold = "Inter-SemiBold"
