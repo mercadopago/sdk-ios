@@ -104,6 +104,7 @@ struct ButtonStyleView: View {
     @State private var isLoading: Bool = false
 
     init(size: MPButtonStyle.Size = .large) {
+        FontName.registerCustomFonts()
         self.size = size
     }
     
