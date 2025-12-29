@@ -15,6 +15,8 @@ import SnapshotTesting
 final class ListItemSnapshotTests: XCTestCase {
     
     func test_allStatesComparison() {
+        FontName.registerCustomFonts()
+
         let view = createTestView {
             VStack(spacing: 12) {
                 self.listItem(
@@ -91,7 +93,6 @@ final class ListItemSnapshotTests: XCTestCase {
     }
     
     private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
-        FontName.registerCustomFonts()
         ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             VStack(alignment: .leading, spacing: 12) {
                 content()
