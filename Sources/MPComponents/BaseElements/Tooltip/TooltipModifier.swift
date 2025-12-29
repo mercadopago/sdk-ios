@@ -309,7 +309,7 @@ struct TooltipModifier_Previews: PreviewProvider {
                             .foregroundColor(.blue)
                             .tooltip(type: .dark) {
                                 Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                                    .textStyle(.bodySmallRegular(colorType: .inverted))
+                                    .textStyle(.bodyMedium(colorType: .inverted))
                             }
                     }
                     

@@ -7,7 +7,7 @@
 import SwiftUI
 
 public struct MPButtonSize: Sendable {
-    public var font: Font
+    public var font: UIFont
     public var padding: EdgeInsets
 }
 

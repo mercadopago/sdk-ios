@@ -110,13 +110,18 @@ public enum TextStyleColorType: CaseIterable, Identifiable, Sendable {
 ///
 /// These cases map to specific fonts within the `MPTheme`'s typography.
 package enum TextStyleCase: String, CaseIterable, Identifiable {
-    case titleSmallSemibold
-    case bodyMediumRegular
-    case bodyMediumSemibold
-    case bodySmallRegular
-    case bodySmallSemibold
-    case bodyExtraSmallSemibold
-
+    case headingHuge
+    case headingMedium
+    
+    case large
+    case largeEmphasis
+    
+    case bodyMediumTitle
+    case bodyMedium
+    case bodyMediumEmphasis
+    
+    case smallMedium
+    case smallMediumEmphasis
     package var id: Self { self }
 
     /// A helper method to retrieve the appropriate font from the theme.
@@ -126,18 +131,24 @@ package enum TextStyleCase: String, CaseIterable, Identifiable {
     /// - Returns: A `Font` corresponding to the style case.
     public func font(from theme: MPTheme) -> Font {
         switch self {
-        case .titleSmallSemibold:
-            return theme.typography.title.smallSemibold
-        case .bodyMediumRegular:
-            return theme.typography.body.medium.regular
-        case .bodyMediumSemibold:
-            return theme.typography.body.medium.semibold
-        case .bodySmallRegular:
-            return theme.typography.body.small.regular
-        case .bodySmallSemibold:
-            return theme.typography.body.small.semibold
-        case .bodyExtraSmallSemibold:
-            return theme.typography.body.extraSmallSemibold
+        case .headingHuge:
+            theme.typography.heading.huge.toFont()
+        case .headingMedium:
+            theme.typography.heading.medium.toFont()
+        case .large:
+            theme.typography.body.large.default.toFont()
+        case .largeEmphasis:
+            theme.typography.body.large.emphasis.toFont()
+        case .bodyMediumTitle:
+            theme.typography.body.medium.title.toFont()
+        case .bodyMedium:
+            theme.typography.body.medium.default.toFont()
+        case .bodyMediumEmphasis:
+            theme.typography.body.medium.emphasis.toFont()
+        case .smallMedium:
+            theme.typography.body.small.default.toFont()
+        case .smallMediumEmphasis:
+            theme.typography.body.small.emphasis.toFont()
         }
     }
 }
@@ -147,38 +158,50 @@ package enum TextStyleCase: String, CaseIterable, Identifiable {
 /// These static methods act as convenient shorthands for creating styles
 /// without needing to reference the theme directly.
 package extension TextStyle where Self == BaseTextStyle {
-    // MARK: - Titles
+    // MARK: - Heading
     
-    /// A small, semibold title style.
-    static func titleSmallSemibold(colorType: TextStyleColorType = .primary) -> Self {
-        Self(styleCase: .titleSmallSemibold, colorType: colorType)
+    static func headingHuge(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .headingHuge, colorType: colorType)
+    }
+    
+    static func headingMedium(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .headingMedium, colorType: colorType)
     }
     
     // MARK: - Body Text
 
     /// A medium-sized, regular body text style.
-    static func bodyMediumRegular(colorType: TextStyleColorType = .primary) -> Self {
-        Self(styleCase: .bodyMediumRegular, colorType: colorType)
+    ///
+    static func large(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .large, colorType: colorType)
+    }
+    
+    static func largeEmphasis(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .largeEmphasis, colorType: colorType)
     }
 
     /// A medium-sized, semibold body text style.
-    static func bodyMediumSemibold(colorType: TextStyleColorType = .primary) -> Self {
-        Self(styleCase: .bodyMediumSemibold, colorType: colorType)
+    static func bodyMedium(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .bodyMedium, colorType: colorType)
     }
 
     /// A small-sized, regular body text style.
-    static func bodySmallRegular(colorType: TextStyleColorType = .primary) -> Self {
-        Self(styleCase: .bodySmallRegular, colorType: colorType)
+    static func bodyMediumEmphasis(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .bodyMediumEmphasis, colorType: colorType)
     }
 
     /// A small-sized, semibold body text style.
-    static func bodySmallSemibold(colorType: TextStyleColorType = .primary) -> Self {
-        Self(styleCase: .bodySmallSemibold, colorType: colorType)
+    static func bodyMediumTitle(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .bodyMediumTitle, colorType: colorType)
     }
     
     /// An extra-small, semibold body text style.
-    static func bodyExtraSmallSemibold(colorType: TextStyleColorType = .primary) -> Self {
-        Self(styleCase: .bodyExtraSmallSemibold, colorType: colorType)
+    static func smallMedium(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .smallMedium, colorType: colorType)
+    }
+    
+    static func smallMediumEmphasis(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .smallMediumEmphasis, colorType: colorType)
     }
 }
 
@@ -192,15 +215,15 @@ private struct TextStyleList: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Preview of Text Styles")
-                    .textStyle(.titleSmallSemibold())
+                    .textStyle(.headingHuge())
                     .padding(.bottom)
 
                 // Titles
                 Group {
                     Text("Title Small Semibold (Primary)")
-                        .textStyle(.titleSmallSemibold())
+                        .textStyle(.headingHuge())
                     Text("Title Small Semibold (Accent)")
-                        .textStyle(.titleSmallSemibold(colorType: .accent))
+                        .textStyle(.headingMedium(colorType: .accent))
                 }
                 
                 Divider()
@@ -208,11 +231,11 @@ private struct TextStyleList: View {
                 // Body Medium
                 Group {
                     Text("Body Medium Regular")
-                        .textStyle(.bodyMediumRegular())
+                        .textStyle(.bodyMedium())
                     Text("Body Medium Semibold")
-                        .textStyle(.bodyMediumSemibold())
+                        .textStyle(.bodyMediumEmphasis())
                     Text("Body Medium Regular (Secondary)")
-                        .textStyle(.bodyMediumRegular(colorType: .secondary))
+                        .textStyle(.bodyMediumTitle(colorType: .secondary))
                 }
                 
                 Divider()
@@ -220,19 +243,19 @@ private struct TextStyleList: View {
                 // Small Body
                 Group {
                     Text("Body Small Regular")
-                        .textStyle(.bodySmallRegular())
+                        .textStyle(.smallMedium())
                     Text("Body Small Semibold")
-                        .textStyle(.bodySmallSemibold())
+                        .textStyle(.smallMediumEmphasis())
                 }
                 
                 Divider()
                 
-                // Extra Small Body
+                // Large
                 Group {
                     Text("Body Extra Small Semibold (Disabled)")
-                        .textStyle(.bodyExtraSmallSemibold(colorType: .disabled))
+                        .textStyle(.largeEmphasis(colorType: .disabled))
                     Text("Body Extra Small Semibold (Negative)")
-                        .textStyle(.bodyExtraSmallSemibold(colorType: .negative))
+                        .textStyle(.large(colorType: .negative))
                 }
             }
             .padding()

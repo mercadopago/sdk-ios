@@ -39,18 +39,14 @@ struct CardFormScreen: View {
                     presentationMode.wrappedValue.dismiss()
                 },
                 footer: {
-                    VStack {
-
-                        
-                        MPFooter(
-                            label: MPStrings.CardForm.total,
-                            amount: MPStrings.formatPrice(100.0),
-                            buttonLabel: MPStrings.CardForm.button,
-                            action: {
-                                print("action button")
-                            }
-                        )
-                    }
+                    MPFooter(
+                        label: MPStrings.CardForm.total,
+                        amount: MPStrings.formatPrice(100.0),
+                        buttonLabel: MPStrings.CardForm.button,
+                        action: {
+                            print("action button")
+                        }
+                    )
                 }
             ) {
                 VStack(spacing: theme.spacings.xsmall) {
@@ -124,7 +120,7 @@ struct CardFormScreen: View {
                 } label: {
                     HStack {
                         Text(selectTypeDocument.name)
-                            .textStyle(.bodyMediumRegular(colorType: .secondary))
+                            .textStyle(.bodyMedium(colorType: .secondary))
                         
                         Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
                             .renderingMode(.template)

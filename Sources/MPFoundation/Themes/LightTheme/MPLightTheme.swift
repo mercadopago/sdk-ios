@@ -269,14 +269,16 @@ public struct LightOutline: MPOutline {
 
 // MARK: - Font Registration
 
-@MainActor
+
 package enum FontName: String {
     case bold = "Inter-Bold"
     case semiBold = "Inter-SemiBold"
     case regular = "Inter-Regular"
 
+    @MainActor
     private static var hasRegistered = false
 
+    @MainActor
     public static func registerCustomFonts() {
         guard !hasRegistered else { return }
 
@@ -304,29 +306,39 @@ extension View {
     }
 }
 
-extension Font {
-    static func custom(_ name: FontName, size: CGFloat) -> Font {
-        .custom(name.rawValue, size: size)
+extension UIFont {
+    static func custom(_ name: FontName, size: CGFloat) -> UIFont {
+        UIFont(name: name.rawValue, size: size) ?? UIFont()
+    }
+    
+    package func toFont() -> Font {
+        return Font(self)
     }
 }
 
+
 public struct LightTypography: MPTypography {
-
-    public var title = MPTitleStyle(
-        smallSemibold: .custom(.semiBold, size: 20)
-    )
-
-    public var body = MPBodyStyle(
-        medium: MPFontStyle(
-            regular: .custom(.regular, size: 16),
-            semibold: .custom(.semiBold, size: 16)
-        ),
-        small: MPFontStyle(
-            regular: .custom(.regular, size: 14),
-            semibold: .custom(.semiBold, size: 14)
-        ),
-        extraSmallSemibold: .custom(.semiBold, size: 12)
+    
+    public var heading: MPHeadingStyle = .init(
+        huge: .custom(.bold, size: 24),
+        medium: .custom(.bold, size: 16)
     )
     
+    public var body: MPBodyStyle = .init(
+        large: .init(
+            default: .custom(.regular, size: 18),
+            emphasis: .custom(.bold, size: 16)
+        ),
+        medium: .init(
+            default: .custom(.regular, size: 14),
+            emphasis: .custom(.semiBold, size: 14),
+            title: .custom(.semiBold, size: 14)
+        ),
+        small: .init(
+            default: .custom(.regular, size: 12),
+            emphasis: .custom(.semiBold, size: 12)
+        )
+    )
+
     public init() {}
 }

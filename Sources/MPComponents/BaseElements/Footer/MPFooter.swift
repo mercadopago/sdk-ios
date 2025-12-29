@@ -82,14 +82,14 @@ package struct MPFooter: View {
         HStack(alignment: .center, spacing: theme.spacings.xtiny) {
             // Label
             Text(label)
-                .textStyle(.titleSmallSemibold())
+                .textStyle(.largeEmphasis())
                 .lineLimit(1)
             
             Spacer()
             
             // Amount
             Text(amount)
-                .textStyle(.titleSmallSemibold())
+                .textStyle(.largeEmphasis())
                 .foregroundColor(theme.colors.text.primary)
                 .lineLimit(1)
         }
@@ -104,7 +104,7 @@ package struct MPFooter: View {
                 Spacer()
                 
                 Text(descriptionText)
-                    .textStyle(.bodySmallRegular())
+                    .textStyle(.bodyMedium())
                     .lineLimit(1)
             }
         }

@@ -44,9 +44,9 @@ public struct MPTextFieldAppearance: Sendable {
 
     public var placeholderColor: Color
     public var cornerRadius: CGFloat
-    public var labelFont: Font
-    public var textFont: Font
-    public var helperFont: Font
+    public var labelFont: UIFont
+    public var textFont: UIFont
+    public var helperFont: UIFont
     public var padding: EdgeInsets
     
     public init(
@@ -58,9 +58,9 @@ public struct MPTextFieldAppearance: Sendable {
         disabled: MPTextFieldStateAppearance,
         placeholderColor: Color,
         cornerRadius: CGFloat,
-        labelFont: Font,
-        textFont: Font,
-        helperFont: Font,
+        labelFont: UIFont,
+        textFont: UIFont,
+        helperFont: UIFont,
         padding: EdgeInsets
     ) {
         self.idle = idle
@@ -148,9 +148,9 @@ public struct MPTextFields: Sendable {
             ),
             placeholderColor: colors.text.secondary,
             cornerRadius: borderRadius.medium,
-            labelFont: .custom(.regular, size: 14),
-            textFont: .custom(.regular, size: 14),
-            helperFont: .custom(.regular, size: 12),
+            labelFont: typography.body.medium.default,
+            textFont: typography.body.medium.default,
+            helperFont: typography.body.small.default,
             padding: EdgeInsets(
                 top: spacings.micro,
                 leading: spacings.micro,

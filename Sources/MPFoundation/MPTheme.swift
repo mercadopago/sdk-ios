@@ -246,17 +246,34 @@ public struct MPFontStyle: Sendable {
     }
 }
 
-public struct MPTitleStyle: Sendable {
-    public var smallSemibold: Font
+public struct MPHeadingStyle: Sendable {
+    public var huge: UIFont
+    public var medium: UIFont
+}
+
+public struct MPLargeStyle: Sendable {
+    public var `default`: UIFont
+    public var emphasis: UIFont
+}
+
+public struct MPMediumStyle: Sendable {
+    public var `default`: UIFont
+    public var emphasis: UIFont
+    public var title: UIFont
+}
+
+public struct MPSmallStyle: Sendable {
+    public var `default`: UIFont
+    public var emphasis: UIFont
 }
 
 public struct MPBodyStyle: Sendable {
-    public var medium: MPFontStyle
-    public var small: MPFontStyle
-    public var extraSmallSemibold: Font
+    public var large: MPLargeStyle
+    public var medium: MPMediumStyle
+    public var small: MPSmallStyle
 }
 
 public protocol MPTypography: Sendable {
-    var title: MPTitleStyle { get }
+    var heading: MPHeadingStyle { get }
     var body: MPBodyStyle { get }
 }

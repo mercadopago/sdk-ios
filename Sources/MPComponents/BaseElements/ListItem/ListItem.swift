@@ -52,21 +52,21 @@ package struct ListItem: View {
     @ViewBuilder
     private var titleView: some View {
         Text(title)
-            .textStyle(.bodyMediumSemibold())
+            .textStyle(.bodyMediumTitle())
 
     }
     
     @ViewBuilder
     private var descriptionView: some View {
         Text(description)
-            .textStyle(.bodyMediumRegular(colorType: .secondary))
+            .textStyle(.bodyMedium(colorType: .secondary))
     }
     
     
     @ViewBuilder
     private var textRightView: some View {
         Text(rightText)
-            .textStyle(.bodyMediumRegular(colorType: .secondary))
+            .textStyle(.bodyMedium(colorType: .secondary))
     }
     
     @ViewBuilder
