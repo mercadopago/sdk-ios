@@ -246,14 +246,6 @@ private struct TextStyleList: View {
                 }
                 
                 Divider()
-                
-                // Large
-                Group {
-                    Text("Body Extra Small Semibold (Disabled)")
-                        .textStyle(.largeEmphasis(colorType: .disabled))
-                    Text("Body Extra Small Semibold (Negative)")
-                        .textStyle(.large(colorType: .accent))
-                }
             }
             .padding()
         }
