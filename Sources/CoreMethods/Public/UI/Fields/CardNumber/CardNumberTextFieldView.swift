@@ -152,6 +152,8 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         uiView.isEnabled = self.isEnabled
         uiView.keyboardAppearance = self.keyboardAppearance
         uiView.setStyle(self.style)
+        uiView.setMask(pattern: self.mask)
+        uiView.setMaxLength(self.maxLength)
     }
 }
 
@@ -211,7 +213,7 @@ public extension CardNumberTextFieldView {
     ///   ```
     func mask(_ pattern: String, separator _: Character = " ") -> CardNumberTextFieldView {
         var view = self
-        view.mask = pattern
+        textField?.setMask(pattern: pattern)
         return view
     }
 
