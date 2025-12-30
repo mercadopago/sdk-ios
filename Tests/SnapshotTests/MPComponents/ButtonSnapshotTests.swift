@@ -13,17 +13,6 @@ import SnapshotTesting
 @MainActor
 final class ButtonSnapshotTests: XCTestCase {
 
-    func testButtonStyleView_MediumSize() {
-        let view = ButtonStyleView(size: .medium)
-
-        let hostingController = UIHostingController(rootView: view)
-        
-        assertSnapshot(
-            of: hostingController,
-            as: .image(precision: 0.95,size: CGSize(width: 400, height: 700))
-        )
-    }
-
     func testButtonStyleView_LargeSize() {
         let view = ButtonStyleView(size: .large) 
         let hostingController = UIHostingController(rootView: view)

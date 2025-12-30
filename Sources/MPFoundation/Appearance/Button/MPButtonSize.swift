@@ -13,10 +13,8 @@ public struct MPButtonSize: Sendable {
 
 public struct ButtonSizes: Sendable {
     public var large: MPButtonSize
-    public var medium: MPButtonSize
     
-    public init(large: MPButtonSize, medium: MPButtonSize) {
+    public init(large: MPButtonSize) {
         self.large = large
-        self.medium = medium
     }
 }

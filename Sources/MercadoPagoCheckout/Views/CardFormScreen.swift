@@ -43,13 +43,11 @@ struct CardFormScreen: View {
                         Button {
                         } label: {
                             Text(MPStrings.CardForm.button)
-                                .frame(maxWidth: .infinity)
                                 .padding(.vertical, theme.spacings.xs)
                                 
                         }
                         .mpButtonStyle(variant: .loud)
                         .padding(.horizontal, theme.spacings.s)
-                        .hidden()
                         
                         MPFooter(
                             label: MPStrings.CardForm.total,

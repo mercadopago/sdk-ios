@@ -16,16 +16,16 @@ package struct MPButtonStyle: ButtonStyle {
 
     package enum Size {
         case large
-        case medium
     }
     
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.isEnabled) private var isEnabled: Bool
-    
+    @Environment(\.isLoading) private var isLoading: Bool
+
     package let variant: Variant
     package let size: Size
     
-    public func makeBody(configuration: Configuration) -> some View {
+    package func makeBody(configuration: Configuration) -> some View {
         let variantAppearance = getVariantAppearance()
         let sizeMetrics = getSizeMetrics()
         
@@ -37,20 +37,27 @@ package struct MPButtonStyle: ButtonStyle {
         (configuration.isPressed ? variantAppearance.pressedForegroundColor : variantAppearance.foregroundColor)
         : variantAppearance.disabledForegroundColor
 
-        HStack {
-            configuration.label
-        }
-        .padding(sizeMetrics.padding)
-        .font(sizeMetrics.font)
-        .foregroundColor(currentForegroundColor)
-        .background(currentBackgroundColor)
-        .overlay(
-            RoundedRectangle(cornerRadius: variantAppearance.cornerRadius)
-                .stroke(currentBackgroundColor, lineWidth: variantAppearance.borderWidth)
-        )
-        .cornerRadius(variantAppearance.cornerRadius)
-        .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
-        .animation(.easeOut(duration: 0.15), value: isEnabled)
+        return configuration.label
+            .font(sizeMetrics.font)
+            .foregroundColor(currentForegroundColor)
+            .padding(sizeMetrics.padding)
+            .frame(maxWidth: .infinity)
+            .background(
+                ZStack(alignment: .leading) {
+                    currentBackgroundColor
+
+                    variantAppearance.loadingColor
+                        .scaleEffect(x: isLoading ? 0.95 : 0, y: 1, anchor: .leading)
+                        .animation(.easeOut(duration: 3.0), value: isLoading)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: variantAppearance.cornerRadius))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: variantAppearance.cornerRadius)
+                    .stroke(currentBackgroundColor, lineWidth: variantAppearance.borderWidth)
+            )
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .animation(.easeOut(duration: 0.15), value: isEnabled)
     }
     
     private func getVariantAppearance() -> MPButtonAppearance {
@@ -64,7 +71,6 @@ package struct MPButtonStyle: ButtonStyle {
     private func getSizeMetrics() -> MPButtonSize {
         switch size {
         case .large: return theme.buttons.sizes.large
-        case .medium: return theme.buttons.sizes.medium
         }
     }
 }
@@ -85,7 +91,7 @@ package struct MPBackButtonStyle: ButtonStyle {
 
 
 package extension View {
-    func mpButtonStyle(variant: MPButtonStyle.Variant, size: MPButtonStyle.Size = .medium) -> some View {
+    func mpButtonStyle(variant: MPButtonStyle.Variant, size: MPButtonStyle.Size = .large) -> some View {
         self.buttonStyle(MPButtonStyle(variant: variant, size: size))
     }
 }
@@ -95,8 +101,9 @@ package extension View {
 
 struct ButtonStyleView: View {
     let size: MPButtonStyle.Size
+    @State private var isLoading: Bool = false
 
-    init(size: MPButtonStyle.Size = .medium) {
+    init(size: MPButtonStyle.Size = .large) {
         self.size = size
     }
     
@@ -104,6 +111,13 @@ struct ButtonStyleView: View {
         VStack(alignment: .center, spacing: 16) {
             Spacer()
             
+            Button("Label") {
+                print("Button Pressed!")
+                startLoading()
+            }
+            .isLoading(isLoading)
+            .mpButtonStyle(variant: .loud, size: size)
+
             Text("Button Style - Loud")
                 .font(.headline)
             Group {
@@ -138,6 +152,16 @@ struct ButtonStyleView: View {
         .padding()
         .loadMPFonts()
     }
+    
+    func startLoading() {
+        // Inicia a animação
+        isLoading = true
+        
+        // Simulação: Após 4 segundos, o processo "termina" e reseta
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            isLoading = false
+        }
+    }
 }
 
 #Preview {
@@ -145,3 +169,5 @@ struct ButtonStyleView: View {
 }
 
 #endif
+
+

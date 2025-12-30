@@ -1,5 +1,5 @@
 //
-//  MPButtonVariantTheme.swift
+//  MPButtonAppearance.swift
 //  MercadoPagoSDK
 //
 //  Created by Guilherme Prata Costa on 23/06/25.
@@ -15,9 +15,11 @@ public struct MPButtonAppearance: Sendable {
     
     public var pressedBackgroundColor: Color
     public var pressedForegroundColor: Color
-    
+        
     public var disabledBackgroundColor: Color
     public var disabledForegroundColor: Color
+    
+    public var loadingColor: Color
     
     public init(
         backgroundColor: Color,
@@ -26,6 +28,7 @@ public struct MPButtonAppearance: Sendable {
         pressedForegroundColor: Color,
         disabledBackgroundColor: Color,
         disabledForegroundColor: Color,
+        loadingColor: Color,
         borderColor: Color,
         borderWidth: CGFloat,
         cornerRadius: CGFloat
@@ -39,6 +42,7 @@ public struct MPButtonAppearance: Sendable {
         self.pressedForegroundColor = pressedForegroundColor
         self.disabledBackgroundColor = disabledBackgroundColor
         self.disabledForegroundColor = disabledForegroundColor
+        self.loadingColor = loadingColor
     }
 }
 
@@ -63,56 +67,55 @@ public struct MPButtons: Sendable {
         spacings: MPSpacings,
         typography: MPTypography
     ) {
+        // Loud - Primary action button
         self.loud = MPButtonAppearance(
-            backgroundColor: colors.accent,
-            foregroundColor: colors.textInverted,
-            pressedBackgroundColor: colors.accentSecondVariant,
-            pressedForegroundColor: colors.textInverted,
-            disabledBackgroundColor: colors.backgroundTertiary,
-            disabledForegroundColor: colors.textDisabled,
+            backgroundColor: colors.interactive.fillLoudIdle,
+            foregroundColor: colors.text.inverse,
+            pressedBackgroundColor: colors.interactive.fillLoudActive,
+            pressedForegroundColor: colors.text.inverse,
+            disabledBackgroundColor: colors.fill.disabled,
+            disabledForegroundColor: colors.text.disabled,
+            loadingColor: colors.interactive.fillLoudActive,
             borderColor: .clear,
             borderWidth: 0,
-            cornerRadius: radios.xs
+            cornerRadius: radios.medium
         )
+        
+        // Quiet - Secondary action button
         self.quiet = MPButtonAppearance(
-            backgroundColor: colors.secondary,
-            foregroundColor: colors.textAccent,
-            pressedBackgroundColor: colors.secondarySecondVariant,
-            pressedForegroundColor: colors.textAccent,
-            disabledBackgroundColor: colors.backgroundTertiary,
-            disabledForegroundColor: colors.textDisabled,
-            borderColor: colors.accent,
-            borderWidth: outlines.xs,
-            cornerRadius: radios.xs
-        )
-        self.transparent = MPButtonAppearance(
-            backgroundColor: .clear,
-            foregroundColor: colors.textAccent,
-            pressedBackgroundColor: .clear,
-            pressedForegroundColor: colors.accentSecondVariant,
-            disabledBackgroundColor: .clear,
-            disabledForegroundColor: colors.textDisabled,
+            backgroundColor: colors.interactive.fillQuietIdle,
+            foregroundColor: colors.text.linkIdle,
+            pressedBackgroundColor: colors.interactive.fillQuietActive,
+            pressedForegroundColor: colors.text.linkIdle,
+            disabledBackgroundColor: colors.fill.disabled,
+            disabledForegroundColor: colors.text.disabled,
+            loadingColor: colors.interactive.fillQuietActive,
             borderColor: .clear,
             borderWidth: 0,
-            cornerRadius: radios.xs
+            cornerRadius: radios.medium
+        )
+        
+        // Transparent - Tertiary action button
+        self.transparent = MPButtonAppearance(
+            backgroundColor: colors.interactive.fillMuteIdle,
+            foregroundColor: colors.text.linkIdle,
+            pressedBackgroundColor: colors.interactive.fillMuteActive,
+            pressedForegroundColor: colors.text.linkIdle,
+            disabledBackgroundColor: .clear,
+            disabledForegroundColor: colors.text.disabled,
+            loadingColor: colors.interactive.fillMuteActive,
+            borderColor: .clear,
+            borderWidth: 0,
+            cornerRadius: radios.xsmall
         )
         self.sizes = ButtonSizes(
             large: MPButtonSize(
-                font: .custom(.semiBold, size: 14),
+                font: typography.body.small.semibold,
                 padding: EdgeInsets(
-                    top: spacings.s,
-                    leading: spacings.xl,
-                    bottom: spacings.s,
-                    trailing: spacings.xl
-                )
-            ),
-            medium: MPButtonSize(
-                font: .custom(.semiBold, size: 14),
-                padding: EdgeInsets(
-                    top: spacings.xxs,
-                    leading: spacings.s,
-                    bottom: spacings.xxs,
-                    trailing: spacings.s
+                    top: spacings.micro,
+                    leading: spacings.xsmall,
+                    bottom: spacings.micro,
+                    trailing: spacings.xsmall
                 )
             )
         )
