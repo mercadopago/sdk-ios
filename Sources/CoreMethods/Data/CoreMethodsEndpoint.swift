@@ -17,7 +17,6 @@ enum ConstantsCoreMethods {
 
 /// Endpoints
 enum CoreMethodsEndpoint {
-    case postSDKData(body: MPThreeDSAuthRequestParametersBody)
     case postCardToken(body: CardTokenBody)
     case getIdentificationTypes
     case getInstallments(params: InstallmentsParams)
@@ -45,7 +44,7 @@ extension CoreMethodsEndpoint: RequestEndpoint {
     /// Endpoint HTTP method.
     var method: HTTPMethod {
         switch self {
-        case .postCardToken, .postSDKData:
+        case .postCardToken:
             return .post
         case .getIdentificationTypes, .getInstallments, .getPaymentMethods, .getIssuers:
             return .get
@@ -65,8 +64,6 @@ extension CoreMethodsEndpoint: RequestEndpoint {
             return "payment_methods"
         case .getIssuers:
             return "card_issuers"
-        case .postSDKData:
-            return "sdk-data"
         }
     }
 
@@ -92,7 +89,7 @@ extension CoreMethodsEndpoint: RequestEndpoint {
     /// Request URL parameters.
     var urlParams: [String: any CustomStringConvertible] {
         switch self {
-        case .postCardToken, .getIdentificationTypes, .postSDKData:
+        case .postCardToken, .getIdentificationTypes:
             return [:]
         case let .getInstallments(params):
             return [
@@ -119,9 +116,6 @@ extension CoreMethodsEndpoint: RequestEndpoint {
     var body: Data? {
         switch self {
         case let .postCardToken(body):
-            return body.toJSONData()
-            
-        case let .postSDKData(body):
             return body.toJSONData()
             
         default:

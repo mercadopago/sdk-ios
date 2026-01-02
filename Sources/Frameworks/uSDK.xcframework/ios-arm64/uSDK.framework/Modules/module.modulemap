@@ -1,6 +1,0 @@
-framework module uSDK {
-  umbrella header "uSDK.h"
-  export *
-
-  module * { export * }
-}

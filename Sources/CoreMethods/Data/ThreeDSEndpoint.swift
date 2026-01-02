@@ -10,10 +10,9 @@ import Foundation
     import MPCore
 #endif
 
-
-/// Endpoints
+/// Endpoints for 3DS operations.
 enum ThreeDSEndpoint {
-    case postDeviceData(body: ThreeDSDeviceDataBody)
+    case postDeviceData(body: MPThreeDSAuthRequestParametersBody)
 }
 
 /// Extension to conform to `RequestEndpoint`.
@@ -67,3 +66,4 @@ extension ThreeDSEndpoint: RequestEndpoint {
         }
     }
 }
+

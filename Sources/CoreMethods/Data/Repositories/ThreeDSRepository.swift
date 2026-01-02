@@ -9,6 +9,7 @@ import Foundation
 #if SWIFT_PACKAGE
     import MPCore
 #endif
+
 package final class ThreeDSRepository: ThreeDSRepositoryProtocol {
     typealias Dependency = HasNetwork
     private typealias Endpoint = ThreeDSEndpoint
@@ -20,10 +21,11 @@ package final class ThreeDSRepository: ThreeDSRepositoryProtocol {
     ) {
         self.dependencies = dependencies
     }
-    
-    func sendDeviceData(_ data: ThreeDSDeviceDataBody) async throws -> ThreeDSDeviceDataResponse {
+
+    func postSDKData(_ data: MPThreeDSAuthRequestParametersBody) async throws -> MPThreeDSResponse {
         return try await self.dependencies.networkService.request(
             Endpoint.postDeviceData(body: data)
         )
     }
 }
+
