@@ -194,6 +194,18 @@ private extension PCIFieldState {
             self.isValid = false
         }
     }
+    
+    func updateCurrentTextToNewMask(_ newFormatter: Configuration.Mask) {
+        guard let currentText = textField.text,
+              !currentText.isEmpty else {
+            return
+        }
+
+        let numbersOnly = currentText.onlyNumbers()
+
+        let newFormattedText = numbersOnly.applyMask(newFormatter.pattern, separator: newFormatter.separator)
+        textField.text = newFormattedText
+    }
 }
 
 // MARK: - Side Views Configuration
@@ -224,6 +236,7 @@ extension PCIFieldState {
     ///   - separator: The character used to separate digit groups
     func setMask(with formatter: Configuration.Mask) {
         self.formatter = formatter
+        self.updateCurrentTextToNewMask(formatter)
     }
 }
 

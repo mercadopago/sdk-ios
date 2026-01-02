@@ -72,8 +72,8 @@ struct CardInformationSection: View {
         CardNumberTextFieldView(
             textField: self.$cardNumberTextField,
             style: style,
+            mask: viewModel.maskCardNumber,
             placeholder: "Número do cartão",
-            
             /// Track input length for UX feedback
             onLengthChanged: { length in
                 print("length")
