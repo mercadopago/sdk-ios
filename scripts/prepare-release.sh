@@ -1,7 +1,7 @@
 #!/bin/bash
 # prepare-release.sh - Creates a release branch and prepares version changes
 
-VERSION=$(cat VERSION)
+VERSION=$(cat VERSION | tr -d '\n\r')
 
 if [ -z "$VERSION" ]; then
   echo "❌ Error: VERSION file is empty or not found."
@@ -49,9 +49,9 @@ if command -v gh &> /dev/null; then
   echo "📝 Creating PR for release $VERSION..."
   gh pr create \
     --title "Release $VERSION" \
-    --body "This PR prepares the release of version $VERSION .Please review the changes before merging." \
+    --body "This PR prepares the release of version $VERSION. Please review the changes before merging." \
     --base main \
-    --head release/$VERSION
+    --head "release/$VERSION"
   
   echo "✅ PR created for release $VERSION"
 else
