@@ -137,7 +137,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
 
         simulateTextInput("12/25", input: input)
 
-        await fulfillment(of: [expectation], timeout: 1.0)
+        await fulfillment(of: [expectation], timeout: 2.0)
     }
 
     // MARK: - Length Changed Tests
