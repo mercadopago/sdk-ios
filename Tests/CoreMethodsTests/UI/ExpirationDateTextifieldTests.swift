@@ -135,7 +135,7 @@ final class ExpirationDateTextfieldTests: XCTestCase {
             expectation.fulfill()
         }
 
-        simulateTextInput("12/25", input: input)
+        simulateTextInput("12/32", input: input)
 
         await fulfillment(of: [expectation], timeout: 1.0)
     }
