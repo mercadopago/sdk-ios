@@ -15,7 +15,9 @@ public struct MPLightTheme: MPTheme {
     public var outline: MPOutline = LightOutline()
     public var typography: MPTypography = LightTypography()
     
+    // Component Appearances
     public var buttons: MPButtons
+    public var textFields: MPTextFields
 
     public init(
         colors: MPColors,
@@ -24,7 +26,8 @@ public struct MPLightTheme: MPTheme {
         borderWidth: MPBorderWidth,
         outline: MPOutline,
         typography: MPTypography,
-        buttons: MPButtons
+        buttons: MPButtons,
+        textFields: MPTextFields
     ) {
         self.colors = colors
         self.spacings = spacings
@@ -33,10 +36,24 @@ public struct MPLightTheme: MPTheme {
         self.outline = outline
         self.typography = typography
         self.buttons = buttons
+        self.textFields = textFields
     }
     
     public init() {
-        self.buttons = MPButtons(colors: colors, radios: borderRadius, outlines: outline, spacings: spacings, typography: typography)
+        self.buttons = MPButtons(
+            colors: colors,
+            radios: borderRadius,
+            outlines: outline,
+            spacings: spacings,
+            typography: typography
+        )
+        self.textFields = MPTextFields(
+            colors: colors,
+            borderRadius: borderRadius,
+            borderWidth: borderWidth,
+            spacings: spacings,
+            typography: typography
+        )
     }
 }
 

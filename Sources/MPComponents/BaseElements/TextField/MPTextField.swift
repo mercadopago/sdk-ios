@@ -59,11 +59,16 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     @Environment(\.mpTextFieldStyle) private var style: any MPTextFieldStyle
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.isReadOnly) private var isReadOnly
+    @Environment(\.checkoutTheme) var theme: MPTheme
 
     // MARK: - Editing State
     @State private var isEditing: Bool = false
     @State private var hasBeenTouched: Bool = false
     @State internal var internalState: MPTextFieldState = .idle
+    @State private var lastValidatedText: String?
+    @State private var lastValidationResult: ValidationResult?
+    @State private var validationWorkItem: DispatchWorkItem?
+    private let validationDebounceInterval: DispatchTimeInterval = .milliseconds(150)
 
     // MARK: - Init
     
@@ -144,42 +149,56 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     @ViewBuilder
     private func fieldView() -> some View {
-        TextField(
-            placeholder ?? "",
-            text: $text,
-            onEditingChanged: { editing in
-                self.isEditing = editing
-                self.onEditingChanged?(editing)
+        
+        ZStack(alignment: .leading) {
+                    
+            if text.isEmpty {
+                Text(placeholder ?? "")
+                    .foregroundColor(theme.textFields.standard.placeholderColor)
+                    .padding(.leading, 4)
+            }
+            
+            TextField(
+                "",
+                text: $text,
+                onEditingChanged: { editing in
+                    self.isEditing = editing
+                    self.onEditingChanged?(editing)
+                    
+                    if editing {
+                        if hasBeenTouched {
+                            updateStateOnChange(isEditing: true)
+                        } else {
+                            internalState = .focused
+                        }
+                    } else {
+                        // Mark as touched and validate on blur
+                        hasBeenTouched = true
+                        updateStateOnBlur()
+                    }
+                },
+                onCommit: { handleCommit() }
+            )
+            .onReceive(Just(text)) { newValue in
+                guard !isReadOnly && isEnabled else { return }
                 
-                // Mark as touched when user leaves the field
-                if !editing && !hasBeenTouched {
-                    hasBeenTouched = true
+                let formatted = formatter?.formatOnChange(newValue) ?? newValue
+                if formatted != newValue {
+                    text = formatted
+                    return
                 }
                 
-                // Validate on blur (when user leaves the field)
-                if !editing && hasBeenTouched {
-                    updateStateOnBlur()
+                if hasBeenTouched {
+                    updateStateOnChange(isEditing: isEditing)
+                } else if isEditing {
+                    internalState = .focused
                 }
-            },
-            onCommit: { handleCommit() }
-        )
-        .onReceive(Just(text)) { newValue in
-            guard !isReadOnly && isEnabled else { return }
-            let formatted = formatter?.formatOnChange(newValue) ?? newValue
-            if formatted != newValue {
-                self.text = formatted
             }
-            // Only validate while editing if field was already touched
-            if hasBeenTouched {
-                updateStateOnChange(isEditing: isEditing)
-            } else if isEditing {
-                internalState = .focused
-            }
+            .autocapitalization(.none)
+            .keyboardType(keyboard)
+            .textContentType(contentType)
+            .disabled(!isEnabled)
         }
-        .autocapitalization(.none)
-        .keyboardType(keyboard)
-        .textContentType(contentType)
-        .disabled(!isEnabled)
     }
     
     @ViewBuilder
@@ -192,14 +211,11 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     
     @ViewBuilder
     private var helperView: some View {
-        if shouldShowHelperOrError(for: currentState) {
-            Group {
-                if let helperText {
-                    Text(helperText)
-                }
-                else if let error = currentState.errorMessage {
-                    Text(error)
-                }
+        Group {
+            if let error = currentState.errorMessage {
+                Text(error)
+            } else if let helperText {
+                Text(helperText)
             }
         }
     }
@@ -208,6 +224,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     private func handleCommit() {
         if let formatter { text = formatter.formatOnCommit(text) }
+        validationWorkItem?.cancel()
         updateStateOnCommit()
         onCommit?()
     }
@@ -236,61 +253,77 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private func updateStateOnChange(
         isEditing: Bool
     ) {
-        guard !isReadOnly && isEnabled else {
-            return
-        }
-        
-        if let validator {
-            switch validator.validate(text) {
-            case .valid:
-                internalState = isEditing ? .focused : .idle
-            case .invalid(let message):
-                internalState = isEditing ? .focusError(message) : .error(message)
-            }
-        } else {
-            internalState = isEditing ? .focused : .idle
-        }
+        validateAndUpdateState(isEditing: isEditing, debounce: true)
     }
 
     private func updateStateOnCommit() {
         hasBeenTouched = true
-        guard isEnabled && !isReadOnly else { return }
-        if let validator {
-            switch validator.validate(text) {
-            case .valid:
-                internalState = .idle
-            case .invalid(let message):
-                internalState = .error(message)
-            }
-        } else {
-            internalState = .idle
-        }
+        validateAndUpdateState(isEditing: false, debounce: false)
     }
     
     private func updateStateOnBlur() {
-        guard isEnabled && !isReadOnly else { return }
-        if let validator {
-            switch validator.validate(text) {
-            case .valid:
-                internalState = .idle
-            case .invalid(let message):
-                internalState = .error(message)
-            }
-        } else {
-            internalState = .idle
-        }
+        validateAndUpdateState(isEditing: false, debounce: false)
     }
     
     func shouldShowHelperOrError(for state: MPTextFieldState) -> Bool {
         if helperText != nil { return true }
-        if state.errorMessage != nil { return true }
         return false
+    }
+
+    private func validateAndUpdateState(isEditing: Bool, debounce: Bool) {
+        guard isEnabled && !isReadOnly else { return }
+        
+        guard let validator else {
+            setInternalStateIfNeeded(isEditing ? .focused : .idle)
+            return
+        }
+        
+        let currentText = text
+        if lastValidatedText == currentText, let cachedResult = lastValidationResult {
+            applyValidationResult(cachedResult, isEditing: isEditing)
+            return
+        }
+        
+        let performValidation = {
+            let result = validator.validate(currentText)
+            lastValidatedText = currentText
+            lastValidationResult = result
+            applyValidationResult(result, isEditing: isEditing)
+        }
+        
+        if debounce {
+            validationWorkItem?.cancel()
+            let workItem = DispatchWorkItem(block: performValidation)
+            validationWorkItem = workItem
+            DispatchQueue.main.asyncAfter(
+                deadline: .now() + validationDebounceInterval,
+                execute: workItem
+            )
+        } else {
+            validationWorkItem?.cancel()
+            performValidation()
+        }
+    }
+    
+    private func applyValidationResult(_ result: ValidationResult, isEditing: Bool) {
+        switch result {
+        case .valid:
+            setInternalStateIfNeeded(isEditing ? .focused : .idle)
+        case .invalid(let message):
+            setInternalStateIfNeeded(isEditing ? .focusError(message) : .error(message))
+        }
+    }
+    
+    private func setInternalStateIfNeeded(_ newState: MPTextFieldState) {
+        guard internalState != newState else { return }
+        internalState = newState
     }
 }
 
 #if DEBUG
 import SwiftUI
 
+@available(iOS 14.0, *)
 struct MPTextField_Previews: PreviewProvider {
     struct PreviewHost: View {
         @State private var textIdle: String = "Seed"
