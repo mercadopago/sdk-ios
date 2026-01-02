@@ -10,7 +10,7 @@ import Foundation
     import MPCore
 #endif
 
-private enum ConstantsCoreMethods {
+enum ConstantsCoreMethods {
     static let baseURLToken = "https://api.mercadopago.com"
     static let baseURLBricks = "https://api.mercadopago.com/cho-off"
 }
