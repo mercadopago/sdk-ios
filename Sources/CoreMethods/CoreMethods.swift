@@ -40,7 +40,7 @@ public final actor CoreMethods {
     
     public struct Configuration: Sendable {
         
-        public var threeDS = ThreeDS()
+        public var threeDS: ThreeDS = .init()
         
         public struct ThreeDS: Sendable {
             public var protocolVersion = "2.2.0"
