@@ -43,7 +43,7 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
         ephemeralPublicKey: String,
         transactionID: String,
         threeDSVersion: String
-    ) async throws -> MPThreeDSResponse {
+    ) async throws -> ThreeDSDeviceDataResponse {
         guard let dataEphemeralKey = ephemeralPublicKey.data(using: .utf8) else {
             throw CoreMethodsError.errorGettingEphemeralKey
         }
@@ -78,12 +78,14 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
     }
 
     func getChallengeParameters(_ id: String) async throws -> MPThreeDSChallengeParameters {
+        let response: MPThreeDSChallengeResponse = try await repository.getChallenge(id)
+        
         return MPThreeDSChallengeParameters(
-            threeDSServerTransID: "",
-            acsReferenceNumber: "",
-            dsTransID: "",
-            acsTransID: "",
-            acsSignedContent: ""
+            status: MPThreeDSChallengeParameters.ChallengeStatus(rawValue: response.status) ?? .authenticated,
+            acsReferenceNumber: response.data?.acsReferenceNumber ?? "",
+            dsTransID: response.data?.threeDSServerTransID ?? "",
+            acsTransID: response.data?.acsTransID ?? "",
+            acsSignedContent: response.data?.acsSignedContent ?? ""
         )
     }
 }

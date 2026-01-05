@@ -6,6 +6,7 @@
 //
 
 protocol ThreeDSRepositoryProtocol: Sendable {
-    func postSDKData(_ data: MPThreeDSAuthRequestParametersBody) async throws -> MPThreeDSResponse
+    func postSDKData(_ data: MPThreeDSAuthRequestParametersBody) async throws -> ThreeDSDeviceDataResponse
+    func getChallenge(_ id: String ) async throws -> MPThreeDSChallengeResponse
 }
 

@@ -22,9 +22,15 @@ package final class ThreeDSRepository: ThreeDSRepositoryProtocol {
         self.dependencies = dependencies
     }
 
-    func postSDKData(_ data: MPThreeDSAuthRequestParametersBody) async throws -> MPThreeDSResponse {
+    func postSDKData(_ data: MPThreeDSAuthRequestParametersBody) async throws -> ThreeDSDeviceDataResponse {
         return try await self.dependencies.networkService.request(
             Endpoint.postDeviceData(body: data)
+        )
+    }
+    
+    func getChallenge(_ id: String) async throws -> MPThreeDSChallengeResponse {
+        return try await self.dependencies.networkService.request(
+            Endpoint.getChallenge(id: id)
         )
     }
 }

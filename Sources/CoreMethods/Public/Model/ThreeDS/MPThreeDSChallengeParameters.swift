@@ -6,8 +6,8 @@
 //
 
 public struct MPThreeDSChallengeParameters: Sendable {
-    /// 3DS Server Transaction ID assigned by the 3DS Server.
-    public var threeDSServerTransID: String
+    /// Challenge status
+    public var status: ChallengeStatus
     
     /// ACS Reference Number assigned by the ACS to identify a single transaction.
     public var acsReferenceNumber: String
@@ -20,4 +20,10 @@ public struct MPThreeDSChallengeParameters: Sendable {
     
     /// ACS Signed Content contains the JWS object created by the ACS.
     public var acsSignedContent: String
+    
+    
+    public enum ChallengeStatus: String, Sendable {
+        case authenticated
+        case challenge
+    }
 }

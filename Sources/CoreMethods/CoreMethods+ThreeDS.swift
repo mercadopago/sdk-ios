@@ -28,4 +28,9 @@ extension CoreMethods {
         )
     }
     
+    
+    func challengeParameters(_ id: String) async throws -> MPThreeDSChallengeParameters {
+        return try await capabilityUseCase.getChallengeParameters(id)
+    }
+    
 }
