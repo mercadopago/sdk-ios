@@ -8,120 +8,104 @@
 import SwiftUI
 import MPFoundation
 
-/// Defines the content to be displayed on the trailing side of a ListItem.
-package enum ListItemTrailingContent: Equatable {
-    /// No content is displayed.
-    case none
-    
-    /// A simple text label.
-    case text(String)
-    
-    /// A pill-style badge, using the existing Pill component.
-    /// The associated type defaults to `.success`.
-    case pill(text: String, type: PillType = .success)
-}
-
 package struct ListItem: View {
     @Environment(\.listItemStyle) private var style
-    @Environment(\.isEnabled) private var isEnabled: Bool
-    @Environment(\.hasError) private var hasError: Bool
     
+    let leftImage: Image?
     let title: String
-    let trailingContent: ListItemTrailingContent
+    let description: String
+    let rightText: String
+    let hasChevron: Bool
     let isSelected: Bool
-    let onSelectionChanged: (Bool) -> Void
 
     package init(
+        leftImage: Image? = nil,
         title: String,
-        trailingContent: ListItemTrailingContent = .none,
-        isSelected: Bool,
-        onSelectionChanged: @escaping (Bool) -> Void
+        description: String = "",
+        rightText: String = "",
+        hasChevron: Bool = false,
+        isSelected: Bool = false
     ) {
+        self.leftImage = leftImage
         self.title = title
-        self.trailingContent = trailingContent
+        self.description = description
+        self.rightText = rightText
+        self.hasChevron = hasChevron
         self.isSelected = isSelected
-        self.onSelectionChanged = onSelectionChanged
     }
     
     package var body: some View {        
         let configuration: ListItemStyleConfiguration = .init(
-            toggle: toggleView,
-            primaryText: titleView,
-            secondaryText: secondaryTextView,
-            badge: badgeView,
+            leftImage: leftImageView,
+            title: titleView,
+            description: descriptionView,
+            textRight: textRightView,
+            hasChevron: hasChevron,
             isSelected: isSelected
         )
         
         AnyView(
-            style.makeBody(configuration: configuration)
+            style.resolve(configuration: configuration)
         )
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if isEnabled { self.onSelectionChanged(true) }
-        }
     }
     
     @ViewBuilder
     private var titleView: some View {
         Text(title)
-            .textStyle(.bodyMediumRegular())
+            .textStyle(.bodyMediumSemibold())
 
     }
     
     @ViewBuilder
-    private var secondaryTextView: some View {
-        if case .text(let text) = trailingContent {
-            Text(text)
-                .textStyle(.bodyMediumRegular(colorType: .secondary))
-        }
+    private var descriptionView: some View {
+        Text(description)
+            .textStyle(.bodyMediumRegular(colorType: .secondary))
+    }
+    
+    
+    @ViewBuilder
+    private var textRightView: some View {
+        Text(rightText)
+            .textStyle(.bodyMediumRegular(colorType: .secondary))
     }
     
     @ViewBuilder
-    private var badgeView: some View {
-        if case .pill(let text, let type) = trailingContent {
-            Text(text)
-                .textStyle(.badge(type))
-        }
+    private var leftImageView: some View {
+        leftImage
     }
-    
-    @ViewBuilder
-    private var toggleView: some View {
-        Toggle(
-            "",
-            isOn: Binding(
-                get: { self.isSelected },
-                set: { _ in
-                    if isEnabled {
-                        self.onSelectionChanged(true)
-                    }
-                }
-            )
-        )
-        .toggleStyle(.radio)
-        .labelsHidden()
-    }
+
 }
 
 #Preview {
     VStack(spacing: 16) {
-        // Basic list item without trailing content
-        ListItem(title: "Text", isSelected: true) { _ in
-            print("tap basic")
-        }
-        
-        // Selected item with text trailing content
-        ListItem(title: "Text", trailingContent: .text("Text"), isSelected: false) {_ in 
-            print("tap")
-        }
-        
-        // Item with pill badge
+        // Idle state
         ListItem(
-            title: "Text",
-            trailingContent: .pill(text: "Label"),
-            isSelected: false
-        ) {_ in 
-            print("tap")
-        }
+            leftImage: Image(systemName: "creditcard"),
+            title: "Title",
+            description: "Description",
+            rightText: "$ 1,000.00",
+            hasChevron: true
+        )
+        
+        // Active/Selected state
+        ListItem(
+            leftImage: Image(systemName: "creditcard"),
+            title: "Title",
+            description: "Description",
+            rightText: "$ 1,000.00",
+            hasChevron: true,
+            isSelected: true
+        )
+        
+        // Disabled state
+        ListItem(
+            leftImage: Image(systemName: "creditcard"),
+            title: "Title",
+            description: "Description",
+            rightText: "$ 1,000.00",
+            hasChevron: true
+        )
+        .disabled(true)
     }
     .padding()
     .loadMPFonts()

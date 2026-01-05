@@ -107,6 +107,20 @@ public protocol MPBorderColorTokens: Sendable {
     var disabled: Color { get }
 }
 
+public protocol MPSurfaceColors: Sendable {
+    var idle: Color { get }
+    var active: Color { get }
+    var disabled: Color { get }
+}
+
+public protocol MPIconColors: Sendable {
+    var primary: Color { get }
+    var secondary: Color { get }
+    var accent: Color { get }
+    var inverse: Color { get }
+    var disabled: Color { get }
+}
+
 // MARK: - Color Definitions
 public protocol MPColors: Sendable {
     // New tokens
@@ -114,6 +128,8 @@ public protocol MPColors: Sendable {
     var fill: MPFillColors { get }
     var text: MPTextColorTokens { get }
     var border: MPBorderColorTokens { get }
+    var surface: MPSurfaceColors { get }
+    var icon: MPIconColors { get }
     var interactive: MPInteractiveColors { get }
     var feedback: MPFeedbackColorTokens { get }
     

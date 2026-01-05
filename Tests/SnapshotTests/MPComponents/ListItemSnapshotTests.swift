@@ -13,87 +13,93 @@ import SnapshotTesting
 
 @MainActor
 final class ListItemSnapshotTests: XCTestCase {
-
-    override func setUp() {
-        super.setUp()
-    }
-
+    
     func test_allStatesComparison() {
-        let view = VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Idle")
-                    .font(.headline)
-                VStack(spacing: 8) {
-                    createListItem(title: "Unselected", isSelected: false)
-                    createListItem(title: "Selected", isSelected: true)
-                }
-            }
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Disabled")
-                    .font(.headline)
-                VStack(spacing: 8) {
-                    createListItem(title: "Unselected", isSelected: false, disabled: true)
-                    createListItem(title: "Selected", isSelected: true, disabled: true)
-                }
-            }
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Error")
-                    .font(.headline)
-                VStack(spacing: 8) {
-                    createListItem(title: "Unselected", isSelected: false, hasError: true)
-                    createListItem(title: "Selected", isSelected: true, hasError: true)
-                }
-            }
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Trailing Content")
-                    .font(.headline)
-                VStack(spacing: 8) {
-                    createListItem(
-                        title: "With text",
-                        trailingContent: .text("Value"),
-                        isSelected: false
-                    )
-                    createListItem(
-                        title: "With pill",
-                        trailingContent: .pill(text: "Label"),
-                        isSelected: false
-                    )
-                }
+        let view = createTestView {
+            VStack(spacing: 12) {
+                self.listItem(
+                    title: "Default",
+                    description: "With description",
+                    rightText: "$ 1,000.00",
+                    hasChevron: true,
+                    leftImageSystemName: "creditcard"
+                )
+                
+                self.listItem(
+                    title: "Selected",
+                    description: "With description",
+                    rightText: "$ 1,000.00",
+                    hasChevron: true,
+                    isSelected: true,
+                    leftImageSystemName: "creditcard"
+                )
+                
+                self.listItem(
+                    title: "Disabled",
+                    description: "With description",
+                    rightText: "$ 1,000.00",
+                    hasChevron: true,
+                    isDisabled: true,
+                    leftImageSystemName: "creditcard"
+                )
+                
+                self.listItem(
+                    title: "Without chevron",
+                    description: "Leading image and text",
+                    rightText: "Action",
+                    hasChevron: false,
+                    leftImageSystemName: "checkmark.seal"
+                )
+                
+                self.listItem(
+                    title: "Minimal content",
+                    hasChevron: true
+                )
             }
         }
-        .padding()
-        .frame(width: 350)
+        
+        let hostingController = UIHostingController(rootView: view)
         
         assertSnapshot(
-            of: view,
-            as: .image(precision: 0.95),
+            of: hostingController,
+            as: .image(precision: 0.95, size: CGSize(width: 360, height: 480)),
             named: "all_states_comparison"
         )
     }
-
+    
     // MARK: - Helper Methods
-
-    private func createListItem(
+    
+    private func listItem(
         title: String,
-        trailingContent: ListItemTrailingContent = .none,
-        isSelected: Bool,
-        hasError: Bool = false,
-        disabled: Bool = false
+        description: String = "",
+        rightText: String = "",
+        hasChevron: Bool = false,
+        isSelected: Bool = false,
+        isDisabled: Bool = false,
+        leftImageSystemName: String? = nil
     ) -> some View {
         ListItem(
+            leftImage: leftImageSystemName.map(Image.init(systemName:)),
             title: title,
-            trailingContent: trailingContent,
+            description: description,
+            rightText: rightText,
+            hasChevron: hasChevron,
             isSelected: isSelected
-        ) { _ in
-            // No action needed for snapshot tests
-        }
-        .hasError(hasError)
-        .disabled(disabled)
-        .environment(\.checkoutTheme, MPLightTheme())
+        )
+        .disabled(isDisabled)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .loadMPFonts()
+    }
+    
+    private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
+        ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
+            VStack(alignment: .leading, spacing: 12) {
+                content()
+                Spacer()
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.white)
+            .loadMPFonts()
+        }
     }
 }

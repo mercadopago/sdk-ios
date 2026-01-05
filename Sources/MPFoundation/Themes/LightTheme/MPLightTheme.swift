@@ -140,11 +140,27 @@ public struct LightBorderColorTokens: MPBorderColorTokens {
     public var disabled = Color(hex: 0xB5B9D4)
 }
 
+public struct LightSurfaceColors: MPSurfaceColors {
+    public var idle = Color(hex: 0xFFFFFF)
+    public var active = Color(hex: 0xE7E9F3)
+    public var disabled = Color(hex: 0xFFFFFF).opacity(0)
+}
+
+public struct LightIconColors: MPIconColors {
+    public var primary = Color(hex: 0x282834)
+    public var secondary = Color(hex: 0x646587)
+    public var accent = Color(hex: 0x434CE4)
+    public var inverse = Color(hex: 0xFFFFFF)
+    public var disabled = Color(hex: 0x9C9EBF)
+}
+
 public struct LightColors: MPColors {
     public var background: MPBackgroundColors = LightBackgroundColors()
     public var fill: MPFillColors = LightFillColors()
     public var text: MPTextColorTokens = LightTextColorTokens()
     public var border: MPBorderColorTokens = LightBorderColorTokens()
+    public var surface: MPSurfaceColors = LightSurfaceColors()
+    public var icon: MPIconColors = LightIconColors()
     public var interactive: MPInteractiveColors = LightInteractiveColors()
     public var feedback: MPFeedbackColorTokens = LightFeedbackColorTokens()
     
