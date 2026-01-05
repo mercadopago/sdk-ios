@@ -22,7 +22,7 @@ struct MPThreeDSUpdateStatusBody: Sendable, Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case status = "app_id"
+        case status = "status"
         case errorDetail = "error_detail"
     }
 }
