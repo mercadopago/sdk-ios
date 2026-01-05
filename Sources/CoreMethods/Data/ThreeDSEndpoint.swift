@@ -13,6 +13,7 @@ import Foundation
 /// Endpoints for 3DS operations.
 enum ThreeDSEndpoint {
     case postDeviceData(body: MPThreeDSAuthRequestParametersBody)
+    case patchChallenge(id: String, body: MPThreeDSUpdateStatusBody)
     case getChallenge(id: String)
 }
 
@@ -35,6 +36,8 @@ extension ThreeDSEndpoint: RequestEndpoint {
             return .post
         case .getChallenge:
             return .get
+        case .patchChallenge:
+            return .patch
         }
     }
 
@@ -43,7 +46,7 @@ extension ThreeDSEndpoint: RequestEndpoint {
         switch self {
         case .postDeviceData:
             return "card_tokens"
-        case .getChallenge(let id):
+        case .getChallenge(let id), .patchChallenge(let id, _):
             return "challenges/threeds/\(id)/authenticate"
         }
     }
@@ -67,6 +70,8 @@ extension ThreeDSEndpoint: RequestEndpoint {
     var body: Data? {
         switch self {
         case let .postDeviceData(body):
+            return try? JSONEncoder().encode(body)
+        case let .patchChallenge(_, body):
             return try? JSONEncoder().encode(body)
         default:
             return nil

@@ -33,5 +33,11 @@ package final class ThreeDSRepository: ThreeDSRepositoryProtocol {
             Endpoint.getChallenge(id: id)
         )
     }
+    
+    func patchChallenge(_ id: String, body: MPThreeDSUpdateStatusBody ) async throws -> Data {
+        return try await self.dependencies.networkService.request(
+            Endpoint.patchChallenge(id: id, body: body)
+        )
+    }
 }
 

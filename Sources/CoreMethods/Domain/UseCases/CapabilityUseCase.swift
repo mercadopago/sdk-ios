@@ -20,9 +20,16 @@ protocol CapabilityUseCaseProtocol: Sendable {
         ephemeralPublicKey: String,
         transactionID: String,
         threeDSVersion: String
-    ) async throws -> MPThreeDSResponse
+    ) async throws -> ThreeDSDeviceDataResponse
 
     func getChallengeParameters(_ id: String) async throws -> MPThreeDSChallengeParameters
+    func patchChallenge(
+        _ id: String,
+        status: MPThreeDSUpdateStatusBody.Status,
+        errorCode: String?,
+        errorType: String?
+    ) async throws -> Data
+
 }
 
 final class CapabilityUseCase: CapabilityUseCaseProtocol {
@@ -88,4 +95,15 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
             acsSignedContent: response.data?.acsSignedContent ?? ""
         )
     }
+    func patchChallenge(_ id: String, status: MPThreeDSUpdateStatusBody.Status, errorCode: String? = nil, errorType: String? = nil) async throws -> Data {
+        var errorDetail: MPThreeDSUpdateStatusBody.ErrorDetail?
+        if let errorCode, let errorType {
+            errorDetail = .init(type: errorType, code: errorCode)
+        }
+        let body = MPThreeDSUpdateStatusBody(status: status, errorDetail: errorDetail)
+        
+        
+        return try await repository.patchChallenge(id, body: body)
+    }
+
 }

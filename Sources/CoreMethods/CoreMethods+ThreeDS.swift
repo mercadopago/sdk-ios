@@ -33,4 +33,22 @@ extension CoreMethods {
         return try await capabilityUseCase.getChallengeParameters(id)
     }
     
+    
+    func finishChallenge(_ id: String) async throws {
+        let _ = try await capabilityUseCase.patchChallenge(id, status: .completed, errorCode: nil, errorType: nil)
+    }
+    
+    func cancelChallenge(_ id: String) async throws {
+        let _ = try await capabilityUseCase.patchChallenge(id, status: .cancelled, errorCode: nil, errorType: nil)
+
+    }
+    
+    func errorChallenge(_ id: String, errorCode: String, errorMessageType: String) async throws {
+        let _ = try await capabilityUseCase.patchChallenge(id, status: .error, errorCode: errorCode, errorType: errorMessageType)
+
+    }
+    
+    func timeoutChallenge(_ id: String) async throws {
+        let _ = try await capabilityUseCase.patchChallenge(id, status: .timeout, errorCode: nil, errorType: nil)
+    }
 }
