@@ -2,7 +2,6 @@ import CommonTests
 @testable import CoreMethods
 import MPCore
 import Testing
-import uSDK
 import XCTest
 
 // MARK: - CoreMethodsTests
@@ -16,7 +15,6 @@ final class CoreMethodsTests: XCTestCase {
         coreMethodsService: CoreMethods,
         session: MockURLSession,
         analytics: MockAnalytics,
-        threeDSSDK: MockThreeDSSDK
     )
 
     // MARK: - Stubs and Factories
@@ -190,16 +188,15 @@ final class CoreMethodsTests: XCTestCase {
         let analytics = container.mockAnalytics
 
         let repository = CoreMethodsRepository(dependencies: container)
+        let repositoryThreeDS = MockThreeDSRepository()
 
         let generateTokenUseCase = GenerateCardTokenUseCase(dependencies: container, repository: repository)
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
         let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
         let issuerUseCase = IssuerUseCase(repository: repository)
-        let capabilityUseCase = CapabilityUseCase(repository: repository)
+        let capabilityUseCase = CapabilityUseCase(repository: repositoryThreeDS)
         
-        let mockThreeDSSDK = MockThreeDSSDK()
-
         let coreMethodsService = CoreMethods(
             dependencies: container,
             generateTokenUseCase: generateTokenUseCase,
@@ -207,11 +204,10 @@ final class CoreMethodsTests: XCTestCase {
             installmentsUseCase: installmentsUseCase,
             paymentMethodUseCase: paymentMethodUseCase,
             issuerUseCase: issuerUseCase,
-            threeDSSDK: mockThreeDSSDK,
             capabilityUseCase: capabilityUseCase
         )
 
-        return (coreMethodsService, session, analytics, mockThreeDSSDK)
+        return (coreMethodsService, session, analytics)
     }
 
     // MARK: - Error assertion helpers
@@ -240,7 +236,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsSuccess_shouldReturnCardToken() async {
         // Arrange
-        let (sut, session, _, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
@@ -264,7 +260,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsError_shouldThrowDecodingError() async {
         // Arrange
-        let (sut, session, _, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
@@ -291,7 +287,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsFormattedError_shouldThrowAPIErrorResponse() async {
         // Arrange
-        let (sut, session, _, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
@@ -313,7 +309,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withValidCardID_shouldReturnCardToken() async {
         // Arrange
-        let (sut, session, _, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let cardID = "123"
         let (_, _, securityCode) = await makeCardFields()
 
@@ -336,7 +332,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withDocumentAndCardholderName_whenNetworkReturnsSuccess_shouldReturnCardToken() async {
         // Arrange
-        let (sut, session, _, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         let documentType = IdentificationTypeStub.validDNI
         let documentNumber = "12345678"
@@ -365,7 +361,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withDocumentAndCardholderName_whenNetworkReturnsError_shouldThrowAPIError() async {
         // Arrange
-        let (sut, session, _, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         let documentType = IdentificationTypeStub.validDNI
         let documentNumber = "12345678"
@@ -391,7 +387,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_createToken_withDocumentAndCardholderName_shouldSendAnalyticsEvent() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         let documentType = IdentificationTypeStub.validDNI
         let documentNumber = "12345678"
@@ -437,7 +433,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withCardIDAndExpirationDate_shouldReturnCardToken() async {
         // Arrange
-        let (sut, session, _, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let cardID = "123"
         let (_, expirationDate, securityCode) = await makeCardFields()
 
@@ -461,7 +457,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withCardIDAndExpirationDate_whenNetworkReturnsError_shouldThrowAPIError() async {
         // Arrange
-        let (sut, session, _, _) = self.makeSUT()
+        let (sut, session, _) = self.makeSUT()
         let cardID = "123"
         let (_, expirationDate, securityCode) = await makeCardFields()
 
@@ -482,7 +478,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_createToken_withCardID_shouldSendAnalyticsEventWithSaveCardFlag() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
         let cardID = "123"
         let (_, _, securityCode) = await makeCardFields()
         let expectEventData = TokenizationEventData(isSaveCard: true, documentType: "")
@@ -523,7 +519,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_identificationType_whenNetworkReturnsSuccess_shouldReturnIdentificationTypes() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
         await session.mock.setData(IdentificationTypeStub.validResponse)
@@ -562,7 +558,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_identificationType_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
         await session.mock.setData(APIErrorStub.badRequestData)
@@ -594,7 +590,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_installments_whenNetworkReturnsSuccess_shouldReturnInstallment() async {
         // Arrange
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
         let expectation = expectation(description: "Analytics event should be sent")
         let expectResponse = InstallmentsStub.expectResponse
         let expectEventData = InstallmentEventData(
@@ -635,7 +631,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_installment_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
         let expectEventData = InstallmentEventData(
             amount: 500,
             paymentType: ""
@@ -671,7 +667,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_paymentMethods_whenNetworkReturnsSuccess_shouldReturnPaymentMethodsAndSendEventData() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
 
         let data = PaymentMethodStub.expectedResponse[0]
         let expectEventData = PaymentMethodEventData(
@@ -718,7 +714,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_paymentMethods_whenNetworkReturnsFormattedError_shouldCallAnalyticsWithError() async {
         // Arrange
         let expectation = expectation(description: "Analytics error event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
         let expectEventData = PaymentMethodEventData()
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
@@ -751,7 +747,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_paymentMethods_whenEmptyArrayReturned_shouldNotSendEventData() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
         let expectEventData = PaymentMethodEventData(
             issuer: nil,
             paymentType: nil,
@@ -791,7 +787,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_issuer_whenNetworkReturnsSuccess_shouldReturnInstallment() async {
         // Arrange
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
         let expectation = expectation(description: "Analytics event should be sent")
         let expectResponse = IssuerStub.expectResponse
         let expectEventData = IssuersEventData(issuers: ["Banco"])
@@ -829,7 +825,7 @@ final class CoreMethodsTests: XCTestCase {
     func test_issuer_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
         // Arrange
         let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics, _) = self.makeSUT()
+        let (sut, session, analytics) = self.makeSUT()
         let expectEventData = IssuersEventData(issuers: [])
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
@@ -857,90 +853,5 @@ final class CoreMethodsTests: XCTestCase {
                 .send
             ]
         )
-    }
-    
-    // MARK: - Tests for ThreeDSSDK integration
-    
-    func test_coreMethodsInitialization_withThreeDSSDK_shouldHaveSDKAvailable() async {
-        // Arrange
-        let (sut, _, _, _) = self.makeSUT()
-        
-        // Act
-        let sdk = await sut.threeDSSDK
-        
-        // Assert
-        XCTAssertNotNil(sdk, "CoreMethods should have a ThreeDSSDK instance")
-    }
-    
-    func test_mockThreeDSSDK_initialize_shouldCallCallback() async {
-        // Arrange
-        let mockSDK = MockThreeDSSDK()
-        let locale = "pt_BR"
-        let initializeExpectation = expectation(description: "Initialize callback should be called")
-        let completionExpectation = expectation(description: "Completion should be called")
-        
-        var capturedLocale: String?
-        
-        mockSDK.onInitialize = { locale in
-            capturedLocale = locale
-            initializeExpectation.fulfill()
-        }
-        
-        // Act
-        mockSDK.initialize(
-            config: ThreeDSConfig(),
-            locale: locale,
-            completion: { error in
-                completionExpectation.fulfill()
-                XCTAssertNil(error, "Should not return error by default")
-            }
-        )
-        
-        // Assert
-        await fulfillment(of: [initializeExpectation, completionExpectation], timeout: 1.0)
-        XCTAssertEqual(capturedLocale, locale)
-    }
-    
-    func test_mockThreeDSSDK_createTransaction_shouldReturnMockedTransaction() async {
-        // Arrange
-        let mockTransaction = MockThreeDSTransaction(id: "test-transaction-123")
-        let mockSDK = MockThreeDSSDK(transactionToReturn: mockTransaction)
-        
-        var capturedDirectoryId: String?
-        var capturedMessageVersion: String?
-        mockSDK.onCreateTransaction = { directoryId, messageVersion in
-            capturedDirectoryId = directoryId
-            capturedMessageVersion = messageVersion
-        }
-        
-        // Act
-        let transaction = mockSDK.createTransaction(
-            directoryServerId: "test-directory",
-            messageVersion: "2.1.0"
-        )
-        
-        // Assert
-        XCTAssertNotNil(transaction)
-        XCTAssertEqual(transaction?.id, "test-transaction-123")
-        XCTAssertEqual(capturedDirectoryId, "test-directory")
-        XCTAssertEqual(capturedMessageVersion, "2.1.0")
-    }
-    
-    func test_mockThreeDSSDK_getWarnings_shouldReturnMockedWarnings() async {
-        // Arrange
-        let expectedWarnings = [MPThreeDSWarning(id: "1", message: "error", severity: .medium)]
-        let mockSDK = MockThreeDSSDK(warningsToReturn: expectedWarnings)
-        
-        var getWarningsCalled = false
-        mockSDK.onGetWarnings = {
-            getWarningsCalled = true
-        }
-        
-        // Act
-        let warnings = mockSDK.getWarnings()
-        
-        // Assert
-        XCTAssertEqual(warnings.count, expectedWarnings.count)
-        XCTAssertTrue(getWarningsCalled)
     }
 }

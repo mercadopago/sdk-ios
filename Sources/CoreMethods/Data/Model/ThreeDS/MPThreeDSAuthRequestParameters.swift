@@ -10,7 +10,7 @@ import Foundation
 // MARK: - MPThreeDSAuthRequestParametersBody
 
 /// Authentication request parameters required for 3D Secure server communication.
-struct MPThreeDSAuthRequestParametersBody: Sendable, Codable {
+struct MPThreeDSAuthRequestParametersBody: Sendable, Codable, Equatable {
     /// Unique identifier of the 3DS SDK application.
     let appId: String
     /// Integrator SDK version (e.g., Mastercard SDK).
@@ -52,7 +52,7 @@ struct MPThreeDSAuthRequestParametersBody: Sendable, Codable {
 // MARK: - DeviceRenderOptions
 
 /// Device rendering configuration options for 3DS challenge display.
-struct DeviceRenderOptions: Sendable, Codable {
+struct DeviceRenderOptions: Sendable, Codable, Equatable {
     /// SDK interface type (e.g., "Native", "HTML").
     let interface: String
     /// List of supported UI types for challenge display.
@@ -67,7 +67,7 @@ struct DeviceRenderOptions: Sendable, Codable {
 // MARK: - EphemPubKey
 
 /// Ephemeral public key for encryption in 3DS flow.
-struct EphemPubKey: Sendable, Codable {
+struct EphemPubKey: Sendable, Codable, Equatable {
     /// Elliptic curve algorithm (e.g., "P-256").
     let curve: String
     /// Key type (e.g., "EC" for Elliptic Curve).

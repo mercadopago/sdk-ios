@@ -19,7 +19,7 @@ extension CoreMethods {
     ///   - referenceNumber: SDK reference number.
     ///   - ephemeralPublicKey: Ephemeral public key (JWK JSON string) used for encryption.
     ///   - transactionID: transaction ID (transId).
-    func sendDeviceData(
+    public func sendDeviceData(
         cardTokenId: String,
         appId: String,
         deviceData: String,
