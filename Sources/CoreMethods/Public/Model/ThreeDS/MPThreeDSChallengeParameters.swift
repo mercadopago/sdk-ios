@@ -21,7 +21,6 @@ public struct MPThreeDSChallengeParameters: Sendable {
     /// ACS Signed Content contains the JWS object created by the ACS.
     public var acsSignedContent: String
     
-    
     public enum ChallengeStatus: String, Sendable {
         case authenticated
         case challenge

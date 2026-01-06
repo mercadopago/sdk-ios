@@ -61,8 +61,8 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
 
         let curve = ephemeralKey["crv"] as? String ?? ""
         let keyType = ephemeralKey["kty"] as? String ?? ""
-        let x = ephemeralKey["x"] as? String ?? ""
-        let y = ephemeralKey["y"] as? String ?? ""
+        let xEphemeral = ephemeralKey["x"] as? String ?? ""
+        let yEphemeral = ephemeralKey["y"] as? String ?? ""
 
         let body = MPThreeDSAuthRequestParametersBody(
             appId: appId,
@@ -74,7 +74,7 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
                 uiTypes: configuration.threeDS.deviceRenderOptions.uiTypes
             ),
             encData: deviceData,
-            ephemPubKey: EphemPubKey(curve: curve, keyType: keyType, x: x, y: y),
+            ephemPubKey: EphemPubKey(curve: curve, keyType: keyType, xEphem: xEphemeral, yEphem: yEphemeral),
             maxTimeout: configuration.threeDS.maxTimeout,
             protocolVersion: configuration.threeDS.protocolVersion,
             referenceNumber: referenceNumber,
@@ -95,13 +95,17 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
             acsSignedContent: response.data?.acsSignedContent ?? ""
         )
     }
-    func patchChallenge(_ id: String, status: MPThreeDSUpdateStatusBody.Status, errorCode: String? = nil, errorType: String? = nil) async throws -> Data {
+    func patchChallenge(
+        _ id: String,
+        status: MPThreeDSUpdateStatusBody.Status,
+        errorCode: String? = nil,
+        errorType: String? = nil
+    ) async throws -> Data {
         var errorDetail: MPThreeDSUpdateStatusBody.ErrorDetail?
         if let errorCode, let errorType {
             errorDetail = .init(type: errorType, code: errorCode)
         }
         let body = MPThreeDSUpdateStatusBody(status: status, errorDetail: errorDetail)
-        
         
         return try await repository.patchChallenge(id, body: body)
     }

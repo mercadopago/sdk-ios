@@ -13,4 +13,3 @@ protocol ThreeDSRepositoryProtocol: Sendable {
     
     func patchChallenge(_ id: String, body: MPThreeDSUpdateStatusBody) async throws -> Data
 }
-

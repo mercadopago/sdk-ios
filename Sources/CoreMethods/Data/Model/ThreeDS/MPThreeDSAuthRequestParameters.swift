@@ -73,14 +73,14 @@ struct EphemPubKey: Sendable, Codable, Equatable {
     /// Key type (e.g., "EC" for Elliptic Curve).
     let keyType: String
     /// X coordinate of the elliptic curve point.
-    let x: String
+    let xEphem: String
     /// Y coordinate of the elliptic curve point.
-    let y: String
+    let yEphem: String
 
     enum CodingKeys: String, CodingKey {
         case curve
         case keyType = "key_type"
-        case x
-        case y
+        case xEphem = "x"
+        case yEphem = "y"
     }
 }

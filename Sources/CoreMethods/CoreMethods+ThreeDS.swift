@@ -28,7 +28,7 @@ extension CoreMethods {
         ephemeralPublicKey: String,
         transactionID: String,
     ) async throws {
-        let _ = try await capabilityUseCase.sendDeviceData(
+        _ = try await capabilityUseCase.sendDeviceData(
             configuration: configuration,
             cardTokenId: cardTokenId,
             appId: appId,
@@ -53,14 +53,13 @@ extension CoreMethods {
     /// Marks the challenge as successfully completed
     /// - Parameter id: Challenge identifier.
     func finishChallenge(_ id: String) async throws {
-        let _ = try await capabilityUseCase.patchChallenge(id, status: .completed, errorCode: nil, errorType: nil)
+        _ = try await capabilityUseCase.patchChallenge(id, status: .completed, errorCode: nil, errorType: nil)
     }
     
     /// Cancels the challenge when the user aborts or closes the flow.
     /// - Parameter id: Challenge identifier.
     func cancelChallenge(_ id: String) async throws {
-        let _ = try await capabilityUseCase.patchChallenge(id, status: .cancelled, errorCode: nil, errorType: nil)
-
+        _ = try await capabilityUseCase.patchChallenge(id, status: .cancelled, errorCode: nil, errorType: nil)
     }
     
     /// Reports a challenge failure with the provided error context.
@@ -69,13 +68,17 @@ extension CoreMethods {
     ///   - errorCode: Backend/ACS error code to log.
     ///   - errorMessageType: Error type/category as defined by the integration, use errorMessageType from getErrorMessage() of 3DS SDK
     func errorChallenge(_ id: String, errorCode: String, errorMessageType: String) async throws {
-        let _ = try await capabilityUseCase.patchChallenge(id, status: .error, errorCode: errorCode, errorType: errorMessageType)
-
+        _ = try await capabilityUseCase.patchChallenge(
+            id,
+            status: .error,
+            errorCode: errorCode,
+            errorType: errorMessageType
+        )
     }
     
     /// Marks the challenge as timed out  when the ACS UI exceeds the allowed window.
     /// - Parameter id: Challenge identifier.
     func timeoutChallenge(_ id: String) async throws {
-        let _ = try await capabilityUseCase.patchChallenge(id, status: .timeout, errorCode: nil, errorType: nil)
+        _ = try await capabilityUseCase.patchChallenge(id, status: .timeout, errorCode: nil, errorType: nil)
     }
 }
