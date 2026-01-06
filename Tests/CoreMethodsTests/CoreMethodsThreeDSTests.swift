@@ -62,8 +62,8 @@ final class CoreMethodsThreeDSTests: XCTestCase {
         XCTAssertEqual(body?.deviceRenderOptions.uiTypes, CoreMethods.Configuration().threeDS.deviceRenderOptions.uiTypes)
         XCTAssertEqual(body?.ephemPubKey.curve, "P-256")
         XCTAssertEqual(body?.ephemPubKey.keyType, "EC")
-        XCTAssertEqual(body?.ephemPubKey.x, "x-val")
-        XCTAssertEqual(body?.ephemPubKey.y, "y-val")
+        XCTAssertEqual(body?.ephemPubKey.xEphem, "x-val")
+        XCTAssertEqual(body?.ephemPubKey.yEphem, "y-val")
     }
     
     func test_sendDeviceData_whenRepositoryThrows_shouldPropagateError() async {

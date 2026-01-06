@@ -55,7 +55,9 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
             throw CoreMethodsError.errorGettingEphemeralKey
         }
 
-        guard let ephemeralKey = try? JSONSerialization.jsonObject(with: dataEphemeralKey, options: []) as? [String: Any] else {
+        guard let ephemeralKey = try?
+                JSONSerialization.jsonObject(with: dataEphemeralKey, options: []) as? [String: Any]
+        else {
             throw CoreMethodsError.errorGettingEphemeralKey
         }
 

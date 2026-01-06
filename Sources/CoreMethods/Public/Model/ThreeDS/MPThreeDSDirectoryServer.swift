@@ -26,17 +26,17 @@ public enum MPThreeDSDirectoryServer: String {
     case debvisa
     
     /// Mastercard credit cards.
-    case master
+    case master // swiftlint:disable:this inclusive_language
     
     /// Mastercard debit cards.
-    case debmaster
+    case debmaster // swiftlint:disable:this inclusive_language
     
     /// American Express cards.
     case amex
 
     /// EMVCo-defined Directory Server identifier.
     ///
-    /// Returns the official Directory Server ID as specified by EMVCo 3DS standards.
+    /// Returns the official Directory Server ID as specified by 3DS standards.
     /// These IDs are used by the 3DS SDK to route authentication requests
     /// to the correct payment network's Directory Server.
     ///
@@ -44,7 +44,7 @@ public enum MPThreeDSDirectoryServer: String {
     /// - Visa (credit/debit): `A000000003`
     /// - Mastercard (credit/debit): `A000000004` 
     /// - American Express: `A000000025`
-    var id: String {
+    public var id: String {
         switch self {
         case .visa, .debvisa: return "A000000003"
         case .master, .debmaster: return "A000000004"
