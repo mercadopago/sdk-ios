@@ -109,7 +109,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                     // Safe area container (notch area)
                     Color.clear
                         .frame(height: 0)
-                        .background(theme.colors.backgroundPrimary.edgesIgnoringSafeArea(.all))
+                        .background(theme.colors.background.primary.edgesIgnoringSafeArea(.all))
                     
                     // Main and sub headers
                     headerContent
@@ -119,6 +119,8 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
             }
         }
         .navigationBarHidden(true)
+        .background(theme.colors.background.primary.edgesIgnoringSafeArea(.all))
+        
     }
     
     // MARK: - Header Content

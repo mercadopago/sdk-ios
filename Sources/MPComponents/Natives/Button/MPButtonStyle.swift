@@ -82,10 +82,10 @@ package struct MPBackButtonStyle: ButtonStyle {
     
     package func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundColor(theme.colors.accent)
+            .foregroundColor(theme.colors.icon.accent)
             .padding()
-            .background(theme.colors.secondary)
-            .cornerRadius(theme.borderRadius.s)
+            .background(theme.colors.interactive.fillQuietIdle)
+            .cornerRadius(theme.borderRadius.medium)
     }
 }
 

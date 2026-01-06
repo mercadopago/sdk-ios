@@ -9,11 +9,6 @@ import SwiftUI
 import MPFoundation
 
 /// A footer component that displays payment summary information such as total amount and payment method details.
-///
-/// The footer consists of two main areas:
-/// - **Summary Line**: Displays a label (e.g., "Total") and an amount value
-/// - **Description Line**:  Description label
-///
 /// ## Usage
 ///
 /// ```swift
@@ -21,6 +16,10 @@ import MPFoundation
 ///     label: "Total",
 ///     amount: "R$ 500",
 ///     description: "Santander Crédito **** 4561"
+///     buttonLabel: "Pay",
+///     action: {
+///       print("action")
+///     }
 /// )
 /// ```
 ///
@@ -31,6 +30,8 @@ package struct MPFooter: View {
     private let label: String
     private let amount: String
     private let description: String?
+    private let buttonLabel: String
+    private let action: () -> Void
     
     // MARK: - Environment
     
@@ -48,11 +49,15 @@ package struct MPFooter: View {
     package init(
         label: String,
         amount: String,
-        description: String? = nil
+        description: String? = nil,
+        buttonLabel: String,
+        action: @escaping () -> Void
     ) {
         self.label = label
         self.amount = amount
         self.description = description
+        self.buttonLabel = buttonLabel
+        self.action = action
     }
     
     // MARK: - Body
@@ -61,6 +66,7 @@ package struct MPFooter: View {
         let configuration = MPFooterStyleConfiguration(
             summaryLine: summaryLineView,
             descriptionLine: descriptionLineView,
+            button: button,
             hasDescription: description != nil
         )
         
@@ -73,10 +79,10 @@ package struct MPFooter: View {
     
     @ViewBuilder
     private var summaryLineView: some View {
-        HStack(alignment: .center, spacing: theme.spacings.m) {
+        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
             // Label
             Text(label)
-                .textStyle(.bodyMediumSemibold())
+                .textStyle(.titleSmallSemibold())
                 .lineLimit(1)
             
             Spacer()
@@ -84,7 +90,7 @@ package struct MPFooter: View {
             // Amount
             Text(amount)
                 .textStyle(.titleSmallSemibold())
-                .foregroundColor(theme.colors.textPrimary)
+                .foregroundColor(theme.colors.text.primary)
                 .lineLimit(1)
         }
     }
@@ -103,6 +109,14 @@ package struct MPFooter: View {
             }
         }
     }
+    
+    private var button: some View {
+        Button {
+            action()
+        } label: {
+            Text(buttonLabel)
+        }
+    }
 }
 
 // MARK: - Preview
@@ -117,13 +131,22 @@ struct MPFooter_Previews: PreviewProvider {
             MPFooter(
                 label: "Total",
                 amount: "R$ 500",
-                description: "Santander Crédito **** 4561"
+                description: "Santander Crédito **** 4561",
+                buttonLabel: MPStrings.CardForm.button,
+                action: {
+                    print("button action")
+                }
             )
+            .disabled(true)
             
             // Footer without description
             MPFooter(
                 label: "Total",
-                amount: "R$ 1.250,00"
+                amount: "R$ 1.250,00",
+                buttonLabel: MPStrings.CardForm.button,
+                action: {
+                    print("button action")
+                }
             )
         }
         .loadMPFonts()

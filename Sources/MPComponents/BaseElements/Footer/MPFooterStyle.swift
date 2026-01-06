@@ -15,32 +15,38 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
     package var id: UUID = .init()
     
     @Environment(\.checkoutTheme) var theme: MPTheme
-    
+    @Environment(\.isEnabled) private var isEnabled: Bool
+
     package init() {}
     
     @MainActor
     package func makeBody(configuration: MPFooterStyleConfiguration) -> some View {
         VStack(spacing: 0) {
             // Content area
-            VStack(spacing: theme.spacings.xs) {
+            VStack(spacing: theme.spacings.xmicro) {
                 // Summary line
                 configuration.summaryLine
-                    .padding(.horizontal, theme.spacings.m)
-                    .padding(.top, theme.spacings.m)
+                    .padding(.top, theme.spacings.xtiny)
                 
                 // Description line (if present)
                 if configuration.hasDescription {
                     configuration.descriptionLine
-                        .padding(.horizontal, theme.spacings.m)
-                        .padding(.bottom, theme.spacings.m)
+                        .padding(.horizontal, theme.spacings.xtiny)
                 } else {
                     Color.clear
-                        .frame(height: theme.spacings.m)
+                        .frame(height: theme.spacings.xtiny)
+                }
+                
+                if isEnabled {
+                    configuration.button
+                        .mpButtonStyle(variant: .loud)
+                        .padding(.top, configuration.hasDescription ? theme.spacings.micro : 0)
                 }
             }
-            .background(theme.colors.backgroundPrimary)
+            .padding(.horizontal, theme.spacings.xtiny)
+            .background(theme.colors.background.primary)
             .background(
-            theme.colors.backgroundPrimary
+            theme.colors.background.primary
                 .shadow(
                     color: Color.black.opacity(0.1),
                     radius: 8, x: 0, y: -4
