@@ -26,7 +26,7 @@ extension ThreeDSEndpoint: RequestEndpoint {
 
     /// Endpoint base URL.
     var baseURL: String {
-        return ConstantsCoreMethods.baseURLBricks
+        return ConstantsCoreMethods.baseURLBricks + "/beta"
     }
 
     /// Endpoint HTTP method.
@@ -45,7 +45,7 @@ extension ThreeDSEndpoint: RequestEndpoint {
     var path: String {
         switch self {
         case .postDeviceData:
-            return "card_tokens"
+            return "challenges/threeds/device"
         case .getChallenge(let id), .patchChallenge(let id, _):
             return "challenges/threeds/\(id)/authenticate"
         }
@@ -56,7 +56,8 @@ extension ThreeDSEndpoint: RequestEndpoint {
         switch self {
         default:
             return [
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "X-Public-Key": MercadoPagoSDK.shared.getPublicKey(),
             ]
         }
     }
