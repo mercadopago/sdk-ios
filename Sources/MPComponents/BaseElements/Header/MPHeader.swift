@@ -53,8 +53,8 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     // MARK: - State
     
     @State private var scrollOffset: CGFloat = 0
-    @State private var headerHeight: CGFloat = 30
-    @State private var subHeaderHeight: CGFloat = 20
+    @State private var headerHeight: CGFloat = 40
+    @State private var subHeaderHeight: CGFloat = 40
     @State private var safeAreaTop: CGFloat = 0
     
     private let epsilon = 0.00001
@@ -154,7 +154,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
             
             // Title (appears when collapsed)
             Text(title)
-                .textStyle(.bodyMediumSemibold())
+                .textStyle(.headingMedium())
                 .lineLimit(1)
                 .opacity(collapseProgress)
                 .frame(maxWidth: .infinity)
@@ -174,7 +174,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     private var subHeaderView: some View {
         HStack {
             Text(title)
-                .textStyle(.titleSmallSemibold())
+                .textStyle(.headingHuge())
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }

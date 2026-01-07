@@ -15,6 +15,8 @@ import SnapshotTesting
 final class ListItemSnapshotTests: XCTestCase {
     
     func test_allStatesComparison() {
+        FontName.registerCustomFonts()
+
         let view = createTestView {
             VStack(spacing: 12) {
                 self.listItem(

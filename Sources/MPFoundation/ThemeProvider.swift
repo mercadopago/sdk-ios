@@ -53,7 +53,6 @@ package struct ThemeProvider<Content: View>: View {
           .environment(\.checkoutTheme, currentTheme)
           .preferredColorScheme(resolvedColorScheme)
           .animation(.easeInOut, value: colorScheme)
-          .loadMPFonts()
     }
     
     private var currentTheme: MPTheme {

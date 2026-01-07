@@ -33,7 +33,7 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             if let label = configuration.label {
                 label
                     .body
-                    .font(appearance.labelFont)
+                    .font(appearance.labelFont.toFont())
                     .foregroundColor(stateAppearance.labelColor)
             }
 
@@ -44,7 +44,7 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                
                 configuration
                     .field
-                    .font(appearance.textFont)
+                    .font(appearance.textFont.toFont())
                     .foregroundColor(stateAppearance.textColor)
                     .padding(appearance.padding)
 
@@ -75,7 +75,7 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                     }
 
                     helper
-                        .font(appearance.helperFont)
+                        .font(appearance.helperFont.toFont())
                         .foregroundColor(stateAppearance.helperColor)
                     
                 }

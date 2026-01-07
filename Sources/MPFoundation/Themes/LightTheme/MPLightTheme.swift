@@ -8,12 +8,12 @@ import SwiftUI
 
 // MARK: - MPLightTheme Implementation
 public struct MPLightTheme: MPTheme {
-    public var colors: MPColors = LightColors()
-    public var spacings: MPSpacings = LightSpacings()
-    public var borderRadius: MPBorderRadius = LightBorderRadius()
-    public var borderWidth: MPBorderWidth = LightBorderWidth()
-    public var outline: MPOutline = LightOutline()
-    public var typography: MPTypography = LightTypography()
+    public var colors: MPColors
+    public var spacings: MPSpacings
+    public var borderRadius: MPBorderRadius
+    public var borderWidth: MPBorderWidth
+    public var outline: MPOutline
+    public var typography: MPTypography
     
     // Component Appearances
     public var buttons: MPButtons
@@ -39,7 +39,15 @@ public struct MPLightTheme: MPTheme {
         self.textFields = textFields
     }
     
+    @MainActor
     public init() {
+        self.colors = LightColors()
+        self.spacings = LightSpacings()
+        self.borderRadius = LightBorderRadius()
+        self.borderWidth = LightBorderWidth()
+        self.outline = LightOutline()
+        self.typography = LightTypography()
+        
         self.buttons = MPButtons(
             colors: colors,
             radios: borderRadius,
@@ -269,14 +277,16 @@ public struct LightOutline: MPOutline {
 
 // MARK: - Font Registration
 
-@MainActor
+
 package enum FontName: String {
     case bold = "Inter-Bold"
     case semiBold = "Inter-SemiBold"
     case regular = "Inter-Regular"
 
+    @MainActor
     private static var hasRegistered = false
 
+    @MainActor
     public static func registerCustomFonts() {
         guard !hasRegistered else { return }
 
@@ -304,29 +314,46 @@ extension View {
     }
 }
 
-extension Font {
-    static func custom(_ name: FontName, size: CGFloat) -> Font {
-        .custom(name.rawValue, size: size)
+extension UIFont {
+    static func custom(_ name: FontName, size: CGFloat) -> UIFont {
+        UIFont(name: name.rawValue, size: size)!
+    }
+    
+    package func toFont() -> Font {
+        return Font(self)
     }
 }
 
+
 public struct LightTypography: MPTypography {
-
-    public var title = MPTitleStyle(
-        smallSemibold: .custom(.semiBold, size: 20)
-    )
-
-    public var body = MPBodyStyle(
-        medium: MPFontStyle(
-            regular: .custom(.regular, size: 16),
-            semibold: .custom(.semiBold, size: 16)
-        ),
-        small: MPFontStyle(
-            regular: .custom(.regular, size: 14),
-            semibold: .custom(.semiBold, size: 14)
-        ),
-        extraSmallSemibold: .custom(.semiBold, size: 12)
-    )
     
-    public init() {}
+    public var heading: MPHeadingStyle
+    
+    public var body: MPBodyStyle
+
+    @MainActor
+    public init() {
+        FontName.registerCustomFonts()
+        
+        self.heading = .init(
+            huge: .custom(.bold, size: 24),
+            medium: .custom(.bold, size: 16)
+        )
+        
+        self.body = .init(
+            large: .init(
+                default: .custom(.regular, size: 18),
+                emphasis: .custom(.bold, size: 16)
+            ),
+            medium: .init(
+                default: .custom(.regular, size: 14),
+                emphasis: .custom(.semiBold, size: 14),
+                title: .custom(.semiBold, size: 14)
+            ),
+            small: .init(
+                default: .custom(.regular, size: 12),
+                emphasis: .custom(.semiBold, size: 12)
+            )
+        )
+    }
 }

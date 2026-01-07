@@ -30,7 +30,7 @@ package struct TextStyleConfiguration {
 @MainActor
 package struct TextStyleKey: @preconcurrency EnvironmentKey {
     /// The default text style, which is `bodyMediumRegular`.
-    public static let defaultValue: any TextStyle = BaseTextStyle.bodyMediumRegular()
+    public static let defaultValue: any TextStyle = BaseTextStyle.bodyMedium()
 }
 
 /// An extension to provide access to the current text style within the SwiftUI environment.

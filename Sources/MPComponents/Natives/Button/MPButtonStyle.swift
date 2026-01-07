@@ -38,7 +38,7 @@ package struct MPButtonStyle: ButtonStyle {
         : variantAppearance.disabledForegroundColor
 
         return configuration.label
-            .font(sizeMetrics.font)
+            .font(sizeMetrics.font.toFont())
             .foregroundColor(currentForegroundColor)
             .padding(sizeMetrics.padding)
             .frame(maxWidth: .infinity)
@@ -104,6 +104,7 @@ struct ButtonStyleView: View {
     @State private var isLoading: Bool = false
 
     init(size: MPButtonStyle.Size = .large) {
+        FontName.registerCustomFonts()
         self.size = size
     }
     
