@@ -14,7 +14,7 @@ import MPFoundation
 
 extension View {
     func tooltipTest<TooltipContent: View>(
-        type: TooltipType = .blue,
+        type: TooltipType = .white,
         @ViewBuilder content: @escaping () -> TooltipContent
     ) -> some View {
         var config: TooltipConfig = DefaultTooltipConfig()
@@ -38,7 +38,7 @@ final class TooltipSnapshotTests: XCTestCase {
                     Image(systemName: "info.circle")
                         .font(.title)
                         .foregroundColor(.blue)
-                        .tooltipTest(type: .dark) {
+                        .tooltipTest(type: .white) {
                             Text("Dark Theme.")
                                 .textStyle(.bodyMedium(colorType: .inverted))
                         }
@@ -46,7 +46,7 @@ final class TooltipSnapshotTests: XCTestCase {
                     Text("Second text")
                         .padding()
                         .cornerRadius(8)
-                        .tooltipTest(type: .blue) {
+                        .tooltipTest(type: .white) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Blue Theme")
                                     .font(.headline)
