@@ -17,7 +17,9 @@ final class CoreMethodsThreeDSTests: XCTestCase {
         let coreRepository = CoreMethodsRepository(dependencies: container)
         let threeDSRepository = MockThreeDSRepository()
         let capabilityUseCase = CapabilityUseCase(repository: threeDSRepository)
-        
+        var configuration = CoreMethods.Configuration()
+        configuration.threeDS.sdkVersion = "2.2.0"
+
         let sut = CoreMethods(
             dependencies: container,
             generateTokenUseCase: GenerateCardTokenUseCase(dependencies: container, repository: coreRepository),
@@ -25,9 +27,10 @@ final class CoreMethodsThreeDSTests: XCTestCase {
             installmentsUseCase: InstallmentsUseCase(repository: coreRepository),
             paymentMethodUseCase: PaymentMethodUseCase(repository: coreRepository),
             issuerUseCase: IssuerUseCase(repository: coreRepository),
-            capabilityUseCase: capabilityUseCase
+            capabilityUseCase: capabilityUseCase,
+            configuration: configuration
         )
-        
+
         return (sut, threeDSRepository)
     }
     
@@ -42,11 +45,11 @@ final class CoreMethodsThreeDSTests: XCTestCase {
             cardTokenId: "token",
             appId: "app",
             deviceData: "device-data",
-            threeDSVersion: "2.2.0",
             referenceNumber: "ref",
             ephemeralPublicKey: ephemeral,
             transactionID: "trans"
         )
+        
         
         // Assert
         let body = repository.postCalls.last?.body
@@ -77,7 +80,6 @@ final class CoreMethodsThreeDSTests: XCTestCase {
                 cardTokenId: "token",
                 appId: "app",
                 deviceData: "device-data",
-                threeDSVersion: "2.2.0",
                 referenceNumber: "ref",
                 ephemeralPublicKey: "{}",
                 transactionID: "trans"

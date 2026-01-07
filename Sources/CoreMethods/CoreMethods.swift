@@ -109,7 +109,8 @@ public final actor CoreMethods {
         installmentsUseCase: InstallmentsUseCaseProtocol,
         paymentMethodUseCase: PaymentMethodUseCaseProtocol,
         issuerUseCase: IssuerUseCaseProtocol,
-        capabilityUseCase: CapabilityUseCaseProtocol
+        capabilityUseCase: CapabilityUseCaseProtocol,
+        configuration: Configuration = Configuration()
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
@@ -119,7 +120,12 @@ public final actor CoreMethods {
         self.issuerUseCase = issuerUseCase
         self.capabilityUseCase = capabilityUseCase
         
-        self.configuration = Configuration()
+        self.configuration = configuration
+    }
+
+    /// Replaces the current configuration atomically.
+    public func setConfiguration(_ newConfiguration: Configuration) {
+        configuration = newConfiguration
     }
     
     // MARK: Create Token
