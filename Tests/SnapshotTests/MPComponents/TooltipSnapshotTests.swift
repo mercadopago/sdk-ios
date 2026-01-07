@@ -40,7 +40,7 @@ final class TooltipSnapshotTests: XCTestCase {
                         .foregroundColor(.blue)
                         .tooltipTest(type: .white) {
                             Text("Dark Theme.")
-                                .textStyle(.bodyMedium(colorType: .inverted))
+                                .textStyle(.bodyMedium(colorType: .accent))
                         }
                     
                     Text("Second text")
@@ -51,14 +51,13 @@ final class TooltipSnapshotTests: XCTestCase {
                                 Text("Blue Theme")
                                     .font(.headline)
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.black)
                                 
                                 Text("This tooltip uses the dark theme for better contrast.")
                                     .font(.body)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.black)
                             }
                         }
-                    
                 }
             }
         }
@@ -68,6 +67,8 @@ final class TooltipSnapshotTests: XCTestCase {
         let view = TooltipView()
 
         let hostingController = UIHostingController(rootView: view)
+        
+        hostingController.view.backgroundColor = .darkGray
         
         assertSnapshot(
             of: hostingController,
