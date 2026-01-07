@@ -18,8 +18,7 @@ protocol CapabilityUseCaseProtocol: Sendable {
         deviceData: String,
         referenceNumber: String,
         ephemeralPublicKey: String,
-        transactionID: String,
-        threeDSVersion: String
+        transactionID: String
     ) async throws -> ThreeDSDeviceDataResponse
 
     func getChallengeParameters(_ id: String) async throws -> MPThreeDSChallengeParameters
@@ -48,8 +47,7 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
         deviceData: String,
         referenceNumber: String,
         ephemeralPublicKey: String,
-        transactionID: String,
-        threeDSVersion: String
+        transactionID: String
     ) async throws -> ThreeDSDeviceDataResponse {
         guard let dataEphemeralKey = ephemeralPublicKey.data(using: .utf8) else {
             throw CoreMethodsError.errorGettingEphemeralKey
@@ -69,7 +67,7 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
         let body = MPThreeDSAuthRequestParametersBody(
             appId: appId,
             integratorSDKVersion: MPSDKVersion.version,
-            threeDSSDKVersion: threeDSVersion,
+            threeDSSDKVersion: configuration.threeDS.sdkVersion,
             cardTokenId: cardTokenId,
             deviceRenderOptions: DeviceRenderOptions(
                 interface: configuration.threeDS.deviceRenderOptions.interface,

@@ -23,7 +23,6 @@ extension CoreMethods {
         cardTokenId: String,
         appId: String,
         deviceData: String,
-        threeDSVersion: String,
         referenceNumber: String,
         ephemeralPublicKey: String,
         transactionID: String,
@@ -35,8 +34,7 @@ extension CoreMethods {
             deviceData: deviceData,
             referenceNumber: referenceNumber,
             ephemeralPublicKey: ephemeralPublicKey,
-            transactionID: transactionID,
-            threeDSVersion: threeDSVersion
+            transactionID: transactionID
         )
     }
     

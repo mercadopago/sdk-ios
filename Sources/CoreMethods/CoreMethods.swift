@@ -45,6 +45,8 @@ public final actor CoreMethods {
         public struct ThreeDS: Sendable {
             public var protocolVersion = "2.2.0"
             
+            public var sdkVersion: String = ""
+            
             public var deviceRenderOptions: DeviceRenderOptions = DeviceRenderOptions()
             
             public var maxTimeout: Int = 5
@@ -61,7 +63,7 @@ public final actor CoreMethods {
         public init() {}
     }
     
-    internal let configuration: Configuration
+    public var configuration: Configuration
     
     // MARK: Use Cases
     internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
