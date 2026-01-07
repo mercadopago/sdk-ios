@@ -265,7 +265,7 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 20, height: 20)
-                                .foregroundColor(theme.colors.textInverted)
+                                .foregroundColor(theme.colors.text.inverse)
                         }
                     }
                 }
@@ -307,7 +307,7 @@ struct TooltipModifier_Previews: PreviewProvider {
                         Image(systemName: "info.circle")
                             .font(.title)
                             .foregroundColor(.blue)
-                            .tooltip(type: .dark) {
+                            .tooltip(type: .white) {
                                 Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
                                     .textStyle(.bodyMedium(colorType: .inverted))
                             }
@@ -317,7 +317,7 @@ struct TooltipModifier_Previews: PreviewProvider {
                         Text("Second text")
                             .padding()
                             .cornerRadius(8)
-                            .tooltip(type: .blue) {
+                            .tooltip(type: .white) {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Blue Theme")
                                         .font(.headline)
