@@ -80,7 +80,6 @@ public enum TextStyleColorType: CaseIterable, Identifiable, Sendable {
     case secondary
     case accent
     case disabled
-    case negative
     case inverted
 
     public var id: Self { self }
@@ -91,17 +90,15 @@ public enum TextStyleColorType: CaseIterable, Identifiable, Sendable {
     public func color(from colorTokens: MPColors) -> Color {
         switch self {
         case .primary:
-            return colorTokens.textPrimary
+            return colorTokens.text.primary
         case .secondary:
-            return colorTokens.textSecondary
+            return colorTokens.text.secondary
         case .accent:
-            return colorTokens.textAccent
+            return colorTokens.text.accent
         case .disabled:
-            return colorTokens.textDisabled
-        case .negative:
-            return colorTokens.textNegative
+            return colorTokens.text.disabled
         case .inverted:
-            return colorTokens.textInverted
+            return colorTokens.text.inverse
         }
     }
 }
@@ -249,14 +246,6 @@ private struct TextStyleList: View {
                 }
                 
                 Divider()
-                
-                // Large
-                Group {
-                    Text("Body Extra Small Semibold (Disabled)")
-                        .textStyle(.largeEmphasis(colorType: .disabled))
-                    Text("Body Extra Small Semibold (Negative)")
-                        .textStyle(.large(colorType: .negative))
-                }
             }
             .padding()
         }

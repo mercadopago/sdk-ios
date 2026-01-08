@@ -13,7 +13,6 @@ public protocol MPTheme: Sendable {
     var spacings: MPSpacings { get set }
     var borderRadius: MPBorderRadius { get set }
     var borderWidth: MPBorderWidth { get set }
-    var outline: MPOutline { get set }
     var typography: MPTypography { get set }
     
     // Component Appearances
@@ -123,7 +122,6 @@ public protocol MPIconColors: Sendable {
 
 // MARK: - Color Definitions
 public protocol MPColors: Sendable {
-    // New tokens
     var background: MPBackgroundColors { get }
     var fill: MPFillColors { get }
     var text: MPTextColorTokens { get }
@@ -132,37 +130,10 @@ public protocol MPColors: Sendable {
     var icon: MPIconColors { get }
     var interactive: MPInteractiveColors { get }
     var feedback: MPFeedbackColorTokens { get }
-    
-    // Legacy tokens
-    var accent: Color { get set }
-    var accentFirstVariant: Color { get set }
-    var accentSecondVariant: Color { get set }
-    var accentYellow: Color { get set }
-    var accentPositive: Color { get set }
-    var accentNegative: Color { get set }
-    var backgroundPrimary: Color { get set }
-    var backgroundSecondary: Color { get set }
-    var backgroundTertiary: Color { get set }
-    var backgroundInverted: Color { get set }
-    var textPrimary: Color { get set }
-    var textSecondary: Color { get set }
-    var textAccent: Color { get set }
-    var textDisabled: Color { get set }
-    var textNegative: Color { get set }
-    var textInverted: Color { get set }
-    var secondary: Color { get set }
-    var secondaryFirstVariant: Color { get set }
-    var secondarySecondVariant: Color { get set }
-    var outlinePrimary: Color { get set }
-    var outlineSecondary: Color { get set }
-    var feedbackPositive: Color { get set }
-    var feedbackNegative: Color { get set }
-    var feedbackPositiveSecondary: Color { get set }
 }
 
 // MARK: - Spacing Definitions
 public protocol MPSpacings: Sendable {
-    // New tokens (Andes X)
     var none: CGFloat { get }
     var pico: CGFloat { get }
     var xnano: CGFloat { get }
@@ -177,22 +148,10 @@ public protocol MPSpacings: Sendable {
     var large: CGFloat { get }
     var xlarge: CGFloat { get }
     var huge: CGFloat { get }
-    
-    // swiftlint:disable identifier_name
-    // Legacy tokens
-    var xxs: CGFloat { get set }
-    var xs: CGFloat { get set }
-    var s: CGFloat { get set }
-    var m: CGFloat { get set }
-    var l: CGFloat { get set }
-    var xl: CGFloat { get set }
-    var xxl: CGFloat { get set }
-    // swiftlint:enable identifier_name
 }
 
 // MARK: - Border Radius Definitions
 public protocol MPBorderRadius: Sendable {
-    // New tokens (Andes X)
     var none: CGFloat { get }
     var tiny: CGFloat { get }
     var xsmall: CGFloat { get }
@@ -201,13 +160,6 @@ public protocol MPBorderRadius: Sendable {
     var large: CGFloat { get }
     var xlarge: CGFloat { get }
     var full: CGFloat { get }
-    
-    // swiftlint:disable identifier_name
-    // Legacy tokens
-    var xxs: CGFloat { get set }
-    var xs: CGFloat { get set }
-    var s: CGFloat { get set }
-    // swiftlint:enable identifier_name
 }
 
 // MARK: - Border Width Definitions
@@ -217,33 +169,6 @@ public protocol MPBorderWidth: Sendable {
     var medium: CGFloat { get }
     var large: CGFloat { get }
     var xlarge: CGFloat { get }
-}
-
-// swiftlint:disable identifier_name
-// MARK: - Outline Definitions (Legacy)
-public protocol MPOutline: Sendable {
-    var xxs: CGFloat { get set }
-    var xs: CGFloat { get set }
-}
-// swiftlint:enable identifier_name
-
-// MARK: - Typography Definitions
-public struct MPFontStyle: Sendable {
-    public var regular: Font
-    public var semibold: Font
-    public var bold: Font
-    
-    public init(regular: Font, semibold: Font, bold: Font) {
-        self.regular = regular
-        self.semibold = semibold
-        self.bold = bold
-    }
-    
-    public init(regular: Font, semibold: Font) {
-        self.regular = regular
-        self.semibold = semibold
-        self.bold = semibold
-    }
 }
 
 public struct MPHeadingStyle: Sendable {

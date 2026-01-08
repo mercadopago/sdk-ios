@@ -13,17 +13,7 @@ import MPFoundation
 /// The tooltip type determines the overall color scheme and visual appearance.
 /// Each type provides a different aesthetic suitable for various use cases.
 package enum TooltipType: CaseIterable, Sendable {
-    /// A blue-themed tooltip with accent colors.
-    ///
-    /// This type uses the theme's accent color for the background,
-    /// making it ideal for informational content and feature highlights.
-    case blue
-    
-    /// A dark-themed tooltip with high contrast.
-    ///
-    /// This type uses inverted background colors for better visibility
-    /// and contrast, suitable for tooltips that need to stand out.
-    case dark
+    case white
 }
 
 /// Default implementation of `TooltipConfig` with sensible defaults.
@@ -63,7 +53,7 @@ package struct DefaultTooltipConfig: TooltipConfig {
     package var arrowType: ArrowType = .default
     
     /// Visual theme type for the tooltip. Defaults to `.blue`.
-    package var type: TooltipType = .blue
+    package var type: TooltipType = .white
 
     // MARK: - Initializers
     
@@ -86,12 +76,12 @@ package struct DefaultTooltipConfig: TooltipConfig {
     
     /// Returns the standard border radius from the design system.
     package func borderRadius(from theme: MPTheme) -> CGFloat {
-        return theme.borderRadius.s
+        return theme.borderRadius.medium
     }
     
     /// Returns a minimal border width from the design system.
     package func borderWidth(from theme: MPTheme) -> CGFloat {
-        return theme.outline.xs
+        return theme.borderWidth.small
     }
     
     /// Returns the appropriate background color based on tooltip type.
@@ -100,20 +90,18 @@ package struct DefaultTooltipConfig: TooltipConfig {
     /// - `.dark`: Uses inverted background for high contrast tooltips
     package func backgroundColor(from theme: MPTheme) -> Color {
         switch type {
-        case .blue:
-            return theme.colors.accent
-        case .dark:
-            return theme.colors.backgroundInverted
+        case .white:
+            return theme.colors.fill.primary
         }
     }
     
     /// Returns consistent medium padding for tooltip content.
     package func contentPadding(from theme: MPTheme) -> EdgeInsets {
         return EdgeInsets(
-            top: theme.spacings.m,
-            leading: theme.spacings.m,
-            bottom: theme.spacings.m,
-            trailing: theme.spacings.m
+            top: theme.spacings.micro,
+            leading: theme.spacings.micro,
+            bottom: theme.spacings.micro,
+            trailing: theme.spacings.micro
         )
     }
 }
