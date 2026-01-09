@@ -37,7 +37,6 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
             }
             .buttonStyle(MPBackButtonStyle())
             .frame(width: 44, height: 44)
-            .accessibility(label: Text(MPStrings.Common.back))
             
             Text(configuration.title)
                 .textStyle(.headingMedium())
