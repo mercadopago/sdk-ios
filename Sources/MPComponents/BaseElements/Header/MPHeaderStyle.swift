@@ -22,33 +22,75 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
     @MainActor
     package func makeBody(configuration: MPHeaderStyleConfiguration) -> some View {
         VStack(spacing: 0) {
-            // Main Header
-            configuration.mainHeader
-                .padding(.horizontal, theme.spacings.xtiny)
-                .padding(.vertical, theme.spacings.micro)
-                .background(headerBackgroundView(configuration))
-                .animation(.easeInOut(duration: 0.2))
-            
-            // Sub Header with collapse animations
-            configuration.subHeader
-                .padding(.horizontal, theme.spacings.xtiny)
-                .padding(.vertical,
-                         configuration.subHeaderVisibleHeight > 24 ?
-                         theme.spacings.xmicro : 0
-                )
-                .background(
-                    GeometryReader { geo in
-                        Color.clear.preference(
-                            key: SubHeaderHeightKey.self,
-                            value: geo.size.height
-                        )
-                    }
-                )
-                .frame(height: configuration.subHeaderVisibleHeight, alignment: .top)
-                .opacity(1 - configuration.collapseProgress)
-                .offset(y: -(configuration.subHeaderHeight - configuration.subHeaderVisibleHeight))
-                .clipped()
+            mainHeader(configuration)
+            subHeader(configuration)
         }
+        .background(theme.colors.background.primary.edgesIgnoringSafeArea(.top))
+    }
+    
+    @ViewBuilder
+    @MainActor
+    private func mainHeader(_ configuration: MPHeaderStyleConfiguration) -> some View {
+        HStack(spacing: theme.spacings.xmicro) {
+            Button(action: configuration.onBack) {
+                Image(systemName: Logos.chevronLeft)
+            }
+            .buttonStyle(MPBackButtonStyle())
+            .frame(width: 44, height: 44)
+            
+            Text(configuration.title)
+                .textStyle(.headingMedium())
+                .lineLimit(1)
+                .opacity(configuration.collapseProgress)
+                .frame(maxWidth: .infinity)
+            
+            if let trailing = configuration.trailingActions {
+                trailing
+            } else {
+                Color.clear.frame(width: 44, height: 44)
+            }
+        }
+        .padding(.horizontal, theme.spacings.xtiny)
+        .padding(.vertical, theme.spacings.micro)
+        .background(headerBackgroundView(configuration))
+        .overlay(
+            GeometryReader { geo in
+                Color.clear.preference(
+                    key: MainHeaderHeightKey.self,
+                    value: geo.size.height
+                )
+            }
+        )
+        .animation(
+            .easeInOut(duration: 0.2), value: configuration.collapseProgress
+        )
+    }
+    
+    @ViewBuilder
+    @MainActor
+    private func subHeader(_ configuration: MPHeaderStyleConfiguration) -> some View {
+        Text(configuration.title)
+            .textStyle(.headingHuge())
+            .lineLimit(2)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, theme.spacings.xtiny)
+            .padding(
+                .vertical,
+                configuration.subHeaderVisibleHeight > 24 ?
+                    theme.spacings.xmicro : 0
+            )
+            .background(
+                GeometryReader { geo in
+                    Color.clear.preference(
+                        key: SubHeaderHeightKey.self,
+                        value: geo.size.height
+                    )
+                }
+            )
+            .frame(height: configuration.subHeaderVisibleHeight, alignment: .top)
+            .opacity(1 - configuration.collapseProgress)
+            .offset(y: -(configuration.subHeaderHeight - configuration.subHeaderVisibleHeight))
+            .clipped()
     }
     
     // MARK: - Background with Blur
@@ -84,11 +126,18 @@ private struct VisualEffectBlur: UIViewRepresentable {
     }
 }
 
-// MARK: - PreferenceKey for Sub-Header Height
+// MARK: - PreferenceKeys for Header Measurements
 
-private struct SubHeaderHeightKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+package struct MainHeaderHeightKey: PreferenceKey {
+    package static let defaultValue: CGFloat = 0
+    package static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+package struct SubHeaderHeightKey: PreferenceKey {
+    package static let defaultValue: CGFloat = 0
+    package static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
     }
 }
