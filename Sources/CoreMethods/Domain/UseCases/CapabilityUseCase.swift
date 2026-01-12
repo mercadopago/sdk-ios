@@ -49,13 +49,9 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
         ephemeralPublicKey: String,
         transactionID: String
     ) async throws -> ThreeDSDeviceDataResponse {
-        guard let dataEphemeralKey = ephemeralPublicKey.data(using: .utf8) else {
-            throw CoreMethodsError.errorGettingEphemeralKey
-        }
-
-        guard let ephemeralKey = try?
-                JSONSerialization.jsonObject(with: dataEphemeralKey, options: []) as? [String: Any]
-        else {
+        guard let dataEphemeralKey = ephemeralPublicKey.data(using: .utf8), 
+        let ephemeralKey = try?
+                JSONSerialization.jsonObject(with: dataEphemeralKey, options: []) as? [String: Any] else {
             throw CoreMethodsError.errorGettingEphemeralKey
         }
 
