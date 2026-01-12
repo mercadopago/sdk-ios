@@ -17,8 +17,12 @@ package struct Helper: View {
         switch tone {
         case .informative:
             return "Feedback-info"
-        default:
-            return nil
+        case .caution:
+            return "Feedback-Caution"
+        case .negative:
+            return "Feedback-Minus"
+        case .positive:
+            return "Feedback-Check"
         }
     }
 
@@ -54,7 +58,7 @@ package struct Helper: View {
 #Preview {
     ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
         VStack(spacing: 16) {
-            Helper("Informative", .informative).helperStyle(.loud)
+            Helper("Informative", .positive).helperStyle(.loud)
         }
         .padding()
     }
