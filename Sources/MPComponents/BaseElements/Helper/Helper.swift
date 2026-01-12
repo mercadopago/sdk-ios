@@ -54,7 +54,7 @@ package struct Helper: View {
 #Preview {
     ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
         VStack(spacing: 16) {
-            Helper("Informative", .informative).helperStyle(.quiet)
+            Helper("Informative", .informative).helperStyle(.loud)
         }
         .padding()
     }

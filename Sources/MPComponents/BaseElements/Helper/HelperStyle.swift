@@ -42,14 +42,14 @@ package struct HelperDefaultStyle: HelperStyle {
                     .renderingMode(.template)
                     .resizable()
                     .frame(width: 12, height: 12)
-                    .padding(2) // Adicione padding se quiser que o fundo seja maior que o ícone
+                    .padding(2)
                     .background(iconColor(config: configuration))
-                    .clipShape(Circle()) // O corte deve vir após o background
+                    .clipShape(Circle())
                     .foregroundColor(theme.colors.text.inverse)
             }
             
             Text(configuration.title)
-                .textStyle(.smallMedium())
+                .textStyle(textStyle(config: configuration))
         }
     }
     
@@ -64,6 +64,24 @@ package struct HelperDefaultStyle: HelperStyle {
             return theme.colors.feedback.textCautionLoud
         case .informative:
             return theme.colors.feedback.textInformativeLoud
+        }
+    }
+    
+    func textStyle(config: HelperStyleConfiguration) -> BaseTextStyle {
+        switch self.hierarchy {
+        case .quiet:
+            return .bodyMedium(colorType: .secondary)
+        case .loud:
+            switch config.tone {
+            case .positive:
+                return .smallMediumEmphasis(colorType: .feedbackPositive)
+            case .negative:
+                return .smallMediumEmphasis(colorType: .feedbackNegative)
+            case .caution:
+                return .smallMediumEmphasis(colorType: .feedbackCaution)
+            case .informative:
+                return .smallMediumEmphasis(colorType: .feedbackInformative)
+            }
         }
     }
 
