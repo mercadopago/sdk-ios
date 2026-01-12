@@ -376,7 +376,7 @@ public final actor CoreMethods {
             extractEventData: { result -> InstallmentEventData? in
                 return InstallmentEventData(
                     amount: amount,
-                    paymentType: result?.first?.paymentTypeId ?? ""
+                    paymentType: result?.first?.paymentTypeId
                 )
             }
         )

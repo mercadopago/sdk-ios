@@ -244,7 +244,11 @@ package final class MPAnalytics: AnalyticsInterface {
             return
         }
         let payload = await buildPayload()
-
+        
+        #if DEBUG
+        await debugPrintTrack()
+        #endif
+        
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
 
@@ -294,11 +298,7 @@ package final class MPAnalytics: AnalyticsInterface {
             ]
         ]
 
-        return [
-            "tracks": [
-                payload
-            ]
-        ]
+        return payload
     }
 }
 
@@ -316,5 +316,24 @@ private extension MPAnalytics {
         }
 
         return eventData
+    }
+}
+
+// MARK: - Debug helpers
+private extension MPAnalytics {
+    /// Builds the payload and prints it in JSON format for debugging purposes.
+    private func debugPrintTrack() async -> String? {
+        let payload = await buildPayload()
+
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted])
+
+            guard let jsonString = String(data: jsonData, encoding: .utf8) else { return nil }
+
+            print("[MPAnalytics][DEBUG] Payload:\n\(jsonString)")
+            return jsonString
+        } catch {
+            return nil
+        }
     }
 }
