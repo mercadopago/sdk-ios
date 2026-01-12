@@ -638,7 +638,7 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, session, analytics, _) = self.makeSUT()
         let expectEventData = InstallmentEventData(
             amount: 500,
-            paymentType: ""
+            paymentType: "not_apply"
         )
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
