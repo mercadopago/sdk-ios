@@ -523,7 +523,7 @@ internal extension CoreMethods {
             extractEventData: { _ -> TokenizationEventData? in
                 return TokenizationEventData(
                     isSaveCard: cardID != nil,
-                    documentType: documentType ?? ""
+                    documentType: documentType
                 )
             }
         )

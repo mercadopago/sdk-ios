@@ -30,8 +30,8 @@ struct PaymentMethodEventData: AnalyticsEventData {
         return [
             "card_brand": self.cardBrand ?? "",
             "issuer": self.issuer != nil ? "\(self.issuer ?? 0)" : "",
-            "payment_type": self.paymentType ?? "",
-            "security_length": self.sizeSecurityCode != nil ? "\(self.sizeSecurityCode ?? 0)" : ""
+            "payment_type": self.paymentType ?? "not_apply",
+            "security_length": self.sizeSecurityCode ?? 0
         ]
     }
 }

@@ -14,7 +14,7 @@ struct InstallmentEventData: AnalyticsEventData {
     func toDictionary() -> [String: any Sendable] {
         return [
             "transaction_amount": self.amount ?? 0,
-            "payment_type": self.paymentType ?? ""
+            "payment_type": self.paymentType ?? "not_apply"
         ]
     }
 }
