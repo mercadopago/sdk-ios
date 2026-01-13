@@ -298,7 +298,11 @@ package final class MPAnalytics: AnalyticsInterface {
             ]
         ]
 
-        return payload
+        return [
+            "tracks": [
+                payload
+            ]
+        ]
     }
 }
 
