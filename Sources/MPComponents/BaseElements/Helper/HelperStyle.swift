@@ -18,6 +18,7 @@ public enum HelperTone: Sendable, Hashable {
     case negative
     case caution
     case informative
+    case none
 }
 
 /// A style protocol for `Helper` enabling custom skins.
@@ -42,7 +43,6 @@ package struct HelperDefaultStyle: HelperStyle {
                     .renderingMode(.template)
                     .resizable()
                     .frame(width: 12, height: 12)
-                    .padding(2)
                     .background(iconColor(config: configuration))
                     .clipShape(Circle())
                     .foregroundColor(theme.colors.text.inverse)
@@ -70,7 +70,7 @@ package struct HelperDefaultStyle: HelperStyle {
     func textStyle(config: HelperStyleConfiguration) -> BaseTextStyle {
         switch self.hierarchy {
         case .quiet:
-            return .bodyMedium(colorType: .secondary)
+            return .smallMedium(colorType: .secondary)
         case .loud:
             switch config.tone {
             case .positive:

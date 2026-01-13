@@ -23,6 +23,8 @@ package struct Helper: View {
             return "Feedback-Minus"
         case .positive:
             return "Feedback-Check"
+        case .none:
+            return nil
         }
     }
 
@@ -35,7 +37,7 @@ package struct Helper: View {
     ///   - icon: Optional bundle asset name to show next to the text.
     package init(
         _ text: String,
-        _ tone: HelperTone = .informative,
+        _ tone: HelperTone = .none,
     ) {
         self.text = text
         self.tone = tone
@@ -58,7 +60,7 @@ package struct Helper: View {
 #Preview {
     ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
         VStack(spacing: 16) {
-            Helper("Informative", .positive).helperStyle(.loud)
+            Helper("Helper text", .positive).helperStyle(.quiet)
         }
         .padding()
     }
