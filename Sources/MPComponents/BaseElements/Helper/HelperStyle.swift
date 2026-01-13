@@ -64,6 +64,8 @@ package struct HelperDefaultStyle: HelperStyle {
             return theme.colors.feedback.textCautionLoud
         case .informative:
             return theme.colors.feedback.textInformativeLoud
+        case .none:
+            return .clear
         }
     }
     
@@ -81,6 +83,8 @@ package struct HelperDefaultStyle: HelperStyle {
                 return .smallMediumEmphasis(colorType: .feedbackCaution)
             case .informative:
                 return .smallMediumEmphasis(colorType: .feedbackInformative)
+            case .none:
+                return .smallMedium(colorType: .secondary)
             }
         }
     }
