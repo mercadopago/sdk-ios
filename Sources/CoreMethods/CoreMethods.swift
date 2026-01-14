@@ -53,7 +53,13 @@ public final actor CoreMethods {
             
             public struct DeviceRenderOptions: Sendable {
                 /// SDK interface type (e.g., "Native", "HTML").
-                public var interface: String = "Native"
+                public var interface: Interface = .both
+                
+                public enum Interface: Int, Sendable {
+                    case onlyNative = 01
+                    case openWebView = 02
+                    case both = 03
+                }
                 
                 /// List of supported UI types for challenge display.
                 public var uiTypes: [String] = ["01", "02", "03", "04", "05"]
