@@ -8,21 +8,21 @@
 import SwiftUI
 import MPFoundation
 
-/// Inline helper message paired with an optional icon from the SDK bundle.
+/// Inline helper message optionally paired with a semantic badge.
 package struct Helper: View {
     private let text: String
     private let tone: HelperTone
-    
-    private var iconName: String? {
+
+    private var badgeKind: Logos.Feedback? {
         switch tone {
         case .informative:
-            return "Feedback-info"
+            return .informative
         case .caution:
-            return "Feedback-Caution"
+            return .caution
         case .negative:
-            return "Feedback-Minus"
+            return .negative
         case .positive:
-            return "Feedback-Check"
+            return .positive
         case .none:
             return nil
         }
@@ -34,7 +34,6 @@ package struct Helper: View {
     /// - Parameters:
     ///   - text: Display text.
     ///   - tone: Semantic tone driving icon/color rules.
-    ///   - icon: Optional bundle asset name to show next to the text.
     package init(
         _ text: String,
         _ tone: HelperTone = .none,
@@ -46,7 +45,7 @@ package struct Helper: View {
     package var body: some View {
         let configuration = HelperStyleConfiguration(
             title: text,
-            icon: iconName,
+            badge: badgeKind,
             tone: tone
         )
 
@@ -65,4 +64,3 @@ package struct Helper: View {
         .padding()
     }
 }
-

@@ -38,14 +38,8 @@ package struct HelperDefaultStyle: HelperStyle {
     @MainActor
     package func makeBody(configuration: HelperStyleConfiguration) -> some View {
         HStack(spacing: theme.spacings.xnano) {
-            if let icon = configuration.icon {
-                Image(icon, bundle: .bundleMP)
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 12, height: 12)
-                    .background(iconColor(config: configuration))
-                    .clipShape(Circle())
-                    .foregroundColor(theme.colors.text.inverse)
+            if let badge = configuration.badge {
+                Badge(badge)
             }
             
             Text(configuration.title)
@@ -53,22 +47,7 @@ package struct HelperDefaultStyle: HelperStyle {
         }
     }
     
-    
-    func iconColor(config: HelperStyleConfiguration) -> Color {
-        switch config.tone {
-        case .positive:
-            return theme.colors.feedback.textPositiveLoud
-        case .negative:
-            return theme.colors.feedback.textNegativeLoud
-        case .caution:
-            return theme.colors.feedback.textCautionLoud
-        case .informative:
-            return theme.colors.feedback.textInformativeLoud
-        case .none:
-            return .clear
-        }
-    }
-    
+
     func textStyle(config: HelperStyleConfiguration) -> BaseTextStyle {
         switch self.hierarchy {
         case .quiet:
@@ -141,5 +120,4 @@ package extension HelperStyle where Self == HelperDefaultStyle {
     static func loud() -> Self { HelperDefaultStyle(hierarchy: .loud) }
     static func quiet() -> Self { HelperDefaultStyle(hierarchy: .quiet) }
 }
-
 

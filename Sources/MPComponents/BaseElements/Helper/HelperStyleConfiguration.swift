@@ -6,21 +6,22 @@
 //
 
 import SwiftUI
+import MPFoundation
 
 /// Configuration object consumed by `HelperStyle`.
 package struct HelperStyleConfiguration: Sendable {
     package let title: String
-    package let icon: String?
+    package let badge: Logos.Feedback?
     package let tone: HelperTone
 
     @MainActor
     package init(
         title: String,
-        icon: String?,
+        badge: Logos.Feedback?,
         tone: HelperTone
     ) {
         self.title = title
         self.tone = tone
-        self.icon = icon
+        self.badge = badge
     }
 }
