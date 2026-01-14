@@ -72,7 +72,7 @@ final class CoreMethodsThreeDSTests: XCTestCase {
     func test_sendDeviceData_whenRepositoryThrows_shouldPropagateError() async {
         // Arrange
         let (sut, repository) = makeSUT()
-        repository.postError = DummyError.sample
+        repository.postError = MPThreeDSError.failedToSendDeviceData
         
         // Act & Assert
         do {
@@ -86,7 +86,7 @@ final class CoreMethodsThreeDSTests: XCTestCase {
             )
             XCTFail("Should have thrown an error")
         } catch {
-            XCTAssertTrue(error is DummyError)
+            XCTAssertTrue(error is MPThreeDSError)
         }
     }
     
