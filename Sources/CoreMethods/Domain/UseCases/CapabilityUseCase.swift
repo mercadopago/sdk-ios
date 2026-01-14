@@ -55,10 +55,13 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
             throw CoreMethodsError.errorGettingEphemeralKey
         }
 
-        let curve = ephemeralKey["crv"] as? String ?? ""
-        let keyType = ephemeralKey["kty"] as? String ?? ""
-        let xEphemeral = ephemeralKey["x"] as? String ?? ""
-        let yEphemeral = ephemeralKey["y"] as? String ?? ""
+        guard let curve = ephemeralKey["crv"] as? String,
+              let keyType = ephemeralKey["kty"] as? String,
+              let xEphemeral = ephemeralKey["x"] as? String,
+              let yEphemeral = ephemeralKey["y"] as? String else {
+            
+            throw MPThreeDSError.failedToSendDeviceData
+        }
 
         let body = MPThreeDSAuthRequestParametersBody(
             appId: appId,
@@ -66,7 +69,7 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
             threeDSSDKVersion: configuration.threeDS.sdkVersion,
             cardTokenId: cardTokenId,
             deviceRenderOptions: DeviceRenderOptions(
-                interface: configuration.threeDS.deviceRenderOptions.interface,
+                interface: configuration.threeDS.deviceRenderOptions.interface.rawValue,
                 uiTypes: configuration.threeDS.deviceRenderOptions.uiTypes
             ),
             encData: deviceData,
@@ -83,8 +86,12 @@ final class CapabilityUseCase: CapabilityUseCaseProtocol {
     func getChallengeParameters(_ id: String) async throws -> MPThreeDSChallengeParameters {
         let response: MPThreeDSChallengeResponse = try await repository.getChallenge(id)
         
+        guard let status = MPThreeDSChallengeParameters.ChallengeStatus(rawValue: response.status) else {
+            throw MPThreeDSError.failedToGetChallengeParameters
+        }
+        
         return MPThreeDSChallengeParameters(
-            status: MPThreeDSChallengeParameters.ChallengeStatus(rawValue: response.status) ?? .authenticated,
+            status: status,
             acsReferenceNumber: response.data?.acsReferenceNumber ?? "",
             dsTransID: response.data?.threeDSServerTransID ?? "",
             acsTransID: response.data?.acsTransID ?? "",

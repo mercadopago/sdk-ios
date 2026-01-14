@@ -54,7 +54,7 @@ struct MPThreeDSAuthRequestParametersBody: Sendable, Codable, Equatable {
 /// Device rendering configuration options for 3DS challenge display.
 struct DeviceRenderOptions: Sendable, Codable, Equatable {
     /// SDK interface type (e.g., "Native", "HTML").
-    let interface: String
+    let interface: Int
     /// List of supported UI types for challenge display.
     let uiTypes: [String]
 
