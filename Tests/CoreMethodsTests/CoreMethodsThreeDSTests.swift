@@ -61,7 +61,7 @@ final class CoreMethodsThreeDSTests: XCTestCase {
         XCTAssertEqual(body?.transId, "trans")
         XCTAssertEqual(body?.protocolVersion, CoreMethods.Configuration().threeDS.protocolVersion)
         XCTAssertEqual(body?.maxTimeout, CoreMethods.Configuration().threeDS.maxTimeout)
-        XCTAssertEqual(body?.deviceRenderOptions.interface, CoreMethods.Configuration().threeDS.deviceRenderOptions.interface)
+        XCTAssertEqual(body?.deviceRenderOptions.interface, CoreMethods.Configuration().threeDS.deviceRenderOptions.interface.rawValue)
         XCTAssertEqual(body?.deviceRenderOptions.uiTypes, CoreMethods.Configuration().threeDS.deviceRenderOptions.uiTypes)
         XCTAssertEqual(body?.ephemPubKey.curve, "P-256")
         XCTAssertEqual(body?.ephemPubKey.keyType, "EC")
