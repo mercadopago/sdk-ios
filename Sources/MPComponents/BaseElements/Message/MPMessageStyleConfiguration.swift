@@ -13,7 +13,7 @@ package struct MPMessageConfiguration: Sendable {
     let dismiss: @MainActor () -> Void
 
     
-    init(message: String, state: MPMessageState, dismiss: @escaping @MainActor () -> Void) {
+    package init(message: String, state: MPMessageState, dismiss: @escaping @MainActor () -> Void) {
         self.message = message
         self.state = state
         self.dismiss = dismiss
