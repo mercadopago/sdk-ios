@@ -37,38 +37,56 @@ package struct MPMessage: View {
 }
 
 #if DEBUG
-private struct MPSnackBarViewer: View {
+struct MPSnackBarViewer: View {
+    
+    init(isPresenting: Bool = false) {
+        self.isPresenting = isPresenting
+    }
+    
     @State var isPresenting: Bool = false
     
     var body: some View {
         VStack {
+            Text("Message Style - Informative")
+                .font(.headline)
             MPMessage(
                 message: "This can be a single or multiline text",
                 state: .informative,
                 isPresenting: .constant(true)
             )
+            
+            Text("Message Style - Caution")
+                .font(.headline)
             MPMessage(
                 message: "This can be a single or multiline text",
                 state: .caution,
                 isPresenting: .constant(true)
             )
+            
+            Text("Message Style - Negative")
+                .font(.headline)
             MPMessage(
                 message: "This can be a single or multiline text",
                 state: .negative,
                 isPresenting: .constant(true)
             )
+            
+            Text("Message Style - Posetive")
+                .font(.headline)
             MPMessage(
                 message: "This can be a single or multiline text",
                 state: .posetive,
                 isPresenting: .constant(true)
             )
             
-            Button("Tap to show") {
+            Button("Tap to show Snackbar") {
                 isPresenting = true
-                print("presenting")
             }
+            .mpButtonStyle(variant: .loud, size: .large)
+            .padding()
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: 600, alignment: .top)
         .mpMessageSnackbar(
             isPresented: $isPresenting,
             text: "This can be a single or multiline text\nThis can be a single or multiline text",
