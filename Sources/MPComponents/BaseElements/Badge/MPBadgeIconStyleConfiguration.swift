@@ -8,8 +8,8 @@
 import SwiftUI
 import MPFoundation
 
-/// Configuration object consumed by `BadgeStyle`.
-package struct BadgeStyleConfiguration: Sendable {
+/// Configuration object consumed by `MPBadgeIconStyle`.
+package struct MPBadgeIconConfiguration: Sendable {
     package let kind: Logos.Feedback
 
     @MainActor

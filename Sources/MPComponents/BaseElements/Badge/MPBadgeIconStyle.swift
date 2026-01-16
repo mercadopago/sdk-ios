@@ -8,14 +8,14 @@
 import SwiftUI
 import MPFoundation
 
-package protocol BadgeStyle: StyleProtocol, Identifiable where Configuration == BadgeStyleConfiguration {}
+package protocol MPBadgeIconStyle: StyleProtocol, Identifiable where Configuration == MPBadgeIconConfiguration {}
 
-package struct BadgeMicroStyle: BadgeStyle {
+package struct BadgeMicroStyle: MPBadgeIconStyle {
     package var id: UUID = .init()
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
 
-    package func makeBody(configuration: BadgeStyleConfiguration) -> some View {
+    package func makeBody(configuration: MPBadgeIconConfiguration) -> some View {
         Image(decorative: configuration.kind.assetName, bundle: .bundleMP)
             .renderingMode(.template)
             .resizable()
@@ -41,14 +41,14 @@ package struct BadgeMicroStyle: BadgeStyle {
 }
 
 // MARK: - Style Resolution
-package extension BadgeStyle {
+package extension MPBadgeIconStyle {
     @MainActor
     func resolve(configuration: Configuration) -> some View {
         ResolvedBadgeStyle(style: self, configuration: configuration)
     }
 }
 
-private struct ResolvedBadgeStyle<Style: BadgeStyle>: View {
+private struct ResolvedBadgeStyle<Style: MPBadgeIconStyle>: View {
     let style: Style
     let configuration: Style.Configuration
 
@@ -60,11 +60,11 @@ private struct ResolvedBadgeStyle<Style: BadgeStyle>: View {
 // MARK: - Environment
 private struct BadgeStyleKey: @preconcurrency EnvironmentKey {
     @MainActor
-    static var defaultValue: any BadgeStyle = BadgeMicroStyle()
+    static var defaultValue: any MPBadgeIconStyle = BadgeMicroStyle()
 }
 
 extension EnvironmentValues {
-    var badgeStyle: any BadgeStyle {
+    var badgeStyle: any MPBadgeIconStyle {
         get { self[BadgeStyleKey.self] }
         set { self[BadgeStyleKey.self] = newValue }
     }
@@ -72,12 +72,12 @@ extension EnvironmentValues {
 
 package extension View {
     /// Sets the style for `Badge` within this view hierarchy.
-    func badgeStyle<S: BadgeStyle>(_ style: S) -> some View {
+    func badgeStyle<S: MPBadgeIconStyle>(_ style: S) -> some View {
         environment(\.badgeStyle, style)
     }
 }
 
-package extension BadgeStyle where Self == BadgeMicroStyle {
+package extension MPBadgeIconStyle where Self == BadgeMicroStyle {
     static func badge() -> Self {
         BadgeMicroStyle()
     }

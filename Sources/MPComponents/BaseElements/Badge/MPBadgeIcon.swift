@@ -9,10 +9,10 @@ import SwiftUI
 import MPFoundation
 
 /// Circular badge that displays feedback icons.
-package struct Badge: View {
+package struct MPBadgeIcon: View {
     private let kind: Logos.Feedback
 
-    @Environment(\.badgeStyle) private var style: any BadgeStyle
+    @Environment(\.badgeStyle) private var style: any MPBadgeIconStyle
 
     /// Creates a badge.
     /// - Parameters:
@@ -24,7 +24,7 @@ package struct Badge: View {
     }
 
     package var body: some View {
-        let configuration = BadgeStyleConfiguration(
+        let configuration = MPBadgeIconConfiguration(
             kind: kind
         )
 
@@ -37,10 +37,10 @@ package struct Badge: View {
 #Preview {
     ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
         HStack(spacing: 16) {
-            Badge(.positive)
-            Badge(.negative)
-            Badge(.informative)
-            Badge(.caution)
+            MPBadgeIcon(.positive)
+            MPBadgeIcon(.negative)
+            MPBadgeIcon(.informative)
+            MPBadgeIcon(.caution)
         }
         .padding()
     }
