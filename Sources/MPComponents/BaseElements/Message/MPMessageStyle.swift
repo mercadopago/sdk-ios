@@ -25,7 +25,7 @@ package struct MPDefaultMessageStyle: MPMessageStyle {
                     Circle()
                         .fill(theme.colors.feedback.fillInformativeLoud)
                         .frame(width: 20, height: 20)
-                case .posetive:
+                case .positive:
                     Circle()
                         .fill(theme.colors.feedback.fillPositiveLoud)
                         .frame(width: 20, height: 20)
@@ -66,7 +66,7 @@ package struct MPDefaultMessageStyle: MPMessageStyle {
         switch state {
         case .informative:
             return theme.colors.feedback.fillInformativeQuiet
-        case .posetive:
+        case .positive:
             return theme.colors.feedback.fillPositiveQuiet
         case .negative:
             return theme.colors.feedback.fillNegativeQuiet

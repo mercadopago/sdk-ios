@@ -48,7 +48,14 @@ struct MPMessageSnackbarModifier: ViewModifier {
     }
 }
 
+/// Presents a message snackbar over the current view (bottom overlay with animation).
 package extension View {
+
+/// - Parameters:
+///   - isPresented: Binding for visibility control.
+///   - text: Text to display.
+///   - state: Visual state (default: `.informative`).
+///   - duration: Display duration (default: `.normal`; use `.indefinite`
     func mpMessageSnackbar(
         isPresented: Binding<Bool>,
         text: String,
@@ -66,10 +73,20 @@ package extension View {
     }
 }
 
+/// Visual state for `MPMessage`.
+/// - informative: Neutral/informational feedback.
+/// - posetive: Positive/success feedback.
+/// - negative: Error/failure feedback.
+/// - caution: Warning/attention feedback.
 package enum MPMessageState {
-    case informative, posetive, negative, caution
+    case informative, positive, negative, caution
 }
 
+/// Display duration for `MPMessage`.
+/// - short: 3 seconds.
+/// - normal: 6 seconds.
+/// - long: 10 seconds.
+/// - indefinite: Stays visible until the user dismisses.
 package enum MPMessageDuration {
     case short, normal, long, indefinite
     var nanoseconds: UInt64 {
