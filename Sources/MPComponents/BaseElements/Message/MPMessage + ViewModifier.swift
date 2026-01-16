@@ -56,7 +56,7 @@ package extension View {
 ///   - text: Text to display.
 ///   - state: Visual state (default: `.informative`).
 ///   - duration: Display duration (default: `.normal`; use `.indefinite`
-    func mpMessageSnackbar(
+    func messageSnackbar(
         isPresented: Binding<Bool>,
         text: String,
         state: MPMessageState = .informative,
