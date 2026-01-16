@@ -16,6 +16,11 @@ package struct MPMessage: View {
     
     @Environment(\.mpMessageStyle) var style: any MPMessageStyle
     
+/// - Parameters:
+///   - message: Text to display.
+///   - state: Visual state determining colors/icon.
+///   - isPresenting: Binding that controls visibility; set to false on close
+///     tap or after the duration elapses.
     package init(
         message: String,
         state: MPMessageState,
@@ -75,7 +80,7 @@ struct MPSnackBarViewer: View {
                 .font(.headline)
             MPMessage(
                 message: "This can be a single or multiline text",
-                state: .posetive,
+                state: .positive,
                 isPresenting: .constant(true)
             )
             

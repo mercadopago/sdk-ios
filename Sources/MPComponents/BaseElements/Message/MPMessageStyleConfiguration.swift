@@ -7,6 +7,7 @@
 import MPFoundation
 import SwiftUI
 
+/// Configuration for `MPMessageStyle`
 package struct MPMessageConfiguration: Sendable {
     let message: String
     let state: MPMessageState
