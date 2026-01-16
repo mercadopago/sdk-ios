@@ -39,7 +39,7 @@ package struct HelperDefaultStyle: HelperStyle {
     package func makeBody(configuration: HelperStyleConfiguration) -> some View {
         HStack(spacing: theme.spacings.xnano) {
             if let badge = configuration.badge {
-                Badge(badge)
+                MPBadgeIcon(badge)
             }
             
             Text(configuration.title)
