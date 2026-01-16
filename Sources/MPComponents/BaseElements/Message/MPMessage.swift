@@ -92,7 +92,7 @@ struct MPSnackBarViewer: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: 600, alignment: .top)
-        .mpMessageSnackbar(
+        .messageSnackbar(
             isPresented: $isPresenting,
             text: "This can be a single or multiline text\nThis can be a single or multiline text",
             state: .informative,
