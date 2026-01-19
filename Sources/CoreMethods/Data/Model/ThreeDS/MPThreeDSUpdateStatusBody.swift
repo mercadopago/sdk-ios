@@ -1,0 +1,28 @@
+//
+//  MPThreeDSUpdateStatus.swift
+//  MercadoPagoSDK
+//
+//  Created by Guilherme Prata Costa on 05/01/26.
+//
+
+struct MPThreeDSUpdateStatusBody: Sendable, Codable, Equatable {
+    let status: Status
+    let errorDetail: ErrorDetail?
+    
+    enum Status: String, Codable, Equatable {
+        case completed = "COMPLETED"
+        case cancelled = "CANCELLED"
+        case timeout = "TIMEOUT"
+        case error = "ERROR"
+    }
+
+    struct ErrorDetail: Codable, Equatable {
+        let type: String
+        let code: String
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case status = "status"
+        case errorDetail = "error_detail"
+    }
+}

@@ -40,25 +40,36 @@ public final actor CoreMethods {
     
     public struct Configuration: Sendable {
         
-        public var supportCapabilities: [CoreMethods.Capabilities] = []
+        public var threeDS: ThreeDS = .init()
         
-        internal let messageVersion = "2.2.0"
-
+        public struct ThreeDS: Sendable {
+            public var protocolVersion = "2.2.0"
+            
+            public var sdkVersion: String = ""
+            
+            public var deviceRenderOptions: DeviceRenderOptions = DeviceRenderOptions()
+            
+            public var maxTimeout: Int = 5
+            
+            public struct DeviceRenderOptions: Sendable {
+                /// SDK interface type (e.g., "Native", "HTML").
+                public var interface: Interface = .both
+                
+                public enum Interface: Int, Sendable {
+                    case onlyNative = 01
+                    case openWebView = 02
+                    case both = 03
+                }
+                
+                /// List of supported UI types for challenge display.
+                public var uiTypes: [String] = ["01", "02", "03", "04", "05"]
+            }
+        }
+        
         public init() {}
     }
     
-    internal let configuration: Configuration
-    
-    internal let threeDSSDK: ThreeDSSDKProtocol?
-    
-    @MainActor
-    internal var transaction: ThreeDSTransactionProtocol?
-    
-    @MainActor
-    internal var challengeContinuation: CheckedContinuation<MPThreeDSChallengeResult, Never>?
-    
-    @MainActor
-    public weak var challengeDelegate: MPThreeDSChallengeDelegate?
+    public var configuration: Configuration
     
     // MARK: Use Cases
     internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
@@ -81,28 +92,15 @@ public final actor CoreMethods {
     public init(configuration: Configuration = Configuration()) {
         self.dependencies = CoreDependencyContainer.shared
         let repository = CoreMethodsRepository()
+        let threeDSRepository = ThreeDSRepository()
         self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies, repository: repository)
         self.identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         self.installmentsUseCase = InstallmentsUseCase(repository: repository)
         self.paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
         self.issuerUseCase = IssuerUseCase(repository: repository)
-        self.capabilityUseCase = CapabilityUseCase(repository: repository)
+        self.capabilityUseCase = CapabilityUseCase(repository: threeDSRepository)
         
         self.configuration = configuration
-        
-        self.threeDSSDK = configuration.supportCapabilities.contains(.support3DS) ? USDKAdapter() : nil
-
-        if configuration.supportCapabilities.contains(.support3DS) {
-            let locale = MercadoPagoSDK.shared.configuration?.locale ?? "en_US"
-            self.threeDSSDK?.initialize(
-                config: ThreeDSConfig(),
-                locale: locale
-            ) { error in
-                if let error = error {
-                    print("3DS SDK failed to initialize: \(error)")
-                }
-            }
-        }
     }
 
     /// Initializes a new instance of CoreMethods with custom dependencies.
@@ -117,8 +115,8 @@ public final actor CoreMethods {
         installmentsUseCase: InstallmentsUseCaseProtocol,
         paymentMethodUseCase: PaymentMethodUseCaseProtocol,
         issuerUseCase: IssuerUseCaseProtocol,
-        threeDSSDK: ThreeDSSDKProtocol,
-        capabilityUseCase: CapabilityUseCaseProtocol
+        capabilityUseCase: CapabilityUseCaseProtocol,
+        configuration: Configuration = Configuration()
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
@@ -126,9 +124,14 @@ public final actor CoreMethods {
         self.installmentsUseCase = installmentsUseCase
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
-        self.threeDSSDK = threeDSSDK
         self.capabilityUseCase = capabilityUseCase
-        self.configuration = Configuration()
+        
+        self.configuration = configuration
+    }
+
+    /// Replaces the current configuration atomically.
+    public func setConfiguration(_ newConfiguration: Configuration) {
+        configuration = newConfiguration
     }
     
     // MARK: Create Token
@@ -512,10 +515,6 @@ internal extension CoreMethods {
                         identificationType: documentType,
                         identificationNumber: documentNumber
                     )
-                
-                if configuration.supportCapabilities.contains(.support3DS) {
-                    try await createTransation(response)
-                }
                 
                 return response
             },

@@ -28,12 +28,6 @@ package final class CoreMethodsRepository: CoreMethodsRepositoryProtocol {
         self.installmentMapper = installmentMapper
         self.paymentMethodMapper = paymentMethodMapper
     }
-    
-    func postSDKData(_ data: MPThreeDSAuthRequestParametersBody) async throws -> MPThreeDSResponse {
-        return try await self.dependencies.networkService.request(
-            Endpoint.postSDKData(body: data)
-        )
-    }
 
     func generateCardToken(_ data: CardTokenBody) async throws -> CardTokenResponse {
         return try await self.dependencies.networkService.request(

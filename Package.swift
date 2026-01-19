@@ -33,7 +33,7 @@ let package = Package(
         ),
         .target(
             name: "CoreMethods",
-            dependencies: ["MPCore", "uSDK"]
+            dependencies: ["MPCore"]
         ),
         .target(
             name: "MPAnalytics"
@@ -43,12 +43,7 @@ let package = Package(
             name: "DeviceFingerPrint",
             path: "Sources/Frameworks/DeviceFingerPrint.xcframework"
         ),
-        
-        .binaryTarget(
-            name: "uSDK",
-            path: "Sources/Frameworks/uSDK.xcframework"
-        ),
-        
+
         
         .target(
             name: "MercadoPagoCheckout",

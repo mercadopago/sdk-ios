@@ -7,7 +7,6 @@
 import Foundation
 
 protocol CoreMethodsRepositoryProtocol: Sendable {
-    func postSDKData(_ data: MPThreeDSAuthRequestParametersBody) async throws -> MPThreeDSResponse
     func generateCardToken(_ data: CardTokenBody) async throws -> CardTokenResponse
     func getIdentificationTypes() async throws -> [IdentificationTypesResponse]
     func getInstallments(params: InstallmentsParams) async throws -> [Installment]
