@@ -44,10 +44,6 @@ package struct MPMessage: View {
 #if DEBUG
 struct MPSnackBarViewer: View {
     
-    init(isPresenting: Bool = false) {
-        self.isPresenting = isPresenting
-    }
-    
     @State var isPresenting: Bool = false
     
     var body: some View {
