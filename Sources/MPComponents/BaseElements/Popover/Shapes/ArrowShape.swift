@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-/// A triangular arrow shape for tooltip pointers.
+/// A triangular arrow shape for popover pointers.
 ///
 /// `ArrowShape` creates a triangular path that points upward by default.
 /// The shape automatically scales to fit the provided rectangle and can be
-/// rotated to point in different directions based on tooltip positioning.
+/// rotated to point in different directions based on popover positioning.
 ///
 /// ## Shape Characteristics
 ///
@@ -28,7 +28,7 @@ import SwiftUI
 ///     .frame(width: 12, height: 6)
 /// ```
 ///
-/// Rotated arrow for different tooltip sides:
+/// Rotated arrow for different popover sides:
 /// ```swift
 /// ArrowShape()
 ///     .rotation(.degrees(180)) // Points downward
@@ -39,7 +39,7 @@ package struct ArrowShape: Shape {
     ///
     /// The path creates a triangle with its base at the bottom of the rectangle
     /// and its apex at the top center. This creates an upward-pointing arrow
-    /// that can be rotated as needed for different tooltip orientations.
+    /// that can be rotated as needed for different popover orientations.
     ///
     /// - Parameter rect: The rectangle in which to create the arrow path.
     /// - Returns: A `Path` representing the triangular arrow shape.
