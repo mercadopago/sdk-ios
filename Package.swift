@@ -60,6 +60,7 @@ let package = Package(
         ),
         .target(
             name: "MPFoundation",
+            dependencies: ["MPCore"],
             resources: [
               .process("Resources")
             ]

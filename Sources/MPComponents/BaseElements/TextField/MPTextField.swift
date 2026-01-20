@@ -128,7 +128,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         let configuration = MPTextFieldStyleConfiguration(
             label: label == nil ? nil : labelView,
             field: textField,
-            helper: helperView,
+            helper: currentState.errorMessage ?? helperText ?? nil,
             prefix: prefixView,
             suffix: suffixView,
             state: currentState
@@ -207,17 +207,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             if let label { Text(label) }
         }
         .accessibility(hidden: true)
-    }
-    
-    @ViewBuilder
-    private var helperView: some View {
-        Group {
-            if let error = currentState.errorMessage {
-                Text(error)
-            } else if let helperText {
-                Text(helperText)
-            }
-        }
     }
 
     // MARK: - Helpers
