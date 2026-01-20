@@ -17,7 +17,7 @@ public struct MPTextFieldStyleConfiguration: Sendable {
 
     public let label: Label?
     public let field: Field
-    public let helper: Helper?
+    public let helper: String?
     public let prefix: Prefix?
     public let suffix: Suffix?
     public let state: MPTextFieldState
@@ -26,14 +26,14 @@ public struct MPTextFieldStyleConfiguration: Sendable {
     public init(
         label: (any View)? = nil,
         field: some View,
-        helper: (any View)? = nil,
+        helper: String?,
         prefix: (any View)? = nil,
         suffix: (any View)? = nil,
         state: MPTextFieldState
     ) {
         self.label = label.map { Label(body: AnyView($0)) }
         self.field = Field(body: AnyView(field))
-        self.helper = helper.map { Helper(body: AnyView($0)) }
+        self.helper = helper
         self.prefix = prefix.map { Prefix(body: AnyView($0)) }
         self.suffix = suffix.map { Suffix(body: AnyView($0)) }
         self.state = state

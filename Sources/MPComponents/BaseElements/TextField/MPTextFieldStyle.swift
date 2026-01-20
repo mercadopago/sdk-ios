@@ -64,22 +64,9 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
 
             // Helper text (shown on error states)
             if let helper = configuration.helper {
-                HStack(alignment: .center) {
-                    if configuration.state.hasError {
-                        Image(Logos.errorFilled, bundle: .bundleMP)
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 16, height: 16)
-                            .foregroundColor(stateAppearance.helperColor)
-                    }
-
-                    helper
-                        .font(appearance.helperFont.toFont())
-                        .foregroundColor(stateAppearance.helperColor)
-                    
-                }
-                .padding(.top, theme.spacings.xnano)
+                Helper(helper, helperTone(for: configuration))
+                    .helperStyle(helperStyle(for: configuration))
+                    .padding(.top, theme.spacings.xnano)
             }
         }
         .animation(.easeInOut(duration: 0.15))
@@ -100,6 +87,25 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             return appearance.readOnly
         case .disabled:
             return appearance.disabled
+        }
+    }
+    
+    
+    private func helperTone(for config: MPTextFieldStyleConfiguration) -> HelperTone {
+        switch config.state {
+        case .focusError, .error:
+            return .negative
+        default:
+            return .none
+        }
+    }
+    
+    private func helperStyle(for config: MPTextFieldStyleConfiguration) -> HelperDefaultStyle {
+        switch config.state {
+        case .focusError, .error:
+            return .loud()
+        default:
+            return .quiet()
         }
     }
 }
