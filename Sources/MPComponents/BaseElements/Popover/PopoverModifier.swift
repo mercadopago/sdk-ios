@@ -1,5 +1,5 @@
 //
-//  TooltipModifier.swift
+//  PopoverModifier.swift
 //  MercadoPagoSDK
 //
 //  Created by Guilherme Prata Costa on 08/09/25.
@@ -8,13 +8,13 @@
 import SwiftUI
 import MPFoundation
 
-/// A view modifier that adds tooltip functionality to SwiftUI views.
+/// A view modifier that adds popover functionality to SwiftUI views.
 ///
-/// `TooltipModifier` handles the positioning, styling, animation, and interaction
-/// logic for tooltips. It automatically calculates optimal positioning based on
-/// the target view's geometry and the configured tooltip side.
+/// `PopoverModifier` handles the positioning, styling, animation, and interaction
+/// logic for popovers. It automatically calculates optimal positioning based on
+/// the target view's geometry and the configured popover side.
 ///
-struct TooltipModifier<TooltipContent: View>: ViewModifier {
+struct PopoverModifier<PopoverContent: View>: ViewModifier {
     
     // MARK: - Environment
     
@@ -22,34 +22,34 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     
     // MARK: - Configuration Properties
     
-    /// Controls whether the tooltip is currently visible.
-    @State var isTooltipEnabled: Bool = false
+    /// Controls whether the popover is currently visible.
+    @State var isPopoverEnabled: Bool = false
     
-    /// The configuration object defining tooltip behavior and appearance.
-    var tooltipConfiguration: TooltipConfig
+    /// The configuration object defining popover behavior and appearance.
+    var popoverConfiguration: PopoverConfig
     
-    /// The content view displayed inside the tooltip.
-    var tooltipContent: TooltipContent
+    /// The content view displayed inside the popover.
+    var popoverContent: PopoverContent
 
     // MARK: - Initializers
 
     init(
-        isTooltipEnabled: Bool = false,
-        config: TooltipConfig,
-        @ViewBuilder content: @escaping () -> TooltipContent
+        isPopoverEnabled: Bool = false,
+        config: PopoverConfig,
+        @ViewBuilder content: @escaping () -> PopoverContent
     ) {
-        self.isTooltipEnabled = isTooltipEnabled
-        self.tooltipConfiguration = config
-        self.tooltipContent = content()
+        self.isPopoverEnabled = isPopoverEnabled
+        self.popoverConfiguration = config
+        self.popoverContent = content()
     }
 
     // MARK: - State Properties
 
-    /// The calculated width of the tooltip content.
-    @State private var tooltipContentWidth: CGFloat = 0
+    /// The calculated width of the popover content.
+    @State private var popoverContentWidth: CGFloat = 0
     
-    /// The calculated height of the tooltip content.
-    @State private var tooltipContentHeight: CGFloat = 0
+    /// The calculated height of the popover content.
+    @State private var popoverContentHeight: CGFloat = 0
     
     /// The current animation offset for movement effects.
     @State private var currentAnimationOffset: CGFloat = 0
@@ -58,59 +58,59 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
 
     /// Determines whether the arrow should be visible based on configuration and positioning.
     private var shouldDisplayArrow: Bool { 
-        tooltipConfiguration.showArrow && tooltipConfiguration.side.shouldShowArrow() 
+        popoverConfiguration.showArrow && popoverConfiguration.side.shouldShowArrow() 
     }
     
     /// The effective arrow height, accounting for visibility settings.
     private var effectiveArrowHeight: CGFloat { 
-        shouldDisplayArrow ? tooltipConfiguration.arrowHeight : 0 
+        shouldDisplayArrow ? popoverConfiguration.arrowHeight : 0 
     }
 
-    /// Calculates the horizontal arrow offset based on tooltip positioning.
+    /// Calculates the horizontal arrow offset based on popover positioning.
     private var arrowHorizontalOffset: CGFloat {
-        let borderRadius = tooltipConfiguration.borderRadius(from: theme)
-        let borderWidth = tooltipConfiguration.borderWidth(from: theme)
+        let borderRadius = popoverConfiguration.borderRadius(from: theme)
+        let borderWidth = popoverConfiguration.borderWidth(from: theme)
         
-        switch tooltipConfiguration.side {
+        switch popoverConfiguration.side {
         case .bottom, .center, .top:
             return 0
         case .left:
-            return (tooltipContentWidth / 2 + tooltipConfiguration.arrowHeight / 2)
+            return (popoverContentWidth / 2 + popoverConfiguration.arrowHeight / 2)
         case .topLeft, .bottomLeft:
-            return (tooltipContentWidth / 2
-                + tooltipConfiguration.arrowHeight / 2
+            return (popoverContentWidth / 2
+                + popoverConfiguration.arrowHeight / 2
                 - borderRadius / 2
                 - borderWidth / 2)
         case .right:
-            return -(tooltipContentWidth / 2 + tooltipConfiguration.arrowHeight / 2)
+            return -(popoverContentWidth / 2 + popoverConfiguration.arrowHeight / 2)
         case .topRight, .bottomRight:
-            return -(tooltipContentWidth / 2
-                + tooltipConfiguration.arrowHeight / 2
+            return -(popoverContentWidth / 2
+                + popoverConfiguration.arrowHeight / 2
                 - borderRadius / 2
                 - borderWidth / 2)
         }
     }
 
-    /// Calculates the vertical arrow offset based on tooltip positioning.
+    /// Calculates the vertical arrow offset based on popover positioning.
     private var arrowVerticalOffset: CGFloat {
-        let borderRadius = tooltipConfiguration.borderRadius(from: theme)
-        let borderWidth = tooltipConfiguration.borderWidth(from: theme)
+        let borderRadius = popoverConfiguration.borderRadius(from: theme)
+        let borderWidth = popoverConfiguration.borderWidth(from: theme)
         
-        switch tooltipConfiguration.side {
+        switch popoverConfiguration.side {
         case .left, .center, .right:
             return 0
         case .top:
-            return (tooltipContentHeight / 2 + tooltipConfiguration.arrowHeight / 2)
+            return (popoverContentHeight / 2 + popoverConfiguration.arrowHeight / 2)
         case .topRight, .topLeft:
-            return (tooltipContentHeight / 2
-                + tooltipConfiguration.arrowHeight / 2
+            return (popoverContentHeight / 2
+                + popoverConfiguration.arrowHeight / 2
                 - borderRadius / 2
                 - borderWidth / 2)
         case .bottom:
-            return -(tooltipContentHeight / 2 + tooltipConfiguration.arrowHeight / 2)
+            return -(popoverContentHeight / 2 + popoverConfiguration.arrowHeight / 2)
         case .bottomLeft, .bottomRight:
-            return -(tooltipContentHeight / 2
-                + tooltipConfiguration.arrowHeight / 2
+            return -(popoverContentHeight / 2
+                + popoverConfiguration.arrowHeight / 2
                 - borderRadius / 2
                 - borderWidth / 2)
         }
@@ -118,62 +118,62 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
 
     // MARK: - Positioning Helper Methods
 
-    /// Calculates the horizontal offset for tooltip positioning.
+    /// Calculates the horizontal offset for popover positioning.
     private func calculateHorizontalOffset(for geometry: GeometryProxy) -> CGFloat {
-        switch tooltipConfiguration.side {
+        switch popoverConfiguration.side {
         case .left, .topLeft, .bottomLeft:
-            return -(tooltipContentWidth + tooltipConfiguration.margin + effectiveArrowHeight + currentAnimationOffset)
+            return -(popoverContentWidth + popoverConfiguration.margin + effectiveArrowHeight + currentAnimationOffset)
         case .right, .topRight, .bottomRight:
-            return geometry.size.width + tooltipConfiguration.margin + effectiveArrowHeight + currentAnimationOffset
+            return geometry.size.width + popoverConfiguration.margin + effectiveArrowHeight + currentAnimationOffset
         case .top, .center, .bottom:
-            return (geometry.size.width - tooltipContentWidth) / 2
+            return (geometry.size.width - popoverContentWidth) / 2
         }
     }
 
-    /// Calculates the vertical offset for tooltip positioning.
+    /// Calculates the vertical offset for popover positioning.
     private func calculateVerticalOffset(for geometry: GeometryProxy) -> CGFloat {
-        switch tooltipConfiguration.side {
+        switch popoverConfiguration.side {
         case .top, .topRight, .topLeft:
-            return -(tooltipContentHeight + tooltipConfiguration.margin + effectiveArrowHeight + currentAnimationOffset)
+            return -(popoverContentHeight + popoverConfiguration.margin + effectiveArrowHeight + currentAnimationOffset)
         case .bottom, .bottomLeft, .bottomRight:
-            return geometry.size.height + tooltipConfiguration.margin + effectiveArrowHeight + currentAnimationOffset
+            return geometry.size.height + popoverConfiguration.margin + effectiveArrowHeight + currentAnimationOffset
         case .left, .center, .right:
-            return (geometry.size.height - tooltipContentHeight) / 2
+            return (geometry.size.height - popoverContentHeight) / 2
         }
     }
 
     // MARK: - View Components
 
-    /// A geometry reader that measures and stores the tooltip content dimensions.
+    /// A geometry reader that measures and stores the popover content dimensions.
     ///
-    /// This view is used as an overlay to determine the actual size of the tooltip content,
+    /// This view is used as an overlay to determine the actual size of the popover content,
     /// which is then used for precise positioning calculations.
     private var contentSizeMeasurer: some View {
         GeometryReader { geometry in
             Color.clear
                 .onAppear {
-                    self.tooltipContentWidth = self.tooltipConfiguration.width ?? geometry.size.width
-                    self.tooltipContentHeight = self.tooltipConfiguration.height ?? geometry.size.height
+                    self.popoverContentWidth = self.popoverConfiguration.width ?? geometry.size.width
+                    self.popoverContentHeight = self.popoverConfiguration.height ?? geometry.size.height
                 }
         }
     }
 
     /// Creates the arrow view with proper styling and positioning.
-    private var tooltipArrowView: some View {
-        guard let arrowAngle = tooltipConfiguration.side.getArrowAngleRadians() else {
+    private var popoverArrowView: some View {
+        guard let arrowAngle = popoverConfiguration.side.getArrowAngleRadians() else {
             return AnyView(EmptyView())
         }
 
-        let backgroundColor = tooltipConfiguration.backgroundColor(from: theme)
+        let backgroundColor = popoverConfiguration.backgroundColor(from: theme)
 
         return AnyView(
             createArrowShape(angle: arrowAngle)
                 .background(
                     createArrowShape(angle: arrowAngle)
-                        .frame(width: tooltipConfiguration.arrowWidth, height: tooltipConfiguration.arrowHeight)
+                        .frame(width: popoverConfiguration.arrowWidth, height: popoverConfiguration.arrowHeight)
                         .foregroundColor(backgroundColor)
                 )
-                .frame(width: tooltipConfiguration.arrowWidth, height: tooltipConfiguration.arrowHeight)
+                .frame(width: popoverConfiguration.arrowWidth, height: popoverConfiguration.arrowHeight)
                 .offset(
                     x: CGFloat(Int(arrowHorizontalOffset)), 
                     y: CGFloat(Int(arrowVerticalOffset))
@@ -185,37 +185,37 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
     /// Creates an arrow shape with the specified angle and optional border color.
     private func createArrowShape(angle: Double) -> AnyView {
         
-        switch tooltipConfiguration.arrowType {
+        switch popoverConfiguration.arrowType {
         case .default:
             let shape = ArrowShape()
                 .rotation(Angle(radians: angle))
-                .foregroundColor(tooltipConfiguration.backgroundColor(from: theme))
+                .foregroundColor(popoverConfiguration.backgroundColor(from: theme))
             
             return AnyView(shape)
         }
     }
 
-    /// Creates a mask that cuts out the arrow area from the tooltip border.
+    /// Creates a mask that cuts out the arrow area from the popover border.
     private var arrowCutoutMask: some View {
-        guard let arrowAngle = tooltipConfiguration.side.getArrowAngleRadians() else {
+        guard let arrowAngle = popoverConfiguration.side.getArrowAngleRadians() else {
             return AnyView(EmptyView())
         }
         
-        let borderWidth = tooltipConfiguration.borderWidth(from: theme)
+        let borderWidth = popoverConfiguration.borderWidth(from: theme)
         
         return AnyView(
             ZStack {
                 Rectangle()
                     .frame(
-                        width: tooltipContentWidth + borderWidth * 2,
-                        height: tooltipContentHeight + borderWidth * 2
+                        width: popoverContentWidth + borderWidth * 2,
+                        height: popoverContentHeight + borderWidth * 2
                     )
                     .foregroundColor(.white)
                 
                 Rectangle()
                     .frame(
-                        width: tooltipConfiguration.arrowWidth,
-                        height: tooltipConfiguration.arrowHeight + borderWidth
+                        width: popoverConfiguration.arrowWidth,
+                        height: popoverConfiguration.arrowHeight + borderWidth
                     )
                     .rotationEffect(Angle(radians: arrowAngle))
                     .offset(x: arrowHorizontalOffset, y: arrowVerticalOffset)
@@ -224,9 +224,9 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
         )
     }
     
-    var popOverView : some View {
-        let borderRadius = tooltipConfiguration.borderRadius(from: theme)
-        let backgroundColor = tooltipConfiguration.backgroundColor(from: theme)
+    var popoverView: some View {
+        let borderRadius = popoverConfiguration.borderRadius(from: theme)
+        let backgroundColor = popoverConfiguration.backgroundColor(from: theme)
         
         return ZStack {
             RoundedRectangle(
@@ -234,8 +234,8 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             )
             .stroke(lineWidth: 0)
             .frame(
-                width: tooltipContentWidth,
-                height: tooltipContentHeight
+                width: popoverContentWidth,
+                height: popoverContentHeight
             )
             .mask(arrowCutoutMask)
             .background(
@@ -243,33 +243,33 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
                     .foregroundColor(backgroundColor)
             )
             
-            tooltipArrowView
+            popoverArrowView
         }
         .compositingGroup()
         .shadow(color: Color.black.opacity(0.10), radius: 5, x: 0, y: 0)
     }
 
-    private var mainTooltipView: some View {
-        let contentPadding = tooltipConfiguration.contentPadding(from: theme)
+    private var mainPopoverView: some View {
+        let contentPadding = popoverConfiguration.contentPadding(from: theme)
         
         return GeometryReader { geometry in
             ZStack {
-                popOverView
+                popoverView
                 
                 ZStack {
                     HStack(alignment: .top) {
-                        tooltipContent
+                        popoverContent
                             .frame(
-                                maxWidth: tooltipConfiguration.width,
-                                maxHeight: tooltipConfiguration.height
+                                maxWidth: popoverConfiguration.width,
+                                maxHeight: popoverConfiguration.height
                             )
                             .fixedSize(
-                                horizontal: tooltipConfiguration.width == nil,
+                                horizontal: popoverConfiguration.width == nil,
                                 vertical: true
                             )
                         
                         Button(action: {
-                            isTooltipEnabled.toggle()
+                            isPopoverEnabled.toggle()
                         }) {
                             Image(Logos.close, bundle: .bundleMP)
                                 .renderingMode(.template)
@@ -287,24 +287,24 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
                 x: calculateHorizontalOffset(for: geometry),
                 y: calculateVerticalOffset(for: geometry)
             )
-            .zIndex(tooltipConfiguration.zIndex)
+            .zIndex(popoverConfiguration.zIndex)
         }
     }
 
     func body(content: Content) -> some View {
         content
             .onTapGesture {
-                isTooltipEnabled.toggle()
+                isPopoverEnabled.toggle()
             }
-            .overlay(isTooltipEnabled ? mainTooltipView.transition(.opacity) : nil)
+            .overlay(isPopoverEnabled ? mainPopoverView.transition(.opacity) : nil)
     }
 }
 
 #if DEBUG
 import SwiftUI
 
-struct TooltipModifier_Previews: PreviewProvider {
-    struct TooltipPreviewHost: View {
+struct PopoverModifier_Previews: PreviewProvider {
+    struct PopoverPreviewHost: View {
         public init() {}
         
         public var body: some View {
@@ -317,7 +317,7 @@ struct TooltipModifier_Previews: PreviewProvider {
                         Image(systemName: "info.circle")
                             .font(.title)
                             .foregroundColor(.blue)
-                            .tooltip(type: .white) {
+                            .popover(type: .white) {
                                 Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
                                     .textStyle(.bodyMedium(colorType: .inverted))
                             }
@@ -327,14 +327,14 @@ struct TooltipModifier_Previews: PreviewProvider {
                         Text("Second text")
                             .padding()
                             .cornerRadius(8)
-                            .tooltip(type: .white) {
+                            .popover(type: .white) {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Blue Theme")
                                         .font(.headline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
                                     
-                                    Text("This tooltip uses the Blue theme for better contrast.")
+                                    Text("This popover uses the Blue theme for better contrast.")
                                         .font(.body)
                                         .foregroundColor(.white)
                                 }
@@ -349,8 +349,8 @@ struct TooltipModifier_Previews: PreviewProvider {
     
     static var previews: some View {
         Group {
-            TooltipPreviewHost()
-                .previewDisplayName("Tooltip Examples")
+            PopoverPreviewHost()
+                .previewDisplayName("Popover Examples")
         }
     }
 }

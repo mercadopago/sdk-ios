@@ -13,23 +13,23 @@ import SnapshotTesting
 import MPFoundation
 
 extension View {
-    func tooltipTest<TooltipContent: View>(
-        type: TooltipType = .white,
-        @ViewBuilder content: @escaping () -> TooltipContent
+    func popoverTest<PopoverContent: View>(
+        type: PopoverType = .white,
+        @ViewBuilder content: @escaping () -> PopoverContent
     ) -> some View {
-        var config: TooltipConfig = DefaultTooltipConfig()
+        var config: PopoverConfig = DefaultPopoverConfig()
         config.type = type
         
-        let tooltip = TooltipModifier(isTooltipEnabled: true, config: config, content: content)
+        let popover = PopoverModifier(isPopoverEnabled: true, config: config, content: content)
 
-        return modifier(tooltip)
+        return modifier(popover)
     }
 }
 
 @MainActor
-final class TooltipSnapshotTests: XCTestCase {
+final class PopoverSnapshotTests: XCTestCase {
     
-    struct TooltipView: View {
+    struct PopoverView: View {
         public init() {}
         
         public var body: some View {
@@ -38,7 +38,7 @@ final class TooltipSnapshotTests: XCTestCase {
                     Image(systemName: "info.circle")
                         .font(.title)
                         .foregroundColor(.blue)
-                        .tooltipTest(type: .white) {
+                        .popoverTest(type: .white) {
                             Text("Dark Theme.")
                                 .textStyle(.bodyMedium(colorType: .accent))
                         }
@@ -46,14 +46,14 @@ final class TooltipSnapshotTests: XCTestCase {
                     Text("Second text")
                         .padding()
                         .cornerRadius(8)
-                        .tooltipTest(type: .white) {
+                        .popoverTest(type: .white) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Blue Theme")
                                     .font(.headline)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.black)
                                 
-                                Text("This tooltip uses the dark theme for better contrast.")
+                                Text("This popover uses the dark theme for better contrast.")
                                     .font(.body)
                                     .foregroundColor(.black)
                             }
@@ -63,8 +63,8 @@ final class TooltipSnapshotTests: XCTestCase {
         }
     }
 
-    func testTooltipView() {
-        let view = TooltipView()
+    func testPopoverView() {
+        let view = PopoverView()
 
         let hostingController = UIHostingController(rootView: view)
         
