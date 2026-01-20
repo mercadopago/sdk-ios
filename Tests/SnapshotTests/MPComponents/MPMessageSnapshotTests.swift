@@ -15,7 +15,7 @@ import SnapshotTesting
 final class MPMessageSnapshotTests: XCTestCase {
     
     func testMessageView() throws {
-        let view = MPSnackBarViewer()
+        let view = MPSnackBarViewer(isPresenting: true)
         let hostingController = UIHostingController(rootView: view)
 
         assertSnapshot(

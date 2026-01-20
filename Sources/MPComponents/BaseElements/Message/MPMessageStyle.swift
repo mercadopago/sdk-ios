@@ -7,10 +7,12 @@
 import SwiftUI
 import MPFoundation
 
-package protocol MPMessageStyle: StyleProtocol where Configuration == MPMessageConfiguration {}
+package protocol MPMessageStyle: StyleProtocol, Identifiable where Configuration == MPMessageConfiguration {}
 
 package struct MPDefaultMessageStyle: MPMessageStyle {
     package typealias Configuration = MPMessageConfiguration
+    
+    package var id: UUID = .init()
     
     @Environment(\.checkoutTheme) var theme: MPTheme
     
@@ -19,24 +21,15 @@ package struct MPDefaultMessageStyle: MPMessageStyle {
         Spacer()
         HStack {
             HStack(alignment: .top) {
-                //use badge icon
                 switch configuration.state {
                 case .informative:
-                    Circle()
-                        .fill(theme.colors.feedback.fillInformativeLoud)
-                        .frame(width: 20, height: 20)
+                    MPBadgeIcon(.informative, .large)
                 case .positive:
-                    Circle()
-                        .fill(theme.colors.feedback.fillPositiveLoud)
-                        .frame(width: 20, height: 20)
+                    MPBadgeIcon(.positive, .large)
                 case .negative:
-                    Circle()
-                        .fill(theme.colors.feedback.fillNegativeLoud)
-                        .frame(width: 20, height: 20)
+                    MPBadgeIcon(.negative, .large)
                 case .caution:
-                    Circle()
-                        .fill(theme.colors.feedback.fillCautionLoud)
-                        .frame(width: 20, height: 20)
+                    MPBadgeIcon(.caution, .large)
                 }
                 Text(configuration.message)
                     .textStyle(.bodyMedium())
@@ -73,5 +66,41 @@ package struct MPDefaultMessageStyle: MPMessageStyle {
         case .caution:
             return theme.colors.feedback.fillCautionQuiet
         }
+    }
+}
+
+
+// MARK: - Environment
+struct MPMessageStyleKey: EnvironmentKey {
+    static let defaultValue: any MPMessageStyle = MPDefaultMessageStyle()
+}
+
+extension EnvironmentValues {
+    var mpMessageStyle: any MPMessageStyle {
+        get { self[MPMessageStyleKey.self] }
+        set { self[MPMessageStyleKey.self] = newValue }
+    }
+}
+
+extension View {
+    func messageStyle<S: MPMessageStyle>(_ style: S) -> some View {
+        environment(\.mpMessageStyle, style)
+    }
+}
+
+// MARK: - Style Resolution
+package extension MPMessageStyle {
+    @MainActor
+    func resolve(configuration: Configuration) -> some View {
+        ResolvedMPMessageStyle(style: self, configuration: configuration)
+    }
+}
+
+private struct ResolvedMPMessageStyle<Style: MPMessageStyle>: View {
+    let style: Style
+    let configuration: Style.Configuration
+    
+    var body: some View {
+        style.makeBody(configuration: configuration)
     }
 }
