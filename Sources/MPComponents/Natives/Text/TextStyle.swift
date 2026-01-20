@@ -81,6 +81,14 @@ public enum TextStyleColorType: CaseIterable, Identifiable, Sendable {
     case accent
     case disabled
     case inverted
+    
+    case feedbackPositive
+    case feedbackNegative
+    case feedbackCaution
+    case feedbackInformative
+    
+    
+    
 
     public var id: Self { self }
 
@@ -99,6 +107,14 @@ public enum TextStyleColorType: CaseIterable, Identifiable, Sendable {
             return colorTokens.text.disabled
         case .inverted:
             return colorTokens.text.inverse
+        case .feedbackPositive:
+            return colorTokens.feedback.textPositiveLoud
+        case .feedbackNegative:
+            return colorTokens.feedback.textNegativeLoud
+        case .feedbackCaution:
+            return colorTokens.feedback.textCautionLoud
+        case .feedbackInformative:
+            return colorTokens.feedback.textInformativeLoud
         }
     }
 }
@@ -119,6 +135,7 @@ package enum TextStyleCase: String, CaseIterable, Identifiable {
     
     case smallMedium
     case smallMediumEmphasis
+    
     package var id: Self { self }
 
     /// A helper method to retrieve the appropriate font from the theme.
