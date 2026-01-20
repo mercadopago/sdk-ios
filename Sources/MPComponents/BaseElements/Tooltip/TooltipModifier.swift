@@ -223,27 +223,38 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
             }
         )
     }
-
-    private var mainTooltipView: some View {
+    
+    var popOverView : some View {
         let borderRadius = tooltipConfiguration.borderRadius(from: theme)
         let backgroundColor = tooltipConfiguration.backgroundColor(from: theme)
+        
+        return ZStack {
+            RoundedRectangle(
+                cornerRadius: borderRadius, style: .circular
+            )
+            .stroke(lineWidth: 0)
+            .frame(
+                width: tooltipContentWidth,
+                height: tooltipContentHeight
+            )
+            .mask(arrowCutoutMask)
+            .background(
+                RoundedRectangle(cornerRadius: borderRadius)
+                    .foregroundColor(backgroundColor)
+            )
+            
+            tooltipArrowView
+        }
+        .compositingGroup()
+        .shadow(color: Color.black.opacity(0.10), radius: 5, x: 0, y: 0)
+    }
+
+    private var mainTooltipView: some View {
         let contentPadding = tooltipConfiguration.contentPadding(from: theme)
         
         return GeometryReader { geometry in
             ZStack {
-                RoundedRectangle(
-                    cornerRadius: borderRadius, style: .circular
-                )
-                .stroke(lineWidth: 0)
-                .frame(
-                    width: tooltipContentWidth,
-                    height: tooltipContentHeight
-                )
-                .mask(arrowCutoutMask)
-                .background(
-                    RoundedRectangle(cornerRadius: borderRadius)
-                        .foregroundColor(backgroundColor)
-                )
+                popOverView
                 
                 ZStack {
                     HStack(alignment: .top) {
@@ -271,7 +282,6 @@ struct TooltipModifier<TooltipContent: View>: ViewModifier {
                 }
                 .padding(contentPadding)
                 .background(contentSizeMeasurer)
-                .overlay(tooltipArrowView)
             }
             .offset(
                 x: calculateHorizontalOffset(for: geometry),
