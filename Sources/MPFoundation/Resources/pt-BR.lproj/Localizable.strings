@@ -6,7 +6,7 @@
 */
 
 // MARK: - Form Title & Buttons
-"form.title" = "Insira os dados do cartão";
+"form.title" = "Preencha os dados do cartão";
 "form.button" = "Pagar";
 "form.total" = "Total";
 "form.currency" = "R$";
