@@ -23,7 +23,9 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     // MARK: - Configuration Properties
     
     /// Controls whether the popover is currently visible.
-    @State var isPopoverEnabled: Bool = false
+    @Binding var isPopoverEnabled: Bool
+    
+    private var isPopoverEnabledBinding: Binding<Bool>?
     
     /// The configuration object defining popover behavior and appearance.
     var popoverConfiguration: PopoverConfig
@@ -34,11 +36,11 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     // MARK: - Initializers
 
     init(
-        isPopoverEnabled: Bool = false,
+        isPopoverEnabled: Binding<Bool>,
         config: PopoverConfig,
         @ViewBuilder content: @escaping () -> PopoverContent
     ) {
-        self.isPopoverEnabled = isPopoverEnabled
+        self._isPopoverEnabled = isPopoverEnabled
         self.popoverConfiguration = config
         self.popoverContent = content()
     }
@@ -305,6 +307,8 @@ import SwiftUI
 
 struct PopoverModifier_Previews: PreviewProvider {
     struct PopoverPreviewHost: View {
+        @State private var isFirstTextEnable: Bool = false
+        @State private var isSecondTextEnable: Bool = false
         public init() {}
         
         public var body: some View {
@@ -317,7 +321,8 @@ struct PopoverModifier_Previews: PreviewProvider {
                         Image(systemName: "info.circle")
                             .font(.title)
                             .foregroundColor(.blue)
-                            .popover(type: .white) {
+                            .onTapGesture { isFirstTextEnable.toggle() }
+                            .popover(isPopoverEnabled: $isFirstTextEnable, type: .white) {
                                 Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
                                     .textStyle(.bodyMedium(colorType: .inverted))
                             }
@@ -327,7 +332,8 @@ struct PopoverModifier_Previews: PreviewProvider {
                         Text("Second text")
                             .padding()
                             .cornerRadius(8)
-                            .popover(type: .white) {
+                            .onTapGesture { isSecondTextEnable.toggle() }
+                            .popover(isPopoverEnabled: $isSecondTextEnable, type: .white) {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Blue Theme")
                                         .font(.headline)
