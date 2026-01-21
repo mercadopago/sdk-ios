@@ -26,7 +26,8 @@ struct CardFormScreen: View {
     private let expirationDateValidator = ExpirationDateValidator()
     private let securityCodeFormatter = SecurityCodeFormatter()
     private let securityCodeValidator = SecurityCodeValidator()
-    
+    private let cardHolderValidator = CardHolderValidator()
+
     //  Document Field
     @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
     @State private var openDocumentsSheet: Bool = false
@@ -55,7 +56,9 @@ struct CardFormScreen: View {
                     MPTextField(
                         text: $cardHolder,
                         label: MPStrings.CardForm.CardHolder.label,
-                        placeholder: MPStrings.CardForm.CardHolder.placeholder
+                        placeholder: MPStrings.CardForm.CardHolder.placeholder,
+                        helperText: MPStrings.CardForm.CardHolder.helperText,
+                        validator: cardHolderValidator
                     )
                     
                                     }
@@ -66,7 +69,7 @@ struct CardFormScreen: View {
                         placeholder: MPStrings.CardForm.Expiration.placeholder,
                         keyboard: .numberPad,
                         formatter: expirationDateFormatter,
-                        validator: expirationDateValidator
+                        validator: expirationDateValidator,
                     )
                     
                     MPTextField(

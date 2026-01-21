@@ -346,3 +346,38 @@ package final class SecurityCodeValidator: TextValidating, @unchecked Sendable {
     }
 }
 
+// MARK: - Card Hollder Validator
+
+package enum CardHolderErrorType: Equatable, Sendable {
+    case empty
+    case incomplete
+    case invalid
+    
+    package var message: String {
+        switch self {
+        case .empty:
+            return MPStrings.CardForm.CardHolder.errorEmpty
+        case .incomplete:
+            return MPStrings.CardForm.CardHolder.errorIncomplete
+        case .invalid:
+            return MPStrings.CardForm.CardHolder.errorInvalidFormat
+        }
+    }
+}
+
+/// Validates Card Holder
+package final class CardHolderValidator: TextValidating, @unchecked Sendable {
+    
+    package init() {
+    }
+    
+    package func validate(_ text: String) -> ValidationResult {
+        let digits = text
+        
+        guard !digits.isEmpty else {
+            return .invalid(message: CardHolderErrorType.empty.message)
+        }
+        
+        return .valid
+    }
+}

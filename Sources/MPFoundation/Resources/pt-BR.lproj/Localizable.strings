@@ -29,6 +29,7 @@
 "card_holder.error.empty" = "Preencha este campo.";
 "card_holder.error.incomplete" = "Insira-o conforme está no cartão.";
 "card_holder.error.invalid_format" = "Digite apenas letras e números.";
+"card_holder.helper.text" = "Conforme aparece no cartão.";
 
 // MARK: - Expiration Date
 "expiration.label" = "Vencimento";

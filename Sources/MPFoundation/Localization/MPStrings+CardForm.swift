@@ -81,6 +81,9 @@ extension MPStrings {
             
             /// Invalid format error
             package static var errorInvalidFormat: String { localized("card_holder.error.invalid_format") }
+            
+            /// Helper Text
+            package static var helperText: String { localized("card_holder.helper.text") }
         }
         
         // MARK: - Expiration Date
