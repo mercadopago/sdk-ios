@@ -36,10 +36,11 @@ package extension View {
     /// }
     /// ```
     func popover<PopoverContent: View>(
+        isPopoverEnabled: Binding<Bool>,
         @ViewBuilder content: @escaping () -> PopoverContent
     ) -> some View {
         let config: PopoverConfig = DefaultPopoverConfig()
-        return modifier(PopoverModifier(config: config, content: content))
+        return modifier(PopoverModifier(isPopoverEnabled: isPopoverEnabled, config: config, content: content))
     }
 
     /// Adds a popover with custom configuration to the view.
@@ -73,10 +74,11 @@ package extension View {
     ///     }
     /// ```
     func popover<PopoverContent: View>(
+        isPopoverEnabled: Binding<Bool>,
         config: PopoverConfig,
         @ViewBuilder content: @escaping () -> PopoverContent
     ) -> some View {
-        modifier(PopoverModifier(config: config, content: content))
+        modifier(PopoverModifier(isPopoverEnabled: isPopoverEnabled, config: config, content: content))
     }
 
     /// Adds a popover with specific positioning and theming to the view.
@@ -104,12 +106,13 @@ package extension View {
     ///     }
     /// ```
     func popover<PopoverContent: View>(
+        isPopoverEnabled: Binding<Bool>,
         type: PopoverType = .white,
         @ViewBuilder content: @escaping () -> PopoverContent
     ) -> some View {
         var config: PopoverConfig = DefaultPopoverConfig()
         config.type = type
 
-        return modifier(PopoverModifier(config: config, content: content))
+        return modifier(PopoverModifier(isPopoverEnabled: isPopoverEnabled, config: config, content: content))
     }
 }
