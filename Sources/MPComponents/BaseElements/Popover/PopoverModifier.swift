@@ -23,9 +23,8 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     // MARK: - Configuration Properties
     
     /// Controls whether the popover is currently visible.
-    @Binding var isPopoverEnabled: Bool
-    
-    private var isPopoverEnabledBinding: Binding<Bool>?
+    private var externalPopoverEnabled: Binding<Bool>?
+    @State private var internalPopoverEnabled: Bool
     
     /// The configuration object defining popover behavior and appearance.
     var popoverConfiguration: PopoverConfig
@@ -40,7 +39,20 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
         config: PopoverConfig,
         @ViewBuilder content: @escaping () -> PopoverContent
     ) {
-        self._isPopoverEnabled = isPopoverEnabled
+        self.externalPopoverEnabled = isPopoverEnabled
+        self._internalPopoverEnabled = State(initialValue: false)
+        self.popoverConfiguration = config
+        self.popoverContent = content()
+    }
+
+    /// Initializes a popover using internal state (no external binding required).
+    init(
+        config: PopoverConfig,
+        isPopoverEnabled: Bool = false,
+        @ViewBuilder content: @escaping () -> PopoverContent
+    ) {
+        self.externalPopoverEnabled = nil
+        self._internalPopoverEnabled = State(initialValue: isPopoverEnabled)
         self.popoverConfiguration = config
         self.popoverContent = content()
     }
@@ -261,6 +273,7 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                 ZStack {
                     HStack(alignment: .top) {
                         popoverContent
+                            .environment(\.popoverVisibility, resolvedPopoverBinding)
                             .frame(
                                 maxWidth: popoverConfiguration.width,
                                 maxHeight: popoverConfiguration.height
@@ -271,7 +284,7 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                             )
                         
                         Button(action: {
-                            isPopoverEnabled.toggle()
+                            resolvedPopoverBinding.wrappedValue.toggle()
                         }) {
                             Image(Logos.close, bundle: .bundleMP)
                                 .renderingMode(.template)
@@ -296,9 +309,30 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onTapGesture {
-                isPopoverEnabled.toggle()
+                resolvedPopoverBinding.wrappedValue.toggle()
             }
-            .overlay(isPopoverEnabled ? mainPopoverView.transition(.opacity) : nil)
+            .overlay(resolvedPopoverBinding.wrappedValue ? mainPopoverView.transition(.opacity) : nil)
+    }
+}
+
+// MARK: - Private helpers
+private extension PopoverModifier {
+    var resolvedPopoverBinding: Binding<Bool> {
+        externalPopoverEnabled ?? $internalPopoverEnabled
+    }
+}
+
+// MARK: - Environment support for popover visibility control
+
+private struct PopoverVisibilityKey: EnvironmentKey {
+    static let defaultValue: Binding<Bool>? = nil
+}
+
+extension EnvironmentValues {
+    /// Binding that allows popover content to control its own visibility.
+    var popoverVisibility: Binding<Bool>? {
+        get { self[PopoverVisibilityKey.self] }
+        set { self[PopoverVisibilityKey.self] = newValue }
     }
 }
 
@@ -307,44 +341,72 @@ import SwiftUI
 
 struct PopoverModifier_Previews: PreviewProvider {
     struct PopoverPreviewHost: View {
-        @State private var isFirstTextEnable: Bool = false
-        @State private var isSecondTextEnable: Bool = false
+        @State private var isTexfieldEnable: Bool = false
         public init() {}
         
         public var body: some View {
             ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
                 VStack(spacing: 20) {
                     VStack {
+                        MPTextField(
+                            text: .constant("Security Code"),
+                            label: MPStrings.CardForm.CVV.label,
+                            placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                            keyboard: .numberPad,
+                            suffix: {
+                                Image(systemName: "questionmark.circle")
+                                    .renderingMode(.template)
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal)
+                                    .onTapGesture {
+                                        isTexfieldEnable.toggle()
+                                    }
+                            }
+                        )
+                        .popover(isPopoverEnabled: $isTexfieldEnable) {
+                            Text("test")
+                        }
                         Text("First text")
                             .fontWeight(.semibold)
                         
                         Image(systemName: "info.circle")
                             .font(.title)
                             .foregroundColor(.blue)
-                            .onTapGesture { isFirstTextEnable.toggle() }
-                            .popover(isPopoverEnabled: $isFirstTextEnable, type: .white) {
+                            .popover(type: .white) {
                                 Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
                                     .textStyle(.bodyMedium(colorType: .inverted))
                             }
                     }
                     
                     VStack {
-                        Text("Second text")
-                            .padding()
-                            .cornerRadius(8)
-                            .onTapGesture { isSecondTextEnable.toggle() }
-                            .popover(isPopoverEnabled: $isSecondTextEnable, type: .white) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Blue Theme")
-                                        .font(.headline)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.white)
-                                    
-                                    Text("This popover uses the Blue theme for better contrast.")
-                                        .font(.body)
-                                        .foregroundColor(.white)
+                        HStack {
+                            Text("Second text")
+                                .padding()
+                                .cornerRadius(8)
+                                .popover(type: .white) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Blue Theme")
+                                            .font(.headline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.white)
+                                        
+                                        Text("This popover uses the Blue theme for better contrast.")
+                                            .font(.body)
+                                            .foregroundColor(.white)
+                                    }
                                 }
-                            }
+                            Spacer()
+                            Text("Second text")
+                                .padding()
+                                .cornerRadius(8)
+                            Image(systemName: "info.circle")
+                                .font(.title)
+                                .foregroundColor(.blue)
+                                .popover(type: .white) {
+                                    Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                                        .textStyle(.bodyMedium(colorType: .inverted))
+                                }
+                        }
                     }
                     
                 }
