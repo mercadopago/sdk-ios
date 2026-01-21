@@ -58,38 +58,26 @@ struct CardFormScreen: View {
                         placeholder: MPStrings.CardForm.CardHolder.placeholder
                     )
                     
-                    HStack(
-                        alignment: .top,
-                        spacing: theme.spacings.xsmall
-                    ) {
-                        MPTextField(
-                            text: $expirationDate,
-                            label: MPStrings.CardForm.Expiration.label,
-                            placeholder: MPStrings.CardForm.Expiration.placeholder,
-                            keyboard: .numberPad,
-                            formatter: expirationDateFormatter,
-                            validator: expirationDateValidator
-                        )
-                        
-                        MPTextField(
-                            text: $securityCode,
-                            label: MPStrings.CardForm.CVV.label,
-                            placeholder: MPStrings.CardForm.CVV.placeholderDefault,
-                            keyboard: .numberPad,
-                            formatter: securityCodeFormatter,
-                            validator: securityCodeValidator,
-                            suffix: {
-                                Image(systemName: "questionmark.circle")
-                                    .renderingMode(.template)
-                                    .foregroundColor(theme.colors.icon.accent)
-                                    .padding(.horizontal, theme.spacings.micro)
-                                    .popover {
-                                        Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                                            .textStyle(.bodyMedium(colorType: .secondary))
                                     }
-                            }
-                        )
-                    }
+
+                    MPTextField(
+                        text: $expirationDate,
+                        label: MPStrings.CardForm.Expiration.label,
+                        placeholder: MPStrings.CardForm.Expiration.placeholder,
+                        keyboard: .numberPad,
+                        formatter: expirationDateFormatter,
+                        validator: expirationDateValidator
+                    )
+                    
+                    MPTextField(
+                        text: $securityCode,
+                        label: MPStrings.CardForm.CVV.label,
+                        placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                        keyboard: .numberPad,
+                        formatter: securityCodeFormatter,
+                        validator: securityCodeValidator
+                    )
+                    
                     
                     documentField()
                     
