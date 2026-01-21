@@ -10,8 +10,6 @@ import MPFoundation
 package protocol MPMessageStyle: StyleProtocol, Identifiable where Configuration == MPMessageConfiguration {}
 
 package struct MPDefaultMessageStyle: MPMessageStyle {
-    package typealias Configuration = MPMessageConfiguration
-    
     package var id: UUID = .init()
     
     @Environment(\.checkoutTheme) var theme: MPTheme
@@ -31,19 +29,12 @@ package struct MPDefaultMessageStyle: MPMessageStyle {
                 case .caution:
                     MPBadgeIcon(.caution, .large)
                 }
-                Text(configuration.message)
-                    .textStyle(.bodyMedium())
+                
+                configuration.message
+                
                 Spacer()
-                Button {
-                    configuration.dismiss()
-                } label: {
-                    Image(Logos.close, bundle: .bundleMP)
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 20, height: 20)
-                        .foregroundColor(theme.colors.icon.secondary)
-                }
+                configuration.closeButton
+                    .foregroundColor(theme.colors.icon.secondary)
             }
             .padding(theme.spacings.xtiny)
             
