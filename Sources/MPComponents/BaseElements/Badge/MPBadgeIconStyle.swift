@@ -19,7 +19,7 @@ package struct BadgeMicroStyle: MPBadgeIconStyle {
         Image(decorative: configuration.kind.assetName, bundle: .bundleMP)
             .renderingMode(.template)
             .resizable()
-            .frame(width: 12, height: 12)
+            .frame(width: configuration.size.rawValue, height: configuration.size.rawValue)
             .background(backgroundColor(for: configuration.kind))
             .clipShape(Circle())
             .foregroundColor(theme.colors.text.inverse)
