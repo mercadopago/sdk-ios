@@ -33,11 +33,28 @@ package struct MPMessage: View {
     
     package var body: some View {
         let configuration = MPMessageConfiguration(
-            message: .init(message),
-            state: state) {
-                isPresenting = false
-            }
+            message: messageView,
+            state: state,
+            closeButton: closeButtonView
+        )
         AnyView(style.resolve(configuration: configuration))
+    }
+    
+    private var messageView: some View {
+        Text(message)
+            .textStyle(.bodyMedium())
+    }
+    
+    private var closeButtonView: some View {
+        Button {
+            isPresenting = false
+        } label: {
+            Image(Logos.close, bundle: .bundleMP)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 20, height: 20)
+        }
     }
 }
 
