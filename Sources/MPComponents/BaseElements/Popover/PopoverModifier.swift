@@ -24,9 +24,8 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     
     // MARK: - Configuration Properties
     
-    /// Controls whether the popover is currently visible (external binding).
-    private var externalPopoverEnabled: Binding<Bool>?
-    @State private var internalPopoverEnabled: Bool
+    /// Controls whether the popover is currently visible.
+    @State private var isPopoverVisible: Bool = false
     
     /// The configuration object defining popover behavior and appearance.
     var popoverConfiguration: PopoverConfig
@@ -34,27 +33,12 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     /// The content view displayed inside the popover.
     var popoverContent: PopoverContent
 
-    // MARK: - Initializers
+    // MARK: - Initializer
 
     init(
-        isPopoverEnabled: Binding<Bool>,
         config: PopoverConfig,
         @ViewBuilder content: @escaping () -> PopoverContent
     ) {
-        self.externalPopoverEnabled = isPopoverEnabled
-        self._internalPopoverEnabled = State(initialValue: false)
-        self.popoverConfiguration = config
-        self.popoverContent = content()
-    }
-
-    /// Initializes a popover using internal state (no external binding required).
-    init(
-        config: PopoverConfig,
-        isPopoverEnabled: Bool = false,
-        @ViewBuilder content: @escaping () -> PopoverContent
-    ) {
-        self.externalPopoverEnabled = nil
-        self._internalPopoverEnabled = State(initialValue: isPopoverEnabled)
         self.popoverConfiguration = config
         self.popoverContent = content()
     }
@@ -275,12 +259,12 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                         // Wrap content to allow natural sizing with max constraint
                         VStack(alignment: .leading, spacing: 0) {
                             popoverContent
-                                .environment(\.popoverVisibility, resolvedPopoverBinding)
+                                .environment(\.popoverVisibility, $isPopoverVisible)
                         }
                         .frame(maxWidth: popoverConfiguration.maxWidth, alignment: .leading)
                         
                         Button(action: {
-                            resolvedPopoverBinding.wrappedValue.toggle()
+                            $isPopoverVisible.wrappedValue.toggle()
                         }) {
                             Image(Logos.close, bundle: .bundleMP)
                                 .renderingMode(.template)
@@ -319,24 +303,18 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                                 triggerFrame: currentFrame,
                                 config: popoverConfiguration,
                                 theme: theme,
-                                onDismiss: { resolvedPopoverBinding.wrappedValue = false }
+                                onDismiss: { $isPopoverVisible.wrappedValue = false }
                             ) {
                                 popoverContent
-                                    .environment(\.popoverVisibility, resolvedPopoverBinding)
+                                    .environment(\.popoverVisibility, $isPopoverVisible)
                             }
-                            resolvedPopoverBinding.wrappedValue = true
+                            $isPopoverVisible.wrappedValue = true
                         }
                 }
             )
     }
 }
 
-// MARK: - Private helpers
-private extension PopoverModifier {
-    var resolvedPopoverBinding: Binding<Bool> {
-        externalPopoverEnabled ?? $internalPopoverEnabled
-    }
-}
 
 // MARK: - Environment support for popover visibility control
 private struct PopoverVisibilityKey: EnvironmentKey {
@@ -356,8 +334,6 @@ import SwiftUI
 
 struct PopoverModifier_Previews: PreviewProvider {
     struct PopoverPreviewHost: View {
-        @State private var isTexfieldEnable: Bool = false
-        @State private var isThirdEnable: Bool = false
         public init() {}
         
         let config: PopoverConfig = DefaultPopoverConfig(side: .bottom, type: .white)
@@ -438,7 +414,7 @@ struct PopoverModifier_Previews: PreviewProvider {
                             Image(systemName: "info.circle")
                                 .font(.title)
                                 .foregroundColor(.blue)
-                                .popover(isPopoverEnabled: $isThirdEnable, type: .white) {
+                                .popover(type: .white) {
                                     Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
                                         .textStyle(.bodyMedium(colorType: .secondary))
                                 }
