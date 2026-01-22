@@ -309,7 +309,7 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
             .overlay(
                 // Invisible overlay to capture geometry and handle tap
                 GeometryReader { geo in
-                    Color.red.opacity(0.1)
+                    Color.clear
                         .contentShape(Rectangle())
                         .onTapGesture {
                             // Capture frame AT THE MOMENT of tap
@@ -362,7 +362,24 @@ struct PopoverModifier_Previews: PreviewProvider {
         
         let config: PopoverConfig = DefaultPopoverConfig(side: .bottom, type: .white)
         
-        let config2: PopoverConfig = DefaultPopoverConfig(side: .bottom, type: .white)
+        let config2: PopoverConfig = DefaultPopoverConfig(side: .right, type: .white, maxWidth: 100)
+        
+        let topConfig: PopoverConfig = DefaultPopoverConfig(side: .top, type: .white)
+        
+        let topLeft: PopoverConfig = DefaultPopoverConfig(side: .topLeft, type: .white)
+        
+        let topRight: PopoverConfig = DefaultPopoverConfig(side: .topRight, type: .white)
+        
+        let bottomConfig: PopoverConfig = DefaultPopoverConfig(side: .bottom, type: .white)
+        
+        let bottomLeft: PopoverConfig = DefaultPopoverConfig(side: .bottomLeft, type: .white)
+        
+        let bottomRight: PopoverConfig = DefaultPopoverConfig(side: .bottomRight, type: .white)
+        
+        let leftConfig: PopoverConfig = DefaultPopoverConfig(side: .left, type: .white, maxWidth: 80)
+        
+        let rightConfig: PopoverConfig = DefaultPopoverConfig(side: .right, type: .white, maxWidth: 80)
+        
         
         public var body: some View {
             ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
@@ -427,6 +444,55 @@ struct PopoverModifier_Previews: PreviewProvider {
                                 }
                         }
                     }
+                    Text("Top")
+                        .fontWeight(.semibold)
+                        .popover(config: topConfig) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                        }
+                    
+                    Text("Top Left")
+                        .fontWeight(.semibold)
+                        .popover(config: topLeft) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                        }
+                    
+                    Text("Top Right")
+                        .fontWeight(.semibold)
+                        .popover(config: topRight) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                        }
+                    
+                    Text("Bottom")
+                        .fontWeight(.semibold)
+                        .popover(config: bottomConfig) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                        }
+                    
+                    Text("Bottom Left")
+                        .fontWeight(.semibold)
+                        .popover(config: bottomLeft) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                        }
+                    
+                    Text("Bottom Right")
+                        .fontWeight(.semibold)
+                        .popover(config: bottomRight) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                        }
+                    
+                    Text("Left")
+                        .fontWeight(.semibold)
+                        .popover(config: leftConfig) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                        }
+                    
+                    Text("Right")
+                        .fontWeight(.semibold)
+                        .popover(config: rightConfig) {
+                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                        }
+                    
+                    
                     
                 }
                 .padding(40)

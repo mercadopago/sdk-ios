@@ -71,6 +71,12 @@ package struct DefaultPopoverConfig: PopoverConfig {
         self.type = type
     }
     
+    package init(side: PopoverSide, type: PopoverType, maxWidth: CGFloat? = 246) {
+        self.side = side
+        self.type = type
+        self.maxWidth = maxWidth
+    }
+    
     // MARK: - Theme Integration Methods
     
     /// Returns the standard border radius from the design system.
