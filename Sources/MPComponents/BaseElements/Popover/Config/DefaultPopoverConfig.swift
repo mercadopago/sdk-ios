@@ -31,14 +31,13 @@ package struct DefaultPopoverConfig: PopoverConfig {
     /// Default margin between popover and target view. Defaults to 8 points.
     package var margin: CGFloat = 8
     
-    /// Default z-index for proper layering. Defaults to 10000.
-    package var zIndex: Double = 10000
+    /// Maximum width constraint. Popover will size to content up to this limit.
+    /// When nil, popover has no width constraint.
+    package var maxWidth: CGFloat? = 246
     
-    /// Optional width constraint. When nil, popover sizes to content.
-    package var width: CGFloat? = 246
-    
-    /// Optional height constraint. When nil, popover sizes to content.
-    package var height: CGFloat? = 112
+    /// Maximum height constraint. Popover will size to content up to this limit.
+    /// When nil (default), popover height is determined by content.
+    package var maxHeight: CGFloat? = nil
 
     /// Whether to display the pointing arrow. Defaults to `true`.
     package var showArrow: Bool = true
@@ -98,10 +97,10 @@ package struct DefaultPopoverConfig: PopoverConfig {
     /// Returns consistent medium padding for popover content.
     package func contentPadding(from theme: MPTheme) -> EdgeInsets {
         return EdgeInsets(
-            top: theme.spacings.micro,
-            leading: theme.spacings.micro,
-            bottom: theme.spacings.micro,
-            trailing: theme.spacings.micro
+            top: theme.spacings.xtiny,
+            leading: theme.spacings.xtiny,
+            bottom: theme.spacings.xtiny,
+            trailing: theme.spacings.xtiny
         )
     }
 }

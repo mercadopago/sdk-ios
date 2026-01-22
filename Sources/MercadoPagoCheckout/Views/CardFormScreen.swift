@@ -83,6 +83,10 @@ struct CardFormScreen: View {
                                     .renderingMode(.template)
                                     .foregroundColor(theme.colors.icon.accent)
                                     .padding(.horizontal, theme.spacings.micro)
+                                    .popover {
+                                        Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                                            .textStyle(.bodyMedium(colorType: .secondary))
+                                    }
                             }
                         )
                     }
