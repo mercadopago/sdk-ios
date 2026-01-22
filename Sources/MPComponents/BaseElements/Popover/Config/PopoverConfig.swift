@@ -51,26 +51,21 @@ package protocol PopoverConfig: Sendable {
     /// providing better visual separation and readability.
     var margin: CGFloat { get set }
     
-    /// The z-index for popover layering in the view hierarchy.
-    ///
-    /// Higher values ensure the popover appears above other UI elements.
-    /// The default value (10000) should be sufficient for most use cases.
-    var zIndex: Double { get set }
-    
     // MARK: - Size Configuration
     
-    /// The preferred width of the popover content, in points.
+    /// The maximum width of the popover content, in points.
     ///
-    /// If `nil`, the popover will size itself based on its content.
-    /// Setting a specific width constrains the popover to that size,
-    /// with text wrapping as needed.
-    var width: CGFloat? { get set }
+    /// The popover will size itself based on content, up to this maximum.
+    /// If `nil`, there is no width constraint.
+    /// Text will wrap when content exceeds this width.
+    var maxWidth: CGFloat? { get set }
     
-    /// The preferred height of the popover content, in points.
+    /// The maximum height of the popover content, in points.
     ///
-    /// If `nil`, the popover will size itself based on its content.
-    /// Setting a specific height constrains the popover to that size.
-    var height: CGFloat? { get set }
+    /// The popover will size itself based on content, up to this maximum.
+    /// If `nil` (recommended), height is determined entirely by content.
+    /// Setting a max height may cause content to be clipped.
+    var maxHeight: CGFloat? { get set }
 
     // MARK: - Arrow Configuration
     

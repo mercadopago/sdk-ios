@@ -14,6 +14,8 @@ import MPFoundation
 /// logic for popovers. It automatically calculates optimal positioning based on
 /// the target view's geometry and the configured popover side.
 ///
+/// The popover is rendered using a dedicated UIWindow to avoid clipping issues.
+///
 struct PopoverModifier<PopoverContent: View>: ViewModifier {
     
     // MARK: - Environment
@@ -22,11 +24,9 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     
     // MARK: - Configuration Properties
     
-    /// Controls whether the popover is currently visible.
+    /// Controls whether the popover is currently visible (external binding).
     private var externalPopoverEnabled: Binding<Bool>?
     @State private var internalPopoverEnabled: Bool
-    
-    @State private var triggerFrame: CGRect = .zero
     
     /// The configuration object defining popover behavior and appearance.
     var popoverConfiguration: PopoverConfig
@@ -161,15 +161,13 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     // MARK: - View Components
 
     /// A geometry reader that measures and stores the popover content dimensions.
-    ///
-    /// This view is used as an overlay to determine the actual size of the popover content,
-    /// which is then used for precise positioning calculations.
     private var contentSizeMeasurer: some View {
         GeometryReader { geometry in
             Color.clear
                 .onAppear {
-                    self.popoverContentWidth = self.popoverConfiguration.width ?? geometry.size.width
-                    self.popoverContentHeight = self.popoverConfiguration.height ?? geometry.size.height
+                    // Size is already constrained by frame(maxWidth:) applied to content
+                    self.popoverContentWidth = geometry.size.width
+                    self.popoverContentHeight = geometry.size.height
                 }
         }
     }
@@ -274,16 +272,12 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                 
                 ZStack {
                     HStack(alignment: .top) {
-                        popoverContent
-                            .environment(\.popoverVisibility, resolvedPopoverBinding)
-                            .frame(
-                                maxWidth: popoverConfiguration.width,
-                                maxHeight: popoverConfiguration.height
-                            )
-                            .fixedSize(
-                                horizontal: popoverConfiguration.width == nil,
-                                vertical: true
-                            )
+                        // Wrap content to allow natural sizing with max constraint
+                        VStack(alignment: .leading, spacing: 0) {
+                            popoverContent
+                                .environment(\.popoverVisibility, resolvedPopoverBinding)
+                        }
+                        .frame(maxWidth: popoverConfiguration.maxWidth, alignment: .leading)
                         
                         Button(action: {
                             resolvedPopoverBinding.wrappedValue.toggle()
@@ -297,6 +291,7 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                         }
                     }
                 }
+                .fixedSize()  // Shrink to fit content
                 .padding(contentPadding)
                 .background(contentSizeMeasurer)
             }
@@ -304,52 +299,35 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                 x: calculateHorizontalOffset(for: geometry),
                 y: calculateVerticalOffset(for: geometry)
             )
-            .zIndex(popoverConfiguration.zIndex)
         }
     }
     
+    // MARK: - Body
+    
     func body(content: Content) -> some View {
-        let screen = UIScreen.main.bounds
-        
-        // Offset para mover o overlay do trigger até o canto (0,0) da tela
-        let offsetX = -triggerFrame.minX + screen.width / 2
-        let offsetY = -triggerFrame.minY + screen.height / 2
-
-        return content
-            .captureTriggerFrame { triggerFrame = $0 }
-            .onTapGesture { resolvedPopoverBinding.wrappedValue.toggle() }
+        content
             .overlay(
-                Group {
-                    if resolvedPopoverBinding.wrappedValue {
-                        Color.red.opacity(0.1)
-                            .contentShape(Rectangle())
-                            .frame(width: screen.width, height: screen.height)
-                            .position(x: offsetX, y: offsetY)
-                            .edgesIgnoringSafeArea(.all)
-                            .onTapGesture { resolvedPopoverBinding.wrappedValue = false }
-
-                        mainPopoverView.transition(.opacity)
-                            .zIndex(1000)
-                    }
+                // Invisible overlay to capture geometry and handle tap
+                GeometryReader { geo in
+                    Color.red.opacity(0.1)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            // Capture frame AT THE MOMENT of tap
+                            let currentFrame = geo.frame(in: .global)
+                            
+                            PopoverWindowManager.shared.show(
+                                triggerFrame: currentFrame,
+                                config: popoverConfiguration,
+                                theme: theme,
+                                onDismiss: { resolvedPopoverBinding.wrappedValue = false }
+                            ) {
+                                popoverContent
+                                    .environment(\.popoverVisibility, resolvedPopoverBinding)
+                            }
+                            resolvedPopoverBinding.wrappedValue = true
+                        }
                 }
             )
-    }
-}
-
-private struct TriggerFrameKey: PreferenceKey {
-    static let defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) { value = nextValue() }
-}
-
-private extension View {
-    func captureTriggerFrame(_ onChange: @escaping (CGRect) -> Void) -> some View {
-        background(
-            GeometryReader { geo in
-                Color.clear
-                    .preference(key: TriggerFrameKey.self, value: geo.frame(in: .global))
-            }
-        )
-        .onPreferenceChange(TriggerFrameKey.self, perform: onChange)
     }
 }
 
@@ -361,7 +339,6 @@ private extension PopoverModifier {
 }
 
 // MARK: - Environment support for popover visibility control
-
 private struct PopoverVisibilityKey: EnvironmentKey {
     static let defaultValue: Binding<Bool>? = nil
 }
@@ -383,6 +360,10 @@ struct PopoverModifier_Previews: PreviewProvider {
         @State private var isThirdEnable: Bool = false
         public init() {}
         
+        let config: PopoverConfig = DefaultPopoverConfig(side: .bottom, type: .white)
+        
+        let config2: PopoverConfig = DefaultPopoverConfig(side: .bottom, type: .white)
+        
         public var body: some View {
             ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
                 VStack(spacing: 20) {
@@ -397,11 +378,9 @@ struct PopoverModifier_Previews: PreviewProvider {
                                     .renderingMode(.template)
                                     .foregroundColor(.black)
                                     .padding(.horizontal)
-                                    .onTapGesture {
-                                        isTexfieldEnable.toggle()
-                                    }
-                                    .popover(isPopoverEnabled: $isTexfieldEnable) {
-                                        Text("test")
+                                    .popover(type: .white) {
+                                        Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
+                                            .textStyle(.bodyMedium(colorType: .secondary))
                                     }
                             }
                         )
@@ -411,9 +390,9 @@ struct PopoverModifier_Previews: PreviewProvider {
                         Image(systemName: "info.circle")
                             .font(.title)
                             .foregroundColor(.blue)
-                            .popover(type: .white) {
-                                Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                                    .textStyle(.bodyMedium(colorType: .inverted))
+                            .popover(config: config) {
+                                Text("Test")
+                                    .textStyle(.bodyMedium(colorType: .secondary))
                             }
                     }
                     
@@ -422,16 +401,17 @@ struct PopoverModifier_Previews: PreviewProvider {
                             Text("Second text")
                                 .padding()
                                 .cornerRadius(8)
-                                .popover(type: .white) {
+                                .popover(config: config2) {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text("Blue Theme")
                                             .font(.headline)
                                             .fontWeight(.semibold)
+                                            .textStyle(.bodyMediumTitle(colorType: .secondary))
                                             .foregroundColor(.white)
                                         
                                         Text("This popover uses the Blue theme for better contrast.")
-                                            .font(.body)
-                                            .foregroundColor(.white)
+                                            .textStyle(.bodyMedium(colorType: .secondary))
+                                            .foregroundColor(.primary)
                                     }
                                 }
                             Spacer()
@@ -441,12 +421,9 @@ struct PopoverModifier_Previews: PreviewProvider {
                             Image(systemName: "info.circle")
                                 .font(.title)
                                 .foregroundColor(.blue)
-                                .onTapGesture {
-                                    isThirdEnable.toggle()
-                                }
                                 .popover(isPopoverEnabled: $isThirdEnable, type: .white) {
                                     Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                                        .textStyle(.bodyMedium(colorType: .inverted))
+                                        .textStyle(.bodyMedium(colorType: .secondary))
                                 }
                         }
                     }
