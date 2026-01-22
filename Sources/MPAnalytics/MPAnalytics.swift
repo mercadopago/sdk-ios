@@ -289,6 +289,7 @@ package final class MPAnalytics: AnalyticsInterface {
             ],
             "device": [
                 "platform": "/mobile/ios",
+                "device_name": self.buyerInfo.getDeviceInfo(),
                 "connectivity_type": self.buyerInfo.getNetworkType(),
                 "os_version": self.buyerInfo.getiOSVersion()
             ]
