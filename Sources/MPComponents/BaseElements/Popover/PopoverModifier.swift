@@ -26,6 +26,8 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     private var externalPopoverEnabled: Binding<Bool>?
     @State private var internalPopoverEnabled: Bool
     
+    @State private var triggerFrame: CGRect = .zero
+    
     /// The configuration object defining popover behavior and appearance.
     var popoverConfiguration: PopoverConfig
     
@@ -305,13 +307,49 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
             .zIndex(popoverConfiguration.zIndex)
         }
     }
-
+    
     func body(content: Content) -> some View {
-        content
-            .onTapGesture {
-                resolvedPopoverBinding.wrappedValue.toggle()
+        let screen = UIScreen.main.bounds
+        
+        // Offset para mover o overlay do trigger até o canto (0,0) da tela
+        let offsetX = -triggerFrame.minX + screen.width / 2
+        let offsetY = -triggerFrame.minY + screen.height / 2
+
+        return content
+            .captureTriggerFrame { triggerFrame = $0 }
+            .onTapGesture { resolvedPopoverBinding.wrappedValue.toggle() }
+            .overlay(
+                Group {
+                    if resolvedPopoverBinding.wrappedValue {
+                        Color.red.opacity(0.1)
+                            .contentShape(Rectangle())
+                            .frame(width: screen.width, height: screen.height)
+                            .position(x: offsetX, y: offsetY)
+                            .edgesIgnoringSafeArea(.all)
+                            .onTapGesture { resolvedPopoverBinding.wrappedValue = false }
+
+                        mainPopoverView.transition(.opacity)
+                            .zIndex(1000)
+                    }
+                }
+            )
+    }
+}
+
+private struct TriggerFrameKey: PreferenceKey {
+    static let defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) { value = nextValue() }
+}
+
+private extension View {
+    func captureTriggerFrame(_ onChange: @escaping (CGRect) -> Void) -> some View {
+        background(
+            GeometryReader { geo in
+                Color.clear
+                    .preference(key: TriggerFrameKey.self, value: geo.frame(in: .global))
             }
-            .overlay(resolvedPopoverBinding.wrappedValue ? mainPopoverView.transition(.opacity) : nil)
+        )
+        .onPreferenceChange(TriggerFrameKey.self, perform: onChange)
     }
 }
 
@@ -342,6 +380,7 @@ import SwiftUI
 struct PopoverModifier_Previews: PreviewProvider {
     struct PopoverPreviewHost: View {
         @State private var isTexfieldEnable: Bool = false
+        @State private var isThirdEnable: Bool = false
         public init() {}
         
         public var body: some View {
@@ -361,11 +400,11 @@ struct PopoverModifier_Previews: PreviewProvider {
                                     .onTapGesture {
                                         isTexfieldEnable.toggle()
                                     }
+                                    .popover(isPopoverEnabled: $isTexfieldEnable) {
+                                        Text("test")
+                                    }
                             }
                         )
-                        .popover(isPopoverEnabled: $isTexfieldEnable) {
-                            Text("test")
-                        }
                         Text("First text")
                             .fontWeight(.semibold)
                         
@@ -396,13 +435,16 @@ struct PopoverModifier_Previews: PreviewProvider {
                                     }
                                 }
                             Spacer()
-                            Text("Second text")
+                            Text("Third text")
                                 .padding()
                                 .cornerRadius(8)
                             Image(systemName: "info.circle")
                                 .font(.title)
                                 .foregroundColor(.blue)
-                                .popover(type: .white) {
+                                .onTapGesture {
+                                    isThirdEnable.toggle()
+                                }
+                                .popover(isPopoverEnabled: $isThirdEnable, type: .white) {
                                     Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
                                         .textStyle(.bodyMedium(colorType: .inverted))
                                 }
