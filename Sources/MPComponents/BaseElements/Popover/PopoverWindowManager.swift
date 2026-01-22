@@ -92,7 +92,6 @@ private struct PopoverWindowView: View {
             Color.clear
                 .contentShape(Rectangle())
                 .frame(width: screen.width, height: screen.height)
-                .edgesIgnoringSafeArea(.all)
                 .onTapGesture { onDismiss() }
             
             // Popover content
@@ -104,6 +103,7 @@ private struct PopoverWindowView: View {
                 onDismiss: onDismiss
             )
         }
+        .edgesIgnoringSafeArea(.all)  // Apply to entire ZStack to avoid safe area offset
     }
 }
 
@@ -166,7 +166,7 @@ private struct PopoverWindowContentView: View {
         
         ZStack {
             popoverBackgroundView
-            arrowView(arrowOffsetX: positionResult.arrowOffsetX)
+            arrowView(arrowOffsetX: positionResult.arrowOffsetX, arrowOffsetY: positionResult.arrowOffsetY)
             
             HStack(alignment: .top, spacing: theme.spacings.micro) {
                 content
@@ -228,7 +228,7 @@ private struct PopoverWindowContentView: View {
             )
     }
     
-    private func arrowView(arrowOffsetX: CGFloat) -> some View {
+    private func arrowView(arrowOffsetX: CGFloat, arrowOffsetY: CGFloat) -> some View {
         guard config.showArrow,
               config.side.shouldShowArrow() else {
             return AnyView(EmptyView())
@@ -240,7 +240,7 @@ private struct PopoverWindowContentView: View {
         
         let finalOffset = CGPoint(
             x: baseArrowOffset.x + arrowOffsetX,
-            y: baseArrowOffset.y
+            y: baseArrowOffset.y + arrowOffsetY
         )
         
         return AnyView(
@@ -282,6 +282,7 @@ private struct PopoverWindowContentView: View {
     private struct PositionResult {
         let position: CGPoint
         let arrowOffsetX: CGFloat
+        let arrowOffsetY: CGFloat
     }
     
     private func calculateAdjustedPosition() -> PositionResult {
@@ -392,6 +393,7 @@ private struct PopoverWindowContentView: View {
         }
         
         let originalGlobalX = globalX
+        let originalGlobalY = globalY
         
         let halfWidth = popoverContentWidth / 2
         globalX = max(minX + halfWidth, min(maxX - halfWidth, globalX))
@@ -400,13 +402,13 @@ private struct PopoverWindowContentView: View {
         globalY = max(minY + halfHeight, min(maxY - halfHeight, globalY))
         
         let arrowOffsetX = originalGlobalX - globalX
+        let arrowOffsetY = originalGlobalY - globalY
         
         // Position is in screen coordinates (UIWindow uses screen coords)
-        return PositionResult(position: CGPoint(x: globalX, y: globalY), arrowOffsetX: arrowOffsetX)
+        return PositionResult(position: CGPoint(x: globalX, y: globalY), arrowOffsetX: arrowOffsetX, arrowOffsetY: arrowOffsetY)
     }
     
     private func calculateBaseArrowOffset() -> CGPoint {
-        // This should match the arrowInset used in calculateAdjustedPosition()
         let arrowInset = config.borderRadius(from: theme) + config.arrowWidth
         
         var xOffset: CGFloat = 0
@@ -415,38 +417,30 @@ private struct PopoverWindowContentView: View {
         // X offset - where the arrow sits horizontally on the popover
         switch config.side {
         case .top, .bottom, .center:
-            // Arrow centered horizontally
             xOffset = 0
             
         case .left:
-            // Arrow on right side of popover (pointing right toward trigger)
             xOffset = popoverContentWidth / 2 + config.arrowHeight / 2
             
         case .right:
-            // Arrow on left side of popover (pointing left toward trigger)
             xOffset = -(popoverContentWidth / 2 + config.arrowHeight / 2)
             
         case .topLeft, .bottomLeft:
-            // Arrow near LEFT edge of popover, pointing to trigger center
             xOffset = -(popoverContentWidth / 2 - arrowInset)
             
         case .topRight, .bottomRight:
-            // Arrow near RIGHT edge of popover, pointing to trigger center
             xOffset = popoverContentWidth / 2 - arrowInset
         }
         
         // Y offset - where the arrow sits vertically on the popover
         switch config.side {
         case .left, .right, .center:
-            // Arrow centered vertically
             yOffset = 0
             
         case .top, .topLeft, .topRight:
-            // Arrow at BOTTOM of popover (pointing down toward trigger)
             yOffset = popoverContentHeight / 2 + config.arrowHeight / 2
             
         case .bottom, .bottomLeft, .bottomRight:
-            // Arrow at TOP of popover (pointing up toward trigger)
             yOffset = -(popoverContentHeight / 2 + config.arrowHeight / 2)
         }
         
