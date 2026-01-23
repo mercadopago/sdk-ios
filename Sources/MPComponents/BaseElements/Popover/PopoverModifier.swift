@@ -256,7 +256,6 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                 
                 ZStack {
                     HStack(alignment: .top) {
-                        // Wrap content to allow natural sizing with max constraint
                         VStack(alignment: .leading, spacing: 0) {
                             popoverContent
                                 .environment(\.popoverVisibility, $isPopoverVisible)
@@ -275,7 +274,7 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                         }
                     }
                 }
-                .fixedSize()  // Shrink to fit content
+                .fixedSize()
                 .padding(contentPadding)
                 .background(contentSizeMeasurer)
             }
@@ -291,12 +290,10 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     func body(content: Content) -> some View {
         content
             .overlay(
-                // Invisible overlay to capture geometry and handle tap
                 GeometryReader { geo in
                     Color.clear
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            // Capture frame AT THE MOMENT of tap
                             let currentFrame = geo.frame(in: .global)
                             
                             PopoverWindowManager.shared.show(
