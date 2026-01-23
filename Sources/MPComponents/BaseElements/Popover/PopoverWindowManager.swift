@@ -103,14 +103,14 @@ private struct PopoverWindowView: View {
                 onDismiss: onDismiss
             )
         }
-        .edgesIgnoringSafeArea(.all)  // Apply to entire ZStack to avoid safe area offset
+        .edgesIgnoringSafeArea(.all)
     }
 }
 
 // MARK: - Popover Size Preference Key
 
 private struct PopoverSizeKey: PreferenceKey {
-    nonisolated(unsafe) static var defaultValue: CGSize = .zero
+    static let defaultValue: CGSize = .zero
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
         value = nextValue()
     }
@@ -119,7 +119,7 @@ private struct PopoverSizeKey: PreferenceKey {
 // MARK: - Content Size Preference Key
 
 private struct ContentSizeKey: PreferenceKey {
-    nonisolated(unsafe) static var defaultValue: CGSize = .zero
+    static let defaultValue: CGSize = .zero
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
         value = nextValue()
     }
@@ -299,12 +299,7 @@ private struct PopoverWindowContentView: View {
         var globalX: CGFloat = triggerFrame.midX
         var globalY: CGFloat = triggerFrame.midY
         
-        // ===========================================
-        // STEP 1: Define where ARROW TIP should be
-        // Arrow tip is exactly `margin` points away from trigger edge
-        // Arrow X is always centered on trigger
-        // ===========================================
-        
+        // Define where ARROW TIP should be
         var arrowTipX: CGFloat = triggerFrame.midX  // Always centered on trigger
         var arrowTipY: CGFloat = triggerFrame.midY
         
@@ -331,12 +326,8 @@ private struct PopoverWindowContentView: View {
             // No arrow, popover top edge is `margin` points below trigger
             arrowTipY = triggerFrame.maxY + margin
         }
-        
-        // ===========================================
-        // STEP 2: Calculate POPOVER CENTER from arrow tip
-        // Arrow tip = popoverCenter + arrowOffset (accounting for arrow direction)
-        // ===========================================
-        
+
+        // Calculate POPOVER CENTER from arrow tip
         switch config.side {
         case .top, .topLeft, .topRight:
             // Arrow at BOTTOM of popover pointing DOWN
@@ -361,12 +352,8 @@ private struct PopoverWindowContentView: View {
         case .center:
             globalY = arrowTipY + popoverContentHeight / 2
         }
-        
-        // ===========================================
-        // STEP 3: Calculate X position for vertical popovers
-        // Arrow X (arrowTipX) is ALWAYS at triggerFrame.midX
-        // We position the popover so the arrow ends up at arrowTipX
-        // ===========================================
+     
+        //Calculate X position for vertical popovers
         
         // Arrow inset = distance from popover edge to arrow center
         let arrowInset = config.borderRadius(from: theme) + config.arrowWidth
