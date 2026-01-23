@@ -24,8 +24,16 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
     
     // MARK: - Configuration Properties
     
-    /// Controls whether the popover is currently visible.
-    @State private var isPopoverVisible: Bool = false
+    /// Internal state for popover visibility when no external binding is provided.
+    @State private var internalIsVisible: Bool = false
+    
+    /// External binding to control popover visibility. When provided, takes precedence over internal state.
+    private var externalIsPresented: Binding<Bool>?
+    
+    /// The effective visibility binding - uses external if provided, otherwise internal.
+    private var isPopoverVisible: Binding<Bool> {
+        externalIsPresented ?? $internalIsVisible
+    }
     
     /// The configuration object defining popover behavior and appearance.
     var popoverConfiguration: PopoverConfig
@@ -37,9 +45,11 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
 
     init(
         config: PopoverConfig,
+        isPresented: Binding<Bool>? = nil,
         @ViewBuilder content: @escaping () -> PopoverContent
     ) {
         self.popoverConfiguration = config
+        self.externalIsPresented = isPresented
         self.popoverContent = content()
     }
 
@@ -258,19 +268,19 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 0) {
                             popoverContent
-                                .environment(\.popoverVisibility, $isPopoverVisible)
+                                .environment(\.popoverVisibility, isPopoverVisible)
                         }
                         .frame(maxWidth: popoverConfiguration.maxWidth, alignment: .leading)
                         
                         Button(action: {
-                            $isPopoverVisible.wrappedValue.toggle()
+                            isPopoverVisible.wrappedValue.toggle()
                         }) {
                             Image(Logos.close, bundle: .bundleMP)
                                 .renderingMode(.template)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 20, height: 20)
-                                .foregroundColor(theme.colors.text.inverse)
+                                .foregroundColor(theme.colors.icon.secondary)
                         }
                     }
                 }
@@ -294,19 +304,28 @@ struct PopoverModifier<PopoverContent: View>: ViewModifier {
                     Color.clear
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            let currentFrame = geo.frame(in: .global)
-                            
-                            PopoverWindowManager.shared.show(
-                                triggerFrame: currentFrame,
-                                config: popoverConfiguration,
-                                theme: theme,
-                                onDismiss: { $isPopoverVisible.wrappedValue = false }
-                            ) {
-                                popoverContent
-                                    .environment(\.popoverVisibility, $isPopoverVisible)
+                            if externalIsPresented == nil {
+                                let currentFrame = geo.frame(in: .global)
+                                
+                                PopoverWindowManager.shared.show(
+                                    triggerFrame: currentFrame,
+                                    config: popoverConfiguration,
+                                    theme: theme,
+                                    onDismiss: { isPopoverVisible.wrappedValue = false }
+                                ) {
+                                    popoverContent
+                                        .environment(\.popoverVisibility, isPopoverVisible)
+                                }
+                                isPopoverVisible.wrappedValue = true
                             }
-                            $isPopoverVisible.wrappedValue = true
                         }
+                }
+            )
+            .overlay(
+                Group {
+                    if let externalIsPresented, externalIsPresented.wrappedValue && isPopoverVisible.wrappedValue {
+                        mainPopoverView
+                    }
                 }
             )
     }

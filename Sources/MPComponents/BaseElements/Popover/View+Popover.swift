@@ -112,4 +112,79 @@ package extension View {
 
         return modifier(PopoverModifier(config: config, content: content))
     }
+    
+    // MARK: - Popover Methods with External Visibility Control
+    
+    /// Adds a popover with external visibility control using default configuration.
+    ///
+    /// Use this method when you need to control popover visibility externally,
+    /// such as for snapshot tests or programmatic control.
+    ///
+    /// - Parameters:
+    ///   - isPresented: A binding that controls whether the popover is visible.
+    ///   - content: A view builder that creates the popover's content.
+    /// - Returns: The modified view with popover functionality.
+    ///
+    /// ## Example Usage (Snapshot Test)
+    ///
+    /// ```swift
+    /// // For snapshot tests - popover visible immediately
+    /// Image(systemName: "info.circle")
+    ///     .popover(isPresented: .constant(true)) {
+    ///         Text("Always visible popover")
+    ///     }
+    /// ```
+    func popover<PopoverContent: View>(
+        isPresented: Binding<Bool>,
+        @ViewBuilder content: @escaping () -> PopoverContent
+    ) -> some View {
+        let config: PopoverConfig = DefaultPopoverConfig()
+        return modifier(PopoverModifier(config: config, isPresented: isPresented, content: content))
+    }
+    
+    /// Adds a popover with external visibility control and custom configuration.
+    ///
+    /// Use this method for full control over popover visibility and appearance,
+    /// ideal for snapshot tests that need to verify specific popover configurations.
+    ///
+    /// - Parameters:
+    ///   - isPresented: A binding that controls whether the popover is visible.
+    ///   - config: A custom configuration object defining popover behavior and appearance.
+    ///   - content: A view builder that creates the popover's content.
+    /// - Returns: The modified view with popover functionality.
+    ///
+    /// ## Example Usage (Snapshot Test with Custom Config)
+    ///
+    /// ```swift
+    /// let config = DefaultPopoverConfig(side: .bottom, type: .white)
+    /// 
+    /// Image(systemName: "info.circle")
+    ///     .popover(isPresented: .constant(true), config: config) {
+    ///         Text("Visible popover at bottom")
+    ///     }
+    /// ```
+    func popover<PopoverContent: View>(
+        isPresented: Binding<Bool>,
+        config: PopoverConfig,
+        @ViewBuilder content: @escaping () -> PopoverContent
+    ) -> some View {
+        modifier(PopoverModifier(config: config, isPresented: isPresented, content: content))
+    }
+    
+    /// Adds a popover with external visibility control and specific theming.
+    ///
+    /// - Parameters:
+    ///   - isPresented: A binding that controls whether the popover is visible.
+    ///   - type: The visual theme type for the popover. Defaults to `.white`.
+    ///   - content: A view builder that creates the popover's content.
+    /// - Returns: The modified view with popover functionality.
+    func popover<PopoverContent: View>(
+        isPresented: Binding<Bool>,
+        type: PopoverType = .white,
+        @ViewBuilder content: @escaping () -> PopoverContent
+    ) -> some View {
+        var config: PopoverConfig = DefaultPopoverConfig()
+        config.type = type
+        return modifier(PopoverModifier(config: config, isPresented: isPresented, content: content))
+    }
 }
