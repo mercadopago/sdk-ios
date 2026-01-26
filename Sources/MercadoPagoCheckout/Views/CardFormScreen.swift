@@ -18,15 +18,21 @@ struct CardFormScreen: View {
     @State private var cardHolder: String = ""
     @State private var expirationDate: String = ""
     @State private var securityCode: String = ""
-    
+    @State private var documentHolder: String = ""
+
     // Formatters and Validators
     private let cardNumberFormatter = CardNumberFormatter()
     private let cardNumberValidator = CardNumberValidator()
+    
+    private let cardHolderValidator = CardHolderValidator()
+    
     private let expirationDateFormatter = ExpirationDateFormatter()
     private let expirationDateValidator = ExpirationDateValidator()
+    
     private let securityCodeFormatter = SecurityCodeFormatter()
     private let securityCodeValidator = SecurityCodeValidator()
-    private let cardHolderValidator = CardHolderValidator()
+    
+    private let documentValidator = DocumentValidator()
 
     //  Document Field
     @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
@@ -106,9 +112,10 @@ struct CardFormScreen: View {
     @ViewBuilder
     func documentField() -> some View {
         MPTextField(
-            text: $cardHolder,
+            text: $documentHolder,
             label: MPStrings.CardForm.CardHolder.label,
             placeholder: selectTypeDocument.placeholder,
+            validator: documentValidator,
             prefix: {
                 Button {
                     openDocumentsSheet.toggle()
@@ -131,7 +138,7 @@ struct CardFormScreen: View {
                     )
                     .padding(.leading, theme.spacings.micro)
                 }
-            }
+            },
         )
     }
     

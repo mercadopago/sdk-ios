@@ -381,3 +381,64 @@ package final class CardHolderValidator: TextValidating, @unchecked Sendable {
         return .valid
     }
 }
+
+
+
+// MARK: - Document Validator
+package enum DocumentErrorType: Equatable, Sendable {
+    case empty
+    case incomplete
+    case custom(message: String)
+    
+    package var message: String {
+        switch self {
+        case .empty:
+            return MPStrings.CardForm.Document.errorEmpty
+        case .incomplete:
+            return MPStrings.CardForm.Document.errorIncomplete
+        case .custom(let message):
+            return message
+        }
+    }
+}
+
+/// Validates Document
+package final class DocumentValidator: TextValidating, @unchecked Sendable {
+    private var requiredLength: Int
+    private var externalError: DocumentErrorType?
+    
+    package init(requiredLength: Int = 19) {
+        self.requiredLength = requiredLength
+    }
+    
+    /// Updates the required length (useful when document type changes).
+    package func setRequiredLength(_ length: Int) {
+        self.requiredLength = length
+    }
+    
+    package func setExternalError(_ error: DocumentErrorType?) {
+        self.externalError = error
+    }
+    
+    package func clearExternalError() {
+        self.externalError = nil
+    }
+    
+    package func validate(_ text: String) -> ValidationResult {
+        if let externalError {
+            return .invalid(message: externalError.message)
+        }
+        
+        let digits = text.filter { $0.isNumber }
+        
+        guard !digits.isEmpty else {
+            return .invalid(message: DocumentErrorType.empty.message)
+        }
+        
+        guard digits.count >= requiredLength else {
+            return .invalid(message: DocumentErrorType.incomplete.message)
+        }
+        
+        return .valid
+    }
+}
