@@ -158,6 +158,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
                 Text(placeholder ?? "")
                     .foregroundColor(theme.textFields.standard.placeholderColor)
                     .padding(.leading, 4)
+                    .accessibility(hidden: true)
             }
             
             TextField(

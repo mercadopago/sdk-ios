@@ -117,31 +117,37 @@ struct CardFormScreen: View {
             placeholder: selectTypeDocument.placeholder,
             validator: documentValidator,
             prefix: {
-                Button {
-                    openDocumentsSheet.toggle()
-                } label: {
-                    HStack {
-                        Text(selectTypeDocument.name)
-                            .textStyle(.bodyMedium(colorType: .secondary))
-                        
-                        Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
-                            .renderingMode(.template)
-                            .foregroundColor(theme.textFields.standard.idle.borderColor)
-                            .padding(.horizontal, theme.spacings.xmicro)
-                    }
-                    .frame(maxHeight: .infinity)
-                    .overlay(
-                        Rectangle()
-                            .frame(width: theme.borderWidth.small)
-                            .foregroundColor(theme.textFields.standard.idle.borderColor),
-                        alignment: .trailing
-                    )
-                    .padding(.leading, theme.spacings.micro)
-                }
-                .accessibility(label: Text("\(MPStrings.CardForm.Document.label): \(selectTypeDocument.name)"))
+                dropdownDocument()
             },
         )
     }
+    
+    @ViewBuilder
+    func dropdownDocument() -> some View {
+        Button {
+            openDocumentsSheet.toggle()
+        } label: {
+            HStack {
+                Text(selectTypeDocument.name)
+                    .textStyle(.bodyMedium(colorType: .secondary))
+                
+                Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
+                    .renderingMode(.template)
+                    .foregroundColor(theme.textFields.standard.idle.borderColor)
+                    .padding(.horizontal, theme.spacings.xmicro)
+            }
+            .frame(maxHeight: .infinity)
+            .overlay(
+                Rectangle()
+                    .frame(width: theme.borderWidth.small)
+                    .foregroundColor(theme.textFields.standard.idle.borderColor),
+                alignment: .trailing
+            )
+            .padding(.leading, theme.spacings.micro)
+        }
+        .accessibility(label: Text(verbatim: selectTypeDocument.name))
+    }
+    
     
 }
 

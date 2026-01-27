@@ -66,11 +66,12 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             )
             .frame(maxHeight: 44)
 
-            // Helper text (shown on error states)
+            // Helper text 
             if let helper = configuration.helper {
                 Helper(helper, helperTone(for: configuration))
                     .helperStyle(helperStyle(for: configuration))
                     .padding(.top, theme.spacings.xnano)
+                    .accessibility(hidden: true)
             }
         }
         .animation(.easeInOut(duration: 0.15))
