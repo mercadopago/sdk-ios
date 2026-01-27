@@ -143,10 +143,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             style.resolve(configuration: configuration)
         )
         .frame(minHeight: 44)
-        .accessibilityElement(children: .combine)
-        .accessibility(label: Text(accessibilityLabel))
-        .accessibility(value: Text(text))
-        .accessibility(hint: Text(accessibilityHint(for: currentState) ?? ""))
+        .accessibilityElement(children: .contain)
         .disabled(!isEnabled)
     }
 
@@ -203,6 +200,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             .keyboardType(keyboard)
             .textContentType(contentType)
             .disabled(!isEnabled)
+            .accessibility(label: Text(accessibilityLabel))
+            .accessibility(hint: Text(accessibilityHint(for: currentState) ?? ""))
         }
     }
     

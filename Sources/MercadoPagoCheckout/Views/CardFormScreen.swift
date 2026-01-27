@@ -113,7 +113,7 @@ struct CardFormScreen: View {
     func documentField() -> some View {
         MPTextField(
             text: $documentHolder,
-            label: MPStrings.CardForm.CardHolder.label,
+            label: MPStrings.CardForm.Document.label,
             placeholder: selectTypeDocument.placeholder,
             validator: documentValidator,
             prefix: {
@@ -138,6 +138,7 @@ struct CardFormScreen: View {
                     )
                     .padding(.leading, theme.spacings.micro)
                 }
+                .accessibility(label: Text("\(MPStrings.CardForm.Document.label): \(selectTypeDocument.name)"))
             },
         )
     }
