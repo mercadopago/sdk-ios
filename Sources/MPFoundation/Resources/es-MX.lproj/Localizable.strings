@@ -81,6 +81,7 @@
 "common.error" = "Error";
 "common.retry" = "Reintentar";
 "common.loading" = "Cargando...";
+"common.accessibility.textfield.moreInfo" = "Más información";
 
 // MARK: - Errors
 "error.generic" = "Algo salió mal. Por favor, intenta de nuevo.";

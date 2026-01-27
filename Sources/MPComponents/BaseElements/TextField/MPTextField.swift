@@ -211,7 +211,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         Group {
             if let label { Text(label) }
         }
-        .accessibility(hidden: true)
     }
 
     // MARK: - Helpers
@@ -231,7 +230,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     private func accessibilityHint(for state: MPTextFieldState) -> String? {
         if let error = state.errorMessage { return error }
-        return helperText
+        return nil
     }
 
     // MARK: - State Management

@@ -81,7 +81,7 @@
 "common.error" = "Erro";
 "common.retry" = "Tentar novamente";
 "common.loading" = "Carregando...";
-
+"common.accessibility.textfield.moreInfo" = "Mais informações";
 // MARK: - Errors
 "error.generic" = "Algo deu errado. Por favor, tente novamente.";
 "error.network" = "Erro de conexão. Verifique sua conexão com a internet.";

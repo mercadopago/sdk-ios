@@ -71,7 +71,6 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                 Helper(helper, helperTone(for: configuration))
                     .helperStyle(helperStyle(for: configuration))
                     .padding(.top, theme.spacings.xnano)
-                    .accessibility(hidden: true)
             }
         }
         .animation(.easeInOut(duration: 0.15))
@@ -101,12 +100,16 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
     @ViewBuilder
     @MainActor
     private func popoverButton(textPopover: String) -> some View {
-        MPIcon(
-            systemName: Logos.questionMark,
-            size: .small,
-            color: .accent,
-            isDecorative: true
-        )
+        Button(action: {}) {
+            MPIcon(
+                systemName: Logos.questionMark,
+                size: .small,
+                color: .accent,
+                isDecorative: true
+            )
+        }
+        .accessibility(label: Text(MPStrings.Common.Accessibility.TextField.moreInfo))
+        .buttonStyle(.plain)
         .popover() {
             Text(textPopover)
                 .textStyle(.bodyMedium(colorType: .secondary))
