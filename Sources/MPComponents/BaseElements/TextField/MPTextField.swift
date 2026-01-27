@@ -54,6 +54,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let validator: TextValidating?
     private let prefixView: Prefix
     private let suffixView: Suffix
+    
+    private let popoverText: String?
 
     // MARK: - Environment
     @Environment(\.mpTextFieldStyle) private var style: any MPTextFieldStyle
@@ -100,6 +102,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         onEditingChanged: ((Bool) -> Void)? = nil,
         formatter: TextFormatting? = nil,
         validator: TextValidating? = nil,
+        popoverText: String? = nil,
         @ViewBuilder prefix: () -> Prefix = { EmptyView() },
         @ViewBuilder suffix: () -> Suffix = { EmptyView() }
     ) {
@@ -116,6 +119,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.validator = validator
         self.prefixView = prefix()
         self.suffixView = suffix()
+        self.popoverText = popoverText
         self._internalState = State(initialValue: .idle)
     }
 
@@ -129,6 +133,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             label: label == nil ? nil : labelView,
             field: textField,
             helper: currentState.errorMessage ?? helperText ?? nil,
+            popoverText: popoverText,
             prefix: prefixView,
             suffix: suffixView,
             state: currentState

@@ -67,7 +67,6 @@ struct CardFormScreen: View {
                         validator: cardHolderValidator
                     )
                     
-                                    }
 
                     MPTextField(
                         text: $expirationDate,
@@ -75,7 +74,7 @@ struct CardFormScreen: View {
                         placeholder: MPStrings.CardForm.Expiration.placeholder,
                         keyboard: .numberPad,
                         formatter: expirationDateFormatter,
-                        validator: expirationDateValidator,
+                        validator: expirationDateValidator
                     )
                     
                     MPTextField(
@@ -84,7 +83,8 @@ struct CardFormScreen: View {
                         placeholder: MPStrings.CardForm.CVV.placeholderDefault,
                         keyboard: .numberPad,
                         formatter: securityCodeFormatter,
-                        validator: securityCodeValidator
+                        validator: securityCodeValidator,
+                        popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
                     )
                     
                     
