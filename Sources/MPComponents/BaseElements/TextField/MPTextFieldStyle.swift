@@ -71,7 +71,6 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
                 Helper(helper, helperTone(for: configuration))
                     .helperStyle(helperStyle(for: configuration))
                     .padding(.top, theme.spacings.xnano)
-                    .accessibility(hidden: true)
             }
         }
         .animation(.easeInOut(duration: 0.15))
