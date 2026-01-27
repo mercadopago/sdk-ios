@@ -44,6 +44,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let label: String?
     private let placeholder: String?
     private let helperText: String?
+    private let errorMessage: [String]?
     
     private let keyboard: UIKeyboardType
     private let contentType: UITextContentType?
@@ -51,7 +52,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let onCommit: (() -> Void)?
     private let onEditingChanged: ((Bool) -> Void)?
     private let formatter: TextFormatting?
-    private let validator: TextValidating?
     private let prefixView: Prefix
     private let suffixView: Suffix
     
@@ -95,13 +95,13 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         label: String?,
         placeholder: String?,
         helperText: String? = nil,
+        errorMessage: [String]? = nil,
         keyboard: UIKeyboardType = .default,
         contentType: UITextContentType? = nil,
         autocorrection: UITextAutocorrectionType = .default,
         onCommit: (() -> Void)? = nil,
         onEditingChanged: ((Bool) -> Void)? = nil,
         formatter: TextFormatting? = nil,
-        validator: TextValidating? = nil,
         popoverText: String? = nil,
         @ViewBuilder prefix: () -> Prefix = { EmptyView() },
         @ViewBuilder suffix: () -> Suffix = { EmptyView() }
@@ -116,10 +116,10 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.onCommit = onCommit
         self.onEditingChanged = onEditingChanged
         self.formatter = formatter
-        self.validator = validator
         self.prefixView = prefix()
         self.suffixView = suffix()
         self.popoverText = popoverText
+        self.errorMessage = errorMessage
         self._internalState = State(initialValue: .idle)
     }
 
@@ -257,44 +257,22 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private func updateStateOnBlur() {
         validateAndUpdateState(isEditing: false, debounce: false)
     }
-    
-    func shouldShowHelperOrError(for state: MPTextFieldState) -> Bool {
-        if helperText != nil { return true }
-        return false
-    }
 
     private func validateAndUpdateState(isEditing: Bool, debounce: Bool) {
         guard isEnabled && !isReadOnly else { return }
         
-        guard let validator else {
+        
+        print(errorMessage)
+        
+        guard let errorMessage else {
             setInternalStateIfNeeded(isEditing ? .focused : .idle)
             return
         }
         
-        let currentText = text
-        if lastValidatedText == currentText, let cachedResult = lastValidationResult {
-            applyValidationResult(cachedResult, isEditing: isEditing)
-            return
-        }
-        
-        let performValidation = {
-            let result = validator.validate(currentText)
-            lastValidatedText = currentText
-            lastValidationResult = result
-            applyValidationResult(result, isEditing: isEditing)
-        }
-        
-        if debounce {
-            validationWorkItem?.cancel()
-            let workItem = DispatchWorkItem(block: performValidation)
-            validationWorkItem = workItem
-            DispatchQueue.main.asyncAfter(
-                deadline: .now() + validationDebounceInterval,
-                execute: workItem
-            )
-        } else {
-            validationWorkItem?.cancel()
-            performValidation()
+        if errorMessage.isEmpty {
+            setInternalStateIfNeeded(isEditing ? .focused : .idle)
+        } else if let message = errorMessage.first {
+            setInternalStateIfNeeded(isEditing ? .focusError(message) : .error(message))
         }
     }
     
@@ -358,7 +336,6 @@ struct MPTextField_Previews: PreviewProvider {
                                 label: "Focused (Min length 5)",
                                 placeholder: "Placeholder",
                                 helperText: "Min 5 chars",
-                                validator: minLengthValidator
                             )
 
                             MPTextField(
@@ -375,7 +352,6 @@ struct MPTextField_Previews: PreviewProvider {
                                 label: "Error",
                                 placeholder: "Placeholder",
                                 helperText: nil,
-                                validator: MinLengthValidator(min: 10)
                             )
 
                             MPTextField(

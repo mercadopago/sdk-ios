@@ -9,30 +9,58 @@ import MPComponents
 import CoreMethods
 
 struct CardFormScreen: View {
+    
+    struct CardFormData {
+        @CardFormValidate(
+            .required(MPStrings.CardForm.CardNumber.errorEmpty),
+            .cardNumber
+        )
+        var cardNumber: String = ""
+        
+        @CardFormValidate(
+            .required(MPStrings.CardForm.CardHolder.errorEmpty),
+            .cardHolder
+        )
+        var cardHolder: String = ""
+        
+        @CardFormValidate(
+            .required(MPStrings.CardForm.Expiration.errorEmpty),
+            .expirationDate
+        )
+        var expirationDate: String = ""
+        
+        @CardFormValidate(
+            .required(MPStrings.CardForm.CVV.errorEmpty),
+            .securityCode
+        )
+        public var securityCode: String = ""
+        
+        @CardFormValidate(
+            .required(MPStrings.CardForm.Document.errorEmpty),
+            .document
+        )
+        var documentHolder: String = ""
+        
+        
+        mutating func setSecurityCodeLength(_ length: Int) {
+            _securityCode.setSecurityCodeLength(length)
+        }
+
+        mutating func setDocumentLength(_ length: Int) {
+            _documentHolder.setDocumentLength(length)
+        }
+    }
+    
+    @State private var cardForm = CardFormData()
+    
     @Environment(\.checkoutTheme) var theme: MPTheme
     
     @Environment(\.presentationMode) var presentationMode
-    
-    // Card Form Fields
-    @State private var cardNumber: String = ""
-    @State private var cardHolder: String = ""
-    @State private var expirationDate: String = ""
-    @State private var securityCode: String = ""
-    @State private var documentHolder: String = ""
 
     // Formatters and Validators
     private let cardNumberFormatter = CardNumberFormatter()
-    private let cardNumberValidator = CardNumberValidator()
-    
-    private let cardHolderValidator = CardHolderValidator()
-    
     private let expirationDateFormatter = ExpirationDateFormatter()
-    private let expirationDateValidator = ExpirationDateValidator()
-    
     private let securityCodeFormatter = SecurityCodeFormatter()
-    private let securityCodeValidator = SecurityCodeValidator()
-    
-    private let documentValidator = DocumentValidator()
 
     //  Document Field
     @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
@@ -60,30 +88,30 @@ struct CardFormScreen: View {
                     cardNumberField()
                     
                     MPTextField(
-                        text: $cardHolder,
+                        text: $cardForm.cardHolder,
                         label: MPStrings.CardForm.CardHolder.label,
                         placeholder: MPStrings.CardForm.CardHolder.placeholder,
                         helperText: MPStrings.CardForm.CardHolder.helperText,
-                        validator: cardHolderValidator
+                        errorMessage: cardForm.$cardHolder,
                     )
                     
 
                     MPTextField(
-                        text: $expirationDate,
+                        text: $cardForm.expirationDate,
                         label: MPStrings.CardForm.Expiration.label,
                         placeholder: MPStrings.CardForm.Expiration.placeholder,
+                        errorMessage: cardForm.$expirationDate,
                         keyboard: .numberPad,
                         formatter: expirationDateFormatter,
-                        validator: expirationDateValidator
                     )
                     
                     MPTextField(
-                        text: $securityCode,
+                        text: $cardForm.securityCode,
                         label: MPStrings.CardForm.CVV.label,
                         placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                        errorMessage: cardForm.$securityCode,
                         keyboard: .numberPad,
                         formatter: securityCodeFormatter,
-                        validator: securityCodeValidator,
                         popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
                     )
                     
@@ -100,22 +128,22 @@ struct CardFormScreen: View {
     @ViewBuilder
     func cardNumberField() -> some View {
         MPTextField(
-            text: $cardNumber,
+            text: $cardForm.cardNumber,
             label: MPStrings.CardForm.CardNumber.label,
             placeholder: MPStrings.CardForm.CardNumber.placeholder,
+            errorMessage: cardForm.$cardNumber,
             keyboard: .numberPad,
             formatter: cardNumberFormatter,
-            validator: cardNumberValidator
         )
     }
     
     @ViewBuilder
     func documentField() -> some View {
         MPTextField(
-            text: $documentHolder,
+            text: $cardForm.documentHolder,
             label: MPStrings.CardForm.Document.label,
             placeholder: selectTypeDocument.placeholder,
-            validator: documentValidator,
+            errorMessage: cardForm.$documentHolder,
             prefix: {
                 dropdownDocument()
             },
@@ -147,8 +175,6 @@ struct CardFormScreen: View {
         }
         .accessibility(label: Text(verbatim: selectTypeDocument.name))
     }
-    
-    
 }
 
 struct CardForm_Previews: PreviewProvider {
