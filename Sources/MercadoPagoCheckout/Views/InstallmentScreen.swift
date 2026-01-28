@@ -28,7 +28,6 @@ struct InstallmentScreen: View {
                 presentationMode.wrappedValue.dismiss()
             }
         ) {
-
             ForEach(viewModel.payerCosts) { payerCost in
                 ListItem(
                     title: viewModel.formatInstallmentLabel(for: payerCost),
@@ -73,35 +72,35 @@ enum InstallmentMock {
                 installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1000.0,
                 minAllowedAmount: 0.5, maxAllowedAmount: 60000.0,
                 discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                paymentMethodOptionId: "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg"
+                paymentMethodOptionId: ""
             ),
             Installment.PayerCost(
                 id: 2, installments: 2, installmentAmount: 548.2, installmentRate: 9.64,
                 installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1096.4,
                 minAllowedAmount: 10.0, maxAllowedAmount: 60000.0,
                 discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                paymentMethodOptionId: "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg"
+                paymentMethodOptionId: ""
             ),
             Installment.PayerCost(
                 id: 3, installments: 3, installmentAmount: 370.77, installmentRate: 11.23,
                 installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1112.3,
                 minAllowedAmount: 15.0, maxAllowedAmount: 60000.0,
                 discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                paymentMethodOptionId: "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg"
+                paymentMethodOptionId: ""
             ),
             Installment.PayerCost(
                 id: 4, installments: 4, installmentAmount: 278.4, installmentRate: 11.36,
                 installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1113.6,
                 minAllowedAmount: 20.0, maxAllowedAmount: 60000.0,
                 discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                paymentMethodOptionId: "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg"
+                paymentMethodOptionId: ""
             ),
             Installment.PayerCost(
                 id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
                 installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
                 minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
                 discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                paymentMethodOptionId: "1.AQokODllZjQyNjktYjAzMy00OWU1LWJhMWQtNDE0NjQyNTM3MzY4EJaFuevHLg"
+                paymentMethodOptionId: ""
             )
         ],
         agreements: []

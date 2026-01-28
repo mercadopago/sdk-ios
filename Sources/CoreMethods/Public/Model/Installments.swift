@@ -18,7 +18,16 @@ public struct Installment: Sendable, Equatable, Identifiable {
     public let payerCosts: [PayerCost]
     public let agreements: [Agreement]
     
-    public init(paymentMethodId: String, paymentTypeId: String, thumbnail: String, issuer: Issuer, processingMode: String, merchantAccountId: String, payerCosts: [PayerCost], agreements: [Agreement]) {
+    public init(
+        paymentMethodId: String,
+        paymentTypeId: String,
+        thumbnail: String,
+        issuer: Issuer,
+        processingMode: String,
+        merchantAccountId: String,
+        payerCosts: [PayerCost],
+        agreements: [Agreement]
+    ) {
         self.paymentMethodId = paymentMethodId
         self.paymentTypeId = paymentTypeId
         self.thumbnail = thumbnail
@@ -34,7 +43,11 @@ public struct Installment: Sendable, Equatable, Identifiable {
         public let thumbnail: String
         public let name: String?
         
-        public init(id: String, thumbnail: String, name: String? = nil) {
+        public init(
+            id: String,
+            thumbnail: String,
+            name: String? = nil
+        ) {
             self.id = id
             self.thumbnail = thumbnail
             self.name = name
@@ -55,7 +68,20 @@ public struct Installment: Sendable, Equatable, Identifiable {
         public let labels: [String]
         public let paymentMethodOptionId: String
         
-        public init(id: Int, installments: Int, installmentAmount: Double, installmentRate: Double, installmentRateCollector: [String], totalAmount: Double, minAllowedAmount: Double, maxAllowedAmount: Double, discountRate: Double, reimbursementRate: Double, labels: [String], paymentMethodOptionId: String) {
+        public init(
+            id: Int,
+            installments: Int,
+            installmentAmount: Double,
+            installmentRate: Double,
+            installmentRateCollector: [String],
+            totalAmount: Double,
+            minAllowedAmount: Double,
+            maxAllowedAmount: Double,
+            discountRate: Double,
+            reimbursementRate: Double,
+            labels: [String],
+            paymentMethodOptionId: String
+        ) {
             self.id = id
             self.installments = installments
             self.installmentAmount = installmentAmount
