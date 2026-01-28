@@ -8,8 +8,6 @@
 // MARK: - Form Title & Buttons
 "form.title" = "Ingresá tu tarjeta";
 "form.button" = "Pagar";
-"form.total" = "Total";
-"form.currency" = "$";
 
 // MARK: - Card Number
 "card_number.label" = "Número de tarjeta";
@@ -67,7 +65,7 @@
 "document.error.funding" = "Solo podrás ingresar dinero con tarjetas a tu nombre.";
 
 // MARK: - Installments
-"installments.title" = "Seleccioná la cantidad de cuotas";
+"installments.title" = "Elegí las cuotas";
 "installments.show_more" = "Mostrar más opciones";
 "installments.show_less" = "Mostrar menos opciones";
 "installments.interest_free" = "Sin interés";
@@ -82,6 +80,8 @@
 "common.retry" = "Reintentar";
 "common.loading" = "Cargando...";
 "common.accessibility.textfield.moreInfo" = "Más información";
+"common.total" = "Total";
+"common.currency" = "$"
 
 // MARK: - Errors
 "error.generic" = "Algo salió mal. Por favor, intentá de nuevo.";

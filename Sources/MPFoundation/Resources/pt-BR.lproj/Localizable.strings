@@ -8,8 +8,6 @@
 // MARK: - Form Title & Buttons
 "form.title" = "Preencha os dados do cartão";
 "form.button" = "Pagar";
-"form.total" = "Total";
-"form.currency" = "R$";
 
 // MARK: - Card Number
 "card_number.label" = "Número do cartão";
@@ -67,7 +65,7 @@
 "document.error.funding" = "Você só poderá depositar dinheiro com cartões no seu nome.";
 
 // MARK: - Installments
-"installments.title" = "Selecione o número de parcelas";
+"installments.title" = "Escolha o parcelamento";
 "installments.show_more" = "Mostrar mais opções";
 "installments.show_less" = "Mostrar menos opções";
 "installments.interest_free" = "Sem acréscimo";
@@ -82,6 +80,9 @@
 "common.retry" = "Tentar novamente";
 "common.loading" = "Carregando...";
 "common.accessibility.textfield.moreInfo" = "Mais informações";
+"common.total" = "Total";
+"common.currency" = "R$";
+
 // MARK: - Errors
 "error.generic" = "Algo deu errado. Por favor, tente novamente.";
 "error.network" = "Erro de conexão. Verifique sua conexão com a internet.";
