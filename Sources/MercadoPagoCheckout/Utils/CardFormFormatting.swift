@@ -334,10 +334,6 @@ package final class SecurityCodeValidator: TextValidating, @unchecked Sendable {
         
         let digits = text.filter { $0.isNumber }
         
-        guard !digits.isEmpty else {
-            return .invalid(message: SecurityCodeErrorType.empty.message)
-        }
-        
         guard digits.count >= requiredLength else {
             return .invalid(message: SecurityCodeErrorType.incomplete.message)
         }

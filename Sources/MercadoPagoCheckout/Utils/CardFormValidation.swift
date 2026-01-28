@@ -8,7 +8,7 @@
 import Foundation
 import MPComponents
 
-/// Available rules that can be composed inside the `@Validate` property wrapper.
+/// Available rules that can be composed inside the `@CardFormValidate` property wrapper.
 @frozen
 package enum CardFormRule: Equatable {
     case required(String)
@@ -112,6 +112,7 @@ package struct CardFormValidate {
         switch rule {
         case .required(let message):
             let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            print(trimmed)
             return trimmed.isEmpty ? message : nil
 
         case .cardNumber:

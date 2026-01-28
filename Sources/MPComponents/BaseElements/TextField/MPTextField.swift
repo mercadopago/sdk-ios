@@ -44,7 +44,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let label: String?
     private let placeholder: String?
     private let helperText: String?
-    private let errorMessage: [String]?
+    private let errorMessageProvider: () -> [String]?
     
     private let keyboard: UIKeyboardType
     private let contentType: UITextContentType?
@@ -95,7 +95,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         label: String?,
         placeholder: String?,
         helperText: String? = nil,
-        errorMessage: [String]? = nil,
+        errorMessage: @autoclosure @escaping () -> [String]? = nil,
         keyboard: UIKeyboardType = .default,
         contentType: UITextContentType? = nil,
         autocorrection: UITextAutocorrectionType = .default,
@@ -119,7 +119,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.prefixView = prefix()
         self.suffixView = suffix()
         self.popoverText = popoverText
-        self.errorMessage = errorMessage
+        self.errorMessageProvider = errorMessage
         self._internalState = State(initialValue: .idle)
     }
 
@@ -260,18 +260,17 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     private func validateAndUpdateState(isEditing: Bool, debounce: Bool) {
         guard isEnabled && !isReadOnly else { return }
-        
-        
-        print(errorMessage)
-        
-        guard let errorMessage else {
+
+        let currentErrors = errorMessageProvider()
+
+        guard let currentErrors else {
             setInternalStateIfNeeded(isEditing ? .focused : .idle)
             return
         }
         
-        if errorMessage.isEmpty {
+        if currentErrors.isEmpty {
             setInternalStateIfNeeded(isEditing ? .focused : .idle)
-        } else if let message = errorMessage.first {
+        } else if let message = currentErrors.first {
             setInternalStateIfNeeded(isEditing ? .focusError(message) : .error(message))
         }
     }
