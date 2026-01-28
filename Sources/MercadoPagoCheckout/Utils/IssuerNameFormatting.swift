@@ -105,7 +105,9 @@ package enum MPFormatIssuerName {
             }
             
             // Check if word is in special words list (case insensitive)
-            if let preservedWord = MPFormatIssuerName.specialWords.first(where: { $0.lowercased() == word.lowercased() }) {
+            if let preservedWord = MPFormatIssuerName.specialWords.first(where: {
+                $0.lowercased() == word.lowercased()
+            }) {
                 return preservedWord
             }
             

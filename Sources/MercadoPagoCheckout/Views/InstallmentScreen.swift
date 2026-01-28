@@ -31,7 +31,7 @@ struct InstallmentScreen: View {
             ForEach(viewModel.payerCosts) { payerCost in
                 ListItem(
                     title: viewModel.formatInstallmentLabel(for: payerCost),
-                    description: "Description", //TODO: BFF
+                    description: "Description",
                     rightText: viewModel.formatInterestLabel(for: payerCost),
                     hasChevron: true,
                     isSelected: viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost),

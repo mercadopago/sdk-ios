@@ -20,7 +20,6 @@ final class InstallmentsScreenViewModel: ObservableObject {
         self.payerCosts = installment?.payerCosts ?? []
     }
     
-    
     // MARK: - Formatted strings
     
     func formatInstallmentLabel(for payerCost: Installment.PayerCost) -> String {
@@ -31,7 +30,9 @@ final class InstallmentsScreenViewModel: ObservableObject {
         if payerCost.installments == 1 {
             return String()
         } else {
-            return  payerCost.installmentRate == 0 ? MPStrings.Installments.interestFree : MPStrings.formatPrice(payerCost.totalAmount)
+            return  payerCost.installmentRate == 0 ?
+            MPStrings.Installments.interestFree :
+            MPStrings.formatPrice(payerCost.totalAmount)
         }
     }
     
@@ -64,7 +65,7 @@ final class InstallmentsScreenViewModel: ObservableObject {
         return getSavedCardName(
             issuerName: issuerName,
             paymentTypeLabel: MPFormatIssuerName.formattedPaymentType(type),
-            lastDigits:  "1234" //TODO: validar campo
+            lastDigits:  "1234"
         )
     }
     
@@ -74,7 +75,9 @@ final class InstallmentsScreenViewModel: ObservableObject {
         lastDigits: String,
         isMercadoPagoCard: Bool = false
     ) -> String {
-        let normalizedIssuerName = MPFormatIssuerName.applyCapitalizationRules(MPFormatIssuerName.cleanIssuerName(issuerName))
+        let normalizedIssuerName = MPFormatIssuerName.applyCapitalizationRules(
+            MPFormatIssuerName.cleanIssuerName(issuerName)
+        )
         
         if isMercadoPagoCard {
             return "\(normalizedIssuerName) \(paymentTypeLabel)"

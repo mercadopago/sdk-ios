@@ -53,7 +53,6 @@ package struct ListItem: View {
     private var titleView: some View {
         Text(title)
             .textStyle(.bodyMediumTitle())
-
     }
     
     @ViewBuilder
@@ -61,7 +60,6 @@ package struct ListItem: View {
         Text(description)
             .textStyle(.bodyMedium(colorType: .secondary))
     }
-    
     
     @ViewBuilder
     private var textRightView: some View {
