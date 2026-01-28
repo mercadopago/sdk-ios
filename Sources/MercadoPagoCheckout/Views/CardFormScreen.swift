@@ -55,7 +55,6 @@ struct CardFormScreen: View {
     
     // MARK: States View
     @State private var cardForm = CardFormData()
-    @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
     @State private var openDocumentsSheet: Bool = false
 
     // MARK: Enviroments
@@ -125,7 +124,7 @@ struct CardFormScreen: View {
                     MPTextField(
                         text: $cardForm.documentHolder,
                         label: MPStrings.CardForm.Document.label,
-                        placeholder: selectTypeDocument.placeholder,
+                        placeholder: viewModel.selectTypeDocument.placeholder,
                         errorMessage: cardForm.$documentHolder,
                         prefix: {
                             dropdownDocument()
@@ -145,7 +144,7 @@ struct CardFormScreen: View {
             openDocumentsSheet.toggle()
         } label: {
             HStack {
-                Text(selectTypeDocument.name)
+                Text(viewModel.selectTypeDocument.name)
                     .textStyle(.bodyMedium(colorType: .secondary))
                 
                 Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
@@ -162,7 +161,7 @@ struct CardFormScreen: View {
             )
             .padding(.leading, theme.spacings.micro)
         }
-        .accessibility(label: Text(verbatim: selectTypeDocument.name))
+        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument.name))
     }
 }
 

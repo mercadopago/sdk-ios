@@ -16,4 +16,6 @@ final class CardFormViewModel: ObservableObject {
     let expirationDateFormatter = ExpirationDateFormatter()
     let securityCodeFormatter = SecurityCodeFormatter()
     
+    @Published var selectTypeDocument: IdentificationType = .init(name: "CPF")
+    
 }
