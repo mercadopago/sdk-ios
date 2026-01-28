@@ -51,20 +51,20 @@ struct CardFormScreen: View {
         }
     }
     
+    @ObservedObject private var viewModel: CardFormViewModel
+    
+    // MARK: States View
     @State private var cardForm = CardFormData()
-    
-    @Environment(\.checkoutTheme) var theme: MPTheme
-    
-    @Environment(\.presentationMode) var presentationMode
-
-    // Formatters and Validators
-    private let cardNumberFormatter = CardNumberFormatter()
-    private let expirationDateFormatter = ExpirationDateFormatter()
-    private let securityCodeFormatter = SecurityCodeFormatter()
-
-    //  Document Field
     @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
     @State private var openDocumentsSheet: Bool = false
+
+    // MARK: Enviroments
+    @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.presentationMode) var presentationMode
+
+    init(viewModel: CardFormViewModel = CardFormViewModel()) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         NavigationView {
@@ -85,7 +85,14 @@ struct CardFormScreen: View {
                 }
             ) {
                 VStack(spacing: theme.spacings.xsmall) {
-                    cardNumberField()
+                    MPTextField(
+                        text: $cardForm.cardNumber,
+                        label: MPStrings.CardForm.CardNumber.label,
+                        placeholder: MPStrings.CardForm.CardNumber.placeholder,
+                        errorMessage: cardForm.$cardNumber,
+                        keyboard: .numberPad,
+                        formatter: viewModel.cardNumberFormatter,
+                    )
                     
                     MPTextField(
                         text: $cardForm.cardHolder,
@@ -94,7 +101,6 @@ struct CardFormScreen: View {
                         helperText: MPStrings.CardForm.CardHolder.helperText,
                         errorMessage: cardForm.$cardHolder,
                     )
-                    
 
                     MPTextField(
                         text: $cardForm.expirationDate,
@@ -102,7 +108,7 @@ struct CardFormScreen: View {
                         placeholder: MPStrings.CardForm.Expiration.placeholder,
                         errorMessage: cardForm.$expirationDate,
                         keyboard: .numberPad,
-                        formatter: expirationDateFormatter,
+                        formatter: viewModel.expirationDateFormatter,
                     )
                     
                     MPTextField(
@@ -111,12 +117,20 @@ struct CardFormScreen: View {
                         placeholder: MPStrings.CardForm.CVV.placeholderDefault,
                         errorMessage: cardForm.$securityCode,
                         keyboard: .numberPad,
-                        formatter: securityCodeFormatter,
+                        formatter: viewModel.securityCodeFormatter,
                         popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
                     )
                     
                     
-                    documentField()
+                    MPTextField(
+                        text: $cardForm.documentHolder,
+                        label: MPStrings.CardForm.Document.label,
+                        placeholder: selectTypeDocument.placeholder,
+                        errorMessage: cardForm.$documentHolder,
+                        prefix: {
+                            dropdownDocument()
+                        },
+                    )
                     
                 }
                 .padding(.horizontal, theme.spacings.micro)
@@ -124,32 +138,7 @@ struct CardFormScreen: View {
             .background(theme.colors.background.primary)
         }
     }
-    
-    @ViewBuilder
-    func cardNumberField() -> some View {
-        MPTextField(
-            text: $cardForm.cardNumber,
-            label: MPStrings.CardForm.CardNumber.label,
-            placeholder: MPStrings.CardForm.CardNumber.placeholder,
-            errorMessage: cardForm.$cardNumber,
-            keyboard: .numberPad,
-            formatter: cardNumberFormatter,
-        )
-    }
-    
-    @ViewBuilder
-    func documentField() -> some View {
-        MPTextField(
-            text: $cardForm.documentHolder,
-            label: MPStrings.CardForm.Document.label,
-            placeholder: selectTypeDocument.placeholder,
-            errorMessage: cardForm.$documentHolder,
-            prefix: {
-                dropdownDocument()
-            },
-        )
-    }
-    
+        
     @ViewBuilder
     func dropdownDocument() -> some View {
         Button {
