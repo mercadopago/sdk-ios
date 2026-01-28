@@ -151,7 +151,7 @@ extension Installment {
                 paymentMethodId: "visa",
                 paymentTypeId: "credit_card",
                 thumbnail: "https://example.com/visa.png",
-                issuer: Installment.Issuer(id: "25", thumbnail: "https://example.com/visa.png"),
+                issuer: Installment.Issuer(id: "25", thumbnail: "https://example.com/visa.png", name: "Mercado Pago"),
                 processingMode: "aggregator",
                 merchantAccountId: "",
                 payerCosts: payerCosts,
