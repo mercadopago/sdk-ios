@@ -141,14 +141,13 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
         
     
     //MARK: - Helpers:
-    private func makeSUT(installments: [Installment] = Installment.validInstallments) -> InstallmentsScreenViewModel {
+    private func makeSUT(installments: Installment = Installment.validInstallments) -> InstallmentsScreenViewModel {
         InstallmentsScreenViewModel(installments: installments)
     }
 }
 
 extension Installment {
-    static let validInstallments: [Installment] = [
-            Installment(
+    static let validInstallments: Installment = Installment(
                 paymentMethodId: "visa",
                 paymentTypeId: "credit_card",
                 thumbnail: "https://example.com/visa.png",
@@ -158,17 +157,14 @@ extension Installment {
                 payerCosts: payerCosts,
                 agreements: []
             )
-        ]
+        
         
         static let payerCosts: [Installment.PayerCost] = [
             makePayerCost(id: 1, installments: 1, installmentAmount: 1000.0, installmentRate: 0.0, totalAmount: 1000.0),
             makePayerCost(id: 2, installments: 2, installmentAmount: 548.2, installmentRate: 9.64, totalAmount: 1096.4),
             makePayerCost(id: 3, installments: 3, installmentAmount: 370.77, installmentRate: 11.23, totalAmount: 1112.3)        ]
-        
-        static let emptyInstallments: [Installment] = []
-        
-        static let singleInstallment: [Installment] = [
-            Installment(
+                
+        static let singleInstallment: Installment = Installment(
                 paymentMethodId: "visa",
                 paymentTypeId: "credit_card",
                 thumbnail: "",
@@ -178,8 +174,6 @@ extension Installment {
                 payerCosts: [makePayerCost(id: 1, installments: 1, installmentAmount: 500.0, installmentRate: 0.0, totalAmount: 500.0)],
                 agreements: []
             )
-        ]
-    
         
         static func makePayerCost(
             id: Int = 1,

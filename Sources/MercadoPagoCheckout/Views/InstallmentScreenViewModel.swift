@@ -8,8 +8,9 @@
 import CoreMethods
 import MPComponents
 import MPFoundation
+import SwiftUI
 
-final class InstallmentsScreenViewModel {
+final class InstallmentsScreenViewModel: ObservableObject {
     
     private(set) var payerCosts: [Installment.PayerCost] = []
     private let installment: Installment?

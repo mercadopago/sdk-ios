@@ -11,7 +11,10 @@ import MPFoundation
 import SwiftUI
 
 struct InstallmentScreen: View {
-    private var viewModel: InstallmentsScreenViewModel
+    @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.presentationMode) var presentationMode
+    
+    @ObservedObject private var viewModel: InstallmentsScreenViewModel
     @State var selectedPayerCost: Installment.PayerCost?
     
     init(installments: Installment) {
@@ -22,7 +25,7 @@ struct InstallmentScreen: View {
         MPHeader(
             title: MPStrings.Installments.title,
             onBack: {
-                print("Back tapped")
+                presentationMode.wrappedValue.dismiss()
             }
         ) {
 
