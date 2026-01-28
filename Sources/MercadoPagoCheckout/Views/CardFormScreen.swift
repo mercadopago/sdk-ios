@@ -33,7 +33,7 @@ struct CardFormScreen: View {
             .required(MPStrings.CardForm.CVV.errorEmpty),
             .securityCode
         )
-        public var securityCode: String = ""
+        var securityCode: String = ""
         
         @CardFormValidate(
             .required(MPStrings.CardForm.Document.errorEmpty),
