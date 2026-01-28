@@ -24,8 +24,5 @@ extension MPStrings {
         
         /// Interest-free badge
         package static var interestFree: String { localized("installments.interest_free") }
-        
-        /// Interest footer total amount label 
-        package static var total: String { localized("installments.footer.totalAmount") }
     }
 }
