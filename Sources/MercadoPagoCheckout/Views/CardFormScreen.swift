@@ -43,6 +43,9 @@ struct CardFormScreen: View {
                 }
             ) {
                 VStack(spacing: theme.spacings.xsmall) {
+                    
+                    Text("\(cardForm.isFormValid)")
+                    
                     MPTextField(
                         text: $cardForm.cardNumber,
                         label: MPStrings.CardForm.CardNumber.label,
