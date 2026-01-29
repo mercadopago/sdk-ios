@@ -8,236 +8,115 @@
 import Foundation
 import MPComponents
 
-package struct CardFormRule: @unchecked Sendable {
-    private var rule: any CardFormRuleType
-
-    private init(_ rule: any CardFormRuleType) {
-        self.rule = rule
-    }
-
-    package static func required(_ message: String) -> CardFormRule {
-        CardFormRule(RequiredRule(message: message))
-    }
-
-    package static var cardNumber: CardFormRule {
-        CardFormRule(CardNumberRule())
-    }
-
-    package static var expirationDate: CardFormRule {
-        CardFormRule(ExpirationDateRule())
-    }
-
-    package static var securityCode: CardFormRule {
-        CardFormRule(SecurityCodeRule())
-    }
-
-    package static var cardHolder: CardFormRule {
-        CardFormRule(CardHolderRule())
-    }
-
-    package static var document: CardFormRule {
-        CardFormRule(DocumentRule())
-    }
-
-    mutating func validate(_ value: String) -> String? {
-        rule.validate(value)
-    }
-
-    mutating func setCardNumberRange(minLength: Int, maxLength: Int) -> Bool {
-        rule.setCardNumberRange(minLength: minLength, maxLength: maxLength)
-    }
-
-    mutating func setSecurityCodeLength(_ length: Int) -> Bool {
-        rule.setSecurityCodeLength(length)
-    }
-
-    mutating func setDocumentLength(_ length: Int) -> Bool {
-        rule.setDocumentLength(length)
-    }
+package enum CardValidationRequirement {
+    case cardNumberRange(min: Int, max: Int)
+    case securityCodeLength(Int)
+    case documentLength(Int)
 }
 
-package protocol CardFormRuleType: Sendable {
-    mutating func validate(_ value: String) -> String?
-    mutating func setCardNumberRange(minLength: Int, maxLength: Int) -> Bool
-    mutating func setSecurityCodeLength(_ length: Int) -> Bool
-    mutating func setDocumentLength(_ length: Int) -> Bool
+package protocol CardFormRuleType {
+    func validate(_ value: String) -> String?
+    mutating func apply(_ requirement: CardValidationRequirement)
 }
 
 extension CardFormRuleType {
-    mutating func setCardNumberRange(minLength: Int, maxLength: Int) -> Bool { false }
-    mutating func setSecurityCodeLength(_ length: Int) -> Bool { false }
-    mutating func setDocumentLength(_ length: Int) -> Bool { false }
+    mutating package func apply(_ requirement: CardValidationRequirement) {}
+
 }
 
-// MARK: - Rule Implementations
-
-private struct RequiredRule: CardFormRuleType {
-    let message: String
-
-    func validate(_ value: String) -> String? {
-        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? message : nil
+// MARK: Rules
+package struct RequiredRule: CardFormRuleType {
+    let msg: String
+    
+    init(_ msg: String) {
+        self.msg = msg
+    }
+    
+    package func validate(_ value: String) -> String? {
+        value.trimmingCharacters(in: .whitespaces).isEmpty ? msg : nil
     }
 }
 
-private struct CardNumberRule: CardFormRuleType {
-    private var minLength: Int
-    private var maxLength: Int
+// MARK: Card Number Rule
 
-    init(minLength: Int = 13, maxLength: Int = 19) {
-        self.minLength = minLength
-        self.maxLength = maxLength
+package struct CardNumberRule: CardFormRuleType {
+    private var min = 13, max = 19
+
+    mutating package func apply(_ requirement: CardValidationRequirement) {
+        if case let .cardNumberRange(newMin, newMax) = requirement {
+            self.min = newMin; self.max = newMax
+        }
     }
 
-    mutating func validate(_ value: String) -> String? {
-        let digits = value.filter { $0.isNumber }
-
-        guard !digits.isEmpty else {
-            return MPStrings.CardForm.CardNumber.errorEmpty
-        }
-
-        guard digits.count >= minLength else {
-            return MPStrings.CardForm.CardNumber.errorIncomplete
-        }
-
-        guard digits.count <= maxLength else {
-            return MPStrings.CardForm.CardNumber.errorInvalid
-        }
-
-        guard Self.isValidLuhn(digits) else {
-            return MPStrings.CardForm.CardNumber.errorInvalid
-        }
-
+    package func validate(_ value: String) -> String? {
+        let digits = value.filter(\.isNumber)
+        if digits.isEmpty { return MPStrings.CardForm.CardNumber.errorEmpty }
+        if digits.count < min { return MPStrings.CardForm.CardNumber.errorIncomplete }
+        if digits.count > max || !luhnCheck(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
         return nil
     }
 
-    mutating func setCardNumberRange(minLength: Int, maxLength: Int) -> Bool {
-        self.minLength = minLength
-        self.maxLength = maxLength
-        return true
-    }
-
-    private static func isValidLuhn(_ number: String) -> Bool {
-        guard !number.isEmpty else { return false }
-
+    private func luhnCheck(_ s: String) -> Bool {
         var sum = 0
-        let digitStrings = number.reversed().map { String($0) }
-
-        for tuple in digitStrings.enumerated() {
-            guard let digit = Int(tuple.element) else { return false }
-
-            let isOdd = tuple.offset % 2 == 1
-
-            switch (isOdd, digit) {
-            case (true, 9):
-                sum += 9
-            case (true, 0...8):
-                sum += (digit * 2) % 9
-            default:
-                sum += digit
-            }
+        for (i, c) in s.reversed().enumerated() {
+            guard let d = Int(String(c)) else { return false }
+            sum += i.isMultiple(of: 2) ? d : ((d * 2 > 9) ? (d * 2 - 9) : d * 2)
         }
-
         return sum % 10 == 0
     }
 }
 
-private struct ExpirationDateRule: CardFormRuleType {
-    mutating func validate(_ value: String) -> String? {
-        let digits = value.filter { $0.isNumber }
+package struct ExpirationDateRule: CardFormRuleType {
+    package func validate(_ value: String) -> String? {
+        let digits = value.filter(\.isNumber)
+        if digits.isEmpty { return MPStrings.CardForm.Expiration.errorEmpty }
+        guard digits.count == 4 else { return MPStrings.CardForm.Expiration.errorIncomplete }
 
-        guard !digits.isEmpty else {
-            return MPStrings.CardForm.Expiration.errorEmpty
-        }
-
-        guard digits.count == 4 else {
-            return MPStrings.CardForm.Expiration.errorIncomplete
-        }
-
-        let monthString = String(digits.prefix(2))
-        let yearString = String(digits.suffix(2))
-
-        guard let month = Int(monthString), let year = Int(yearString) else {
-            return MPStrings.CardForm.Expiration.errorInvalid
-        }
-
-        guard month >= 1 && month <= 12 else {
-            return MPStrings.CardForm.Expiration.errorInvalid
-        }
-
+        let month = Int(digits.prefix(2)) ?? 0
+        let year = (Int(digits.suffix(2)) ?? 0) + 2000
+        
         let calendar = Calendar.current
-        let currentDate = Date()
-        let currentYear = calendar.component(.year, from: currentDate) % 100
-        let currentMonth = calendar.component(.month, from: currentDate)
+        let currentMonth = calendar.component(.month, from: Date())
+        let currentYear = calendar.component(.year, from: Date())
 
-        guard year > currentYear || (year == currentYear && month >= currentMonth) else {
-            return MPStrings.CardForm.Expiration.errorInvalid
-        }
+        let isInvalidMonth = !(1...12).contains(month)
+        let isExpired = year < currentYear || (year == currentYear && month < currentMonth)
 
-        return nil
+        return (isInvalidMonth || isExpired) ? MPStrings.CardForm.Expiration.errorInvalid : nil
     }
 }
 
-private struct SecurityCodeRule: CardFormRuleType {
-    private var requiredLength: Int
-
-    init(requiredLength: Int = 3) {
-        self.requiredLength = requiredLength
+// MARK: - Security Code Rule
+package struct SecurityCodeRule: CardFormRuleType {
+    private var length = 3
+    mutating package func apply(_ requirement: CardValidationRequirement) {
+        if case let .securityCodeLength(newLen) = requirement { self.length = newLen }
     }
-
-    mutating func validate(_ value: String) -> String? {
-        let digits = value.filter { $0.isNumber }
-
-        guard !digits.isEmpty else {
-            return MPStrings.CardForm.CVV.errorEmpty
-        }
-
-        guard digits.count >= requiredLength else {
-            return MPStrings.CardForm.CVV.errorIncomplete
-        }
-
-        return nil
-    }
-
-    mutating func setSecurityCodeLength(_ length: Int) -> Bool {
-        requiredLength = length
-        return true
+    package func validate(_ value: String) -> String? {
+        let digits = value.filter(\.isNumber)
+        if digits.isEmpty { return MPStrings.CardForm.CVV.errorEmpty }
+        return digits.count < length ? MPStrings.CardForm.CVV.errorIncomplete : nil
     }
 }
 
-private struct CardHolderRule: CardFormRuleType {
-    mutating func validate(_ value: String) -> String? {
-        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            return MPStrings.CardForm.CardHolder.errorEmpty
-        }
-        return nil
+// MARK: - Document Rule
+package struct DocumentRule: CardFormRuleType {
+    private var length = 19
+    
+    mutating package func apply(_ requirement: CardValidationRequirement) {
+        if case let .documentLength(newLen) = requirement { self.length = newLen }
+    }
+    
+    package func validate(_ value: String) -> String? {
+        let digits = value.filter(\.isNumber)
+        if digits.isEmpty { return MPStrings.CardForm.Document.errorEmpty }
+        return digits.count < length ? MPStrings.CardForm.Document.errorIncomplete : nil
     }
 }
 
-private struct DocumentRule: CardFormRuleType {
-    private var requiredLength: Int
-
-    init(requiredLength: Int = 19) {
-        self.requiredLength = requiredLength
-    }
-
-    mutating func validate(_ value: String) -> String? {
-        let digits = value.filter { $0.isNumber }
-
-        guard !digits.isEmpty else {
-            return MPStrings.CardForm.Document.errorEmpty
-        }
-
-        guard digits.count >= requiredLength else {
-            return MPStrings.CardForm.Document.errorIncomplete
-        }
-
-        return nil
-    }
-
-    mutating func setDocumentLength(_ length: Int) -> Bool {
-        requiredLength = length
-        return true
+// MARK: - Card Holder Rule
+package struct CardHolderRule: CardFormRuleType {
+    package func validate(_ value: String) -> String? {
+        return value.trimmingCharacters(in: .whitespaces).isEmpty ? MPStrings.CardForm.CardHolder.errorEmpty : nil
     }
 }

@@ -12,42 +12,55 @@ struct CardFormScreen: View {
     
     struct CardFormData {
         @CardFormValidate(
-            .required(MPStrings.CardForm.CardNumber.errorEmpty),
-            .cardNumber
+            RequiredRule(
+                MPStrings.CardForm.CardNumber.errorEmpty
+            ),
+            CardNumberRule()
         )
         var cardNumber: String = ""
         
         @CardFormValidate(
-            .required(MPStrings.CardForm.CardHolder.errorEmpty),
-            .cardHolder
+            RequiredRule( MPStrings.CardForm.CardHolder.errorEmpty
+            ),
+            CardHolderRule()
         )
         var cardHolder: String = ""
         
         @CardFormValidate(
-            .required(MPStrings.CardForm.Expiration.errorEmpty),
-            .expirationDate
+            RequiredRule( MPStrings.CardForm.Expiration.errorEmpty
+            ),
+            ExpirationDateRule()
         )
         var expirationDate: String = ""
         
         @CardFormValidate(
-            .required(MPStrings.CardForm.CVV.errorEmpty),
-            .securityCode
+            RequiredRule(MPStrings.CardForm.CVV.errorEmpty),
+            SecurityCodeRule()
         )
         var securityCode: String = ""
         
         @CardFormValidate(
-            .required(MPStrings.CardForm.Document.errorEmpty),
-            .document
+            RequiredRule( MPStrings.CardForm.Document.errorEmpty
+                        ),
+            DocumentRule()
         )
         var documentHolder: String = ""
         
         
         mutating func setSecurityCodeLength(_ length: Int) {
-            _securityCode.setSecurityCodeLength(length)
+            _securityCode.update(.securityCodeLength(length))
         }
 
         mutating func setDocumentLength(_ length: Int) {
-            _documentHolder.setDocumentLength(length)
+            _documentHolder.update(.documentLength(length))
+        }
+        
+        var isFormValid: Bool {
+            return _cardNumber.errorMessages.isEmpty
+            && _cardHolder.errorMessages.isEmpty
+            && _expirationDate.errorMessages.isEmpty
+            && _securityCode.errorMessages.isEmpty
+            && _documentHolder.errorMessages.isEmpty
         }
     }
     
@@ -81,9 +94,13 @@ struct CardFormScreen: View {
                             print("action button")
                         }
                     )
+                    .disabled(!cardForm.isFormValid)
                 }
             ) {
                 VStack(spacing: theme.spacings.xsmall) {
+                    
+                    Text("\(cardForm.isFormValid)")
+                    
                     MPTextField(
                         text: $cardForm.cardNumber,
                         label: MPStrings.CardForm.CardNumber.label,

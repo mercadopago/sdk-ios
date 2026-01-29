@@ -10,82 +10,28 @@ import Foundation
 @propertyWrapper
 package struct CardFormValidate {
     private var value: String
-    private var rules: [CardFormRule]
-    private var errorMessages: [String] = []
-
-    private var cardNumberRange: (min: Int, max: Int) = (13, 19)
-    private var securityCodeLength: Int = 3
-    private var documentLength: Int = 19
+    private var rules: [any CardFormRuleType]
+    package private(set) var errorMessages: [String] = []
 
     package var wrappedValue: String {
         get { value }
-        set {
-            value = newValue
-            validate()
-        }
+        set { value = newValue; validate() }
     }
 
-    package var projectedValue: [String] {
-        errorMessages
-    }
+    package var projectedValue: [String] { errorMessages }
 
-    package init(wrappedValue: String = "", _ rules: CardFormRule...) {
+    package init(wrappedValue: String = "", _ rules: CardFormRuleType...) {
         self.value = wrappedValue
         self.rules = rules
         validate()
     }
 
-    // MARK: - Dynamic configuration helpers
-
-    package mutating func setCardNumberRange(minLength: Int, maxLength: Int) {
-        cardNumberRange = (max(1, minLength), max(maxLength, minLength))
-        var updated = false
-        for index in rules.indices {
-            if rules[index].setCardNumberRange(minLength: cardNumberRange.min, maxLength: cardNumberRange.max) {
-                updated = true
-            }
-        }
-        guard updated else { return }
+    package mutating func update(_ requirement: CardValidationRequirement) {
+        for i in 0..<rules.count { rules[i].apply(requirement) }
         validate()
     }
-
-    package mutating func setSecurityCodeLength(_ length: Int) {
-        securityCodeLength = max(1, length)
-        var updated = false
-        for index in rules.indices {
-            if rules[index].setSecurityCodeLength(securityCodeLength) {
-                updated = true
-            }
-        }
-        guard updated else { return }
-        validate()
-    }
-
-    package mutating func setDocumentLength(_ length: Int) {
-        documentLength = max(1, length)
-        var updated = false
-        for index in rules.indices {
-            if rules[index].setDocumentLength(documentLength) {
-                updated = true
-            }
-        }
-        guard updated else { return }
-        validate()
-    }
-
-    // MARK: - Validation
 
     private mutating func validate() {
-        errorMessages.removeAll(keepingCapacity: true)
-
-        for index in rules.indices {
-            if let message = validateRule(at: index) {
-                errorMessages.append(message)
-            }
-        }
-    }
-
-    private mutating func validateRule(at index: Int) -> String? {
-        rules[index].validate(value)
+        errorMessages = rules.compactMap { $0.validate(value) }
     }
 }
