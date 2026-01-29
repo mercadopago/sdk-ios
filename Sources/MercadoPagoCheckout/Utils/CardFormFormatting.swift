@@ -92,6 +92,3 @@ package struct SecurityCodeFormatter: TextFormatting {
         formatOnChange(text)
     }
 }
-
-
-

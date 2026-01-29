@@ -56,11 +56,11 @@ package struct CardNumberRule: CardFormRuleType {
         return nil
     }
 
-    private func luhnCheck(_ s: String) -> Bool {
+    private func luhnCheck(_ text: String) -> Bool {
         var sum = 0
-        for (i, c) in s.reversed().enumerated() {
-            guard let d = Int(String(c)) else { return false }
-            sum += i.isMultiple(of: 2) ? d : ((d * 2 > 9) ? (d * 2 - 9) : d * 2)
+        for (index, count) in text.reversed().enumerated() {
+            guard let dex = Int(String(count)) else { return false }
+            sum += index.isMultiple(of: 2) ? dex : ((dex * 2 > 9) ? (dex * 2 - 9) : dex * 2)
         }
         return sum % 10 == 0
     }

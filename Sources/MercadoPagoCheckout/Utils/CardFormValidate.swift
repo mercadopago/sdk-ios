@@ -27,7 +27,9 @@ package struct CardFormValidate {
     }
 
     package mutating func update(_ requirement: CardValidationRequirement) {
-        for i in 0..<rules.count { rules[i].apply(requirement) }
+        for index in 0..<rules.count {
+            rules[index].apply(requirement)
+        }
         validate()
     }
 

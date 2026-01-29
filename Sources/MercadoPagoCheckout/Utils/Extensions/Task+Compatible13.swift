@@ -5,7 +5,6 @@
 //  Created by Guilherme Prata Costa on 28/01/26.
 //
 
-
 import SwiftUI
 import Foundation
 import Combine
@@ -30,7 +29,6 @@ extension View {
         modifier(TaskWithIDModifier(id: id, priority: priority, action: action))
     }
 }
-
 
 struct TaskModifier: ViewModifier {
     let priority: TaskPriority

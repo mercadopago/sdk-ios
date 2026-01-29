@@ -40,12 +40,12 @@ struct CardFormScreen: View {
         var securityCode: String = ""
         
         @CardFormValidate(
-            RequiredRule( MPStrings.CardForm.Document.errorEmpty
-                        ),
+            RequiredRule(
+                MPStrings.CardForm.Document.errorEmpty
+            ),
             DocumentRule()
         )
         var documentHolder: String = ""
-        
         
         mutating func setSecurityCodeLength(_ length: Int) {
             _securityCode.update(.securityCodeLength(length))
