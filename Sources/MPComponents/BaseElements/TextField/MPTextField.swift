@@ -67,11 +67,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     @State private var isEditing: Bool = false
     @State private var hasBeenTouched: Bool = false
     @State internal var internalState: MPTextFieldState = .idle
-    @State private var lastValidatedText: String?
-    @State private var lastValidationResult: ValidationResult?
-    @State private var validationWorkItem: DispatchWorkItem?
-    private let validationDebounceInterval: DispatchTimeInterval = .milliseconds(150)
-
+    
     // MARK: - Init
     
     /// Creates a new `MPTextField` with the specified configuration.
@@ -217,7 +213,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     private func handleCommit() {
         if let formatter { text = formatter.formatOnCommit(text) }
-        validationWorkItem?.cancel()
         updateStateOnCommit()
         onCommit?()
     }
@@ -274,16 +269,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             setInternalStateIfNeeded(isEditing ? .focusError(message) : .error(message))
         }
     }
-    
-    private func applyValidationResult(_ result: ValidationResult, isEditing: Bool) {
-        switch result {
-        case .valid:
-            setInternalStateIfNeeded(isEditing ? .focused : .idle)
-        case .invalid(let message):
-            setInternalStateIfNeeded(isEditing ? .focusError(message) : .error(message))
-        }
-    }
-    
     private func setInternalStateIfNeeded(_ newState: MPTextFieldState) {
         guard internalState != newState else { return }
         internalState = newState
@@ -305,9 +290,8 @@ struct MPTextField_Previews: PreviewProvider {
         @State private var textDisabled: String = "Disabled"
         @State private var textSelected: String = "Selected"
         
-        // Demo: formatter e validator
+        // Demo: formatter 
         private let uppercaseFormatter = UppercaseFormatter()
-        private let minLengthValidator = MinLengthValidator(min: 5)
         
         public init() {}
 
@@ -390,12 +374,5 @@ struct MPTextField_Previews: PreviewProvider {
 private struct UppercaseFormatter: TextFormatting {
     func formatOnChange(_ text: String) -> String { text.uppercased() }
     func formatOnCommit(_ text: String) -> String { text.uppercased() }
-}
-
-private struct MinLengthValidator: TextValidating {
-    let min: Int
-    func validate(_ text: String) -> ValidationResult {
-        return text.count >= min ? .valid : .invalid(message: "Minimum \(min) characters")
-    }
 }
 #endif
