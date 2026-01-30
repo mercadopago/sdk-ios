@@ -8,16 +8,16 @@
 import SwiftUI
 import MPFoundation
 
-package protocol ListItemStyle: StyleProtocol, Identifiable where Configuration == ListItemStyleConfiguration {}
+package protocol MPListItemStyle: StyleProtocol, Identifiable where Configuration == MPListItemStyleConfiguration {}
 
-package struct DefaultListItemStyle: ListItemStyle {
+package struct MPDefaultListItemStyle: MPListItemStyle {
     public var id: UUID = .init()
 
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.isEnabled) var isEnabled: Bool
 
     @MainActor
-    public func makeBody(configuration: ListItemStyleConfiguration) -> some View {
+    public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         HStack(alignment: .center, spacing: theme.spacings.micro) {
             if let leftImage = configuration.leftImage {
                 leftImage

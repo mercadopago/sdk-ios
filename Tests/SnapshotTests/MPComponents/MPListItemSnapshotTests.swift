@@ -12,7 +12,7 @@ import SnapshotTesting
 @testable import MPFoundation
 
 @MainActor
-final class ListItemSnapshotTests: XCTestCase {
+final class MPListItemSnapshotTests: XCTestCase {
     
     func test_allStatesComparison() {
         FontName.registerCustomFonts()
@@ -80,7 +80,7 @@ final class ListItemSnapshotTests: XCTestCase {
         isDisabled: Bool = false,
         leftImageSystemName: String? = nil
     ) -> some View {
-        ListItem(
+        MPListItem(
             leftImage: leftImageSystemName.map(Image.init(systemName:)),
             title: title,
             description: description,

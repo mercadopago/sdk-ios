@@ -29,7 +29,7 @@ struct InstallmentScreen: View {
             }
         ) {
             ForEach(viewModel.payerCosts) { payerCost in
-                ListItem(
+                MPListItem(
                     title: viewModel.formatInstallmentLabel(for: payerCost),
                     description: "Description",
                     rightText: viewModel.formatInterestLabel(for: payerCost),
