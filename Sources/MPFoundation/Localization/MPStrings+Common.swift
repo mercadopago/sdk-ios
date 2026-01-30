@@ -36,6 +36,14 @@ extension MPStrings {
         
         /// Loading indicator text
         package static var loading: String { localized("common.loading") }
+        
+        
+        package enum Accessibility: Sendable {
+            package enum TextField: Sendable {
+                package static var moreInfo: String { localized("common.accessibility.textfield.moreInfo") }
+            }
+            
+        }
     }
     
     /// Error messages

@@ -12,21 +12,20 @@ package struct MPHeaderStyleConfiguration {
     
     // MARK: - Subviews
     
-    package struct MainHeader: View {
-        package let body: AnyView
-    }
-    
-    package struct SubHeader: View {
+    package struct TrailingActions: View {
         package let body: AnyView
     }
     
     // MARK: - Properties
     
-    /// Main header view (with back button, title, and trailing actions)
-    package let mainHeader: MainHeader
+    /// Header title displayed in both main and sub-header contexts.
+    package let title: String
     
-    /// Sub-header view (large collapsible title)
-    package let subHeader: SubHeader
+    /// Action invoked when the back button is pressed.
+    package let onBack: () -> Void
+    
+    /// Optional trailing actions supplied by the parent view.
+    package let trailingActions: TrailingActions?
     
     /// Progress of collapse animation (0 = expanded, 1 = collapsed)
     package let collapseProgress: CGFloat
@@ -44,15 +43,17 @@ package struct MPHeaderStyleConfiguration {
     
     @MainActor
     package init(
-        mainHeader: some View,
-        subHeader: some View,
+        title: String,
+        onBack: @escaping () -> Void,
+        trailingActions: TrailingActions? = nil,
         collapseProgress: CGFloat,
         subHeaderHeight: CGFloat,
         subHeaderVisibleHeight: CGFloat,
         scrollOffset: CGFloat
     ) {
-        self.mainHeader = MainHeader(body: AnyView(mainHeader))
-        self.subHeader = SubHeader(body: AnyView(subHeader))
+        self.title = title
+        self.onBack = onBack
+        self.trailingActions = trailingActions
         self.collapseProgress = collapseProgress
         self.subHeaderHeight = subHeaderHeight
         self.subHeaderVisibleHeight = subHeaderVisibleHeight

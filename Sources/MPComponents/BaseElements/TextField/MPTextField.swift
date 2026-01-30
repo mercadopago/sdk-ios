@@ -54,6 +54,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let validator: TextValidating?
     private let prefixView: Prefix
     private let suffixView: Suffix
+    
+    private let popoverText: String?
 
     // MARK: - Environment
     @Environment(\.mpTextFieldStyle) private var style: any MPTextFieldStyle
@@ -100,6 +102,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         onEditingChanged: ((Bool) -> Void)? = nil,
         formatter: TextFormatting? = nil,
         validator: TextValidating? = nil,
+        popoverText: String? = nil,
         @ViewBuilder prefix: () -> Prefix = { EmptyView() },
         @ViewBuilder suffix: () -> Suffix = { EmptyView() }
     ) {
@@ -116,6 +119,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.validator = validator
         self.prefixView = prefix()
         self.suffixView = suffix()
+        self.popoverText = popoverText
         self._internalState = State(initialValue: .idle)
     }
 
@@ -129,6 +133,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             label: label == nil ? nil : labelView,
             field: textField,
             helper: currentState.errorMessage ?? helperText ?? nil,
+            popoverText: popoverText,
             prefix: prefixView,
             suffix: suffixView,
             state: currentState
@@ -138,10 +143,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             style.resolve(configuration: configuration)
         )
         .frame(minHeight: 44)
-        .accessibilityElement(children: .combine)
-        .accessibility(label: Text(accessibilityLabel))
-        .accessibility(value: Text(text))
-        .accessibility(hint: Text(accessibilityHint(for: currentState) ?? ""))
+        .accessibilityElement(children: .contain)
         .disabled(!isEnabled)
     }
 
@@ -156,6 +158,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
                 Text(placeholder ?? "")
                     .foregroundColor(theme.textFields.standard.placeholderColor)
                     .padding(.leading, 4)
+                    .accessibility(hidden: true)
             }
             
             TextField(
@@ -198,6 +201,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             .keyboardType(keyboard)
             .textContentType(contentType)
             .disabled(!isEnabled)
+            .accessibility(label: Text(accessibilityLabel))
+            .accessibility(hint: Text(accessibilityHint(for: currentState) ?? ""))
         }
     }
     
@@ -206,7 +211,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         Group {
             if let label { Text(label) }
         }
-        .accessibility(hidden: true)
     }
 
     // MARK: - Helpers
@@ -226,7 +230,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     private func accessibilityHint(for state: MPTextFieldState) -> String? {
         if let error = state.errorMessage { return error }
-        return helperText
+        return nil
     }
 
     // MARK: - State Management

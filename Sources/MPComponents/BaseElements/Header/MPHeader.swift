@@ -53,11 +53,8 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     // MARK: - State
     
     @State private var scrollOffset: CGFloat = 0
-    @State private var headerHeight: CGFloat = 40
-    @State private var subHeaderHeight: CGFloat = 40
-    @State private var safeAreaTop: CGFloat = 0
-    
-    private let epsilon = 0.00001
+    @State private var headerHeight: CGFloat = 30
+    @State private var subHeaderHeight: CGFloat = 20
     
     // MARK: - Initialization
     
@@ -85,7 +82,8 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     // MARK: - Body
     
     package var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
+            
             ZStack(alignment: .top) {
                 // Scrollable content with offset tracking
                 
@@ -93,7 +91,8 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                     ScrollViewWithOffset(offset: $scrollOffset) {
                         VStack(spacing: 0) {
                             Color.clear
-                                .frame(height: headerInset(safeAreaTop: geometry.safeAreaInsets.top))
+                                .frame(height: headerInset())
+                                .padding(.bottom, theme.spacings.xsmall)
                             
                             content
                         }
@@ -105,21 +104,14 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 // Header container
-                VStack(spacing: 0) {
-                    // Safe area container (notch area)
-                    Color.clear
-                        .frame(height: 0)
-                        .background(theme.colors.background.primary.edgesIgnoringSafeArea(.all))
-                    
-                    // Main and sub headers
-                    headerContent
-                }
-                .frame(maxWidth: .infinity, alignment: .top)
-                .zIndex(1)
+                headerContent
+                    .frame(maxWidth: .infinity, alignment: .top)
+                    .zIndex(1)
             }
+            .onPreferenceChange(MainHeaderHeightKey.self) { headerHeight = $0 }
+            .onPreferenceChange(SubHeaderHeightKey.self) { subHeaderHeight = $0 }
         }
         .navigationBarHidden(true)
-        .background(theme.colors.background.primary.edgesIgnoringSafeArea(.all))
         
     }
     
@@ -127,8 +119,9 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     
     private var headerContent: some View {
         let configuration = MPHeaderStyleConfiguration(
-            mainHeader: mainHeaderView,
-            subHeader: subHeaderView,
+            title: title,
+            onBack: onBack,
+            trailingActions: trailingActionsConfiguration,
             collapseProgress: collapseProgress,
             subHeaderHeight: subHeaderHeight,
             subHeaderVisibleHeight: subHeaderVisibleHeight,
@@ -138,46 +131,6 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
         return AnyView(
             style.resolve(configuration: configuration)
         )
-    }
-    
-    // MARK: - Main Header View
-    
-    @ViewBuilder
-    private var mainHeaderView: some View {
-        HStack(spacing: 12) {
-            // Back Button
-            
-            Button(action: onBack) {
-                Image(systemName: Logos.chevronLeft)
-            }
-            .buttonStyle(MPBackButtonStyle())
-            
-            // Title (appears when collapsed)
-            Text(title)
-                .textStyle(.headingMedium())
-                .lineLimit(1)
-                .opacity(collapseProgress)
-                .frame(maxWidth: .infinity)
-            
-            // Trailing Actions
-            if TrailingActions.self != EmptyView.self {
-                trailingActions
-            } else {
-                Color.clear.frame(width: 44, height: 44)
-            }
-        }
-    }
-    
-    // MARK: - Sub Header View
-    
-    @ViewBuilder
-    private var subHeaderView: some View {
-        HStack {
-            Text(title)
-                .textStyle(.headingHuge())
-                .lineLimit(2)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
     }
     
     // MARK: - Computed Properties
@@ -193,9 +146,14 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
         subHeaderHeight * (1 - collapseProgress)
     }
     
-    private func headerInset(safeAreaTop: CGFloat) -> CGFloat {
-        let totalInset = safeAreaTop + headerHeight + subHeaderVisibleHeight
+    private func headerInset() -> CGFloat {
+        let totalInset = headerHeight + subHeaderVisibleHeight
         return max(totalInset, 40)
+    }
+    
+    private var trailingActionsConfiguration: MPHeaderStyleConfiguration.TrailingActions? {
+        guard TrailingActions.self != EmptyView.self else { return nil }
+        return MPHeaderStyleConfiguration.TrailingActions(body: AnyView(trailingActions))
     }
 }
 

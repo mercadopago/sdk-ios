@@ -6,7 +6,7 @@
 */
 
 // MARK: - Form Title & Buttons
-"form.title" = "Insira os dados do cartão";
+"form.title" = "Preencha os dados do cartão";
 "form.button" = "Pagar";
 "form.total" = "Total";
 "form.currency" = "R$";
@@ -29,6 +29,7 @@
 "card_holder.error.empty" = "Preencha este campo.";
 "card_holder.error.incomplete" = "Insira-o conforme está no cartão.";
 "card_holder.error.invalid_format" = "Digite apenas letras e números.";
+"card_holder.helper.text" = "Conforme aparece no cartão.";
 
 // MARK: - Expiration Date
 "expiration.label" = "Vencimento";
@@ -80,7 +81,7 @@
 "common.error" = "Erro";
 "common.retry" = "Tentar novamente";
 "common.loading" = "Carregando...";
-
+"common.accessibility.textfield.moreInfo" = "Mais informações";
 // MARK: - Errors
 "error.generic" = "Algo deu errado. Por favor, tente novamente.";
 "error.network" = "Erro de conexão. Verifique sua conexão com a internet.";
