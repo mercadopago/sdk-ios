@@ -6,7 +6,7 @@
 //
 import Foundation
 
-public struct MPPaymentData: Codable, Sendable {
+public struct MPPaymentData: Equatable, Codable, Sendable {
     var transactionAmount: Int
     var token: String?
     var installment: Int?
@@ -14,7 +14,7 @@ public struct MPPaymentData: Codable, Sendable {
     var issuerId: String?
     var payer: Payer = Payer()
     
-    struct Payer: Codable, Sendable {
+    struct Payer: Equatable, Codable, Sendable {
         var type: String?
         var number: String?
     }

@@ -7,12 +7,6 @@
 import SwiftUI
 import MPComponents
 
-public enum CardFormBrickError: Error, Equatable {
-    case userCancelled
-    case serviceError(String)
-    case message(String)
-}
-
 public struct CardFormBrick: View {
     private enum Route: Hashable {
         case installments
@@ -24,18 +18,15 @@ public struct CardFormBrick: View {
     private let themeDark: MPTheme
     private let themeLight: MPTheme
     
-    private let onSubmit: (MPPaymentData) -> Void
-    private let onError: (CardFormBrickError) -> Void
+    private let onResult: (CardFormResult) -> Void
     
     @Environment(\.presentationMode) var presentationMode
     
     public init(
         configuration: MercadoPagoCheckout,
-        onSubmit: @escaping (MPPaymentData) -> Void,
-        onError: @escaping (CardFormBrickError) -> Void = { _ in }
+        onResult: @escaping (CardFormResult) -> Void,
     ) {
-        self.onSubmit = onSubmit
-        self.onError = onError
+        self.onResult = onResult
         self.themeDark = configuration.theme.dark
         self.themeLight = configuration.theme.light
         self.paymentData = MPPaymentData(transactionAmount: 100)
@@ -94,16 +85,16 @@ public struct CardFormBrick: View {
     
     private func cancelCheckout() {
         route = nil
-        onError(.userCancelled)
+        onResult(.userCancelled)
         presentationMode.wrappedValue.dismiss()
     }
     
     private func completeCheckout() {
         route = nil
-        onSubmit(paymentData)
+        onResult(.success(paymentData))
     }
     
     private func fail(_ error: CardFormBrickError) {
-        onError(error)
+        onResult(.error(error))
     }
 }

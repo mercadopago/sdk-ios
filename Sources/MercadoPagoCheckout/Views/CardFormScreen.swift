@@ -29,6 +29,7 @@ struct CardFormScreen: View {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.onBack = onBack
         self.onContinue = onContinue
+        self._paymentData = paymentData
     }
 
     var body: some View {
@@ -132,12 +133,14 @@ struct CardFormScreen: View {
 }
 
 struct CardForm_Previews: PreviewProvider {
+    
     static var previews: some View {
+        
         ThemeProvider(
             light: MPLightTheme(),
             dark: MPLightTheme()
         ) {
-            CardFormScreen()
+            CardFormScreen(paymentData: .constant(MPPaymentData(transactionAmount: 100)))
         }
 
     }
