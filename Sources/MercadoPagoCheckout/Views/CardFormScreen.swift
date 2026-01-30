@@ -10,6 +10,8 @@ import CoreMethods
 
 struct CardFormScreen: View {
     @ObservedObject private var viewModel: CardFormViewModel
+    private let onBack: () -> Void
+    private let onContinue: () -> Void
     
     // MARK: States View
     @State private var cardForm = CardFormData()
@@ -17,10 +19,16 @@ struct CardFormScreen: View {
 
     // MARK: Enviroments
     @Environment(\.checkoutTheme) var theme: MPTheme
-    @Environment(\.presentationMode) var presentationMode
 
-    init(viewModel: CardFormViewModel = CardFormViewModel()) {
+    init(
+        paymentData: Binding<MPPaymentData>,
+        viewModel: CardFormViewModel = CardFormViewModel(),
+        onBack: @escaping () -> Void = {},
+        onContinue: @escaping () -> Void = {}
+    ) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self.onBack = onBack
+        self.onContinue = onContinue
     }
 
     var body: some View {
@@ -60,41 +68,40 @@ struct CardFormScreen: View {
                         errorMessage: cardForm.$cardHolder,
                     )
 
-                    MPTextField(
-                        text: $cardForm.expirationDate,
-                        label: MPStrings.CardForm.Expiration.label,
-                        placeholder: MPStrings.CardForm.Expiration.placeholder,
-                        errorMessage: cardForm.$expirationDate,
-                        keyboard: .numberPad,
-                        formatter: viewModel.expirationDateFormatter,
-                    )
-                    
-                    MPTextField(
-                        text: $cardForm.securityCode,
-                        label: MPStrings.CardForm.CVV.label,
-                        placeholder: MPStrings.CardForm.CVV.placeholderDefault,
-                        errorMessage: cardForm.$securityCode,
-                        keyboard: .numberPad,
-                        formatter: viewModel.securityCodeFormatter,
-                        popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
-                    )
-                    
-                    
-                    MPTextField(
-                        text: $cardForm.documentHolder,
-                        label: MPStrings.CardForm.Document.label,
-                        placeholder: viewModel.selectTypeDocument.placeholder,
-                        errorMessage: cardForm.$documentHolder,
-                        prefix: {
-                            dropdownDocument()
-                        },
-                    )
-                    
-                }
-                .padding(.horizontal, theme.spacings.micro)
+                MPTextField(
+                    text: $cardForm.expirationDate,
+                    label: MPStrings.CardForm.Expiration.label,
+                    placeholder: MPStrings.CardForm.Expiration.placeholder,
+                    errorMessage: cardForm.$expirationDate,
+                    keyboard: .numberPad,
+                    formatter: viewModel.expirationDateFormatter,
+                )
+                
+                MPTextField(
+                    text: $cardForm.securityCode,
+                    label: MPStrings.CardForm.CVV.label,
+                    placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                    errorMessage: cardForm.$securityCode,
+                    keyboard: .numberPad,
+                    formatter: viewModel.securityCodeFormatter,
+                    popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
+                )
+                
+                
+                MPTextField(
+                    text: $cardForm.documentHolder,
+                    label: MPStrings.CardForm.Document.label,
+                    placeholder: viewModel.selectTypeDocument.placeholder,
+                    errorMessage: cardForm.$documentHolder,
+                    prefix: {
+                        dropdownDocument()
+                    },
+                )
+                
             }
-            .background(theme.colors.background.primary)
+            .padding(.horizontal, theme.spacings.micro)
         }
+        .background(theme.colors.background.primary)
     }
         
     @ViewBuilder
