@@ -93,6 +93,8 @@ package struct MPFooter: View {
                 .foregroundColor(theme.colors.text.primary)
                 .lineLimit(1)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibility(label: Text("\(label) \(amount)"))
     }
     
     // MARK: - Description Line View
@@ -153,4 +155,3 @@ struct MPFooter_Previews: PreviewProvider {
     }
 }
 #endif
-

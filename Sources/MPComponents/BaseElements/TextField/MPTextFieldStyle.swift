@@ -16,6 +16,8 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
     public var id: UUID = .init()
     @Environment(\.checkoutTheme) var theme: MPTheme
     
+    @State private var isPopoverPresented = false
+    
     /// Returns the appearance configuration for the TextField.
     private var appearance: MPTextFieldAppearance {
         theme.textFields.standard
@@ -31,10 +33,12 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             
             // Label
             if let label = configuration.label {
-                label
-                    .body
-                    .font(appearance.labelFont.toFont())
-                    .foregroundColor(stateAppearance.labelColor)
+                labelContent(
+                    label: label,
+                    popoverText: configuration.popoverText,
+                    appearance: appearance,
+                    stateAppearance: stateAppearance
+                )
             }
 
             // Field
@@ -62,7 +66,7 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             )
             .frame(maxHeight: 44)
 
-            // Helper text (shown on error states)
+            // Helper text 
             if let helper = configuration.helper {
                 Helper(helper, helperTone(for: configuration))
                     .helperStyle(helperStyle(for: configuration))
@@ -70,6 +74,46 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             }
         }
         .animation(.easeInOut(duration: 0.15))
+    }
+    
+    @ViewBuilder
+    @MainActor
+    private func labelContent(
+        label: MPTextFieldStyleConfiguration.Label,
+        popoverText: String?,
+        appearance: MPTextFieldAppearance,
+        stateAppearance: MPTextFieldStateAppearance
+    ) -> some View {
+        HStack() {
+            label
+                .body
+                .font(appearance.labelFont.toFont())
+                .foregroundColor(stateAppearance.labelColor)
+            
+            if let popoverText {
+                popoverButton(textPopover: popoverText)
+            }
+        }
+    }
+    
+    
+    @ViewBuilder
+    @MainActor
+    private func popoverButton(textPopover: String) -> some View {
+        Button(action: {}) {
+            MPIcon(
+                systemName: Logos.questionMark,
+                size: .small,
+                color: .accent,
+                isDecorative: true
+            )
+        }
+        .accessibility(label: Text(MPStrings.Common.Accessibility.TextField.moreInfo))
+        .buttonStyle(.plain)
+        .popover() {
+            Text(textPopover)
+                .textStyle(.bodyMedium(colorType: .secondary))
+        }
     }
 
     /// Returns the state-specific appearance for a given TextField state.

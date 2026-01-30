@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import MercadoPagoCheckout
 
 struct MainListView: View {
     @State private var showingCardForm = false
@@ -14,6 +15,9 @@ struct MainListView: View {
     @State private var showingCardFormSwiftUI = false
 
     @State private var showDebug = false
+    
+    @State private var showCardFormBrick = false
+
 
     var body: some View {
         NavigationView {
@@ -25,6 +29,10 @@ struct MainListView: View {
 
                     Button("Card Form (SwiftUI)") {
                         self.showingCardFormSwiftUI = true
+                    }
+                    
+                    Button("Card Form Brick (SwiftUI)") {
+                        self.showCardFormBrick = true
                     }
                 }
 
@@ -39,6 +47,9 @@ struct MainListView: View {
         }
         .fullScreenCover(isPresented: self.$showingCardForm) {
             CardFormViewControllerRepresentable()
+        }
+        .fullScreenCover(isPresented: self.$showCardFormBrick) {
+            CardFormBrick()
         }
         .sheet(isPresented: self.$showingCardFormSwiftUI) {
             CardFormView()

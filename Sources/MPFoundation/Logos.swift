@@ -5,7 +5,7 @@
 //  Created by Guilherme Prata Costa on 22/08/25.
 //
 
-package enum Logos {
+package enum Logos: Equatable {
     package enum Feedback: String, Sendable {
         case positive = "Feedback-Check"
         case negative = "Feedback-Minus"
@@ -18,4 +18,5 @@ package enum Logos {
     package static let errorFilled = "Error-Filled"
     package static let close = "Close"
     package static let chevronLeft = "chevron.left"
+    package static let questionMark = "questionmark.circle"
 }

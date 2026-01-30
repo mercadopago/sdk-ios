@@ -18,15 +18,22 @@ struct CardFormScreen: View {
     @State private var cardHolder: String = ""
     @State private var expirationDate: String = ""
     @State private var securityCode: String = ""
-    
+    @State private var documentHolder: String = ""
+
     // Formatters and Validators
     private let cardNumberFormatter = CardNumberFormatter()
     private let cardNumberValidator = CardNumberValidator()
+    
+    private let cardHolderValidator = CardHolderValidator()
+    
     private let expirationDateFormatter = ExpirationDateFormatter()
     private let expirationDateValidator = ExpirationDateValidator()
+    
     private let securityCodeFormatter = SecurityCodeFormatter()
     private let securityCodeValidator = SecurityCodeValidator()
     
+    private let documentValidator = DocumentValidator()
+
     //  Document Field
     @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
     @State private var openDocumentsSheet: Bool = false
@@ -55,41 +62,31 @@ struct CardFormScreen: View {
                     MPTextField(
                         text: $cardHolder,
                         label: MPStrings.CardForm.CardHolder.label,
-                        placeholder: MPStrings.CardForm.CardHolder.placeholder
+                        placeholder: MPStrings.CardForm.CardHolder.placeholder,
+                        helperText: MPStrings.CardForm.CardHolder.helperText,
+                        validator: cardHolderValidator
                     )
                     
-                    HStack(
-                        alignment: .top,
-                        spacing: theme.spacings.xsmall
-                    ) {
-                        MPTextField(
-                            text: $expirationDate,
-                            label: MPStrings.CardForm.Expiration.label,
-                            placeholder: MPStrings.CardForm.Expiration.placeholder,
-                            keyboard: .numberPad,
-                            formatter: expirationDateFormatter,
-                            validator: expirationDateValidator
-                        )
-                        
-                        MPTextField(
-                            text: $securityCode,
-                            label: MPStrings.CardForm.CVV.label,
-                            placeholder: MPStrings.CardForm.CVV.placeholderDefault,
-                            keyboard: .numberPad,
-                            formatter: securityCodeFormatter,
-                            validator: securityCodeValidator,
-                            suffix: {
-                                Image(systemName: "questionmark.circle")
-                                    .renderingMode(.template)
-                                    .foregroundColor(theme.colors.icon.accent)
-                                    .padding(.horizontal, theme.spacings.micro)
-                                    .popover {
-                                        Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                                            .textStyle(.bodyMedium(colorType: .secondary))
-                                    }
-                            }
-                        )
-                    }
+
+                    MPTextField(
+                        text: $expirationDate,
+                        label: MPStrings.CardForm.Expiration.label,
+                        placeholder: MPStrings.CardForm.Expiration.placeholder,
+                        keyboard: .numberPad,
+                        formatter: expirationDateFormatter,
+                        validator: expirationDateValidator
+                    )
+                    
+                    MPTextField(
+                        text: $securityCode,
+                        label: MPStrings.CardForm.CVV.label,
+                        placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                        keyboard: .numberPad,
+                        formatter: securityCodeFormatter,
+                        validator: securityCodeValidator,
+                        popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
+                    )
+                    
                     
                     documentField()
                     
@@ -115,34 +112,42 @@ struct CardFormScreen: View {
     @ViewBuilder
     func documentField() -> some View {
         MPTextField(
-            text: $cardHolder,
-            label: MPStrings.CardForm.CardHolder.label,
+            text: $documentHolder,
+            label: MPStrings.CardForm.Document.label,
             placeholder: selectTypeDocument.placeholder,
+            validator: documentValidator,
             prefix: {
-                Button {
-                    openDocumentsSheet.toggle()
-                } label: {
-                    HStack {
-                        Text(selectTypeDocument.name)
-                            .textStyle(.bodyMedium(colorType: .secondary))
-                        
-                        Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
-                            .renderingMode(.template)
-                            .foregroundColor(theme.textFields.standard.idle.borderColor)
-                            .padding(.horizontal, theme.spacings.xmicro)
-                    }
-                    .frame(maxHeight: .infinity)
-                    .overlay(
-                        Rectangle()
-                            .frame(width: theme.borderWidth.small)
-                            .foregroundColor(theme.textFields.standard.idle.borderColor),
-                        alignment: .trailing
-                    )
-                    .padding(.leading, theme.spacings.micro)
-                }
-            }
+                dropdownDocument()
+            },
         )
     }
+    
+    @ViewBuilder
+    func dropdownDocument() -> some View {
+        Button {
+            openDocumentsSheet.toggle()
+        } label: {
+            HStack {
+                Text(selectTypeDocument.name)
+                    .textStyle(.bodyMedium(colorType: .secondary))
+                
+                Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
+                    .renderingMode(.template)
+                    .foregroundColor(theme.textFields.standard.idle.borderColor)
+                    .padding(.horizontal, theme.spacings.xmicro)
+            }
+            .frame(maxHeight: .infinity)
+            .overlay(
+                Rectangle()
+                    .frame(width: theme.borderWidth.small)
+                    .foregroundColor(theme.textFields.standard.idle.borderColor),
+                alignment: .trailing
+            )
+            .padding(.leading, theme.spacings.micro)
+        }
+        .accessibility(label: Text(verbatim: selectTypeDocument.name))
+    }
+    
     
 }
 
