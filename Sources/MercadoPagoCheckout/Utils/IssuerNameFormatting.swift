@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MPFoundation
 
 package enum MPFormatIssuerName {
     // MARK: - Special Words
@@ -123,9 +124,9 @@ package enum MPFormatIssuerName {
     package static func formattedPaymentType(_ value: String) -> String {
         switch value {
         case "credit_card":
-            return "Crédito"
+            return MPStrings.Common.creditCard
         case "debit_card":
-            return "Débito"
+            return MPStrings.Common.debitCard
         default:
             return ""
         }

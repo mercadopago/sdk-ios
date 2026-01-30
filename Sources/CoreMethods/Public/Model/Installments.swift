@@ -17,7 +17,7 @@ public struct Installment: Sendable, Equatable {
     public let payerCosts: [PayerCost]
     public let agreements: [Agreement]
     
-    public init(
+    package init(
         paymentMethodId: String,
         paymentTypeId: String,
         thumbnail: String,
@@ -42,7 +42,7 @@ public struct Installment: Sendable, Equatable {
         public let thumbnail: String
         public let name: String?
         
-        public init(
+        package init(
             id: String,
             thumbnail: String,
             name: String? = nil
@@ -67,7 +67,7 @@ public struct Installment: Sendable, Equatable {
         public let labels: [String]
         public let paymentMethodOptionId: String
         
-        public init(
+        package init(
             id: Int,
             installments: Int,
             installmentAmount: Double,
@@ -100,7 +100,7 @@ public struct Installment: Sendable, Equatable {
         public let merchantAccounts: [MerchantAccount]
         public let timeFrame: TimeFrame
         
-        public init(merchantAccounts: [MerchantAccount], timeFrame: TimeFrame) {
+        package init(merchantAccounts: [MerchantAccount], timeFrame: TimeFrame) {
             self.merchantAccounts = merchantAccounts
             self.timeFrame = timeFrame
         }
@@ -109,7 +109,7 @@ public struct Installment: Sendable, Equatable {
             public let id: String
             public let paymentMethodOptionId: String
             
-            public init(id: String, paymentMethodOptionId: String) {
+            package init(id: String, paymentMethodOptionId: String) {
                 self.id = id
                 self.paymentMethodOptionId = paymentMethodOptionId
             }
@@ -119,7 +119,7 @@ public struct Installment: Sendable, Equatable {
             public let startDate: String
             public let endDate: String
             
-            public init(startDate: String, endDate: String) {
+            package init(startDate: String, endDate: String) {
                 self.startDate = startDate
                 self.endDate = endDate
             }
