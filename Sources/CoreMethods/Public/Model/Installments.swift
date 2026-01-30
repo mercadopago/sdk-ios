@@ -7,8 +7,7 @@
 
 import Foundation
 
-public struct Installment: Sendable, Equatable, Identifiable {
-    public let id: UUID = UUID()
+public struct Installment: Sendable, Equatable {
     public let paymentMethodId: String
     public let paymentTypeId: String
     public let thumbnail: String
