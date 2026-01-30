@@ -9,34 +9,19 @@ import MPComponents
 import CoreMethods
 
 struct CardFormScreen: View {
-    @Environment(\.checkoutTheme) var theme: MPTheme
+    @ObservedObject private var viewModel: CardFormViewModel
     
-    @Environment(\.presentationMode) var presentationMode
-    
-    // Card Form Fields
-    @State private var cardNumber: String = ""
-    @State private var cardHolder: String = ""
-    @State private var expirationDate: String = ""
-    @State private var securityCode: String = ""
-    @State private var documentHolder: String = ""
-
-    // Formatters and Validators
-    private let cardNumberFormatter = CardNumberFormatter()
-    private let cardNumberValidator = CardNumberValidator()
-    
-    private let cardHolderValidator = CardHolderValidator()
-    
-    private let expirationDateFormatter = ExpirationDateFormatter()
-    private let expirationDateValidator = ExpirationDateValidator()
-    
-    private let securityCodeFormatter = SecurityCodeFormatter()
-    private let securityCodeValidator = SecurityCodeValidator()
-    
-    private let documentValidator = DocumentValidator()
-
-    //  Document Field
-    @State private var selectTypeDocument: IdentificationType = .init(name: "CPF")
+    // MARK: States View
+    @State private var cardForm = CardFormData()
     @State private var openDocumentsSheet: Bool = false
+
+    // MARK: Enviroments
+    @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.presentationMode) var presentationMode
+
+    init(viewModel: CardFormViewModel = CardFormViewModel()) {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         NavigationView {
@@ -54,41 +39,56 @@ struct CardFormScreen: View {
                             print("action button")
                         }
                     )
+                    .disabled(!cardForm.isFormValid)
                 }
             ) {
                 VStack(spacing: theme.spacings.xsmall) {
-                    cardNumberField()
+                    MPTextField(
+                        text: $cardForm.cardNumber,
+                        label: MPStrings.CardForm.CardNumber.label,
+                        placeholder: MPStrings.CardForm.CardNumber.placeholder,
+                        errorMessage: cardForm.$cardNumber,
+                        keyboard: .numberPad,
+                        formatter: viewModel.cardNumberFormatter,
+                    )
                     
                     MPTextField(
-                        text: $cardHolder,
+                        text: $cardForm.cardHolder,
                         label: MPStrings.CardForm.CardHolder.label,
                         placeholder: MPStrings.CardForm.CardHolder.placeholder,
                         helperText: MPStrings.CardForm.CardHolder.helperText,
-                        validator: cardHolderValidator
+                        errorMessage: cardForm.$cardHolder,
                     )
-                    
 
                     MPTextField(
-                        text: $expirationDate,
+                        text: $cardForm.expirationDate,
                         label: MPStrings.CardForm.Expiration.label,
                         placeholder: MPStrings.CardForm.Expiration.placeholder,
+                        errorMessage: cardForm.$expirationDate,
                         keyboard: .numberPad,
-                        formatter: expirationDateFormatter,
-                        validator: expirationDateValidator
+                        formatter: viewModel.expirationDateFormatter,
                     )
                     
                     MPTextField(
-                        text: $securityCode,
+                        text: $cardForm.securityCode,
                         label: MPStrings.CardForm.CVV.label,
                         placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                        errorMessage: cardForm.$securityCode,
                         keyboard: .numberPad,
-                        formatter: securityCodeFormatter,
-                        validator: securityCodeValidator,
+                        formatter: viewModel.securityCodeFormatter,
                         popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
                     )
                     
                     
-                    documentField()
+                    MPTextField(
+                        text: $cardForm.documentHolder,
+                        label: MPStrings.CardForm.Document.label,
+                        placeholder: viewModel.selectTypeDocument.placeholder,
+                        errorMessage: cardForm.$documentHolder,
+                        prefix: {
+                            dropdownDocument()
+                        },
+                    )
                     
                 }
                 .padding(.horizontal, theme.spacings.micro)
@@ -96,39 +96,14 @@ struct CardFormScreen: View {
             .background(theme.colors.background.primary)
         }
     }
-    
-    @ViewBuilder
-    func cardNumberField() -> some View {
-        MPTextField(
-            text: $cardNumber,
-            label: MPStrings.CardForm.CardNumber.label,
-            placeholder: MPStrings.CardForm.CardNumber.placeholder,
-            keyboard: .numberPad,
-            formatter: cardNumberFormatter,
-            validator: cardNumberValidator
-        )
-    }
-    
-    @ViewBuilder
-    func documentField() -> some View {
-        MPTextField(
-            text: $documentHolder,
-            label: MPStrings.CardForm.Document.label,
-            placeholder: selectTypeDocument.placeholder,
-            validator: documentValidator,
-            prefix: {
-                dropdownDocument()
-            },
-        )
-    }
-    
+        
     @ViewBuilder
     func dropdownDocument() -> some View {
         Button {
             openDocumentsSheet.toggle()
         } label: {
             HStack {
-                Text(selectTypeDocument.name)
+                Text(viewModel.selectTypeDocument.name)
                     .textStyle(.bodyMedium(colorType: .secondary))
                 
                 Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
@@ -145,10 +120,8 @@ struct CardFormScreen: View {
             )
             .padding(.leading, theme.spacings.micro)
         }
-        .accessibility(label: Text(verbatim: selectTypeDocument.name))
+        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument.name))
     }
-    
-    
 }
 
 struct CardForm_Previews: PreviewProvider {

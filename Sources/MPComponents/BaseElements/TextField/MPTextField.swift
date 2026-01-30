@@ -44,6 +44,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let label: String?
     private let placeholder: String?
     private let helperText: String?
+    private let errorMessageProvider: () -> [String]?
     
     private let keyboard: UIKeyboardType
     private let contentType: UITextContentType?
@@ -51,7 +52,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let onCommit: (() -> Void)?
     private let onEditingChanged: ((Bool) -> Void)?
     private let formatter: TextFormatting?
-    private let validator: TextValidating?
     private let prefixView: Prefix
     private let suffixView: Suffix
     
@@ -67,11 +67,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     @State private var isEditing: Bool = false
     @State private var hasBeenTouched: Bool = false
     @State internal var internalState: MPTextFieldState = .idle
-    @State private var lastValidatedText: String?
-    @State private var lastValidationResult: ValidationResult?
-    @State private var validationWorkItem: DispatchWorkItem?
-    private let validationDebounceInterval: DispatchTimeInterval = .milliseconds(150)
-
+    
     // MARK: - Init
     
     /// Creates a new `MPTextField` with the specified configuration.
@@ -95,13 +91,13 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         label: String?,
         placeholder: String?,
         helperText: String? = nil,
+        errorMessage: @autoclosure @escaping () -> [String]? = nil,
         keyboard: UIKeyboardType = .default,
         contentType: UITextContentType? = nil,
         autocorrection: UITextAutocorrectionType = .default,
         onCommit: (() -> Void)? = nil,
         onEditingChanged: ((Bool) -> Void)? = nil,
         formatter: TextFormatting? = nil,
-        validator: TextValidating? = nil,
         popoverText: String? = nil,
         @ViewBuilder prefix: () -> Prefix = { EmptyView() },
         @ViewBuilder suffix: () -> Suffix = { EmptyView() }
@@ -116,10 +112,10 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.onCommit = onCommit
         self.onEditingChanged = onEditingChanged
         self.formatter = formatter
-        self.validator = validator
         self.prefixView = prefix()
         self.suffixView = suffix()
         self.popoverText = popoverText
+        self.errorMessageProvider = errorMessage
         self._internalState = State(initialValue: .idle)
     }
 
@@ -217,7 +213,6 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     private func handleCommit() {
         if let formatter { text = formatter.formatOnCommit(text) }
-        validationWorkItem?.cancel()
         updateStateOnCommit()
         onCommit?()
     }
@@ -257,56 +252,23 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private func updateStateOnBlur() {
         validateAndUpdateState(isEditing: false, debounce: false)
     }
-    
-    func shouldShowHelperOrError(for state: MPTextFieldState) -> Bool {
-        if helperText != nil { return true }
-        return false
-    }
 
     private func validateAndUpdateState(isEditing: Bool, debounce: Bool) {
         guard isEnabled && !isReadOnly else { return }
-        
-        guard let validator else {
+
+        let currentErrors = errorMessageProvider()
+
+        guard let currentErrors else {
             setInternalStateIfNeeded(isEditing ? .focused : .idle)
             return
         }
         
-        let currentText = text
-        if lastValidatedText == currentText, let cachedResult = lastValidationResult {
-            applyValidationResult(cachedResult, isEditing: isEditing)
-            return
-        }
-        
-        let performValidation = {
-            let result = validator.validate(currentText)
-            lastValidatedText = currentText
-            lastValidationResult = result
-            applyValidationResult(result, isEditing: isEditing)
-        }
-        
-        if debounce {
-            validationWorkItem?.cancel()
-            let workItem = DispatchWorkItem(block: performValidation)
-            validationWorkItem = workItem
-            DispatchQueue.main.asyncAfter(
-                deadline: .now() + validationDebounceInterval,
-                execute: workItem
-            )
-        } else {
-            validationWorkItem?.cancel()
-            performValidation()
-        }
-    }
-    
-    private func applyValidationResult(_ result: ValidationResult, isEditing: Bool) {
-        switch result {
-        case .valid:
+        if currentErrors.isEmpty {
             setInternalStateIfNeeded(isEditing ? .focused : .idle)
-        case .invalid(let message):
+        } else if let message = currentErrors.first {
             setInternalStateIfNeeded(isEditing ? .focusError(message) : .error(message))
         }
     }
-    
     private func setInternalStateIfNeeded(_ newState: MPTextFieldState) {
         guard internalState != newState else { return }
         internalState = newState
@@ -328,9 +290,8 @@ struct MPTextField_Previews: PreviewProvider {
         @State private var textDisabled: String = "Disabled"
         @State private var textSelected: String = "Selected"
         
-        // Demo: formatter e validator
+        // Demo: formatter 
         private let uppercaseFormatter = UppercaseFormatter()
-        private let minLengthValidator = MinLengthValidator(min: 5)
         
         public init() {}
 
@@ -358,7 +319,6 @@ struct MPTextField_Previews: PreviewProvider {
                                 label: "Focused (Min length 5)",
                                 placeholder: "Placeholder",
                                 helperText: "Min 5 chars",
-                                validator: minLengthValidator
                             )
 
                             MPTextField(
@@ -375,7 +335,6 @@ struct MPTextField_Previews: PreviewProvider {
                                 label: "Error",
                                 placeholder: "Placeholder",
                                 helperText: nil,
-                                validator: MinLengthValidator(min: 10)
                             )
 
                             MPTextField(
@@ -415,12 +374,5 @@ struct MPTextField_Previews: PreviewProvider {
 private struct UppercaseFormatter: TextFormatting {
     func formatOnChange(_ text: String) -> String { text.uppercased() }
     func formatOnCommit(_ text: String) -> String { text.uppercased() }
-}
-
-private struct MinLengthValidator: TextValidating {
-    let min: Int
-    func validate(_ text: String) -> ValidationResult {
-        return text.count >= min ? .valid : .invalid(message: "Minimum \(min) characters")
-    }
 }
 #endif
