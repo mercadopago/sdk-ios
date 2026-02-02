@@ -52,7 +52,6 @@ public struct CardFormBrick: View {
             paymentData: $paymentData,
             onBack: { cancelCheckout() },
             onContinue: {
-                print("onContinue")
                 route = .installments
             }
         )

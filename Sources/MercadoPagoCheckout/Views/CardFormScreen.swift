@@ -9,13 +9,16 @@ import MPComponents
 import CoreMethods
 
 struct CardFormScreen: View {
-    @ObservedObject private var viewModel: CardFormViewModel
+    
     private let onBack: () -> Void
     private let onContinue: () -> Void
+    
+    @ObservedObject private var viewModel: CardFormViewModel
     
     // MARK: States View
     @State private var cardForm = CardFormData()
     @State private var openDocumentsSheet: Bool = false
+    @Binding private var paymentData: MPPaymentData
 
     // MARK: Enviroments
     @Environment(\.checkoutTheme) var theme: MPTheme
