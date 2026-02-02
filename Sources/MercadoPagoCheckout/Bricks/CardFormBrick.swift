@@ -59,6 +59,7 @@ public struct CardFormBrick: View {
     
     private func installmentScreen() -> some View {
         InstallmentScreen(
+            paymentData: $paymentData,
             onBack: { route = nil },
             onContinue: { completeCheckout() },
             onError: {
