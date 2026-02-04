@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-package struct ListItemStyleConfiguration {
+package struct MPListItemStyleConfiguration {
     package struct LeftImage: View {
         package let body: AnyView
     }
@@ -50,25 +50,25 @@ package struct ListItemStyleConfiguration {
 }
 
 private struct ListItemStyleKey: @preconcurrency EnvironmentKey {
-    @MainActor static var defaultValue: any ListItemStyle = DefaultListItemStyle()
+    @MainActor static var defaultValue: any MPListItemStyle = MPDefaultListItemStyle()
 }
 
 extension EnvironmentValues {
-    var listItemStyle: any ListItemStyle {
+    var listItemStyle: any MPListItemStyle {
         get { self[ListItemStyleKey.self] }
         set { self[ListItemStyleKey.self] = newValue }
     }
 }
 
 
-package extension ListItemStyle {
+package extension MPListItemStyle {
     @MainActor
     func resolve(configuration: Configuration) -> some View {
         ResolvedListItemStyle(style: self, configuration: configuration)
     }
 }
 
-private struct ResolvedListItemStyle<Style: ListItemStyle>: View {
+private struct ResolvedListItemStyle<Style: MPListItemStyle>: View {
     let style: Style
     let configuration: Style.Configuration
 
@@ -82,7 +82,7 @@ package extension View {
     /// Sets the style for `ListItem` views within this view.
     ///
     /// - Parameter style: The `ListItemStyle` to apply.
-    func listItemStyle<S: ListItemStyle>(_ style: S) -> some View {
+    func listItemStyle<S: MPListItemStyle>(_ style: S) -> some View {
         environment(\.listItemStyle, style)
     }
 }

@@ -31,14 +31,13 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
                 // Description line (if present)
                 if configuration.hasDescription {
                     configuration.descriptionLine
-                        .padding(.horizontal, theme.spacings.xtiny)
                 } else {
                     Color.clear
                         .frame(height: theme.spacings.xtiny)
                 }
                 
-                if isEnabled {
-                    configuration.button
+                if let button = configuration.button, isEnabled {
+                    button
                         .mpButtonStyle(variant: .loud)
                         .padding(.top, configuration.hasDescription ? theme.spacings.micro : 0)
                 }

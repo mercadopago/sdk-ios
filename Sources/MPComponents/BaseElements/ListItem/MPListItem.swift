@@ -1,5 +1,5 @@
 //
-//  ListItem.swift
+//  MPListItem.swift
 //  MPComponents
 //
 //  Created by [Your Name] on [Date].
@@ -8,7 +8,7 @@
 import SwiftUI
 import MPFoundation
 
-package struct ListItem: View {
+package struct MPListItem: View {
     @Environment(\.listItemStyle) private var style
     
     let leftImage: Image?
@@ -35,7 +35,7 @@ package struct ListItem: View {
     }
     
     package var body: some View {        
-        let configuration: ListItemStyleConfiguration = .init(
+        let configuration: MPListItemStyleConfiguration = .init(
             leftImage: leftImageView,
             title: titleView,
             description: descriptionView,
@@ -53,7 +53,6 @@ package struct ListItem: View {
     private var titleView: some View {
         Text(title)
             .textStyle(.bodyMediumTitle())
-
     }
     
     @ViewBuilder
@@ -61,7 +60,6 @@ package struct ListItem: View {
         Text(description)
             .textStyle(.bodyMedium(colorType: .secondary))
     }
-    
     
     @ViewBuilder
     private var textRightView: some View {
@@ -79,7 +77,7 @@ package struct ListItem: View {
 #Preview {
     VStack(spacing: 16) {
         // Idle state
-        ListItem(
+        MPListItem(
             leftImage: Image(systemName: "creditcard"),
             title: "Title",
             description: "Description",
@@ -88,7 +86,7 @@ package struct ListItem: View {
         )
         
         // Active/Selected state
-        ListItem(
+        MPListItem(
             leftImage: Image(systemName: "creditcard"),
             title: "Title",
             description: "Description",
@@ -98,7 +96,7 @@ package struct ListItem: View {
         )
         
         // Disabled state
-        ListItem(
+        MPListItem(
             leftImage: Image(systemName: "creditcard"),
             title: "Title",
             description: "Description",

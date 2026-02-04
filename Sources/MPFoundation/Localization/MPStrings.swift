@@ -34,11 +34,11 @@ package enum MPStrings {
         formatter.maximumFractionDigits = 2
         
         let formattedValue = formatter.string(from: NSNumber(value: value)) ?? String(format: "%.2f", value)
-        return "\(CardForm.currency) \(formattedValue)"
+        return "\(Common.currency) \(formattedValue)"
     }
     
     package static func formatTotal(_ value: Double) -> String {
-        "\(CardForm.total) \(formatPrice(value))"
+        "\(Common.total) \(formatPrice(value))"
     }
     
     // MARK: - Internal

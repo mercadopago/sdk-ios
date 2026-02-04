@@ -32,7 +32,7 @@ struct CardFormScreen: View {
                 },
                 footer: {
                     MPFooter(
-                        label: MPStrings.CardForm.total,
+                        label: MPStrings.Common.total,
                         amount: MPStrings.formatPrice(100.0),
                         buttonLabel: MPStrings.CardForm.button,
                         action: {

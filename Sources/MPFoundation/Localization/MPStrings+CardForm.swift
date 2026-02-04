@@ -19,12 +19,6 @@ extension MPStrings {
         /// Form submit button text
         package static var button: String { localized("form.button") }
         
-        /// Footer total text
-        package static var total: String { localized("form.total") }
-        
-        /// Currency symbol (e.g., R$, $)
-        package static var currency: String { localized("form.currency") }
-        
         // MARK: - Card Number
         
         /// Card number field strings

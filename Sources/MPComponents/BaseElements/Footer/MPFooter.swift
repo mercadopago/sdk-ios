@@ -30,8 +30,8 @@ package struct MPFooter: View {
     private let label: String
     private let amount: String
     private let description: String?
-    private let buttonLabel: String
-    private let action: () -> Void
+    private let buttonLabel: String?
+    private let action: (() -> Void)?
     
     // MARK: - Environment
     
@@ -58,6 +58,18 @@ package struct MPFooter: View {
         self.description = description
         self.buttonLabel = buttonLabel
         self.action = action
+    }
+    
+    package init(
+        label: String,
+        amount: String,
+        description: String? = nil
+    ) {
+        self.label = label
+        self.amount = amount
+        self.description = description
+        self.buttonLabel = nil
+        self.action = nil
     }
     
     // MARK: - Body
@@ -106,17 +118,20 @@ package struct MPFooter: View {
                 Spacer()
                 
                 Text(descriptionText)
-                    .textStyle(.bodyMedium())
+                    .textStyle(.bodyMedium(colorType: .secondary))
                     .lineLimit(1)
             }
         }
     }
     
+    @ViewBuilder
     private var button: some View {
-        Button {
-            action()
-        } label: {
-            Text(buttonLabel)
+        if let action, let buttonLabel {
+            Button {
+                action()
+            } label: {
+                Text(buttonLabel)
+            }
         }
     }
 }
