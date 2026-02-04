@@ -17,8 +17,20 @@ struct InstallmentScreen: View {
     @ObservedObject private var viewModel: InstallmentsScreenViewModel
     @State var selectedPayerCost: Installment.PayerCost?
     
-    init(installments: Installment) {
+    private let onBack: () -> Void
+    private let onContinue: () -> Void
+    @Binding private var paymentData: MPPaymentData
+
+    init(
+        paymentData: Binding<MPPaymentData>,
+        installments: Installment,
+        onBack: @escaping () -> Void,
+        onContinue: @escaping () -> Void,
+    ) {
+        self._paymentData = paymentData
         self.viewModel = InstallmentsScreenViewModel(installments: installments)
+        self.onBack = onBack
+        self.onContinue = onContinue
     }
     
     var body: some View {
@@ -50,7 +62,14 @@ struct InstallmentScreen: View {
 }
 
 #Preview {
-    InstallmentScreen(installments: InstallmentMock.visa)
+    InstallmentScreen(
+        paymentData: .constant(
+            MPPaymentData(transactionAmount: 100)
+        ),
+        installments: InstallmentMock.visa,
+        onBack: {},
+        onContinue: {}
+    )
 }
 
 enum InstallmentMock {

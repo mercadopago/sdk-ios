@@ -36,11 +36,10 @@ struct CardFormScreen: View {
     }
 
     var body: some View {
-        NavigationView {
             MPHeader(
                 title: MPStrings.CardForm.title,
                 onBack: {
-                    presentationMode.wrappedValue.dismiss()
+                    onBack()
                 },
                 footer: {
                     MPFooter(

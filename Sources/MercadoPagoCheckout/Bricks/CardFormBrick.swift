@@ -10,6 +10,7 @@ import MPComponents
 public struct CardFormBrick: View {
     private enum Route: Hashable {
         case installments
+        case reviewAndConfirm
     }
     
     @State private var route: Route?
@@ -60,10 +61,12 @@ public struct CardFormBrick: View {
     private func installmentScreen() -> some View {
         InstallmentScreen(
             paymentData: $paymentData,
-            onBack: { route = nil },
-            onContinue: { completeCheckout() },
-            onError: {
-                fail($0)
+            installments: InstallmentMock.visa,
+            onBack: {
+                presentationMode.wrappedValue.dismiss()
+            },
+            onContinue: {
+                route = .reviewAndConfirm
             }
         )
     }
