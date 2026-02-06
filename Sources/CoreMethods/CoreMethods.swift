@@ -179,16 +179,16 @@ public final actor CoreMethods {
         securityCode: SecurityCodeTextField,
         cardHolderName: String?
     ) async throws -> CardToken {
-        async let cardNumber = cardNumber.input.getValue()
-        async let expirationDateYear = expirationDate.getYear()
-        async let expirationDateMonth = expirationDate.getMonth()
-        async let securityCode = securityCode.input.getValue()
-        
+        let cardNumberValue = await cardNumber.input.getValue()
+        let expirationDateYear = await expirationDate.getYear()
+        let expirationDateMonth = await expirationDate.getMonth()
+        let securityCodeValue = await securityCode.input.getValue()
+
         return try await tokenization(
-            cardNumber: cardNumber,
+            cardNumber: cardNumberValue,
             expirationDateMonth: expirationDateMonth,
             expirationDateYear: expirationDateYear,
-            securityCode: securityCode,
+            securityCode: securityCodeValue,
             cardHolderName: cardHolderName
         )
     }
@@ -502,6 +502,27 @@ internal extension CoreMethods {
         documentNumber: String? = nil,
         cardID: String? = nil
     ) async throws -> CardToken {
+        if let month = expirationDateMonth, month.isEmpty { throw CoreMethodsError.expirationDateInvalid }
+        if let year = expirationDateYear, year.isEmpty { throw CoreMethodsError.expirationDateInvalid }
+
+        if let cardNumber = cardNumber, !cardNumber.isEmpty {
+            let bin = CardNumber.getBin(cardNumber)
+            let params = PaymentMethodsParams(
+                bin: bin,
+                processingMode: ProcessingMode.aggregator.rawValue
+            )
+            
+            if let paymentMethod = try await self.paymentMethodUseCase.getPaymentMethods(params: params).first {
+                if let securityCode = securityCode, paymentMethod.card?.securityCode.mode == "mandatory" {
+                    let requiredLength = paymentMethod.card?.securityCode.length ?? 3
+                    
+                    if securityCode.isEmpty || securityCode.count != requiredLength {
+                        throw CoreMethodsError.securityCodeInvalid
+                    }
+                }
+            }
+        }
+        
         return try await executeWithTracking(
             operation: {
                 let response = try await self.generateTokenUseCase
