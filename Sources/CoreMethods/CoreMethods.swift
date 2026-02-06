@@ -521,6 +521,8 @@ internal extension CoreMethods {
                     }
                 }
             }
+        } else if cardID == nil {
+            throw CoreMethodsError.cardNumberInvalid
         }
         
         return try await executeWithTracking(
