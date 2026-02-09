@@ -1,6 +1,7 @@
 #if SWIFT_PACKAGE
     import MPCore
 #endif
+import Foundation
 import SwiftUI
 
 /// A SwiftUI component that provides a text field specifically designed for inputting credit card security codes (CVV/CVC).
@@ -42,6 +43,13 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     /// Whether the text field is enabled for user interaction.
     @Binding private var isEnabled: Bool
 
+    /// Binding that controls the focus state of the text field.
+    private var focusBinding: Binding<Bool>
+
+    private var isFieldFocused: Bool {
+        self.focusBinding.wrappedValue
+    }
+
     /// The appearance style of the keyboard.
     private var keyboardAppearance: UIKeyboardAppearance
 
@@ -72,6 +80,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     ///   - placeholder: Optional placeholder text to display when the field is empty.
     ///   - isEnabled: Whether the text field is enabled for user interaction.
     ///   - keyboardAppearance: The appearance style of the keyboard.
+    ///   - isFocused: Binding used to programmatically control focus.
     ///   - onLengthChanged: Callback triggered when the input length changes.
     ///   - onInputFilled: Callback triggered when the input is completely filled.
     ///   - onFocusChanged: Callback triggered when the focus state changes.
@@ -84,6 +93,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         maxLength: Int = 3,
         placeholder: String? = nil,
         isEnabled: Binding<Bool> = .constant(true),
+        isFocused: Binding<Bool> = .constant(false),
         keyboardAppearance: UIKeyboardAppearance = .default,
         onLengthChanged: ((Int) -> Void)? = nil,
         onInputFilled: (() -> Void)? = nil,
@@ -94,6 +104,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         self.maxLength = maxLength
         self.placeholder = placeholder
         self._isEnabled = isEnabled
+        self.focusBinding = isFocused
         self.keyboardAppearance = keyboardAppearance
         self.onLengthChanged = onLengthChanged
         self.onInputFilled = onInputFilled
@@ -119,11 +130,21 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
 
         textField.onLengthChanged = self.onLengthChanged
         textField.onInputFilled = self.onInputFilled
-        textField.onFocusChanged = self.onFocusChanged
+        textField.onFocusChanged = { focus in
+            self.onFocusChanged?(focus)
+            guard self.focusBinding.wrappedValue != focus else { return }
+            DispatchQueue.main.async {
+                self.focusBinding.wrappedValue = focus
+            }
+        }
         textField.onError = self.onError
 
         Task { @MainActor in
             self.textField = textField
+        }
+
+        if self.isFieldFocused {
+            textField.focus()
         }
 
         return textField
@@ -137,6 +158,17 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         uiView.keyboardAppearance = self.keyboardAppearance
         uiView.setStyle(self.style)
         uiView.setMaxLength(self.maxLength)
+
+        let shouldFocus = self.isFieldFocused
+        if shouldFocus != uiView.isInputFocused {
+            DispatchQueue.main.async {
+                if shouldFocus {
+                    uiView.focus()
+                } else {
+                    uiView.resignFocus()
+                }
+            }
+        }
     }
 }
 

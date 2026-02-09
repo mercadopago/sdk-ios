@@ -11,10 +11,17 @@ struct StyledCardFieldContainer<Content: View>: View {
     @Binding public var isValid: Bool
     let content: Content
     let paddingContent = EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
+    let onTap: (() -> Void)?
 
-    init(title: String, isValid: Binding<Bool>, @ViewBuilder content: () -> Content) {
+    init(
+        title: String,
+        isValid: Binding<Bool>,
+        onTap: (() -> Void)? = nil,
+        @ViewBuilder content: () -> Content
+    ) {
         self.title = title
         self._isValid = isValid
+        self.onTap = onTap
         self.content = content()
     }
 
@@ -33,6 +40,10 @@ struct StyledCardFieldContainer<Content: View>: View {
                             .stroke(self.isValid ? Color(.systemGray4) : Color.red, lineWidth: 1)
                     )
             }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            self.onTap?()
         }
     }
 }
