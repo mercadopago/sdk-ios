@@ -93,10 +93,15 @@ public final actor CoreMethods {
         self.dependencies = CoreDependencyContainer.shared
         let repository = CoreMethodsRepository()
         let threeDSRepository = ThreeDSRepository()
-        self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies, repository: repository)
+        let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        self.generateTokenUseCase = GenerateCardTokenUseCase(
+            dependencies: self.dependencies,
+            repository: repository,
+            paymentMethodUseCase: paymentMethodUseCase
+        )
         self.identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         self.installmentsUseCase = InstallmentsUseCase(repository: repository)
-        self.paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = IssuerUseCase(repository: repository)
         self.capabilityUseCase = CapabilityUseCase(repository: threeDSRepository)
         

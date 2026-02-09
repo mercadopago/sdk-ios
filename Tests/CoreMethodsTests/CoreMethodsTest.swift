@@ -190,10 +190,14 @@ final class CoreMethodsTests: XCTestCase {
         let repository = CoreMethodsRepository(dependencies: container)
         let repositoryThreeDS = MockThreeDSRepository()
 
-        let generateTokenUseCase = GenerateCardTokenUseCase(dependencies: container, repository: repository)
+        let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        let generateTokenUseCase = GenerateCardTokenUseCase(
+            dependencies: container,
+            repository: repository,
+            paymentMethodUseCase: paymentMethodUseCase
+        )
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
-        let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
         let issuerUseCase = IssuerUseCase(repository: repository)
         let capabilityUseCase = CapabilityUseCase(repository: repositoryThreeDS)
         
