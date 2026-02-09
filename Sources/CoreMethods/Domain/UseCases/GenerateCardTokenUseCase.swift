@@ -25,6 +25,7 @@ protocol GenerateCardTokenUseCaseProtocol: Sendable {
 
 final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
     private let repository: CoreMethodsRepositoryProtocol
+    private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
 
     typealias Dependency = HasFingerPrint
 
@@ -32,10 +33,12 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
 
     init(
         dependencies: Dependency,
-        repository: CoreMethodsRepositoryProtocol
+        repository: CoreMethodsRepositoryProtocol,
+        paymentMethodUseCase: PaymentMethodUseCaseProtocol
     ) {
         self.repository = repository
         self.dependencies = dependencies
+        self.paymentMethodUseCase = paymentMethodUseCase
     }
 
     func tokenize(
