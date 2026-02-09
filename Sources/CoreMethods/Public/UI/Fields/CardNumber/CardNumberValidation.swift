@@ -15,7 +15,7 @@ enum CardNumber {
     static let binLength = 8
 
     static func getBin(_ text: String) -> String {
-        return String(text.prefix(CardNumberTextField.binLength))
+        return String(text.prefix(binLength))
     }
 }
 
