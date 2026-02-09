@@ -58,4 +58,29 @@ enum CardTokenStub {
             truncCardNumber: "422222XX2222"
         )
     }
+
+    static var responseModel: CardTokenResponse {
+        .init(
+            id: validTokenID,
+            publicKey: "public_key",
+            firstSixDigits: "422222",
+            expirationMonth: 10,
+            expirationYear: 2032,
+            lastFourDigits: "2222",
+            cardholder: .init(
+                identification: .init(type: "DNI"),
+                name: "APRO"
+            ),
+            status: "active",
+            dateCreated: "2025-07-31T14:46:07.155-04:00",
+            dateLastUpdated: "2025-07-31T14:46:07.155-04:00",
+            dateDue: "2025-08-08T14:46:07.155-04:00",
+            luhnValidation: true,
+            liveMode: true,
+            requireEsc: false,
+            cardNumberLength: 12,
+            securityCodeLength: 3,
+            truncCardNumber: "422222XX2222"
+        )
+    }
 }

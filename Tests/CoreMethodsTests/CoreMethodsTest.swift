@@ -6,15 +6,14 @@ import XCTest
 
 // MARK: - CoreMethodsTests
 
-
-
+@MainActor
 final class CoreMethodsTests: XCTestCase {
     // MARK: - Types
 
     typealias SUT = (
         coreMethodsService: CoreMethods,
-        session: MockURLSession,
-        analytics: MockAnalytics,
+        repository: MockCoreMethodsRepository,
+        analytics: MockAnalytics
     )
 
     // MARK: - Stubs and Factories
@@ -46,6 +45,18 @@ final class CoreMethodsTests: XCTestCase {
 
         static var expectedTypes: [IdentificationType] {
             [validDNI]
+        }
+
+        static var responseModels: [IdentificationTypesResponse] {
+            [
+                .init(
+                    id: "DNI",
+                    name: "DNI",
+                    type: "number",
+                    minLength: 7,
+                    maxLength: 8
+                )
+            ]
         }
     }
 
@@ -159,37 +170,41 @@ final class CoreMethodsTests: XCTestCase {
         }
     }
 
-    // MARK: - HTTPURLResponse Factory
-
-    private func makeHTTPResponse(statusCode: Int, url: URL = URL(string: "http://example.com")!) -> HTTPURLResponse {
-        HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
-    }
-
     // MARK: - Card Fields Factory
 
+    @MainActor
     private func makeCardFields() async -> (
         cardNumber: CardNumberTextField,
         expirationDate: ExpirationDateTextfield,
         securityCode: SecurityCodeTextField
     ) {
         let container = MockDependencyContainer()
-        let cardNumberField = await CardNumberTextField(dependencies: container)
-        let expirationDateField = await ExpirationDateTextfield(dependencies: container)
-        let securityCodeField = await SecurityCodeTextField(dependencies: container)
+        let cardNumberField = CardNumberTextField(dependencies: container)
+        let expirationDateField = ExpirationDateTextfield(dependencies: container)
+        let securityCodeField = SecurityCodeTextField(dependencies: container)
+
+        cardNumberField.input.textField.text = "12345678"
+        expirationDateField.setFormat(.long)
+        expirationDateField.input.textField.text = "12/2032"
+        securityCodeField.input.textField.text = "123"
 
         return (cardNumberField, expirationDateField, securityCodeField)
     }
 
     // MARK: - Setup SUT
 
-    private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
+    private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) async -> SUT {
         let container = MockDependencyContainer()
-        let session = container.mockSession
         let analytics = container.mockAnalytics
+        let repository = MockCoreMethodsRepository()
 
-        let repository = CoreMethodsRepository(dependencies: container)
         let repositoryThreeDS = MockThreeDSRepository()
 
+<<<<<<< Updated upstream
+=======
+        await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
+
+>>>>>>> Stashed changes
         let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
         let generateTokenUseCase = GenerateCardTokenUseCase(
             dependencies: container,
@@ -211,7 +226,7 @@ final class CoreMethodsTests: XCTestCase {
             capabilityUseCase: capabilityUseCase
         )
 
-        return (coreMethodsService, session, analytics)
+        return (coreMethodsService, repository, analytics)
     }
 
     // MARK: - Error assertion helpers
@@ -240,11 +255,9 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsSuccess_shouldReturnCardToken() async {
         // Arrange
-        let (sut, session, _) = self.makeSUT()
+        let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
-
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(CardTokenStub.validResponse)
+        await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
 
         // Act
         do {
@@ -264,11 +277,11 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsError_shouldThrowDecodingError() async {
         // Arrange
-        let (sut, session, _) = self.makeSUT()
+        let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
-
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(Data()) // Empty data to force decoding error
+        await repository.setGenerateCardTokenResult(
+            .failure(APIClientError.decodingFailed(NSError(domain: "test", code: 0)))
+        )
 
         // Act & Assert
         do {
@@ -291,11 +304,9 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_whenNetworkReturnsFormattedError_shouldThrowAPIErrorResponse() async {
         // Arrange
-        let (sut, session, _) = self.makeSUT()
+        let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
-
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
-        await session.mock.setData(APIErrorStub.badRequestData)
+        await repository.setGenerateCardTokenResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
 
         // Act & Assert
         try await self.assertThrowsAPIError(
@@ -309,16 +320,90 @@ final class CoreMethodsTests: XCTestCase {
         )
     }
 
+    func test_createToken_whenExpirationDateEmpty_shouldThrowExpirationDateInvalid() async {
+        // Arrange
+        let (sut, _, _) = await self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
+        expirationDate.input.textField.text = ""
+
+        // Act & Assert
+        do {
+            let _ = try await sut.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode,
+                cardHolderName: ""
+            )
+            XCTFail("Expected CoreMethodsError.expirationDateInvalid error")
+        } catch let error as CoreMethodsError {
+            guard case .expirationDateInvalid = error else {
+                XCTFail("Expected CoreMethodsError.expirationDateInvalid error but got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Expected CoreMethodsError.expirationDateInvalid error but got \(error)")
+        }
+    }
+
+    func test_createToken_whenCardNumberEmpty_shouldThrowCardNumberInvalid() async {
+        // Arrange
+        let (sut, _, _) = await self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
+        cardNumber.input.textField.text = ""
+
+        // Act & Assert
+        do {
+            let _ = try await sut.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode,
+                cardHolderName: ""
+            )
+            XCTFail("Expected CoreMethodsError.cardNumberInvalid error")
+        } catch let error as CoreMethodsError {
+            guard case .cardNumberInvalid = error else {
+                XCTFail("Expected CoreMethodsError.cardNumberInvalid error but got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Expected CoreMethodsError.cardNumberInvalid error but got \(error)")
+        }
+    }
+
+    func test_createToken_whenSecurityCodeEmpty_shouldThrowSecurityCodeInvalid() async {
+        // Arrange
+        let (sut, _, _) = await self.makeSUT()
+        let (cardNumber, expirationDate, securityCode) = await makeCardFields()
+        securityCode.input.textField.text = ""
+
+        // Act & Assert
+        do {
+            let _ = try await sut.createToken(
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                securityCode: securityCode,
+                cardHolderName: ""
+            )
+            XCTFail("Expected CoreMethodsError.securityCodeInvalid error")
+        } catch let error as CoreMethodsError {
+            guard case .securityCodeInvalid = error else {
+                XCTFail("Expected CoreMethodsError.securityCodeInvalid error but got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Expected CoreMethodsError.securityCodeInvalid error but got \(error)")
+        }
+    }
+
     // MARK: - Tests for createToken with cardID
 
     func test_createToken_withValidCardID_shouldReturnCardToken() async {
         // Arrange
-        let (sut, session, _) = self.makeSUT()
+        let (sut, repository, _) = await self.makeSUT()
         let cardID = "123"
         let (_, _, securityCode) = await makeCardFields()
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(CardTokenStub.validResponse)
+        await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
 
         // Act
         do {
@@ -336,14 +421,13 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withDocumentAndCardholderName_whenNetworkReturnsSuccess_shouldReturnCardToken() async {
         // Arrange
-        let (sut, session, _) = self.makeSUT()
+        let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         let documentType = IdentificationTypeStub.validDNI
         let documentNumber = "12345678"
         let cardHolderName = "João Silva"
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(CardTokenStub.validResponse)
+        await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
 
         // Act
         do {
@@ -365,14 +449,13 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withDocumentAndCardholderName_whenNetworkReturnsError_shouldThrowAPIError() async {
         // Arrange
-        let (sut, session, _) = self.makeSUT()
+        let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         let documentType = IdentificationTypeStub.validDNI
         let documentNumber = "12345678"
         let cardHolderName = "João Silva"
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
-        await session.mock.setData(APIErrorStub.badRequestData)
+        await repository.setGenerateCardTokenResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
 
         // Act & Assert
         try await self.assertThrowsAPIError(
@@ -390,16 +473,14 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withDocumentAndCardholderName_shouldSendAnalyticsEvent() async {
         // Arrange
-        let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         let documentType = IdentificationTypeStub.validDNI
         let documentNumber = "12345678"
         let cardHolderName = "João Silva"
         let expectEventData = TokenizationEventData(isSaveCard: false, documentType: documentType.name)
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(CardTokenStub.validResponse)
+        await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
 
         // Act
         do {
@@ -412,11 +493,7 @@ final class CoreMethodsTests: XCTestCase {
                 cardHolderName: cardHolderName
             )
 
-            await analytics.mock.updateSendCallback {
-                expectation.fulfill()
-            }
-
-            await fulfillment(of: [expectation], timeout: 1.0)
+            await analytics.mock.waitForSend()
             let messages = await analytics.mock.getMessages()
 
             // Assert
@@ -437,12 +514,11 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withCardIDAndExpirationDate_shouldReturnCardToken() async {
         // Arrange
-        let (sut, session, _) = self.makeSUT()
+        let (sut, repository, _) = await self.makeSUT()
         let cardID = "123"
         let (_, expirationDate, securityCode) = await makeCardFields()
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(CardTokenStub.validResponse)
+        await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
 
         // Act
         do {
@@ -461,12 +537,11 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withCardIDAndExpirationDate_whenNetworkReturnsError_shouldThrowAPIError() async {
         // Arrange
-        let (sut, session, _) = self.makeSUT()
+        let (sut, repository, _) = await self.makeSUT()
         let cardID = "123"
         let (_, expirationDate, securityCode) = await makeCardFields()
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
-        await session.mock.setData(APIErrorStub.badRequestData)
+        await repository.setGenerateCardTokenResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
 
         // Act & Assert
         try await self.assertThrowsAPIError(
@@ -481,14 +556,12 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_createToken_withCardID_shouldSendAnalyticsEventWithSaveCardFlag() async {
         // Arrange
-        let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
         let cardID = "123"
         let (_, _, securityCode) = await makeCardFields()
         let expectEventData = TokenizationEventData(isSaveCard: true, documentType: "")
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(CardTokenStub.validResponse)
+        await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
 
         // Act
         do {
@@ -497,11 +570,7 @@ final class CoreMethodsTests: XCTestCase {
                 securityCode: securityCode
             )
 
-            await analytics.mock.updateSendCallback {
-                expectation.fulfill()
-            }
-
-            await fulfillment(of: [expectation], timeout: 2.0)
+            await analytics.mock.waitForSend()
             let messages = await analytics.mock.getMessages()
 
             // Assert
@@ -522,11 +591,9 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_identificationType_whenNetworkReturnsSuccess_shouldReturnIdentificationTypes() async {
         // Arrange
-        let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(IdentificationTypeStub.validResponse)
+        await repository.setIdentificationTypesResult(.success(IdentificationTypeStub.responseModels))
         let docs = IdentificationTypeStub.expectedTypes.map { data in
             data.name
         }
@@ -536,11 +603,7 @@ final class CoreMethodsTests: XCTestCase {
         do {
             let result = try await sut.identificationTypes()
 
-            await analytics.mock.updateSendCallback {
-                expectation.fulfill()
-            }
-
-            await fulfillment(of: [expectation], timeout: 1.0)
+            await analytics.mock.waitForSend()
             let messages = await analytics.mock.getMessages()
 
             // Assert
@@ -561,11 +624,9 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_identificationType_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
         // Arrange
-        let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
-        await session.mock.setData(APIErrorStub.badRequestData)
+        await repository.setIdentificationTypesResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
         let expectEventData = IdentificationTypeEventData(documentTypes: [])
 
         // Act & Assert
@@ -574,11 +635,7 @@ final class CoreMethodsTests: XCTestCase {
             expectedError: APIErrorStub.badRequest
         )
 
-        await analytics.mock.updateSendCallback {
-            expectation.fulfill()
-        }
-
-        await fulfillment(of: [expectation], timeout: 1.0)
+        await analytics.mock.waitForSend()
         let messages = await analytics.mock.getMessages()
 
         XCTAssertEqual(
@@ -594,26 +651,20 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_installments_whenNetworkReturnsSuccess_shouldReturnInstallment() async {
         // Arrange
-        let (sut, session, analytics) = self.makeSUT()
-        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, repository, analytics) = await self.makeSUT()
         let expectResponse = InstallmentsStub.expectResponse
         let expectEventData = InstallmentEventData(
             amount: 5000,
             paymentType: expectResponse[0].paymentTypeId
         )
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(InstallmentsStub.validResponse)
+        await repository.setInstallmentsResult(.success(InstallmentsStub.expectResponse))
 
         // Act
         do {
             let result = try await sut.installments(amount: 5000, bin: "12345678")
 
-            await analytics.mock.updateSendCallback {
-                expectation.fulfill()
-            }
-
-            await fulfillment(of: [expectation], timeout: 1.0)
+            await analytics.mock.waitForSend()
             let messages = await analytics.mock.getMessages()
 
             // Assert
@@ -634,15 +685,13 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_installment_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
         // Arrange
-        let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
         let expectEventData = InstallmentEventData(
             amount: 500,
             paymentType: ""
         )
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
-        await session.mock.setData(APIErrorStub.badRequestData)
+        await repository.setInstallmentsResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
 
         // Act & Assert
         try await self.assertThrowsAPIError(
@@ -650,11 +699,7 @@ final class CoreMethodsTests: XCTestCase {
             expectedError: APIErrorStub.badRequest
         )
 
-        await analytics.mock.updateSendCallback {
-            expectation.fulfill()
-        }
-
-        await fulfillment(of: [expectation], timeout: 1.0)
+        await analytics.mock.waitForSend()
         let messages = await analytics.mock.getMessages()
 
         XCTAssertEqual(
@@ -670,8 +715,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_paymentMethods_whenNetworkReturnsSuccess_shouldReturnPaymentMethodsAndSendEventData() async {
         // Arrange
-        let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
 
         let data = PaymentMethodStub.expectedResponse[0]
         let expectEventData = PaymentMethodEventData(
@@ -681,18 +725,13 @@ final class CoreMethodsTests: XCTestCase {
             cardBrand: data.id
         )
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(PaymentMethodStub.validResponse)
+        await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
 
         // Act
         do {
             let result = try await sut.paymentMethods(bin: "502432")
 
-            await analytics.mock.updateSendCallback {
-                expectation.fulfill()
-            }
-
-            await fulfillment(of: [expectation], timeout: 1.0)
+            await analytics.mock.waitForSend()
             let messages = await analytics.mock.getMessages()
 
             // Assert
@@ -717,12 +756,10 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_paymentMethods_whenNetworkReturnsFormattedError_shouldCallAnalyticsWithError() async {
         // Arrange
-        let expectation = expectation(description: "Analytics error event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
         let expectEventData = PaymentMethodEventData()
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
-        await session.mock.setData(APIErrorStub.badRequestData)
+        await repository.setPaymentMethodsResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
 
         // Act & Assert
         try await self.assertThrowsAPIError(
@@ -730,11 +767,7 @@ final class CoreMethodsTests: XCTestCase {
             expectedError: APIErrorStub.badRequest
         )
 
-        await analytics.mock.updateSendCallback {
-            expectation.fulfill()
-        }
-
-        await fulfillment(of: [expectation], timeout: 1.0)
+        await analytics.mock.waitForSend()
         let messages = await analytics.mock.getMessages()
 
         XCTAssertEqual(
@@ -750,8 +783,7 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_paymentMethods_whenEmptyArrayReturned_shouldNotSendEventData() async {
         // Arrange
-        let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
         let expectEventData = PaymentMethodEventData(
             issuer: nil,
             paymentType: nil,
@@ -759,18 +791,13 @@ final class CoreMethodsTests: XCTestCase {
             cardBrand: nil
         )
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData("[]".data(using: .utf8)!)
+        await repository.setPaymentMethodsResult(.success([]))
 
         // Act
         do {
             let result = try await sut.paymentMethods(bin: "502432")
 
-            await analytics.mock.updateSendCallback {
-                expectation.fulfill()
-            }
-
-            await fulfillment(of: [expectation], timeout: 1.0)
+            await analytics.mock.waitForSend()
             let messages = await analytics.mock.getMessages()
 
             // Assert
@@ -791,23 +818,17 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_issuer_whenNetworkReturnsSuccess_shouldReturnInstallment() async {
         // Arrange
-        let (sut, session, analytics) = self.makeSUT()
-        let expectation = expectation(description: "Analytics event should be sent")
+        let (sut, repository, analytics) = await self.makeSUT()
         let expectResponse = IssuerStub.expectResponse
         let expectEventData = IssuersEventData(issuers: ["Banco"])
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
-        await session.mock.setData(IssuerStub.validResponse)
+        await repository.setIssuersResult(.success(IssuerStub.expectResponse))
 
         // Act
         do {
             let result = try await sut.issuers(bin: "300", paymentMethodID: "12345")
 
-            await analytics.mock.updateSendCallback {
-                expectation.fulfill()
-            }
-
-            await fulfillment(of: [expectation], timeout: 1.0)
+            await analytics.mock.waitForSend()
             let messages = await analytics.mock.getMessages()
 
             // Assert
@@ -828,12 +849,10 @@ final class CoreMethodsTests: XCTestCase {
 
     func test_issuer_whenNetworkReturnsFormattedError_shouldCallAnalytics() async {
         // Arrange
-        let expectation = expectation(description: "Analytics event should be sent")
-        let (sut, session, analytics) = self.makeSUT()
+        let (sut, repository, analytics) = await self.makeSUT()
         let expectEventData = IssuersEventData(issuers: [])
 
-        await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
-        await session.mock.setData(APIErrorStub.badRequestData)
+        await repository.setIssuersResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
 
         // Act & Assert
         try await self.assertThrowsAPIError(
@@ -841,11 +860,7 @@ final class CoreMethodsTests: XCTestCase {
             expectedError: APIErrorStub.badRequest
         )
 
-        await analytics.mock.updateSendCallback {
-            expectation.fulfill()
-        }
-
-        await fulfillment(of: [expectation], timeout: 1.0)
+        await analytics.mock.waitForSend()
         let messages = await analytics.mock.getMessages()
 
         XCTAssertEqual(
