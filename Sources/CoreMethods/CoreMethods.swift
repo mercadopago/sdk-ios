@@ -502,29 +502,6 @@ internal extension CoreMethods {
         documentNumber: String? = nil,
         cardID: String? = nil
     ) async throws -> CardToken {
-        if let month = expirationDateMonth, month.isEmpty { throw CoreMethodsError.expirationDateInvalid }
-        if let year = expirationDateYear, year.isEmpty { throw CoreMethodsError.expirationDateInvalid }
-
-        if let cardNumber = cardNumber, !cardNumber.isEmpty {
-            let bin = CardNumber.getBin(cardNumber)
-            let params = PaymentMethodsParams(
-                bin: bin,
-                processingMode: ProcessingMode.aggregator.rawValue
-            )
-            
-            if let paymentMethod = try await self.paymentMethodUseCase.getPaymentMethods(params: params).first {
-                if let securityCode = securityCode, paymentMethod.card?.securityCode.mode == "mandatory" {
-                    let requiredLength = paymentMethod.card?.securityCode.length ?? 3
-                    
-                    if securityCode.isEmpty || securityCode.count != requiredLength {
-                        throw CoreMethodsError.securityCodeInvalid
-                    }
-                }
-            }
-        } else if cardID == nil {
-            throw CoreMethodsError.cardNumberInvalid
-        }
-        
         return try await executeWithTracking(
             operation: {
                 let response = try await self.generateTokenUseCase

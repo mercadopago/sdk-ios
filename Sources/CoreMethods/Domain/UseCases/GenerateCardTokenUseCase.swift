@@ -51,6 +51,9 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
         identificationType: String?,
         identificationNumber: String?
     ) async throws -> CardToken {
+        try validateExpirationDate(month: expirationDateMonth, year: expirationDateYear)
+        try await validateCardData(cardNumber: cardNumber, securityCode: securityCodeInput, cardID: cardID)
+
         var buyerIdentification: BuyerIdentification?
         
         let session = await MPAnalyticsConfiguration.shared.sessionID
@@ -102,5 +105,46 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
             securityCodeLength: response.securityCodeLength,
             truncCardNumber: response.truncCardNumber
         )
+    }
+
+    private func validateExpirationDate(month: String?, year: String?) throws {
+        if let month, month.isEmpty {
+            throw CoreMethodsError.expirationDateInvalid
+        }
+
+        if let year, year.isEmpty {
+            throw CoreMethodsError.expirationDateInvalid
+        }
+    }
+
+    private func validateCardData(
+        cardNumber: String?,
+        securityCode: String?,
+        cardID: String?
+    ) async throws {
+        if let cardNumber, !cardNumber.isEmpty {
+            let bin = CardNumber.getBin(cardNumber)
+            let params = PaymentMethodsParams(
+                bin: bin,
+                processingMode: ProcessingMode.aggregator.rawValue
+            )
+
+            guard let paymentMethod = try await paymentMethodUseCase
+                .getPaymentMethods(params: params)
+                .first else {
+                return
+            }
+
+            if let securityCode,
+               paymentMethod.card?.securityCode.mode == "mandatory" {
+                let requiredLength = paymentMethod.card?.securityCode.length ?? 3
+
+                if securityCode.isEmpty || securityCode.count != requiredLength {
+                    throw CoreMethodsError.securityCodeInvalid
+                }
+            }
+        } else if cardID == nil {
+            throw CoreMethodsError.cardNumberInvalid
+        }
     }
 }
