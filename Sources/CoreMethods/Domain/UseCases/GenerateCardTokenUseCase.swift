@@ -135,8 +135,7 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
                 return
             }
 
-            if let securityCode,
-               paymentMethod.card?.securityCode.mode == "mandatory" {
+            if let securityCode {
                 let requiredLength = paymentMethod.card?.securityCode.length ?? 3
 
                 if securityCode.isEmpty || securityCode.count != requiredLength {
