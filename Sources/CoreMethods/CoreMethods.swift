@@ -93,10 +93,15 @@ public final actor CoreMethods {
         self.dependencies = CoreDependencyContainer.shared
         let repository = CoreMethodsRepository()
         let threeDSRepository = ThreeDSRepository()
-        self.generateTokenUseCase = GenerateCardTokenUseCase(dependencies: self.dependencies, repository: repository)
+        let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        self.generateTokenUseCase = GenerateCardTokenUseCase(
+            dependencies: self.dependencies,
+            repository: repository,
+            paymentMethodUseCase: paymentMethodUseCase
+        )
         self.identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         self.installmentsUseCase = InstallmentsUseCase(repository: repository)
-        self.paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = IssuerUseCase(repository: repository)
         self.capabilityUseCase = CapabilityUseCase(repository: threeDSRepository)
         
@@ -179,16 +184,16 @@ public final actor CoreMethods {
         securityCode: SecurityCodeTextField,
         cardHolderName: String?
     ) async throws -> CardToken {
-        async let cardNumber = cardNumber.input.getValue()
-        async let expirationDateYear = expirationDate.getYear()
-        async let expirationDateMonth = expirationDate.getMonth()
-        async let securityCode = securityCode.input.getValue()
-        
+        let cardNumberValue = await cardNumber.input.getValue()
+        let expirationDateYear = await expirationDate.getYear()
+        let expirationDateMonth = await expirationDate.getMonth()
+        let securityCodeValue = await securityCode.input.getValue()
+
         return try await tokenization(
-            cardNumber: cardNumber,
+            cardNumber: cardNumberValue,
             expirationDateMonth: expirationDateMonth,
             expirationDateYear: expirationDateYear,
-            securityCode: securityCode,
+            securityCode: securityCodeValue,
             cardHolderName: cardHolderName
         )
     }

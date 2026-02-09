@@ -11,6 +11,14 @@ public enum CardNumberError {
     case none
 }
 
+enum CardNumber {
+    static let binLength = 8
+
+    static func getBin(_ text: String) -> String {
+        return String(text.prefix(binLength))
+    }
+}
+
 class CardNumberValidation: InputValidation {
     var error: CardNumberError
 
