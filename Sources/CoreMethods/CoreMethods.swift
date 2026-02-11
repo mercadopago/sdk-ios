@@ -376,7 +376,7 @@ public final actor CoreMethods {
             extractEventData: { result -> InstallmentEventData? in
                 return InstallmentEventData(
                     amount: amount,
-                    paymentType: result?.first?.paymentTypeId
+                    paymentType: result?.first?.paymentTypeId ?? ""
                 )
             }
         )
@@ -523,7 +523,7 @@ internal extension CoreMethods {
             extractEventData: { _ -> TokenizationEventData? in
                 return TokenizationEventData(
                     isSaveCard: cardID != nil,
-                    documentType: documentType
+                    documentType: documentType ?? ""
                 )
             }
         )

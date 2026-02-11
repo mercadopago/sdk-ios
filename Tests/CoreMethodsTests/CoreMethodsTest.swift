@@ -485,7 +485,7 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, session, analytics, _) = self.makeSUT()
         let cardID = "123"
         let (_, _, securityCode) = await makeCardFields()
-        let expectEventData = TokenizationEventData(isSaveCard: true, documentType: "not_apply")
+        let expectEventData = TokenizationEventData(isSaveCard: true, documentType: "")
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 200))
         await session.mock.setData(CardTokenStub.validResponse)
@@ -638,7 +638,7 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, session, analytics, _) = self.makeSUT()
         let expectEventData = InstallmentEventData(
             amount: 500,
-            paymentType: "not_apply"
+            paymentType: ""
         )
 
         await session.mock.setResponse(self.makeHTTPResponse(statusCode: 400))
