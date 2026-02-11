@@ -9,29 +9,38 @@ import SwiftUI
 import MPFoundation
 
 package struct MPListItem: View {
+    
+    package enum MPListItemType {
+        case radioButton(selected: Bool)
+        case none
+    }
+    
     @Environment(\.listItemStyle) private var style
     
+    let type: MPListItemType?
     let leftImage: Image?
     let title: String
-    let description: String
-    let rightText: String
-    let hasChevron: Bool
-    let isSelected: Bool
-
+    let description: String?
+    let trailing: MPListItemTrailing?
+    let state: MPListItemState
+    var onClick: (() -> Void)?
+    
     package init(
-        leftImage: Image? = nil,
         title: String,
-        description: String = "",
-        rightText: String = "",
-        hasChevron: Bool = false,
-        isSelected: Bool = false
+        description: String? = nil,
+        trailing: MPListItemTrailing? = nil,
+        leftImage: Image? = nil,
+        type: MPListItemType? = nil,
+        state: MPListItemState = .idle,
+        onClick: (() -> Void)? = nil
     ) {
+        self.type = type
         self.leftImage = leftImage
         self.title = title
         self.description = description
-        self.rightText = rightText
-        self.hasChevron = hasChevron
-        self.isSelected = isSelected
+        self.trailing = trailing
+        self.state = state
+        self.onClick = onClick
     }
     
     package var body: some View {        
@@ -40,8 +49,9 @@ package struct MPListItem: View {
             title: titleView,
             description: descriptionView,
             textRight: textRightView,
-            hasChevron: hasChevron,
-            isSelected: isSelected
+            rightContent: rightContent,
+            selectedButton: selectedButton,
+            state: state
         )
         
         AnyView(
@@ -57,14 +67,18 @@ package struct MPListItem: View {
     
     @ViewBuilder
     private var descriptionView: some View {
-        Text(description)
-            .textStyle(.bodyMedium(colorType: .secondary))
+        if let description {
+            Text(description)
+                .textStyle(.bodyMedium())
+        }
     }
     
     @ViewBuilder
     private var textRightView: some View {
-        Text(rightText)
-            .textStyle(.bodyMedium(colorType: .secondary))
+        if let text = trailing?.text {
+            Text(text)
+                .textStyle(.bodyMedium(colorType: trailing?.color ?? .primary))
+        }
     }
     
     @ViewBuilder
@@ -72,39 +86,93 @@ package struct MPListItem: View {
         leftImage
     }
 
+    @ViewBuilder
+    private var selectedButton: some View {
+        if let onClick {
+            Button {
+                onClick()
+            } label: {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+    
+    @ViewBuilder
+    private var rightContent: some View {
+        if let content = trailing?.type {
+            switch content {
+            case .icon(let image):
+                image
+            case .none:
+                EmptyView()
+            }
+        }
+    }
 }
 
+#if DEBUG
 #Preview {
     VStack(spacing: 16) {
         // Idle state
         MPListItem(
-            leftImage: Image(systemName: "creditcard"),
             title: "Title",
             description: "Description",
-            rightText: "$ 1,000.00",
-            hasChevron: true
+            trailing: .init(
+                text: "$ 1,000.00",
+                type: .icon(Image(systemName: "chevron.right"))
+            ),
+            leftImage: Image(systemName: "creditcard"),
+            state: .idle,
+            onClick: {
+                print("on click")
+            }
+        )
+        
+        MPListItem(
+            title: "Title",
+            description: "Description",
+            trailing: .init(
+                text: "$ 1,000.00",
+                color: .feedbackPositive,
+                type: .icon(Image(systemName: "chevron.right"))
+            ),
+            leftImage: Image(systemName: "creditcard"),
+            state: .idle,
+            onClick: {
+                print("on click")
+            }
         )
         
         // Active/Selected state
         MPListItem(
-            leftImage: Image(systemName: "creditcard"),
             title: "Title",
             description: "Description",
-            rightText: "$ 1,000.00",
-            hasChevron: true,
-            isSelected: true
+            trailing: .init(
+                text: "$ 1,000.00",
+                color: .secondary,
+                type: .icon(Image(systemName: "chevron.right"))
+            ),
+            leftImage: Image(systemName: "creditcard"),
+            state: .active
         )
         
         // Disabled state
         MPListItem(
-            leftImage: Image(systemName: "creditcard"),
             title: "Title",
             description: "Description",
-            rightText: "$ 1,000.00",
-            hasChevron: true
+            trailing: .init(
+                text: "$ 1,000.00",
+                color: .secondary,
+                type: .icon(Image(systemName: "chevron.right"))
+            ),
+            leftImage: Image(systemName: "creditcard"),
+            state: .disabled
         )
-        .disabled(true)
     }
     .padding()
     .loadMPFonts()
 }
+#endif

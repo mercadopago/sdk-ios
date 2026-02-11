@@ -14,7 +14,6 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
     public var id: UUID = .init()
 
     @Environment(\.checkoutTheme) var theme: MPTheme
-    @Environment(\.isEnabled) var isEnabled: Bool
 
     @MainActor
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
@@ -26,63 +25,69 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 HStack(alignment: .top) {
                     configuration.title
-                        .foregroundColor(titleColor(isSelected: configuration.isSelected))
                     
                     Spacer()
                     
                     HStack(spacing: theme.spacings.xmicro) {
                         if let textRight = configuration.textRight {
                             textRight
-                                .foregroundColor(rightTextColor(isSelected: configuration.isSelected))
+                                .foregroundColor(rightTextColor(state: configuration.state))
                         }
                         
-                        if configuration.hasChevron {
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(chevronColor(isSelected: configuration.isSelected))
+                        if let rightContent = configuration.rightContent {
+                            rightContent
+                                .foregroundColor(chevronColor(state: configuration.state))
                         }
                     }
                 }
                 
                 if let description = configuration.description {
                     description
-                        .foregroundColor(descriptionColor(isSelected: configuration.isSelected))
+                        .foregroundColor(descriptionColor(state: configuration.state))
                 }
             }
         }
+        .background(configuration.selectedButton)
         .padding(.horizontal, theme.spacings.micro)
         .padding(.vertical, theme.spacings.xtiny)
-        .background(backgroundColor(isSelected: configuration.isSelected))
+        .background(backgroundColor(state: configuration.state))
         .cornerRadius(theme.borderRadius.small)
     }
     
     // MARK: - Colors
     
-    private func backgroundColor(isSelected: Bool) -> Color {
-        return isSelected ? theme.colors.surface.active : theme.colors.surface.idle
+    private func backgroundColor(state: MPListItemState) -> Color {
+        switch state {
+        case .active: return theme.colors.surface.active
+        default: return theme.colors.surface.idle
+        }
     }
     
-    private func titleColor(isSelected: Bool) -> Color {
-        return theme.colors.text.primary
-    }
     
-    private func descriptionColor(isSelected: Bool) -> Color {
-        if !isEnabled {
+    private func descriptionColor(state: MPListItemState) -> Color {
+        switch state {
+        case .idle, .active:
+            return theme.colors.text.primary
+        case .disabled:
             return theme.colors.text.disabled
         }
-        return theme.colors.text.primary
     }
     
-    private func rightTextColor(isSelected: Bool) -> Color {
-        if !isEnabled {
+    private func rightTextColor(state: MPListItemState) -> Color {
+        switch state {
+        case .idle, .active:
+            return theme.colors.text.primary
+        case .disabled:
             return theme.colors.text.disabled
         }
-        return theme.colors.text.secondary
     }
     
-    private func chevronColor(isSelected: Bool) -> Color {
-        if !isEnabled {
+    private func chevronColor(state: MPListItemState) -> Color {
+        switch state {
+        case .idle, .active:
+            return theme.colors.icon.accent
+        case .disabled:
             return theme.colors.icon.disabled
         }
-        return theme.colors.icon.accent
     }
 }

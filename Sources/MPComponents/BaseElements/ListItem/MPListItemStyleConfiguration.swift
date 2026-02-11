@@ -24,12 +24,21 @@ package struct MPListItemStyleConfiguration {
         package let body: AnyView
     }
     
+    package struct SelectedButton: View {
+        package let body: AnyView
+    }
+    
+    package struct RightContent: View {
+        package let body: AnyView
+    }
+    
     package let leftImage: LeftImage?
     package let title: Title
     package let description: DescriptionText?
     package let textRight: TextRight?
-    package let hasChevron: Bool
-    package let isSelected: Bool
+    package let rightContent: RightContent?
+    package let selectedButton: SelectedButton?
+    package let state: MPListItemState
     
     @MainActor
     package init(
@@ -37,15 +46,17 @@ package struct MPListItemStyleConfiguration {
         title: some View,
         description: (some View)? = nil,
         textRight: (some View)? = nil,
-        hasChevron: Bool,
-        isSelected: Bool = false
+        rightContent: (some View)? = nil,
+        selectedButton: (some View)? = nil,
+        state: MPListItemState = .idle
     ) {
         self.title = Title(body: AnyView(title))
         self.description = description.map { DescriptionText(body: AnyView($0)) }
         self.leftImage = leftImage.map { LeftImage(body: AnyView($0)) }
         self.textRight = textRight.map { TextRight(body: AnyView($0)) }
-        self.hasChevron = hasChevron
-        self.isSelected = isSelected
+        self.selectedButton = selectedButton.map { SelectedButton(body: AnyView($0)) }
+        self.rightContent = rightContent.map { RightContent(body: AnyView($0)) }
+        self.state = state
     }
 }
 
