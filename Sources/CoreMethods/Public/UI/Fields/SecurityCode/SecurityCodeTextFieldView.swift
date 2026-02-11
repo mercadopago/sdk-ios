@@ -44,10 +44,10 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     @Binding private var isEnabled: Bool
 
     /// Binding that controls the focus state of the text field.
-    private var focusBinding: Binding<Bool>
+    private var focusState: Binding<Bool>
 
-    private var isFieldFocused: Bool {
-        self.focusBinding.wrappedValue
+    private var shouldBeFocused: Bool {
+        self.focusState.wrappedValue
     }
 
     /// The appearance style of the keyboard.
@@ -104,7 +104,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         self.maxLength = maxLength
         self.placeholder = placeholder
         self._isEnabled = isEnabled
-        self.focusBinding = isFocused
+        self.focusState = isFocused
         self.keyboardAppearance = keyboardAppearance
         self.onLengthChanged = onLengthChanged
         self.onInputFilled = onInputFilled
@@ -132,9 +132,9 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         textField.onInputFilled = self.onInputFilled
         textField.onFocusChanged = { focus in
             self.onFocusChanged?(focus)
-            guard self.focusBinding.wrappedValue != focus else { return }
+            guard self.focusState.wrappedValue != focus else { return }
             DispatchQueue.main.async {
-                self.focusBinding.wrappedValue = focus
+                self.focusState.wrappedValue = focus
             }
         }
         textField.onError = self.onError
@@ -143,7 +143,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
             self.textField = textField
         }
 
-        if self.isFieldFocused {
+        if self.shouldBeFocused {
             textField.focus()
         }
 
@@ -159,7 +159,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         uiView.setStyle(self.style)
         uiView.setMaxLength(self.maxLength)
 
-        let shouldFocus = self.isFieldFocused
+        let shouldFocus = self.shouldBeFocused
         if shouldFocus != uiView.isInputFocused {
             DispatchQueue.main.async {
                 if shouldFocus {

@@ -35,11 +35,11 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
     private var format: ExpirationDateTextfield.Format
     private var placeholder: String?
     @Binding private var isEnabled: Bool
-    private var focusBinding: Binding<Bool>
+    private var focusState: Binding<Bool>
     private var keyboardAppearance: UIKeyboardAppearance
 
-    private var isFieldFocused: Bool {
-        self.focusBinding.wrappedValue
+    private var shouldBeFocused: Bool {
+        self.focusState.wrappedValue
     }
 
     // MARK: - Callbacks
@@ -112,7 +112,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         self.format = format
         self.placeholder = placeholder
         self._isEnabled = isEnabled
-        self.focusBinding = isFocused
+        self.focusState = isFocused
         self.keyboardAppearance = keyboardAppearance
         self.onLengthChanged = onLengthChanged
         self.onInputFilled = onInputFilled
@@ -138,9 +138,9 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         textField.onInputFilled = self.onInputFilled
         textField.onFocusChanged = { focus in
             self.onFocusChanged?(focus)
-            guard self.focusBinding.wrappedValue != focus else { return }
+            guard self.focusState.wrappedValue != focus else { return }
             DispatchQueue.main.async {
-                self.focusBinding.wrappedValue = focus
+                self.focusState.wrappedValue = focus
             }
         }
         textField.onError = self.onError
@@ -149,7 +149,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
             self.textField = textField
         }
 
-        if self.isFieldFocused {
+        if self.shouldBeFocused {
             textField.focus()
         }
 
@@ -164,7 +164,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         uiView.keyboardAppearance = self.keyboardAppearance
         uiView.setStyle(self.style)
 
-        let shouldFocus = self.isFieldFocused
+        let shouldFocus = self.shouldBeFocused
         if shouldFocus != uiView.isInputFocused {
             DispatchQueue.main.async {
                 if shouldFocus {
