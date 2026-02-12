@@ -47,7 +47,7 @@ struct CardFormScreen: View {
                         amount: MPStrings.formatPrice(100.0),
                         buttonLabel: MPStrings.CardForm.button,
                         action: {
-                            print("action button")
+                            onContinue()
                         }
                     )
                     .disabled(!cardForm.isFormValid)
