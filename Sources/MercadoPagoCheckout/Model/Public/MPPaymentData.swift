@@ -12,10 +12,10 @@ public struct MPPaymentData: Equatable, Codable, Sendable {
     var installment: Int?
     var paymentMethodId: String?
     var issuerId: String?
-    var payer: Payer = Payer()
+    var payer: Payer?
     
     struct Payer: Equatable, Codable, Sendable {
-        var type: String?
-        var number: String?
+        var type: String
+        var number: String
     }
 }
