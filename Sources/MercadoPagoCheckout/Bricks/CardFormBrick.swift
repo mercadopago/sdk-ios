@@ -1,5 +1,5 @@
 //
-//  CardFormBrick.swift
+//  CardFormFlow.swift
 //  MercadoPagoSDK
 //
 //  Created by Guilherme Prata Costa on 11/12/25.
@@ -7,57 +7,48 @@
 import SwiftUI
 import MPComponents
 
-public struct CardFormBrick: View {
-    private enum Route: Hashable {
+/// Fluxo interno do formulário de cartão.
+/// Gerencia as etapas: formulário → parcelas → (revisa e confirma) → resultado.
+struct CardFormFlow: View {
+
+    private enum Step: Hashable {
         case installments
         case reviewAndConfirm
     }
-    
-    @State private var route: Route?
+
+    @State private var step: Step?
     @State private var paymentData: MPPaymentData
-    
-    private let themeDark: MPTheme
-    private let themeLight: MPTheme
-    
-    private let onResult: (CardFormResult) -> Void
-    
+
+    private let checkout: MercadoPagoCheckout
+    private let onResult: @MainActor @Sendable (CheckoutResult) -> Void
+
     @Environment(\.presentationMode) var presentationMode
-    
-    public init(
-        configuration: MercadoPagoCheckout,
-        onResult: @escaping (CardFormResult) -> Void,
-    ) {
-        self.onResult = onResult
-        self.themeDark = configuration.theme.dark
-        self.themeLight = configuration.theme.light
+
+    init(checkout: MercadoPagoCheckout) {
+        self.checkout = checkout
+        self.onResult = checkout.onResult
         self.paymentData = MPPaymentData(transactionAmount: 100)
     }
-    
-    public var body: some View {
-        ThemeProvider(
-            light: self.themeLight,
-            dark: self.themeDark
-        ) {
-            NavigationView {
-                ZStack {
-                    cardFormScreen()
-                    navigationLinks()
-                }
-            }
-            .navigationViewStyle(StackNavigationViewStyle())
+
+    var body: some View {
+        ZStack {
+            cardFormScreen()
+            navigationLinks()
         }
     }
-    
+
+    // MARK: - Screens
+
     private func cardFormScreen() -> some View {
         CardFormScreen(
             paymentData: $paymentData,
             onBack: { cancelCheckout() },
             onContinue: {
-                route = .installments
+                step = .installments
             }
         )
     }
-    
+
     private func installmentScreen() -> some View {
         InstallmentScreen(
             paymentData: $paymentData,
@@ -66,38 +57,51 @@ public struct CardFormBrick: View {
                 presentationMode.wrappedValue.dismiss()
             },
             onContinue: {
-                route = .reviewAndConfirm
+                advanceAfterInstallments()
             }
         )
     }
-    
+
+    // MARK: - Navigation
+
     @ViewBuilder
     private func navigationLinks() -> some View {
         Group {
             NavigationLink(
                 destination: installmentScreen(),
                 tag: .installments,
-                selection: $route
+                selection: $step
             ) {
                 EmptyView()
             }
             .hidden()
-            
         }
     }
-    
+
+    // MARK: - Flow Decisions
+
+    private func advanceAfterInstallments() {
+        if checkout.reviewAndConfirm {
+            step = .reviewAndConfirm
+        } else {
+            completeCheckout()
+        }
+    }
+
+    // MARK: - Result Handlers
+
     private func cancelCheckout() {
-        route = nil
+        step = nil
         onResult(.userCancelled)
         presentationMode.wrappedValue.dismiss()
     }
-    
+
     private func completeCheckout() {
-        route = nil
+        step = nil
         onResult(.success(paymentData))
     }
-    
-    private func fail(_ error: CardFormBrickError) {
+
+    private func fail(_ error: CheckoutError) {
         onResult(.error(error))
     }
 }

@@ -16,8 +16,22 @@ struct MainListView: View {
 
     @State private var showDebug = false
     
-    @State private var showCardFormBrick = false
+    @State private var showCheckout = false
 
+    // Checkout configurado via Builder
+    let checkout = MercadoPagoCheckout.Builder(.cardForm, theme: MercadoPagoCheckout.Theme())
+        .reviewAndConfirm(true)
+        .onResult { result in
+            switch result {
+            case .success(let data):
+                print("Checkout success: \(data)")
+            case .error(let error):
+                print("Checkout error: \(error)")
+            case .userCancelled:
+                print("Checkout cancelled")
+            }
+        }
+        .build()
 
     var body: some View {
         NavigationView {
@@ -31,8 +45,8 @@ struct MainListView: View {
                         self.showingCardFormSwiftUI = true
                     }
                     
-                    Button("Card Form Brick (SwiftUI)") {
-                        self.showCardFormBrick = true
+                    Button("Checkout Builder (SwiftUI)") {
+                        self.showCheckout = true
                     }
                 }
 
@@ -48,20 +62,8 @@ struct MainListView: View {
         .fullScreenCover(isPresented: self.$showingCardForm) {
             CardFormViewControllerRepresentable()
         }
-        .fullScreenCover(isPresented: self.$showCardFormBrick) {
-            CardFormBrick(
-                configuration: MercadoPagoCheckout(),
-                onResult: { result in
-                    switch result {
-                    case .success(let data):
-                        print(data)
-                    case .error(let error):
-                        print(error)
-                    case .userCancelled:
-                        print("userCancelled")
-                    }
-                }
-            )
+        .fullScreenCover(isPresented: self.$showCheckout) {
+            checkout.createView()
         }
         .sheet(isPresented: self.$showingCardFormSwiftUI) {
             CardFormView()
