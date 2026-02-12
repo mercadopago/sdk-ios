@@ -19,13 +19,13 @@ public struct CardFormBrick: View {
     private let themeDark: MPTheme
     private let themeLight: MPTheme
     
-    private let onResult: (CardFormResult) -> Void
+    private let onResult: (MercadoPagoCheckoutResult) -> Void
     
     @Environment(\.presentationMode) var presentationMode
     
     public init(
         configuration: MercadoPagoCheckout,
-        onResult: @escaping (CardFormResult) -> Void,
+        onResult: @escaping (MercadoPagoCheckoutResult) -> Void,
     ) {
         self.onResult = onResult
         self.themeDark = configuration.theme.dark
@@ -97,7 +97,7 @@ public struct CardFormBrick: View {
         onResult(.success(paymentData))
     }
     
-    private func fail(_ error: CardFormBrickError) {
+    private func fail(_ error: MercadoPagoCheckoutError) {
         onResult(.error(error))
     }
 }

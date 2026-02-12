@@ -7,8 +7,8 @@
 import Foundation
 
 @frozen
-public enum CardFormResult: Equatable, Sendable {
+public enum MercadoPagoCheckoutResult: Equatable, Sendable {
     case success(MPPaymentData)
-    case error(CardFormBrickError)
+    case error(MercadoPagoCheckoutError)
     case userCancelled
 }

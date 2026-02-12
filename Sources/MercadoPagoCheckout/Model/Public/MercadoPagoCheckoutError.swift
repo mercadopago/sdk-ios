@@ -7,7 +7,7 @@
 import Foundation
 
 @frozen
-public enum CardFormBrickError: Error, Equatable {
+public enum MercadoPagoCheckoutError: Error, Equatable {
     case serviceError(String)
     case message(String)
 }
