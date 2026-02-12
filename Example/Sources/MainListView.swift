@@ -49,7 +49,19 @@ struct MainListView: View {
             CardFormViewControllerRepresentable()
         }
         .fullScreenCover(isPresented: self.$showCardFormBrick) {
-            CardFormBrick()
+            CardFormBrick(
+                configuration: MercadoPagoCheckout(),
+                onResult: { result in
+                    switch result {
+                    case .success(let data):
+                        print(data)
+                    case .error(let error):
+                        print(error)
+                    case .userCancelled:
+                        print("userCancelled")
+                    }
+                }
+            )
         }
         .sheet(isPresented: self.$showingCardFormSwiftUI) {
             CardFormView()
