@@ -21,7 +21,7 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
             // Radio button
             switch configuration.type {
             case .radioButton(let selected):
-                MPRadioButton(isOn: selected)
+                MPRadioButton(selected: selected)
             case .none:
                 EmptyView()
             }

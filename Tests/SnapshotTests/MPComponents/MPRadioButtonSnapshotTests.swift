@@ -16,8 +16,8 @@ final class MPRadioButtonSnapshotTests: XCTestCase {
 
     func testButtonStyleView_LargeSize() {
         let view = createTestView {
-            MPRadioButton(isOn: .constant(true))
-            MPRadioButton(isOn: .constant(false))
+            MPRadioButton(selected: .constant(true))
+            MPRadioButton(selected: .constant(false))
         }
         let hostingController = UIHostingController(rootView: view)
 

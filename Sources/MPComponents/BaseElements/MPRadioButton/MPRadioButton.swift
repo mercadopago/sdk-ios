@@ -8,16 +8,16 @@
 import SwiftUI
 
 package struct MPRadioButton: View {
-    @Binding var isOn: Bool
+    @Binding var selected: Bool
     
     @Environment(\.mpRadioButtonStyle) var style: any MPRadioButtonStyle
     
     package var body: some View {
-        let configuration = MPRadioButtonConfiguration(isOn: isOn)
+        let configuration = MPRadioButtonConfiguration(isOn: selected)
         
         AnyView(style.resolve(configuration: configuration))
             .onTapGesture {
-                isOn.toggle()
+                selected.toggle()
             }
     }
 }
@@ -29,7 +29,7 @@ struct MPRadioViewer: View {
     @State var isOn: Bool = false
     
     var body: some View {
-        MPRadioButton(isOn: $isOn)
+        MPRadioButton(selected: $isOn)
     }
 }
 #Preview {
