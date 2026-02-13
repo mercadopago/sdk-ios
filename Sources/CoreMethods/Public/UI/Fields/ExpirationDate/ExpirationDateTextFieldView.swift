@@ -136,13 +136,10 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
 
         textField.onLengthChanged = self.onLengthChanged
         textField.onInputFilled = self.onInputFilled
-        textField.onFocusChanged = { focus in
-            self.onFocusChanged?(focus)
-            guard self.focusState.wrappedValue != focus else { return }
-            DispatchQueue.main.async {
-                self.focusState.wrappedValue = focus
-            }
-        }
+        textField.onFocusChanged = TextFieldFocusHelper.makeFocusHandler(
+            focusState: self.focusState,
+            onFocusChanged: self.onFocusChanged
+        )
         textField.onError = self.onError
 
         Task { @MainActor in
@@ -164,16 +161,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         uiView.keyboardAppearance = self.keyboardAppearance
         uiView.setStyle(self.style)
 
-        let shouldFocus = self.shouldBeFocused
-        if shouldFocus != uiView.isInputFocused {
-            DispatchQueue.main.async {
-                if shouldFocus {
-                    uiView.focus()
-                } else {
-                    uiView.resignFocus()
-                }
-            }
-        }
+        TextFieldFocusHelper.syncFocus(uiView, shouldBeFocused: self.shouldBeFocused)
     }
 }
 

@@ -146,13 +146,10 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         textField.onBinChanged = self.onBinChanged
         textField.onLastFourDigitsFilled = self.onLastFourDigitsFilled
         
-        textField.onFocusChanged = { focus in
-            self.onFocusChanged(focus)
-            guard self.focusState.wrappedValue != focus else { return }
-            DispatchQueue.main.async {
-                self.focusState.wrappedValue = focus
-            }
-        }
+        textField.onFocusChanged = TextFieldFocusHelper.makeFocusHandler(
+            focusState: self.focusState,
+            onFocusChanged: self.onFocusChanged
+        )
         textField.onError = self.onError
 
         Task { @MainActor in
@@ -176,16 +173,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         uiView.setMask(pattern: self.mask)
         uiView.setMaxLength(self.maxLength)
 
-        let shouldFocus = self.shouldBeFocused
-        if shouldFocus != uiView.isInputFocused {
-            DispatchQueue.main.async {
-                if shouldFocus {
-                    uiView.focus()
-                } else {
-                    uiView.resignFocus()
-                }
-            }
-        }
+        TextFieldFocusHelper.syncFocus(uiView, shouldBeFocused: self.shouldBeFocused)
     }
 }
 
