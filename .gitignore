@@ -85,3 +85,5 @@ buildServer.json
 /Package.resolved
 
 .docc-temp
+
+.claude/

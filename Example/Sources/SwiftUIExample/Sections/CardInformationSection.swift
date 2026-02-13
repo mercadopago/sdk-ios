@@ -24,6 +24,10 @@ struct CardInformationSection: View {
     @Binding var cardNumberTextField: CardNumberTextField?
     @Binding var securityTextField: SecurityCodeTextField?
     @Binding var expirationDateTextField: ExpirationDateTextfield?
+
+    @State private var cardFieldIsFocused = false
+    @State private var securityFieldIsFocused = false
+    @State private var expirationFieldIsFocused = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -49,7 +53,11 @@ struct CardInformationSection: View {
      * The logo is automatically updated when the payment method is detected
      */
     private var cardNumberField: some View {
-        StyledCardFieldContainer(title: "Card Number", isValid: .constant(viewModel.cardNumberIsValid)) {
+        StyledCardFieldContainer(
+            title: "Card Number",
+            isValid: .constant(viewModel.cardNumberIsValid),
+            onTap: { self.focusField(card: true) }
+        ) {
             HStack {
                 cardNumber
                 cardLogo
@@ -74,6 +82,7 @@ struct CardInformationSection: View {
             style: style,
             mask: viewModel.maskCardNumber,
             placeholder: "Número do cartão",
+            isFocused: self.$cardFieldIsFocused,
             /// Track input length for UX feedback
             onLengthChanged: { length in
                 print("length")
@@ -95,6 +104,7 @@ struct CardInformationSection: View {
             /// Useful for triggering final validations or UI updates
             onLastFourDigitsFilled: { lastFour in
                 DebugLogger.shared.log(type: .function, title: "onLastFourDigitsFilled", object: lastFour)
+                self.focusField(security: true)
             },
             
             /// Focus Change Handler
@@ -137,18 +147,27 @@ struct CardInformationSection: View {
      */
     private var securityAndExpirationFields: some View {
         HStack(spacing: 16) {
-            StyledCardFieldContainer(title: "Security Code", isValid: .constant(viewModel.securityCodeIsValid)) {
+            StyledCardFieldContainer(
+                title: "Security Code",
+                isValid: .constant(viewModel.securityCodeIsValid),
+                onTap: { self.focusField(security: true) }
+            ) {
                 securityCode
                     .frame(height: 44)
             }
 
-            StyledCardFieldContainer(title: "Expiration Date", isValid: .constant(viewModel.expirationDateIsValid)) {
+            StyledCardFieldContainer(
+                title: "Expiration Date",
+                isValid: .constant(viewModel.expirationDateIsValid),
+                onTap: { self.focusField(expiration: true) }
+            ) {
                 /// CoreMethods ExpirationDateTextFieldView
                 /// Handles MM/YY or MM/YYYY format with automatic validation
                 ExpirationDateTextFieldView(
                     textField: self.$expirationDateTextField,
                     style: style,
                     placeholder: "MM/YY",
+                    isFocused: self.$expirationFieldIsFocused,
                     
                     /// Track input length for UX feedback
                     onLengthChanged: { length in
@@ -158,6 +177,7 @@ struct CardInformationSection: View {
                     /// Called when date format is complete
                     onInputFilled: {
                         DebugLogger.shared.log(type: .function, title: "onInputFilled - ExpirationDateTextFieldView")
+                        self.focusField()
                     },
                     
                     /// Update validation state on focus loss
@@ -192,6 +212,7 @@ struct CardInformationSection: View {
             textField: self.$securityTextField,
             style: style,
             placeholder: "CVV",
+            isFocused: self.$securityFieldIsFocused,
             
             /// Track input progress for UX feedback
             onLengthChanged: { length in
@@ -201,6 +222,7 @@ struct CardInformationSection: View {
             /// Called when required length is reached
             onInputFilled: {
                 DebugLogger.shared.log(type: .function, title: "onInputFilled - SecurityCodeTextFieldView")
+                self.focusField(expiration: true)
             },
             
             /// Update validation state when field loses focus
@@ -223,5 +245,17 @@ struct CardInformationSection: View {
         )
         /// Apply dynamic length limit based on detected card type
         .maxLength(viewModel.maxLengthSecurityCode)
+    }
+
+    private func focusField(card: Bool = false, security: Bool = false, expiration: Bool = false) {
+        if self.cardFieldIsFocused != card {
+            self.cardFieldIsFocused = card
+        }
+        if self.securityFieldIsFocused != security {
+            self.securityFieldIsFocused = security
+        }
+        if self.expirationFieldIsFocused != expiration {
+            self.expirationFieldIsFocused = expiration
+        }
     }
 }

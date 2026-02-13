@@ -49,6 +49,13 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
     /// Whether the text field is enabled for user interaction.
     @Binding var isEnabled: Bool
 
+    /// Binding that controls the focus state of the text field.
+    private var focusState: Binding<Bool>
+
+    private var shouldBeFocused: Bool {
+        self.focusState.wrappedValue
+    }
+
     /// The appearance style of the keyboard.
     public var keyboardAppearance: UIKeyboardAppearance
 
@@ -81,6 +88,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
     ///   - mask: The formatting mask to apply to the card number (e.g., "#### #### #### ####").
     ///   - placeholder: Optional placeholder text to display when the field is empty.
     ///   - isEnabled: Whether the text field is enabled for user interaction.
+    ///   - isFocused: Binding that controls whether the field should be focused.
     ///   - keyboardAppearance: The appearance style of the keyboard.
     ///   - onBinChanged: Callback triggered when the card BIN (first 6 digits) changes.
     ///   - onLastFourDigitsFilled: Callback triggered when the last four digits of the card number are filled.
@@ -95,6 +103,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         mask: String = "#### #### #### #######",
         placeholder: String? = nil,
         isEnabled: Binding<Bool> = .constant(true),
+        isFocused: Binding<Bool> = .constant(false),
         keyboardAppearance: UIKeyboardAppearance = .default,
         onLengthChanged: ((Int) -> Void)? = nil,
         onBinChanged: @escaping ((String) -> Void),
@@ -107,6 +116,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         self.mask = mask
         self.placeholder = placeholder
         self._isEnabled = isEnabled
+        self.focusState = isFocused
         self.keyboardAppearance = keyboardAppearance
         self.onLengthChanged = onLengthChanged
         self.onBinChanged = onBinChanged
@@ -135,11 +145,19 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         textField.onLengthChanged = self.onLengthChanged
         textField.onBinChanged = self.onBinChanged
         textField.onLastFourDigitsFilled = self.onLastFourDigitsFilled
-        textField.onFocusChanged = self.onFocusChanged
+        
+        textField.onFocusChanged = TextFieldFocusHelper.makeFocusHandler(
+            focusState: self.focusState,
+            onFocusChanged: self.onFocusChanged
+        )
         textField.onError = self.onError
 
         Task { @MainActor in
             self.textField = textField
+        }
+
+        if self.shouldBeFocused {
+            textField.focus()
         }
 
         return textField
@@ -154,6 +172,8 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         uiView.setStyle(self.style)
         uiView.setMask(pattern: self.mask)
         uiView.setMaxLength(self.maxLength)
+
+        TextFieldFocusHelper.syncFocus(uiView, shouldBeFocused: self.shouldBeFocused)
     }
 }
 
