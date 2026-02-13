@@ -23,7 +23,9 @@ final class MPListItemSnapshotTests: XCTestCase {
                     title: "Default",
                     description: "With description",
                     rightText: "$ 1,000.00",
-                    hasChevron: true,
+                    rightTextColor: .primary,
+                    trailingType: .icon(Image("chevron.right")),
+                    type: .radioButton(selected: .constant(true)),
                     leftImageSystemName: "creditcard"
                 )
                 
@@ -31,31 +33,22 @@ final class MPListItemSnapshotTests: XCTestCase {
                     title: "Selected",
                     description: "With description",
                     rightText: "$ 1,000.00",
-                    hasChevron: true,
-                    isSelected: true,
-                    leftImageSystemName: "creditcard"
-                )
-                
-                self.listItem(
-                    title: "Disabled",
-                    description: "With description",
-                    rightText: "$ 1,000.00",
-                    hasChevron: true,
-                    isDisabled: true,
-                    leftImageSystemName: "creditcard"
+                    rightTextColor: .primary,
+                    trailingType: .icon(Image("chevron.right")),
+                    type: .radioButton(selected: .constant(false))
                 )
                 
                 self.listItem(
                     title: "Without chevron",
                     description: "Leading image and text",
-                    rightText: "Action",
-                    hasChevron: false,
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    type: .radioButton(selected: .constant(false)),
                     leftImageSystemName: "checkmark.seal"
                 )
-                
+
                 self.listItem(
-                    title: "Minimal content",
-                    hasChevron: true
+                    title: "Without chevron",
                 )
             }
         }
@@ -75,20 +68,18 @@ final class MPListItemSnapshotTests: XCTestCase {
         title: String,
         description: String = "",
         rightText: String = "",
-        hasChevron: Bool = false,
-        isSelected: Bool = false,
-        isDisabled: Bool = false,
+        rightTextColor: TextStyleColorType? = nil,
+        trailingType: MPListItemTrailing.MPTrailingType? = nil,
+        type: MPListItemType? = nil,
         leftImageSystemName: String? = nil
     ) -> some View {
         MPListItem(
-            leftImage: leftImageSystemName.map(Image.init(systemName:)),
             title: title,
             description: description,
-            rightText: rightText,
-            hasChevron: hasChevron,
-            isSelected: isSelected
+            trailing: .init(text: rightText, color: rightTextColor, type: trailingType),
+            leftImage: leftImageSystemName.map(Image.init(systemName:)),
+            type: type
         )
-        .disabled(isDisabled)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
