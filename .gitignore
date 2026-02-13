@@ -87,3 +87,4 @@ buildServer.json
 .docc-temp
 
 .claude/
+.xcodebuildmcp/
