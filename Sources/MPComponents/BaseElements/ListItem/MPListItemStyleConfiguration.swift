@@ -38,7 +38,7 @@ package struct MPListItemStyleConfiguration {
     package let textRight: TextRight?
     package let rightContent: RightContent?
     package let selectedButton: SelectedButton?
-    package let state: MPListItemState
+    package let type: MPListItemType
     
     @MainActor
     package init(
@@ -48,7 +48,7 @@ package struct MPListItemStyleConfiguration {
         textRight: (some View)? = nil,
         rightContent: (some View)? = nil,
         selectedButton: (some View)? = nil,
-        state: MPListItemState = .idle
+        type: MPListItemType = .none
     ) {
         self.title = Title(body: AnyView(title))
         self.description = description.map { DescriptionText(body: AnyView($0)) }
@@ -56,7 +56,7 @@ package struct MPListItemStyleConfiguration {
         self.textRight = textRight.map { TextRight(body: AnyView($0)) }
         self.selectedButton = selectedButton.map { SelectedButton(body: AnyView($0)) }
         self.rightContent = rightContent.map { RightContent(body: AnyView($0)) }
-        self.state = state
+        self.type = type
     }
 }
 

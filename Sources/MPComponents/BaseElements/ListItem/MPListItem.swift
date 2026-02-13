@@ -10,11 +10,6 @@ import MPFoundation
 
 package struct MPListItem: View {
     
-    package enum MPListItemType {
-        case radioButton(selected: Bool)
-        case none
-    }
-    
     @Environment(\.listItemStyle) private var style
     
     let type: MPListItemType?
@@ -22,7 +17,6 @@ package struct MPListItem: View {
     let title: String
     let description: String?
     let trailing: MPListItemTrailing?
-    let state: MPListItemState
     var onClick: (() -> Void)?
     
     package init(
@@ -31,7 +25,6 @@ package struct MPListItem: View {
         trailing: MPListItemTrailing? = nil,
         leftImage: Image? = nil,
         type: MPListItemType? = nil,
-        state: MPListItemState = .idle,
         onClick: (() -> Void)? = nil
     ) {
         self.type = type
@@ -39,7 +32,6 @@ package struct MPListItem: View {
         self.title = title
         self.description = description
         self.trailing = trailing
-        self.state = state
         self.onClick = onClick
     }
     
@@ -51,7 +43,7 @@ package struct MPListItem: View {
             textRight: textRightView,
             rightContent: rightContent,
             selectedButton: selectedButton,
-            state: state
+            type: type ?? .none
         )
         
         AnyView(
@@ -114,65 +106,60 @@ package struct MPListItem: View {
 }
 
 #if DEBUG
-#Preview {
-    VStack(spacing: 16) {
-        // Idle state
-        MPListItem(
-            title: "Title",
-            description: "Description",
-            trailing: .init(
-                text: "$ 1,000.00",
-                type: .icon(Image(systemName: "chevron.right"))
-            ),
-            leftImage: Image(systemName: "creditcard"),
-            state: .idle,
-            onClick: {
-                print("on click")
+struct MPListItemView: View {
+    @State private var selectedIndex: Int? = 0
+
+    var body: some View {
+        VStack(spacing: 16) {
+            MPListItem(
+                title: "Option 1",
+                description: "Description",
+                trailing: .init(
+                    text: "$ 1,000.00",
+                    color: .feedbackPositive,
+                    type: .icon(Image(systemName: "chevron.right"))
+                ),
+                leftImage: Image(systemName: "creditcard"),
+                type: .radioButton(selected: bindingForIndex(0)),
+                onClick: { selectedIndex = 0 }
+            )
+
+            MPListItem(
+                title: "Option 2",
+                description: "Description",
+                trailing: .init(
+                    text: "$ 1,000.00"
+                ),
+                type: .radioButton(selected: bindingForIndex(1)),
+                onClick: { selectedIndex = 1 }
+            )
+
+            // Sem radio button
+            MPListItem(
+                title: "Title",
+                description: "Description",
+                trailing: .init(
+                    text: "$ 1,000.00",
+                    type: .icon(Image(systemName: "chevron.right"))
+                ),
+                leftImage: Image(systemName: "creditcard")
+            )
+        }
+        .padding()
+        .loadMPFonts()
+    }
+
+    private func bindingForIndex(_ index: Int) -> Binding<Bool> {
+        Binding(
+            get: { selectedIndex == index },
+            set: { newValue in
+                selectedIndex = newValue ? index : nil
             }
-        )
-        
-        MPListItem(
-            title: "Title",
-            description: "Description",
-            trailing: .init(
-                text: "$ 1,000.00",
-                color: .feedbackPositive,
-                type: .icon(Image(systemName: "chevron.right"))
-            ),
-            leftImage: Image(systemName: "creditcard"),
-            state: .idle,
-            onClick: {
-                print("on click")
-            }
-        )
-        
-        // Active/Selected state
-        MPListItem(
-            title: "Title",
-            description: "Description",
-            trailing: .init(
-                text: "$ 1,000.00",
-                color: .secondary,
-                type: .icon(Image(systemName: "chevron.right"))
-            ),
-            leftImage: Image(systemName: "creditcard"),
-            state: .active
-        )
-        
-        // Disabled state
-        MPListItem(
-            title: "Title",
-            description: "Description",
-            trailing: .init(
-                text: "$ 1,000.00",
-                color: .secondary,
-                type: .icon(Image(systemName: "chevron.right"))
-            ),
-            leftImage: Image(systemName: "creditcard"),
-            state: .disabled
         )
     }
-    .padding()
-    .loadMPFonts()
+}
+
+#Preview {
+    MPListItemView()
 }
 #endif
