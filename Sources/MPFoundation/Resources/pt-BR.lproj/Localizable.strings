@@ -82,6 +82,8 @@
 "common.accessibility.textfield.moreInfo" = "Mais informações";
 "common.total" = "Total";
 "common.currency" = "R$";
+"common.credit" = "Crédito";
+"common.debit" = "Débito";
 
 // MARK: - Errors
 "error.generic" = "Algo deu errado. Por favor, tente novamente.";

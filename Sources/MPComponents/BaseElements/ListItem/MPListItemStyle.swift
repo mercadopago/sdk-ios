@@ -17,7 +17,7 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
 
     @MainActor
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
-        HStack(alignment: .center, spacing: theme.spacings.micro) {
+        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
             
             switch configuration.type {
             case .radioButton(let selected):

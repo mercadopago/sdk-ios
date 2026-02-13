@@ -25,4 +25,10 @@ package struct MPListItemTrailing {
     var color: TextStyleColorType?
     /// Optional trailing type (icon or none). When set, determines the rightmost element.
     var type: MPTrailingType?
+    
+    package init(text: String? = nil, color: TextStyleColorType? = nil, type: MPTrailingType? = nil) {
+        self.text = text
+        self.color = color
+        self.type = type
+    }
 }
