@@ -88,3 +88,5 @@ buildServer.json
 
 .claude/
 .xcodebuildmcp/
+
+Example/Sources/ExampleApp.swift
