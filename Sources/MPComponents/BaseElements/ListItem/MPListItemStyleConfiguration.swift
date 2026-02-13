@@ -16,6 +16,10 @@ package struct MPListItemStyleConfiguration {
         package let body: AnyView
     }
     
+    package struct Header: View {
+        package let body: AnyView
+    }
+    
     package struct DescriptionText: View {
         package let body: AnyView
     }
@@ -33,7 +37,8 @@ package struct MPListItemStyleConfiguration {
     }
     
     package let leftImage: LeftImage?
-    package let title: Title
+    package let title: Title?
+    package let header: Header?
     package let description: DescriptionText?
     package let textRight: TextRight?
     package let rightContent: RightContent?
@@ -43,14 +48,16 @@ package struct MPListItemStyleConfiguration {
     @MainActor
     package init(
         leftImage: (some View)? = nil,
-        title: some View,
+        title: (some View)? = nil,
+        header: (some View)? = nil,
         description: (some View)? = nil,
         textRight: (some View)? = nil,
         rightContent: (some View)? = nil,
         selectedButton: (some View)? = nil,
         type: MPListItemType = .none
     ) {
-        self.title = Title(body: AnyView(title))
+        self.title = title.map { Title(body: AnyView($0)) }
+        self.header = header.map { Header(body: AnyView($0)) }
         self.description = description.map { DescriptionText(body: AnyView($0)) }
         self.leftImage = leftImage.map { LeftImage(body: AnyView($0)) }
         self.textRight = textRight.map { TextRight(body: AnyView($0)) }

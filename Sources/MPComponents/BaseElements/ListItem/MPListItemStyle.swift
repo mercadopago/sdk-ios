@@ -18,7 +18,7 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
     @MainActor
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         HStack(alignment: .center, spacing: theme.spacings.xtiny) {
-            
+            // Radio button
             switch configuration.type {
             case .radioButton(let selected):
                 MPRadioButton(isOn: selected)
@@ -26,29 +26,34 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
                 EmptyView()
             }
             
+            // Left image
             if let leftImage = configuration.leftImage {
                 leftImage
             }
             
+            // ContentInfo
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
-                HStack(alignment: .top) {
-                    configuration.title
-                    
-                    Spacer()
-                    
-                    HStack(spacing: theme.spacings.xmicro) {
-                        if let textRight = configuration.textRight {
-                            textRight
-                        }
-                        
-                        if let rightContent = configuration.rightContent {
-                            rightContent
-                        }
-                    }
+                if let header = configuration.header {
+                    header
                 }
-                
+                if let title = configuration.title {
+                    title
+                }
                 if let description = configuration.description {
                     description
+                }
+            }
+            
+            Spacer()
+            
+            // Trailing
+            HStack(spacing: theme.spacings.xmicro) {
+                if let textRight = configuration.textRight {
+                    textRight
+                }
+                if let rightContent = configuration.rightContent {
+                    rightContent
+                        .foregroundColor(theme.colors.icon.accent)
                 }
             }
         }

@@ -30,17 +30,19 @@ struct InstallmentScreen: View {
         ) {
             ForEach(viewModel.payerCosts) { payerCost in
                 MPListItem(
-                    title: viewModel.formatInstallmentLabel(for: payerCost),
-                    description: nil,
-                    trailing: MPListItemTrailing(
-                        text: viewModel.formatInterestLabel(for: payerCost),
-                        color: viewModel.findInterestLabelColor(for: payerCost),
-                        type: nil
-                    ),
                     type: .radioButton(
                         selected: .constant(
                             viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost)
                         )
+                    ),
+                    contentInfo: .init(
+                        title: viewModel.formatInstallmentLabel(for: payerCost),
+                        description: nil
+                    ),
+                    trailing: MPListItemTrailing(
+                        text: viewModel.formatInterestLabel(for: payerCost),
+                        color: viewModel.findInterestLabelColor(for: payerCost),
+                        type: nil
                     ),
                     onClick: {
                         self.selectedPayerCost = payerCost

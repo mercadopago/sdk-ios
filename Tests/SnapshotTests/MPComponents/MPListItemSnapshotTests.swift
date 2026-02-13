@@ -48,6 +48,24 @@ final class MPListItemSnapshotTests: XCTestCase {
                 )
 
                 self.listItem(
+                    header: "With Header",
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    type: .radioButton(selected: .constant(false)),
+                    leftImageSystemName: "checkmark.seal"
+                )
+                
+                self.listItem(
+                    title: "Title",
+                    header: "With Header",
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    type: .radioButton(selected: .constant(false)),
+                    leftImageSystemName: "checkmark.seal"
+                )
+                
+                
+                self.listItem(
                     title: "Without chevron",
                 )
             }
@@ -65,8 +83,9 @@ final class MPListItemSnapshotTests: XCTestCase {
     // MARK: - Helper Methods
     
     private func listItem(
-        title: String,
-        description: String = "",
+        title: String? = nil,
+        description: String? = nil,
+        header: String? = nil,
         rightText: String = "",
         rightTextColor: TextStyleColorType? = nil,
         trailingType: MPListItemTrailing.MPTrailingType? = nil,
@@ -74,13 +93,11 @@ final class MPListItemSnapshotTests: XCTestCase {
         leftImageSystemName: String? = nil
     ) -> some View {
         MPListItem(
-            title: title,
-            description: description,
-            trailing: .init(text: rightText, color: rightTextColor, type: trailingType),
+            type: type,
             leftImage: leftImageSystemName.map(Image.init(systemName:)),
-            type: type
+            contentInfo: .init(title: title, header: header, description: description),
+            trailing: .init(text: rightText, color: rightTextColor, type: trailingType)
         )
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {

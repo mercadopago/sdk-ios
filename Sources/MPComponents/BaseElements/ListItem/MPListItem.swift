@@ -14,23 +14,20 @@ package struct MPListItem: View {
     
     let type: MPListItemType?
     let leftImage: Image?
-    let title: String
-    let description: String?
+    let contentInfo: MPListItemContentInfo
     let trailing: MPListItemTrailing?
     var onClick: (() -> Void)?
     
     package init(
-        title: String,
-        description: String? = nil,
-        trailing: MPListItemTrailing? = nil,
-        leftImage: Image? = nil,
         type: MPListItemType? = nil,
+        leftImage: Image? = nil,
+        contentInfo: MPListItemContentInfo,
+        trailing: MPListItemTrailing? = nil,
         onClick: (() -> Void)? = nil
     ) {
         self.type = type
         self.leftImage = leftImage
-        self.title = title
-        self.description = description
+        self.contentInfo = contentInfo
         self.trailing = trailing
         self.onClick = onClick
     }
@@ -39,6 +36,7 @@ package struct MPListItem: View {
         let configuration: MPListItemStyleConfiguration = .init(
             leftImage: leftImageView,
             title: titleView,
+            header: headerView,
             description: descriptionView,
             textRight: textRightView,
             rightContent: rightContent,
@@ -52,14 +50,24 @@ package struct MPListItem: View {
     }
     
     @ViewBuilder
+    private var headerView: some View {
+        if let header = contentInfo.header {
+            Text(header)
+                .textStyle(.bodyMedium())
+        }
+    }
+    
+    @ViewBuilder
     private var titleView: some View {
-        Text(title)
-            .textStyle(.bodyMediumTitle())
+        if let title = contentInfo.title {
+            Text(title)
+                .textStyle(.bodyMediumTitle())
+        }
     }
     
     @ViewBuilder
     private var descriptionView: some View {
-        if let description {
+        if let description = contentInfo.description {
             Text(description)
                 .textStyle(.bodyMedium())
         }
@@ -112,37 +120,50 @@ struct MPListItemView: View {
     var body: some View {
         VStack(spacing: 16) {
             MPListItem(
-                title: "Option 1",
-                description: "Description",
-                trailing: .init(
+                type: .radioButton(selected: bindingForIndex(0)),
+                leftImage: Image(systemName: "creditcard"),
+                contentInfo: .init(title: "Option 1", description: "Description"),
+                trailing:.init(
                     text: "$ 1,000.00",
+                    type: .icon(Image(systemName: "chevron.right"))
+                ),
+                onClick: {
+                    selectedIndex = 0 }
+            )
+            MPListItem(
+                type: .radioButton(selected: bindingForIndex(1)),
+                contentInfo: .init(title: "Option 2", description: "Description"),
+                trailing:.init(
+                    text: MPStrings.Installments.interestFree,
                     color: .feedbackPositive,
                     type: .icon(Image(systemName: "chevron.right"))
                 ),
-                leftImage: Image(systemName: "creditcard"),
-                type: .radioButton(selected: bindingForIndex(0)),
-                onClick: { selectedIndex = 0 }
-            )
-
-            MPListItem(
-                title: "Option 2",
-                description: "Description",
-                trailing: .init(
-                    text: "$ 1,000.00"
-                ),
-                type: .radioButton(selected: bindingForIndex(1)),
                 onClick: { selectedIndex = 1 }
             )
-
-            // Sem radio button
+            
             MPListItem(
-                title: "Title",
-                description: "Description",
-                trailing: .init(
-                    text: "$ 1,000.00",
-                    type: .icon(Image(systemName: "chevron.right"))
+                type: .radioButton(selected: bindingForIndex(2)),
+                contentInfo: .init(header: "Option 3"),
+                trailing:.init(
+                    text: "$ 1,000.00"
                 ),
-                leftImage: Image(systemName: "creditcard")
+                onClick: {
+                    selectedIndex = 2 }
+            )
+            
+            MPListItem(
+                type: .radioButton(selected: bindingForIndex(3)),
+                contentInfo: .init(title: "Title", header: "Option 3", description: "description"),
+                trailing:.init(
+                    text: "$ 1,000.00"
+                ),
+                onClick: {
+                    selectedIndex = 3 }
+            )
+            
+            MPListItem(
+                leftImage: Image(systemName: "creditcard"),
+                contentInfo: .init(title: "Title", description: "Description")
             )
         }
         .padding()
