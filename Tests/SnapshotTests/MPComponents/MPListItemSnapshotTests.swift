@@ -24,7 +24,7 @@ final class MPListItemSnapshotTests: XCTestCase {
                     description: "With description",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    trailingType: .icon(Image("chevron.right")),
+                    trailingType: .icon(Image(systemName: "chevron.right")),
                     type: .radioButton(selected: .constant(true)),
                     leftImageSystemName: "creditcard"
                 )
@@ -34,7 +34,7 @@ final class MPListItemSnapshotTests: XCTestCase {
                     description: "With description",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    trailingType: .icon(Image("chevron.right")),
+                    trailingType: .icon(Image(systemName: "chevron.right")),
                     type: .radioButton(selected: .constant(false))
                 )
                 
