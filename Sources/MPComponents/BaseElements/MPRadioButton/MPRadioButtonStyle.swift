@@ -26,7 +26,7 @@ package struct MPRadioButtonDefaultStyle: MPRadioButtonStyle {
                 Circle()
                     .fill(theme.colors.fill.accentLoud)
                 Circle()
-                    .fill(Color.white)
+                    .fill(theme.colors.fill.primary)
                     .padding(innerPadding)
             }
             .frame(width: buttonSize, height: buttonSize)
@@ -37,7 +37,7 @@ package struct MPRadioButtonDefaultStyle: MPRadioButtonStyle {
             )
         } else {
             Circle()
-                .strokeBorder(Color.gray, lineWidth: borderWidth)
+                .strokeBorder(theme.colors.interactive.borderIdle, lineWidth: borderWidth)
                 .frame(width: buttonSize, height: buttonSize)
         }
     }
