@@ -90,3 +90,5 @@ buildServer.json
 .xcodebuildmcp/
 
 Example/Sources/ExampleApp.swift
+
+CLAUDE.md
