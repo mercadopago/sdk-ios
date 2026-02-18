@@ -10,7 +10,7 @@ import SwiftUI
 package struct MPRadioButton: View {
     @Binding var selected: Bool
     
-    @Environment(\.mpRadioButtonStyle) var style: any MPRadioButtonStyle
+    @Environment(\.mpRadioButtonStyle) var style
     
     package var body: some View {
         let configuration = MPRadioButtonConfiguration(isOn: selected)

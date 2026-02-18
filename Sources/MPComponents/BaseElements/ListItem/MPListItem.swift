@@ -41,7 +41,7 @@ package struct MPListItem: View {
             textRight: textRightView,
             rightContent: rightContent,
             selectedButton: selectedButton,
-            type: type ?? .none
+            radioButtonConfig: createRadioButtonConfig()
         )
         
         AnyView(
@@ -111,6 +111,14 @@ package struct MPListItem: View {
             }
         }
     }
+    
+    private func createRadioButtonConfig() -> MPRadioButtonConfiguration? {
+        switch type {
+        case .radioButton(let isOn):
+            return MPRadioButtonConfiguration(isOn: isOn)
+        default: return nil
+        }
+    }
 }
 
 #if DEBUG
@@ -170,13 +178,12 @@ struct MPListItemView: View {
         .loadMPFonts()
     }
 
-    private func bindingForIndex(_ index: Int) -> Binding<Bool> {
-        Binding(
-            get: { selectedIndex == index },
-            set: { newValue in
-                selectedIndex = newValue ? index : nil
-            }
-        )
+    private func bindingForIndex(_ index: Int) -> Bool {
+        if selectedIndex == index {
+            return true
+        } else {
+            return false
+        }
     }
 }
 

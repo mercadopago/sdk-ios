@@ -11,7 +11,7 @@ import SwiftUI
 /// Defines the type of selection control displayed at the start of the list item.
 package enum MPListItemType {
     /// Display a radio button with a bindable selection state.
-    case radioButton(selected: Binding<Bool>)
+    case radioButton(selected: Bool)
     /// No leading interactive element.
     case none
 }

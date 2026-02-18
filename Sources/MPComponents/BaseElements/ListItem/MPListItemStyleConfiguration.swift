@@ -43,7 +43,7 @@ package struct MPListItemStyleConfiguration {
     package let textRight: TextRight?
     package let rightContent: RightContent?
     package let selectedButton: SelectedButton?
-    package let type: MPListItemType
+    package let radioButtonConfig: MPRadioButtonConfiguration?
     
     @MainActor
     package init(
@@ -54,7 +54,7 @@ package struct MPListItemStyleConfiguration {
         textRight: (some View)? = nil,
         rightContent: (some View)? = nil,
         selectedButton: (some View)? = nil,
-        type: MPListItemType = .none
+        radioButtonConfig: MPRadioButtonConfiguration? = nil,
     ) {
         self.title = title.map { Title(body: AnyView($0)) }
         self.header = header.map { Header(body: AnyView($0)) }
@@ -63,7 +63,7 @@ package struct MPListItemStyleConfiguration {
         self.textRight = textRight.map { TextRight(body: AnyView($0)) }
         self.selectedButton = selectedButton.map { SelectedButton(body: AnyView($0)) }
         self.rightContent = rightContent.map { RightContent(body: AnyView($0)) }
-        self.type = type
+        self.radioButtonConfig = radioButtonConfig
     }
 }
 
