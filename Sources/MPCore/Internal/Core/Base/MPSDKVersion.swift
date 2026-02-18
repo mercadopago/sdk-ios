@@ -6,5 +6,5 @@
 //
 
 package enum MPSDKVersion {
-    package static let version = "0.2.2"
+    package static let version = "0.2.3"
 }
