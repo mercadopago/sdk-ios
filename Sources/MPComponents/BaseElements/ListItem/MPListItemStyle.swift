@@ -14,17 +14,14 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
     public var id: UUID = .init()
 
     @Environment(\.checkoutTheme) var theme: MPTheme
-    @Environment(\.mpRadioButtonStyle) private var radioButtonStyle
 
     @MainActor
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         HStack(alignment: .center, spacing: theme.spacings.xtiny) {
-            // Radio button
-            if let radioButtonConfig = configuration.radioButtonConfig {
-                AnyView(radioButtonStyle.resolve(configuration: radioButtonConfig))
+            if let radioButton = configuration.radioButton {
+                radioButton
             }
             
-            // Left image
             if let leftImage = configuration.leftImage {
                 leftImage
             }

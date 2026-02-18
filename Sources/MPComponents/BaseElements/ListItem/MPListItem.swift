@@ -41,7 +41,7 @@ package struct MPListItem: View {
             textRight: textRightView,
             rightContent: rightContent,
             selectedButton: selectedButton,
-            radioButtonConfig: createRadioButtonConfig()
+            radioButton: radioButtonView
         )
         
         AnyView(
@@ -82,6 +82,18 @@ package struct MPListItem: View {
     }
     
     @ViewBuilder
+    private var radioButtonView: some View {
+        switch type {
+        case .radioButton(let selected):
+            Toggle(isOn: .constant(selected)) { EmptyView() }
+                .toggleStyle(MPRadioButtonToggleStyle())
+                .labelsHidden()
+        default:
+            EmptyView()
+        }
+    }
+    
+    @ViewBuilder
     private var leftImageView: some View {
         leftImage
     }
@@ -112,13 +124,6 @@ package struct MPListItem: View {
         }
     }
     
-    private func createRadioButtonConfig() -> MPRadioButtonConfiguration? {
-        switch type {
-        case .radioButton(let isOn):
-            return MPRadioButtonConfiguration(isOn: isOn)
-        default: return nil
-        }
-    }
 }
 
 #if DEBUG

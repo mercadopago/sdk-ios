@@ -9,29 +9,23 @@ import SwiftUI
 
 package struct MPRadioButton: View {
     @Binding var selected: Bool
-    
-    @Environment(\.mpRadioButtonStyle) var style
-    
+
     package var body: some View {
-        let configuration = MPRadioButtonConfiguration(isOn: selected)
-        
-        AnyView(style.resolve(configuration: configuration))
-            .onTapGesture {
-                selected.toggle()
-            }
+        Toggle(isOn: $selected) { EmptyView() }
+            .toggleStyle(MPRadioButtonToggleStyle())
+            .labelsHidden()
     }
 }
 
 #if DEBUG
-
 struct MPRadioViewer: View {
-    
     @State var isOn: Bool = false
-    
+
     var body: some View {
         MPRadioButton(selected: $isOn)
     }
 }
+
 #Preview {
     MPRadioViewer()
 }
