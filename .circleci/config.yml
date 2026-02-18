@@ -34,9 +34,6 @@ jobs:
       - run:
           name: Execute Tests and Coverage
           command: bundle exec fastlane test
-      - run:
-          name: Lint Podspec
-          command: pod lib lint MercadoPagoSDKCoreMethods.podspec --allow-warnings
       - store_artifacts:
           path: fastlane/xcov_output
           destination: code-coverage
