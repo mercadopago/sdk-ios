@@ -20,7 +20,7 @@ public protocol MPTheme: Sendable {
     var textFields: MPTextFields { get set }
 }
 
-public enum UserInterfaceStyle {
+public enum UserInterfaceStyle: Sendable {
     case automatic
     case lightMode
     case darkMode
