@@ -87,3 +87,8 @@ buildServer.json
 .docc-temp
 
 .claude/
+.xcodebuildmcp/
+
+Example/Sources/ExampleApp.swift
+
+CLAUDE.md
