@@ -25,7 +25,7 @@ final class MPListItemSnapshotTests: XCTestCase {
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
                     trailingType: .icon(Image(systemName: "chevron.right")),
-                    type: .radioButton(selected: .constant(true)),
+                    type: .radioButton(selected: true),
                     leftImageSystemName: "creditcard"
                 )
                 
@@ -35,7 +35,7 @@ final class MPListItemSnapshotTests: XCTestCase {
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
                     trailingType: .icon(Image(systemName: "chevron.right")),
-                    type: .radioButton(selected: .constant(false))
+                    type: .radioButton(selected: false)
                 )
                 
                 self.listItem(
@@ -43,7 +43,7 @@ final class MPListItemSnapshotTests: XCTestCase {
                     description: "Leading image and text",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    type: .radioButton(selected: .constant(false)),
+                    type: .radioButton(selected: false),
                     leftImageSystemName: "checkmark.seal"
                 )
 
@@ -51,7 +51,7 @@ final class MPListItemSnapshotTests: XCTestCase {
                     header: "With Header",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    type: .radioButton(selected: .constant(false)),
+                    type: .radioButton(selected: false),
                     leftImageSystemName: "checkmark.seal"
                 )
                 
@@ -60,7 +60,7 @@ final class MPListItemSnapshotTests: XCTestCase {
                     header: "With Header",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    type: .radioButton(selected: .constant(false)),
+                    type: .radioButton(selected: false),
                     leftImageSystemName: "checkmark.seal"
                 )
                 

@@ -31,9 +31,7 @@ struct InstallmentScreen: View {
             ForEach(viewModel.payerCosts) { payerCost in
                 MPListItem(
                     type: .radioButton(
-                        selected: .constant(
-                            viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost)
-                        )
+                        selected: viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost)
                     ),
                     contentInfo: .init(
                         title: viewModel.formatInstallmentLabel(for: payerCost),
