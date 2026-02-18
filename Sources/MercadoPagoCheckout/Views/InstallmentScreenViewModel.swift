@@ -36,6 +36,10 @@ final class InstallmentsScreenViewModel: ObservableObject {
         }
     }
     
+    func findInterestLabelColor(for payerCost: Installment.PayerCost) -> TextStyleColorType? {
+        return payerCost.installmentRate == 0 ? .feedbackPositive : nil
+    }
+    
     // MARK: - Actions
 
     func isSelected(_ payerCost: Installment.PayerCost, selectedPayerCost: Installment.PayerCost?) -> Bool {

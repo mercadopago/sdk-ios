@@ -23,7 +23,9 @@ final class MPListItemSnapshotTests: XCTestCase {
                     title: "Default",
                     description: "With description",
                     rightText: "$ 1,000.00",
-                    hasChevron: true,
+                    rightTextColor: .primary,
+                    trailingType: .icon(Image(systemName: "chevron.right")),
+                    type: .radioButton(selected: true),
                     leftImageSystemName: "creditcard"
                 )
                 
@@ -31,31 +33,40 @@ final class MPListItemSnapshotTests: XCTestCase {
                     title: "Selected",
                     description: "With description",
                     rightText: "$ 1,000.00",
-                    hasChevron: true,
-                    isSelected: true,
-                    leftImageSystemName: "creditcard"
-                )
-                
-                self.listItem(
-                    title: "Disabled",
-                    description: "With description",
-                    rightText: "$ 1,000.00",
-                    hasChevron: true,
-                    isDisabled: true,
-                    leftImageSystemName: "creditcard"
+                    rightTextColor: .primary,
+                    trailingType: .icon(Image(systemName: "chevron.right")),
+                    type: .radioButton(selected: false)
                 )
                 
                 self.listItem(
                     title: "Without chevron",
                     description: "Leading image and text",
-                    rightText: "Action",
-                    hasChevron: false,
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    type: .radioButton(selected: false),
+                    leftImageSystemName: "checkmark.seal"
+                )
+
+                self.listItem(
+                    header: "With Header",
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    type: .radioButton(selected: false),
                     leftImageSystemName: "checkmark.seal"
                 )
                 
                 self.listItem(
-                    title: "Minimal content",
-                    hasChevron: true
+                    title: "Title",
+                    header: "With Header",
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    type: .radioButton(selected: false),
+                    leftImageSystemName: "checkmark.seal"
+                )
+                
+                
+                self.listItem(
+                    title: "Without chevron",
                 )
             }
         }
@@ -72,24 +83,21 @@ final class MPListItemSnapshotTests: XCTestCase {
     // MARK: - Helper Methods
     
     private func listItem(
-        title: String,
-        description: String = "",
+        title: String? = nil,
+        description: String? = nil,
+        header: String? = nil,
         rightText: String = "",
-        hasChevron: Bool = false,
-        isSelected: Bool = false,
-        isDisabled: Bool = false,
+        rightTextColor: TextStyleColorType? = nil,
+        trailingType: MPListItemTrailing.MPTrailingType? = nil,
+        type: MPListItemType? = nil,
         leftImageSystemName: String? = nil
     ) -> some View {
         MPListItem(
+            type: type,
             leftImage: leftImageSystemName.map(Image.init(systemName:)),
-            title: title,
-            description: description,
-            rightText: rightText,
-            hasChevron: hasChevron,
-            isSelected: isSelected
+            contentInfo: .init(title: title, header: header, description: description),
+            trailing: .init(text: rightText, color: rightTextColor, type: trailingType)
         )
-        .disabled(isDisabled)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {

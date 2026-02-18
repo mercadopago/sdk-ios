@@ -16,6 +16,10 @@ package struct MPListItemStyleConfiguration {
         package let body: AnyView
     }
     
+    package struct Header: View {
+        package let body: AnyView
+    }
+    
     package struct DescriptionText: View {
         package let body: AnyView
     }
@@ -24,28 +28,46 @@ package struct MPListItemStyleConfiguration {
         package let body: AnyView
     }
     
+    package struct SelectedButton: View {
+        package let body: AnyView
+    }
+    
+    package struct RightContent: View {
+        package let body: AnyView
+    }
+    
+    package struct RadioButton: View {
+        package let body: AnyView
+    }
+    
     package let leftImage: LeftImage?
-    package let title: Title
+    package let title: Title?
+    package let header: Header?
     package let description: DescriptionText?
     package let textRight: TextRight?
-    package let hasChevron: Bool
-    package let isSelected: Bool
+    package let rightContent: RightContent?
+    package let selectedButton: SelectedButton?
+    package let radioButton: RadioButton?
     
     @MainActor
     package init(
         leftImage: (some View)? = nil,
-        title: some View,
+        title: (some View)? = nil,
+        header: (some View)? = nil,
         description: (some View)? = nil,
         textRight: (some View)? = nil,
-        hasChevron: Bool,
-        isSelected: Bool = false
+        rightContent: (some View)? = nil,
+        selectedButton: (some View)? = nil,
+        radioButton: (some View)? = nil
     ) {
-        self.title = Title(body: AnyView(title))
+        self.title = title.map { Title(body: AnyView($0)) }
+        self.header = header.map { Header(body: AnyView($0)) }
         self.description = description.map { DescriptionText(body: AnyView($0)) }
         self.leftImage = leftImage.map { LeftImage(body: AnyView($0)) }
         self.textRight = textRight.map { TextRight(body: AnyView($0)) }
-        self.hasChevron = hasChevron
-        self.isSelected = isSelected
+        self.selectedButton = selectedButton.map { SelectedButton(body: AnyView($0)) }
+        self.rightContent = rightContent.map { RightContent(body: AnyView($0)) }
+        self.radioButton = radioButton.map { RadioButton(body: AnyView($0)) }
     }
 }
 

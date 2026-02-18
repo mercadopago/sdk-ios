@@ -14,75 +14,47 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
     public var id: UUID = .init()
 
     @Environment(\.checkoutTheme) var theme: MPTheme
-    @Environment(\.isEnabled) var isEnabled: Bool
 
     @MainActor
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
-        HStack(alignment: .center, spacing: theme.spacings.micro) {
+        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
+            if let radioButton = configuration.radioButton {
+                radioButton
+            }
+            
             if let leftImage = configuration.leftImage {
                 leftImage
             }
             
+            // ContentInfo
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
-                HStack(alignment: .top) {
-                    configuration.title
-                        .foregroundColor(titleColor(isSelected: configuration.isSelected))
-                    
-                    Spacer()
-                    
-                    HStack(spacing: theme.spacings.xmicro) {
-                        if let textRight = configuration.textRight {
-                            textRight
-                                .foregroundColor(rightTextColor(isSelected: configuration.isSelected))
-                        }
-                        
-                        if configuration.hasChevron {
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(chevronColor(isSelected: configuration.isSelected))
-                        }
-                    }
+                if let header = configuration.header {
+                    header
                 }
-                
+                if let title = configuration.title {
+                    title
+                }
                 if let description = configuration.description {
                     description
-                        .foregroundColor(descriptionColor(isSelected: configuration.isSelected))
+                }
+            }
+            
+            Spacer()
+            
+            // Trailing
+            HStack(spacing: theme.spacings.xmicro) {
+                if let textRight = configuration.textRight {
+                    textRight
+                }
+                if let rightContent = configuration.rightContent {
+                    rightContent
+                        .foregroundColor(theme.colors.icon.accent)
                 }
             }
         }
+        .background(configuration.selectedButton)
         .padding(.horizontal, theme.spacings.micro)
         .padding(.vertical, theme.spacings.xtiny)
-        .background(backgroundColor(isSelected: configuration.isSelected))
         .cornerRadius(theme.borderRadius.small)
-    }
-    
-    // MARK: - Colors
-    
-    private func backgroundColor(isSelected: Bool) -> Color {
-        return isSelected ? theme.colors.surface.active : theme.colors.surface.idle
-    }
-    
-    private func titleColor(isSelected: Bool) -> Color {
-        return theme.colors.text.primary
-    }
-    
-    private func descriptionColor(isSelected: Bool) -> Color {
-        if !isEnabled {
-            return theme.colors.text.disabled
-        }
-        return theme.colors.text.primary
-    }
-    
-    private func rightTextColor(isSelected: Bool) -> Color {
-        if !isEnabled {
-            return theme.colors.text.disabled
-        }
-        return theme.colors.text.secondary
-    }
-    
-    private func chevronColor(isSelected: Bool) -> Color {
-        if !isEnabled {
-            return theme.colors.icon.disabled
-        }
-        return theme.colors.icon.accent
     }
 }

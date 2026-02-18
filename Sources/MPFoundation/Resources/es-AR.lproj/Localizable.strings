@@ -83,7 +83,7 @@
 "common.total" = "Total";
 "common.currency" = "$"
 "common.credit" = "Crédito";
-"common.debit" = "Débito"
+"common.debit" = "Débito";
 
 // MARK: - Errors
 "error.generic" = "Algo salió mal. Por favor, intentá de nuevo.";

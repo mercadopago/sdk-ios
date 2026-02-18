@@ -42,15 +42,22 @@ struct InstallmentScreen: View {
         ) {
             ForEach(viewModel.payerCosts) { payerCost in
                 MPListItem(
-                    title: viewModel.formatInstallmentLabel(for: payerCost),
-                    description: "Description",
-                    rightText: viewModel.formatInterestLabel(for: payerCost),
-                    hasChevron: true,
-                    isSelected: viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost),
+                    type: .radioButton(
+                        selected: viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost)
+                    ),
+                    contentInfo: .init(
+                        title: viewModel.formatInstallmentLabel(for: payerCost),
+                        description: nil
+                    ),
+                    trailing: MPListItemTrailing(
+                        text: viewModel.formatInterestLabel(for: payerCost),
+                        color: viewModel.findInterestLabelColor(for: payerCost),
+                        type: nil
+                    ),
+                    onClick: {
+                        self.selectedPayerCost = payerCost
+                    }
                 )
-                .onTapGesture {
-                    self.selectedPayerCost = payerCost
-                }
             }
         }
         MPFooter(
@@ -94,7 +101,7 @@ enum InstallmentMock {
                 paymentMethodOptionId: ""
             ),
             Installment.PayerCost(
-                id: 2, installments: 2, installmentAmount: 548.2, installmentRate: 9.64,
+                id: 2, installments: 2, installmentAmount: 500, installmentRate: 0,
                 installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1096.4,
                 minAllowedAmount: 10.0, maxAllowedAmount: 60000.0,
                 discountRate: 0.0, reimbursementRate: 0.0, labels: [],
