@@ -9,7 +9,7 @@ import MPAnalytics
 
 package final class MockAnalytics: AnalyticsInterface {
     package actor Mock {
-        package var sendCallback: (() -> Void)?
+        private var sendContinuation: CheckedContinuation<Void, Never>?
 
         package enum Messages: Equatable {
             case initialize(version: String, siteID: String)
@@ -101,7 +101,10 @@ package final class MockAnalytics: AnalyticsInterface {
             self.messages.append(message)
 
             if message == .send {
-                self.sendCallback?()
+                if let continuation = self.sendContinuation {
+                    self.sendContinuation = nil
+                    continuation.resume()
+                }
             }
         }
 
@@ -109,13 +112,13 @@ package final class MockAnalytics: AnalyticsInterface {
             self.messages
         }
 
-        package func updateSendCallback(_ callback: @escaping () -> Void) {
-            self.sendCallback = callback
-
-            // If a send message was already recorded before the callback was set,
-            // trigger the callback immediately to avoid missing the event in async tests.
+        package func waitForSend() async {
             if self.messages.contains(.send) {
-                callback()
+                return
+            }
+
+            await withCheckedContinuation { continuation in
+                self.sendContinuation = continuation
             }
         }
     }

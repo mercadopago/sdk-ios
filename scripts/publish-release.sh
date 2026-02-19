@@ -1,16 +1,25 @@
 #!/bin/bash
 # publish-release.sh
 
-VERSION=$(cat VERSION)
+set -euo pipefail
+
+VERSION_FILE="VERSION"
+
+if [ ! -f "$VERSION_FILE" ]; then
+  echo "❌ Error: VERSION file not found."
+  exit 1
+fi
+
+VERSION=$(tr -d '\n\r' < "$VERSION_FILE")
 
 if [ -z "$VERSION" ]; then
-  echo "❌ Error: VERSION file is empty or not found."
+  echo "❌ Error: VERSION file is empty."
   exit 1
 fi
 
 echo "🚀 Publishing release version $VERSION..."
 
-#Check if we are on the main branch
+# Check if we are on the main branch
 CURRENT_BRANCH=$(git branch --show-current)
 if [ "$CURRENT_BRANCH" != "main" ]; then
   echo "⚠️ Warning: This script should be run on the main branch"
@@ -22,18 +31,22 @@ if [ "$CURRENT_BRANCH" != "main" ]; then
   fi
 fi
 
-# Create release tag
+# Ensure main is up to date on remote
+echo "📋 Pushing main branch to remote..."
+git push origin main
+
+# Create annotated release tag
 echo "📋 Creating tag $VERSION..."
-git tag "$VERSION"
+git tag -a "$VERSION" -m "Release $VERSION"
 git push origin "$VERSION"
 
 # Generate changelog between tags
-PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "$VERSION" | head -n 1)
+PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -v "^${VERSION}$" | head -n 1)
 
 if [ -z "$PREVIOUS_TAG" ]; then
-  CHANGELOG=$(git log --pretty=format:"- %s" | grep -v "Merge pull request")
+  CHANGELOG=$(git log --pretty=format:"- %s" | grep -v "Merge pull request" || true)
 else
-  CHANGELOG=$(git log "$PREVIOUS_TAG".."$VERSION" --pretty=format:"- %s" | grep -v "Merge pull request")
+  CHANGELOG=$(git log "$PREVIOUS_TAG".."$VERSION" --pretty=format:"- %s" | grep -v "Merge pull request" || true)
 fi
 
 # Create GitHub release if gh CLI is available
@@ -49,9 +62,16 @@ else
 fi
 
 # Publish to CocoaPods
-echo "📦 Publishing to CocoaPods..."
-PODSPEC_FILE=$(find . -name '*.podspec' | head -n 1)
+PODSPEC_FILE=$(find . -maxdepth 1 -name '*.podspec' | head -n 1)
+if [ -z "$PODSPEC_FILE" ]; then
+  echo "❌ Error: No .podspec file found."
+  exit 1
+fi
+
+echo "📦 Validating podspec..."
 pod lib lint "$PODSPEC_FILE" --allow-warnings
+
+echo "📦 Publishing to CocoaPods..."
 pod trunk push "$PODSPEC_FILE" --allow-warnings
 
-echo "✅ Release $VERSION successfully published on GitHub and Cocoapods"
+echo "✅ Release $VERSION successfully published on GitHub and CocoaPods"

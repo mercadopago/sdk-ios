@@ -85,3 +85,10 @@ buildServer.json
 /Package.resolved
 
 .docc-temp
+
+.claude/
+.xcodebuildmcp/
+
+Example/Sources/ExampleApp.swift
+
+CLAUDE.md

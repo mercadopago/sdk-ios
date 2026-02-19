@@ -4,7 +4,9 @@
 //
 //  Created by Guilherme Prata Costa on 04/11/25.
 //
+#if SWIFT_PACKAGE
 import MPAnalytics
+#endif
 
 // MARK: Execute Operation of Core Methods
 extension CoreMethods {

@@ -1,6 +1,7 @@
 #if SWIFT_PACKAGE
     import MPCore
 #endif
+import Foundation
 import SwiftUI
 
 /// A SwiftUI component that provides a text field specifically designed for inputting credit card expiration dates.
@@ -34,7 +35,12 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
     private var format: ExpirationDateTextfield.Format
     private var placeholder: String?
     @Binding private var isEnabled: Bool
+    private var focusState: Binding<Bool>
     private var keyboardAppearance: UIKeyboardAppearance
+
+    private var shouldBeFocused: Bool {
+        self.focusState.wrappedValue
+    }
 
     // MARK: - Callbacks
 
@@ -63,6 +69,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
     ///   - placeholder: Optional placeholder text to display when the field is empty.
     ///   - isEnabled: Whether the text field is enabled for user interaction.
     ///   - keyboardAppearance: The appearance style of the keyboard.
+    ///   - isFocused: Binding used to programmatically control focus.
     ///   - onLengthChanged: Callback triggered when the input length changes.
     ///   - onInputFilled: Callback triggered when the input is completely filled.
     ///   - onFocusChanged: Callback triggered when the focus state changes.
@@ -94,6 +101,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         format: ExpirationDateTextfield.Format = .short,
         placeholder: String? = nil,
         isEnabled: Binding<Bool> = .constant(true),
+        isFocused: Binding<Bool> = .constant(false),
         keyboardAppearance: UIKeyboardAppearance = .default,
         onLengthChanged: ((Int) -> Void)? = nil,
         onInputFilled: (() -> Void)? = nil,
@@ -104,6 +112,7 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         self.format = format
         self.placeholder = placeholder
         self._isEnabled = isEnabled
+        self.focusState = isFocused
         self.keyboardAppearance = keyboardAppearance
         self.onLengthChanged = onLengthChanged
         self.onInputFilled = onInputFilled
@@ -127,11 +136,18 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
 
         textField.onLengthChanged = self.onLengthChanged
         textField.onInputFilled = self.onInputFilled
-        textField.onFocusChanged = self.onFocusChanged
+        textField.onFocusChanged = TextFieldFocusHelper.makeFocusHandler(
+            focusState: self.focusState,
+            onFocusChanged: self.onFocusChanged
+        )
         textField.onError = self.onError
 
         Task { @MainActor in
             self.textField = textField
+        }
+
+        if self.shouldBeFocused {
+            textField.focus()
         }
 
         return textField
@@ -144,6 +160,8 @@ public struct ExpirationDateTextFieldView: UIViewRepresentable {
         uiView.isEnabled = self.isEnabled
         uiView.keyboardAppearance = self.keyboardAppearance
         uiView.setStyle(self.style)
+
+        TextFieldFocusHelper.syncFocus(uiView, shouldBeFocused: self.shouldBeFocused)
     }
 }
 

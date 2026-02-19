@@ -88,6 +88,11 @@ final class PCIFieldState: UIView {
         set { self.textField.keyboardAppearance = newValue }
     }
 
+    /// Indicates whether the underlying text field currently has focus
+    override var isFocused: Bool {
+        return self.textField.isFirstResponder
+    }
+
     // MARK: - Initialization
 
     init(configuration: Configuration) {
@@ -129,6 +134,15 @@ final class PCIFieldState: UIView {
     func setStyle(_ style: Style) {
         self.style = style
         configureStyles()
+    }
+
+    func focus() {
+        guard self.isEnabled else { return }
+        self.textField.becomeFirstResponder()
+    }
+
+    func resignFocus() {
+        self.textField.resignFirstResponder()
     }
 }
 

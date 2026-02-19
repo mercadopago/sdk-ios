@@ -20,12 +20,17 @@ final class CoreMethodsThreeDSTests: XCTestCase {
         var configuration = CoreMethods.Configuration()
         configuration.threeDS.sdkVersion = "2.2.0"
 
+        let paymentMethodUseCase = PaymentMethodUseCase(repository: coreRepository)
         let sut = CoreMethods(
             dependencies: container,
-            generateTokenUseCase: GenerateCardTokenUseCase(dependencies: container, repository: coreRepository),
+            generateTokenUseCase: GenerateCardTokenUseCase(
+                dependencies: container,
+                repository: coreRepository,
+                paymentMethodUseCase: paymentMethodUseCase
+            ),
             identificationTypeUseCase: IdentificationTypesUseCase(repository: coreRepository),
             installmentsUseCase: InstallmentsUseCase(repository: coreRepository),
-            paymentMethodUseCase: PaymentMethodUseCase(repository: coreRepository),
+            paymentMethodUseCase: paymentMethodUseCase,
             issuerUseCase: IssuerUseCase(repository: coreRepository),
             capabilityUseCase: capabilityUseCase,
             configuration: configuration
@@ -188,4 +193,3 @@ final class CoreMethodsThreeDSTests: XCTestCase {
         case sample
     }
 }
-

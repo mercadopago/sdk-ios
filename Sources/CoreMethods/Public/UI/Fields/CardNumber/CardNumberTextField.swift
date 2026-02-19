@@ -72,8 +72,6 @@ public final class CardNumberTextField: PCITextField {
     public var onError: ((CardNumberError) -> Void)?
 
     private let validation: CardNumberValidation
-
-    private let binLength = 8
     
     private var previousBin: String = ""
 
@@ -170,16 +168,16 @@ public final class CardNumberTextField: PCITextField {
             let inputLength = text.count
             self.onLengthChanged?(inputLength)
             
-            let currentBin = getBin(text)
+            let currentBin = self.getBin(text)
 
             let previousBinPrefix = self.previousBin
 
-            if inputLength >= self.binLength && currentBin != previousBinPrefix || inputLength == 0 {
+            if inputLength >= CardNumber.binLength && currentBin != previousBinPrefix || inputLength == 0 {
                 self.previousBin = currentBin
                 self.onBinChanged?(currentBin)
             }
 
-            if inputLength < self.binLength && self.previousBin.count >= self.binLength {
+            if inputLength < CardNumber.binLength && self.previousBin.count >= CardNumber.binLength {
                 self.previousBin = ""
             }
 
@@ -225,7 +223,7 @@ public final class CardNumberTextField: PCITextField {
     }
 
     func getBin(_ text: String) -> String {
-        return String(text.prefix(self.binLength))
+        return CardNumber.getBin(text)
     }
 }
 

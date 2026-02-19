@@ -144,4 +144,23 @@ extension PCITextField {
     public func clear() {
         self.input.clear()
     }
+
+    /// Gives focus to the underlying secure field
+    @discardableResult
+    public func focus() -> Self {
+        self.input.focus()
+        return self
+    }
+
+    /// Resigns focus from the underlying secure field
+    @discardableResult
+    public func resignFocus() -> Self {
+        self.input.resignFocus()
+        return self
+    }
+
+    /// Indicates if the underlying secure field is focused
+    public var isInputFocused: Bool {
+        return self.input.isFocused
+    }
 }
