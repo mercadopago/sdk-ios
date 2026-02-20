@@ -67,7 +67,7 @@ public extension MercadoPagoCheckout {
     /// Information about the payer initiating the checkout.
     public struct Payer: Sendable {
         /// The payer's email address.
-        var email: String
+        public var email: String
 
         /// Creates a new payer with the given email.
         ///
@@ -132,9 +132,9 @@ public extension MercadoPagoCheckout {
     /// Installment constraints for a payment method.
     public struct Installment: Sendable {
         /// The minimum number of installments allowed.
-        var minInstallments: Int
+        public var minInstallments: Int
         /// The maximum number of installments allowed.
-        var maxInstallments: Int
+        public var maxInstallments: Int
 
         /// Creates a new installment configuration.
         ///
