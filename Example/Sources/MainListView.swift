@@ -11,28 +11,34 @@ import MercadoPagoCheckout
 
 struct MainListView: View {
     @State private var showingCardForm = false
-
     @State private var showingCardFormSwiftUI = false
-
     @State private var showDebug = false
-    
-    @State private var showCardFormBrick = false
-
+    @State private var showBuilderShow = false
+    @State private var showBuilderPresent = false
 
     var body: some View {
         NavigationView {
             List {
-                Section("Payment Forms") {
+                Section("CoreMethods") {
                     Button("Card Form (UIKit)") {
                         self.showingCardForm = true
                     }
-
                     Button("Card Form (SwiftUI)") {
                         self.showingCardFormSwiftUI = true
                     }
+                }
+
+                Section("Card Payment") {
+                    Button("show(onResult:) - SwiftUI") {
+                        self.showBuilderShow = true
+                    }
                     
-                    Button("Card Form Brick (SwiftUI)") {
-                        self.showCardFormBrick = true
+                    Button("present(from:onResult:)") {
+                        presentCheckout()
+                    }
+                    
+                    Button("push(to:onResult:)") {
+                        self.showBuilderPresent = true
                     }
                 }
 
@@ -48,20 +54,14 @@ struct MainListView: View {
         .fullScreenCover(isPresented: self.$showingCardForm) {
             CardFormViewControllerRepresentable()
         }
-        .fullScreenCover(isPresented: self.$showCardFormBrick) {
-            CardFormBrick(
-                configuration: MercadoPagoCheckout(),
-                onResult: { result in
-                    switch result {
-                    case .success(let data):
-                        print(data)
-                    case .error(let error):
-                        print(error)
-                    case .userCancelled:
-                        print("userCancelled")
-                    }
-                }
-            )
+        .fullScreenCover(isPresented: self.$showBuilderShow) {
+            buildCheckout().show(onResult: handleResult)
+        }
+        .fullScreenCover(isPresented: self.$showBuilderPresent) {
+            BuilderPushExample(checkout: buildCheckout(), onResult: { result in
+                handleResult(result)
+                showBuilderPresent = false
+            })
         }
         .sheet(isPresented: self.$showingCardFormSwiftUI) {
             CardFormView()
@@ -70,6 +70,60 @@ struct MainListView: View {
             DebugView()
         }
     }
+    
+    private func buildCheckout() -> MercadoPagoCheckout {
+        let builder = MercadoPagoCheckout.Builder(
+            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 500)),
+            checkoutAppearance: .init()
+        )
+        
+        builder.setPaymentMethod([
+            .card(cardTypes: [.credit, .debit]),
+            .pix,
+            .boleto
+        ])
+        return builder.build()
+    }
+
+    private func handleResult(_ result: MercadoPagoCheckoutResult) {
+        switch result {
+        case .success:
+            print("Success")
+        case .error:
+            print("Error")
+        case .userCancelled:
+            print("User cancelled")
+        }
+    }
+
+    private func presentCheckout() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootVC = windowScene.windows.first?.rootViewController else { return }
+        var topVC = rootVC
+        while let presented = topVC.presentedViewController {
+            topVC = presented
+        }
+        buildCheckout().present(from: topVC, onResult: handleResult)
+    }
+
+}
+
+// MARK: - Builder push(to:) example
+
+struct BuilderPushExample: UIViewControllerRepresentable {
+    let checkout: MercadoPagoCheckout
+    let onResult: (MercadoPagoCheckoutResult) -> Void
+
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let nav = UINavigationController()
+        nav.setNavigationBarHidden(true, animated: false)
+        DispatchQueue.main.async {
+            checkout.push(to: nav, onResult: onResult)
+        }
+        return nav
+    }
+
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
 }
 
 struct CardFormViewControllerRepresentable: UIViewControllerRepresentable {
