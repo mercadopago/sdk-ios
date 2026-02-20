@@ -53,8 +53,8 @@ public extension MercadoPagoCheckout {
         public func build() -> MercadoPagoCheckout {
             MercadoPagoCheckout(
                 theme: checkoutAppearance,
-                checkoutConfiguration: .init(
-                    checkoutType: checkoutType,
+                configuration: .init(
+                    type: checkoutType,
                     paymentMethod: paymentMethods
                 )
             )

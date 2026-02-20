@@ -23,14 +23,4 @@ public extension MercadoPagoCheckout {
             self.maxInstallments = maxInstallments
         }
     }
-
-    /// The card network or product type accepted by a payment method.
-    public enum CardType: Sendable {
-        /// A credit card.
-        case credit
-        /// A debit card.
-        case debit
-        /// A prepaid card.
-        case prepaid
-    }
 }

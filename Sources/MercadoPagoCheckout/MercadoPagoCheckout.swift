@@ -43,7 +43,7 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     /// The visual appearance applied to the checkout flow.
     var theme: CheckoutAppearance
     /// The behavioral configuration for the checkout flow.
-    var checkoutConfiguration: CheckoutConfiguration
+    var configuration: CheckoutConfiguration
 
     /// Creates a `MercadoPagoCheckout` with explicit theme and configuration values.
     ///
@@ -53,9 +53,9 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     ///   - theme: The visual appearance for the checkout. Defaults to a default ``CheckoutAppearance``.
     ///   - checkoutConfiguration: The behavioral configuration.
     @MainActor
-    public init(theme: CheckoutAppearance = CheckoutAppearance(), checkoutConfiguration: CheckoutConfiguration) {
+    public init(theme: CheckoutAppearance = CheckoutAppearance(), configuration: CheckoutConfiguration) {
         self.theme = theme
-        self.checkoutConfiguration = checkoutConfiguration
+        self.configuration = configuration
     }
 
     /// Returns a SwiftUI view that presents the checkout flow.
@@ -119,7 +119,7 @@ public extension MercadoPagoCheckout {
     /// Defines the checkout experience
     public struct CheckoutConfiguration: Sendable {
         /// The type of checkout experience to present.
-        public var checkoutType: CheckoutType
+        public var type: CheckoutType
         /// The payment methods available during the checkout flow.
         public var paymentMethod: [PaymentMethod]
 
@@ -128,8 +128,8 @@ public extension MercadoPagoCheckout {
         /// - Parameters:
         ///   - checkoutType: The type of checkout experience to present.
         ///   - paymentMethod: The payment methods available to the user.
-        public init(checkoutType: CheckoutType, paymentMethod: [PaymentMethod]) {
-            self.checkoutType = checkoutType
+        public init(type: CheckoutType, paymentMethod: [PaymentMethod]) {
+            self.type = type
             self.paymentMethod = paymentMethod
         }
     }
