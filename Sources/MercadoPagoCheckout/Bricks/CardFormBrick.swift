@@ -8,29 +8,45 @@ import SwiftUI
 import MPComponents
 
 public struct CardFormBrick: View {
+    public struct Configuration: Sendable {
+        public let cardFormConfiguration: MercadoPagoCheckout.CheckoutTypeConfiguration
+        public let paymentMethods: [MercadoPagoCheckout.PaymentMethod]
+
+        public init(
+            cardFormConfiguration: any MercadoPagoCheckout.CheckoutTypeConfiguration,
+            paymentMethods: [MercadoPagoCheckout.PaymentMethod]
+        ) {
+            self.cardFormConfiguration = cardFormConfiguration
+            self.paymentMethods = paymentMethods
+        }
+    }
+
     private enum Route: Hashable {
         case installments
         case reviewAndConfirm
     }
-    
+
     @State private var route: Route?
     @State private var paymentData: MPPaymentData
-    
+
     private let themeDark: MPTheme
     private let themeLight: MPTheme
-    
+    private let configuration: Configuration
+
     private let onResult: (MercadoPagoCheckoutResult) -> Void
-    
+
     @Environment(\.presentationMode) var presentationMode
-    
+
     public init(
-        configuration: MercadoPagoCheckout,
-        onResult: @escaping (MercadoPagoCheckoutResult) -> Void,
+        configuration: Configuration,
+        appearance: MercadoPagoCheckout.CheckoutAppearance,
+        onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
         self.onResult = onResult
-        self.themeDark = configuration.theme.dark
-        self.themeLight = configuration.theme.light
-        self.paymentData = MPPaymentData(transactionAmount: 100)
+        self.themeDark = appearance.dark
+        self.themeLight = appearance.light
+        self.configuration = configuration
+        self.paymentData = MPPaymentData(transactionAmount: configuration.cardFormConfiguration.amount ?? 0)
     }
     
     public var body: some View {
@@ -51,6 +67,7 @@ public struct CardFormBrick: View {
     private func cardFormScreen() -> some View {
         CardFormScreen(
             paymentData: $paymentData,
+            viewModel: .init(configuration: configuration),
             onBack: { cancelCheckout() },
             onContinue: {
                 route = .installments

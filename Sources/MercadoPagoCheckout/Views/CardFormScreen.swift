@@ -44,7 +44,7 @@ struct CardFormScreen: View {
                 footer: {
                     MPFooter(
                         label: MPStrings.Common.total,
-                        amount: MPStrings.formatPrice(100.0),
+                        amount: MPStrings.formatPrice(paymentData.transactionAmount),
                         buttonLabel: MPStrings.CardForm.button,
                         action: {
                             onContinue()

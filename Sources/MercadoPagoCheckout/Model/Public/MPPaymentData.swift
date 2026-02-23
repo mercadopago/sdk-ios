@@ -7,14 +7,14 @@
 import Foundation
 
 public struct MPPaymentData: Equatable, Codable, Sendable {
-    var transactionAmount: Int
-    var token: String?
-    var installment: Int?
-    var paymentMethodId: String?
-    var issuerId: String?
-    var payer: Payer?
+    public var transactionAmount: Double
+    public var token: String?
+    public var installment: Int?
+    public var paymentMethodId: String?
+    public var issuerId: String?
+    public var payer: Payer?
     
-    struct Payer: Equatable, Codable, Sendable {
+    public struct Payer: Equatable, Codable, Sendable {
         var type: String
         var number: String
     }

@@ -10,12 +10,17 @@ import MPComponents
 
 @MainActor
 final class CardFormViewModel: ObservableObject {
-    
+
+    let configuration: CardFormBrick.Configuration?
+
     // Formatters
     let cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
     let securityCodeFormatter = SecurityCodeFormatter()
-    
+
     @Published var selectTypeDocument: IdentificationType = .init(name: "CPF")
-    
+
+    init(configuration: CardFormBrick.Configuration? = nil) {
+        self.configuration = configuration
+    }
 }

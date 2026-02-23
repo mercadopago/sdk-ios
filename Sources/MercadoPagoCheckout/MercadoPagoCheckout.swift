@@ -69,7 +69,14 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     public func show(
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) -> some View {
-        CardFormBrick(configuration: self, onResult: onResult)
+        CardFormBrick(
+            configuration: .init(
+                cardFormConfiguration: configuration.type.configuration,
+                paymentMethods: configuration.paymentMethod
+            ),
+            appearance: theme,
+            onResult: onResult
+        )
     }
 
     /// Presents the checkout flow modally from a UIKit view controller.
@@ -86,7 +93,14 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
         animated: Bool = true,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
-        let cardFormBrick = CardFormBrick(configuration: self, onResult: onResult)
+        let cardFormBrick = CardFormBrick(
+            configuration: .init(
+                cardFormConfiguration: configuration.type.configuration,
+                paymentMethods: configuration.paymentMethod
+            ),
+            appearance: theme,
+            onResult: onResult
+        )
         let hostingController = UIHostingController(rootView: cardFormBrick)
         hostingController.modalPresentationStyle = .fullScreen
         viewController.present(hostingController, animated: animated)
@@ -107,7 +121,14 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
         animated: Bool = true,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
-        let cardFormBrick = CardFormBrick(configuration: self, onResult: onResult)
+        let cardFormBrick = CardFormBrick(
+            configuration: .init(
+                cardFormConfiguration: configuration.type.configuration,
+                paymentMethods: configuration.paymentMethod
+            ),
+            appearance: theme,
+            onResult: onResult
+        )
         let hostingController = UIHostingController(rootView: cardFormBrick)
         navigationController.pushViewController(hostingController, animated: animated)
     }

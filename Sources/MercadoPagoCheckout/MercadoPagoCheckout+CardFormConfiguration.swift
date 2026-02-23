@@ -6,8 +6,14 @@
 //
 
 public extension MercadoPagoCheckout {
+    
+    public protocol CheckoutTypeConfiguration: Sendable {
+        /// The transaction amount to be charged. Optional; when `nil` the amount is determined server-side.
+        var amount: Double? { get }
+    }
+    
     /// Configuration specific to the card form checkout experience.
-    public struct CardFormConfiguration: Sendable {
+    public struct CardFormConfiguration: CheckoutTypeConfiguration {
         /// The transaction amount to be charged. Optional; when `nil` the amount is determined server-side.
         public var amount: Double?
         /// Payer information pre-filled in the form. Optional.
