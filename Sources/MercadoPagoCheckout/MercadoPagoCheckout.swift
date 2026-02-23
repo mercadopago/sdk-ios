@@ -53,7 +53,7 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     ///   - theme: The visual appearance for the checkout. Defaults to a default ``CheckoutAppearance``.
     ///   - checkoutConfiguration: The behavioral configuration.
     @MainActor
-    public init(theme: CheckoutAppearance = CheckoutAppearance(), configuration: CheckoutConfiguration) {
+    init(theme: CheckoutAppearance = CheckoutAppearance(), configuration: CheckoutConfiguration) {
         self.theme = theme
         self.configuration = configuration
     }
@@ -70,10 +70,7 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) -> some View {
         CardFormBrick(
-            configuration: .init(
-                cardFormConfiguration: configuration.type.configuration,
-                paymentMethods: configuration.paymentMethod
-            ),
+            configuration: configuration,
             appearance: theme,
             onResult: onResult
         )
@@ -94,10 +91,7 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
         let cardFormBrick = CardFormBrick(
-            configuration: .init(
-                cardFormConfiguration: configuration.type.configuration,
-                paymentMethods: configuration.paymentMethod
-            ),
+            configuration: configuration,
             appearance: theme,
             onResult: onResult
         )
@@ -122,10 +116,7 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
         let cardFormBrick = CardFormBrick(
-            configuration: .init(
-                cardFormConfiguration: configuration.type.configuration,
-                paymentMethods: configuration.paymentMethod
-            ),
+            configuration: configuration,
             appearance: theme,
             onResult: onResult
         )
@@ -138,7 +129,7 @@ public extension MercadoPagoCheckout {
     /// Behavioral configuration for the checkout flow.
     ///
     /// Defines the checkout experience
-    public struct CheckoutConfiguration: Sendable {
+    struct CheckoutConfiguration: Sendable {
         /// The type of checkout experience to present.
         public var type: CheckoutType
         /// The payment methods available during the checkout flow.

@@ -11,7 +11,7 @@ import MPComponents
 @MainActor
 final class CardFormViewModel: ObservableObject {
 
-    let configuration: CardFormBrick.Configuration
+    let configuration: MercadoPagoCheckout.CheckoutConfiguration
 
     // Formatters
     let cardNumberFormatter = CardNumberFormatter()
@@ -20,7 +20,7 @@ final class CardFormViewModel: ObservableObject {
 
     @Published var selectTypeDocument: IdentificationType = .init(name: "CPF")
 
-    init(configuration: CardFormBrick.Configuration) {
+    init(configuration: MercadoPagoCheckout.CheckoutConfiguration) {
         self.configuration = configuration
     }
 }

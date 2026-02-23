@@ -7,20 +7,7 @@
 import SwiftUI
 import MPComponents
 
-public struct CardFormBrick: View {
-    public struct Configuration: Sendable {
-        public let cardFormConfiguration: any MercadoPagoCheckout.CheckoutTypeConfiguration
-        public let paymentMethods: [MercadoPagoCheckout.PaymentMethod]
-
-        public init(
-            cardFormConfiguration: any MercadoPagoCheckout.CheckoutTypeConfiguration,
-            paymentMethods: [MercadoPagoCheckout.PaymentMethod]
-        ) {
-            self.cardFormConfiguration = cardFormConfiguration
-            self.paymentMethods = paymentMethods
-        }
-    }
-
+struct CardFormBrick: View {
     private enum Route: Hashable {
         case installments
         case reviewAndConfirm
@@ -31,14 +18,14 @@ public struct CardFormBrick: View {
 
     private let themeDark: MPTheme
     private let themeLight: MPTheme
-    private let configuration: Configuration
+    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
 
     private let onResult: (MercadoPagoCheckoutResult) -> Void
 
     @Environment(\.presentationMode) var presentationMode
 
-    public init(
-        configuration: Configuration,
+    init(
+        configuration: MercadoPagoCheckout.CheckoutConfiguration,
         appearance: MercadoPagoCheckout.CheckoutAppearance,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
@@ -46,10 +33,10 @@ public struct CardFormBrick: View {
         self.themeDark = appearance.dark
         self.themeLight = appearance.light
         self.configuration = configuration
-        self.paymentData = MPPaymentData(transactionAmount: configuration.cardFormConfiguration.amount ?? 0)
+        self.paymentData = MPPaymentData(transactionAmount: configuration.type.configuration.amount ?? 0)
     }
     
-    public var body: some View {
+    var body: some View {
         ThemeProvider(
             light: self.themeLight,
             dark: self.themeDark

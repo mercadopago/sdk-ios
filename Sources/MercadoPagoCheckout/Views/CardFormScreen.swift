@@ -146,8 +146,8 @@ struct CardForm_Previews: PreviewProvider {
                 paymentData: .constant(MPPaymentData(transactionAmount: 100)),
                 viewModel: .init(
                     configuration: .init(
-                        cardFormConfiguration: MercadoPagoCheckout.CardFormConfiguration(),
-                        paymentMethods: []
+                        type: .cardForm(cardFormConfiguration: .init()),
+                        paymentMethod: []
                     )
                 )
             )
