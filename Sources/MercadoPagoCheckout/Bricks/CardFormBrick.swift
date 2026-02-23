@@ -9,7 +9,7 @@ import MPComponents
 
 public struct CardFormBrick: View {
     public struct Configuration: Sendable {
-        public let cardFormConfiguration: MercadoPagoCheckout.CheckoutTypeConfiguration
+        public let cardFormConfiguration: any MercadoPagoCheckout.CheckoutTypeConfiguration
         public let paymentMethods: [MercadoPagoCheckout.PaymentMethod]
 
         public init(
