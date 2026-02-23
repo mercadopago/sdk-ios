@@ -25,7 +25,7 @@ struct CardFormScreen: View {
 
     init(
         paymentData: Binding<MPPaymentData>,
-        viewModel: CardFormViewModel = CardFormViewModel(),
+        viewModel: CardFormViewModel,
         onBack: @escaping () -> Void = {},
         onContinue: @escaping () -> Void = {}
     ) {
@@ -44,7 +44,7 @@ struct CardFormScreen: View {
                 footer: {
                     MPFooter(
                         label: MPStrings.Common.total,
-                        amount: MPStrings.formatPrice(100.0),
+                        amount: MPStrings.formatPrice(paymentData.transactionAmount),
                         buttonLabel: MPStrings.CardForm.button,
                         action: {
                             onContinue()
@@ -142,7 +142,15 @@ struct CardForm_Previews: PreviewProvider {
             light: MPLightTheme(),
             dark: MPLightTheme()
         ) {
-            CardFormScreen(paymentData: .constant(MPPaymentData(transactionAmount: 100)))
+            CardFormScreen(
+                paymentData: .constant(MPPaymentData(transactionAmount: 100)),
+                viewModel: .init(
+                    configuration: .init(
+                        type: .cardForm(cardFormConfiguration: .init()),
+                        paymentMethod: []
+                    )
+                )
+            )
         }
 
     }

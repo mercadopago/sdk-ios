@@ -53,7 +53,7 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     ///   - theme: The visual appearance for the checkout. Defaults to a default ``CheckoutAppearance``.
     ///   - checkoutConfiguration: The behavioral configuration.
     @MainActor
-    public init(theme: CheckoutAppearance = CheckoutAppearance(), configuration: CheckoutConfiguration) {
+    init(theme: CheckoutAppearance = CheckoutAppearance(), configuration: CheckoutConfiguration) {
         self.theme = theme
         self.configuration = configuration
     }
@@ -69,7 +69,11 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     public func show(
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) -> some View {
-        CardFormBrick(configuration: self, onResult: onResult)
+        CardFormBrick(
+            configuration: configuration,
+            appearance: theme,
+            onResult: onResult
+        )
     }
 
     /// Presents the checkout flow modally from a UIKit view controller.
@@ -86,7 +90,11 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
         animated: Bool = true,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
-        let cardFormBrick = CardFormBrick(configuration: self, onResult: onResult)
+        let cardFormBrick = CardFormBrick(
+            configuration: configuration,
+            appearance: theme,
+            onResult: onResult
+        )
         let hostingController = UIHostingController(rootView: cardFormBrick)
         hostingController.modalPresentationStyle = .fullScreen
         viewController.present(hostingController, animated: animated)
@@ -107,7 +115,11 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
         animated: Bool = true,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
-        let cardFormBrick = CardFormBrick(configuration: self, onResult: onResult)
+        let cardFormBrick = CardFormBrick(
+            configuration: configuration,
+            appearance: theme,
+            onResult: onResult
+        )
         let hostingController = UIHostingController(rootView: cardFormBrick)
         navigationController.pushViewController(hostingController, animated: animated)
     }
@@ -117,7 +129,7 @@ public extension MercadoPagoCheckout {
     /// Behavioral configuration for the checkout flow.
     ///
     /// Defines the checkout experience
-    public struct CheckoutConfiguration: Sendable {
+    struct CheckoutConfiguration: Sendable {
         /// The type of checkout experience to present.
         public var type: CheckoutType
         /// The payment methods available during the checkout flow.

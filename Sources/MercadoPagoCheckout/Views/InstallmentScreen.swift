@@ -79,6 +79,7 @@ struct InstallmentScreen: View {
     )
 }
 
+#if DEBUG
 enum InstallmentMock {
     
     static let visa: Installment = Installment(
@@ -132,3 +133,4 @@ enum InstallmentMock {
         agreements: []
     )
 }
+#endif

@@ -73,7 +73,7 @@ struct MainListView: View {
     
     private func buildCheckout() -> MercadoPagoCheckout {
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 500)),
+            checkoutType: .cardForm(cardFormConfiguration: .init()),
             checkoutAppearance: .init()
         )
         

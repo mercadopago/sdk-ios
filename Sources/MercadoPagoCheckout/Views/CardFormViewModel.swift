@@ -10,12 +10,17 @@ import MPComponents
 
 @MainActor
 final class CardFormViewModel: ObservableObject {
-    
+
+    let configuration: MercadoPagoCheckout.CheckoutConfiguration
+
     // Formatters
     let cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
     let securityCodeFormatter = SecurityCodeFormatter()
-    
+
     @Published var selectTypeDocument: IdentificationType = .init(name: "CPF")
-    
+
+    init(configuration: MercadoPagoCheckout.CheckoutConfiguration) {
+        self.configuration = configuration
+    }
 }
