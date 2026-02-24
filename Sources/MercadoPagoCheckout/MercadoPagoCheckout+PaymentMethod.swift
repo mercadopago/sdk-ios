@@ -32,3 +32,12 @@ public extension MercadoPagoCheckout {
         }
     }
 }
+
+extension [MercadoPagoCheckout.PaymentMethod] {
+    var acceptedPaymentTypeIds: [String] {
+        flatMap { method -> [String] in
+            guard case .card(let cardTypes, _) = method else { return [] }
+            return cardTypes.map(\.paymentTypeId)
+        }
+    }
+}

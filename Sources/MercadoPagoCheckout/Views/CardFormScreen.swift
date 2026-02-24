@@ -59,6 +59,7 @@ struct CardFormScreen: View {
                         label: MPStrings.CardForm.CardNumber.label,
                         placeholder: MPStrings.CardForm.CardNumber.placeholder,
                         errorMessage: cardForm.$cardNumber,
+                        externalError: cardForm.cardNumberExternalError,
                         keyboard: .numberPad,
                         formatter: viewModel.cardNumberFormatter,
                     )
@@ -108,6 +109,12 @@ struct CardFormScreen: View {
         .background(theme.colors.background.primary)
         .mpTask {
             await viewModel.loadIdentificationTypes()
+        }
+        .mpOnChange(of: cardForm.cardNumber) { newValue in
+            viewModel.onCardNumberChange(newValue)
+        }
+        .mpOnChange(of: viewModel.hasCardNumberApiError) { hasError in
+            cardForm.setCardNumberApiError(hasError)
         }
     }
         
