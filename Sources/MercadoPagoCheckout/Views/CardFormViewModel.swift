@@ -11,16 +11,34 @@ import MPComponents
 @MainActor
 final class CardFormViewModel: ObservableObject {
 
-    let configuration: MercadoPagoCheckout.CheckoutConfiguration
+    // MARK: - Dependencies
+    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
+    private let service: CheckoutServiceProtocol
 
-    // Formatters
+    // MARK: - Formatters
     let cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
     let securityCodeFormatter = SecurityCodeFormatter()
 
+    // MARK: - Published State
     @Published var selectTypeDocument: IdentificationType = .init(name: "CPF")
+    @Published var isLoadingIdentificationTypes: Bool = true //Validar comportamento com UX
 
-    init(configuration: MercadoPagoCheckout.CheckoutConfiguration) {
+    // MARK: - Init
+
+    init(configuration: MercadoPagoCheckout.CheckoutConfiguration, service: CheckoutServiceProtocol = CheckoutService()) {
         self.configuration = configuration
+        self.service = service
+    }
+    
+    // MARK: - Identification Types
+    func loadIdentificationTypes() async {
+        do {
+            let types = try await service.identificationTypes()
+            isLoadingIdentificationTypes = false
+            selectTypeDocument = types.first ?? selectTypeDocument
+        } catch {
+            isLoadingIdentificationTypes = false
+        }
     }
 }

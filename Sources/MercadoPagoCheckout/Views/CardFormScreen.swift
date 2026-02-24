@@ -100,11 +100,15 @@ struct CardFormScreen: View {
                         dropdownDocument()
                     },
                 )
-                
+                .disabled(viewModel.isLoadingIdentificationTypes)
+
             }
             .padding(.horizontal, theme.spacings.micro)
         }
         .background(theme.colors.background.primary)
+        .mpTask {
+            await viewModel.loadIdentificationTypes()
+        }
     }
         
     @ViewBuilder
