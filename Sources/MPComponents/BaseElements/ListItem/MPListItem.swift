@@ -107,7 +107,8 @@ struct MPListItemView: View {
                     contentInfo: .init(title: "Option 1", description: "Description 1111"),
                     trailing: .init(text: "$ 1,000.00")
                 )
-                .listItemTrailingStyle(.textIcon(Image("chevron.right")))
+                .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.right")))
+
 
                 
                 MPListItem(
@@ -118,11 +119,17 @@ struct MPListItemView: View {
                         color: .feedbackPositive
                     )
                 )
+                .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.left")))
+
+                
+                
                 MPListItem(
                     isSelected: bindingForIndex(2),
                     contentInfo: .init(header: "Option 3"),
                     trailing: .init(text: "$ 1,000.00")
                 )
+                
+                .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.left")))
             }
 
             MPListItem(
@@ -145,6 +152,7 @@ struct MPListItemView: View {
 
 #Preview {
     MPListItemView()
+        .listItemStyle(.radioButton)
 
 }
 #endif
