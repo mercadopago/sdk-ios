@@ -13,7 +13,7 @@ import SnapshotTesting
 
 @MainActor
 final class MPListItemSnapshotTests: XCTestCase {
-    
+
     func test_allStatesComparison() {
         FontName.registerCustomFonts()
 
@@ -24,26 +24,24 @@ final class MPListItemSnapshotTests: XCTestCase {
                     description: "With description",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    trailingType: .icon(Image(systemName: "chevron.right")),
-                    type: .radioButton(selected: true),
+                    isSelected: .constant(true),
                     leftImageSystemName: "creditcard"
                 )
-                
+
                 self.listItem(
                     title: "Selected",
                     description: "With description",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    trailingType: .icon(Image(systemName: "chevron.right")),
-                    type: .radioButton(selected: false)
+                    isSelected: .constant(false)
                 )
-                
+
                 self.listItem(
                     title: "Without chevron",
                     description: "Leading image and text",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    type: .radioButton(selected: false),
+                    isSelected: .constant(false),
                     leftImageSystemName: "checkmark.seal"
                 )
 
@@ -51,55 +49,56 @@ final class MPListItemSnapshotTests: XCTestCase {
                     header: "With Header",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    type: .radioButton(selected: false),
+                    isSelected: .constant(false),
                     leftImageSystemName: "checkmark.seal"
                 )
-                
+
                 self.listItem(
                     title: "Title",
                     header: "With Header",
                     rightText: "$ 1,000.00",
                     rightTextColor: .primary,
-                    type: .radioButton(selected: false),
+                    isSelected: .constant(false),
                     leftImageSystemName: "checkmark.seal"
                 )
-                
-                
+
+
                 self.listItem(
-                    title: "Without chevron",
+                    title: "Without chevron"
                 )
             }
+            .listItemStyle(MPListRowRadioStyle())
+            .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.right")))
         }
-        
+
         let hostingController = UIHostingController(rootView: view)
-        
+
         assertSnapshot(
             of: hostingController,
             as: .image(precision: 0.95, size: CGSize(width: 360, height: 480)),
             named: "all_states_comparison"
         )
     }
-    
+
     // MARK: - Helper Methods
-    
+
     private func listItem(
         title: String? = nil,
         description: String? = nil,
         header: String? = nil,
         rightText: String = "",
         rightTextColor: TextStyleColorType? = nil,
-        trailingType: MPListItemTrailing.MPTrailingType? = nil,
-        type: MPListItemType? = nil,
+        isSelected: Binding<Bool>? = nil,
         leftImageSystemName: String? = nil
     ) -> some View {
         MPListItem(
-            type: type,
+            isSelected: isSelected,
             leftImage: leftImageSystemName.map(Image.init(systemName:)),
             contentInfo: .init(title: title, header: header, description: description),
-            trailing: .init(text: rightText, color: rightTextColor, type: trailingType)
+            trailing: .init(text: rightText, color: rightTextColor)
         )
     }
-    
+
     private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
         ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             VStack(alignment: .leading, spacing: 12) {

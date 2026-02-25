@@ -13,10 +13,10 @@ import SwiftUI
 struct InstallmentScreen: View {
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.presentationMode) var presentationMode
-    
+
     @ObservedObject private var viewModel: InstallmentsScreenViewModel
     @State var selectedPayerCost: Installment.PayerCost?
-    
+
     private let onBack: () -> Void
     private let onContinue: () -> Void
     @Binding private var paymentData: MPPaymentData
@@ -32,7 +32,7 @@ struct InstallmentScreen: View {
         self.onBack = onBack
         self.onContinue = onContinue
     }
-    
+
     var body: some View {
         MPHeader(
             title: MPStrings.Installments.title,
@@ -82,7 +82,7 @@ struct InstallmentScreen: View {
 
 #if DEBUG
 enum InstallmentMock {
-    
+
     static let visa: Installment = Installment(
         paymentMethodId: "visa",
         paymentTypeId: "credit_card",
