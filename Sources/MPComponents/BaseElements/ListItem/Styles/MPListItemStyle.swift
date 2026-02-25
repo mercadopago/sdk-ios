@@ -18,15 +18,10 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
     @MainActor
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         HStack(alignment: .center, spacing: theme.spacings.xtiny) {
-            if let radioButton = configuration.radioButton {
-                radioButton
-            }
-            
             if let leftImage = configuration.leftImage {
                 leftImage
             }
-            
-            // ContentInfo
+
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 if let header = configuration.header {
                     header
@@ -38,21 +33,13 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
                     description
                 }
             }
-            
+
             Spacer()
-            
-            // Trailing
-            HStack(spacing: theme.spacings.xmicro) {
-                if let textRight = configuration.textRight {
-                    textRight
-                }
-                if let rightContent = configuration.rightContent {
-                    rightContent
-                        .foregroundColor(theme.colors.icon.accent)
-                }
+
+            if let trailing = configuration.trailing {
+                trailing
             }
         }
-        .background(configuration.selectedButton)
         .padding(.horizontal, theme.spacings.micro)
         .padding(.vertical, theme.spacings.xtiny)
         .cornerRadius(theme.borderRadius.small)
