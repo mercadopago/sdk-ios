@@ -14,8 +14,14 @@ import XCTest
 @MainActor
 final class InstallmentsViewTests: XCTestCase {
     func test_installmentScreen() {
-        let view = InstallmentScreen(installments: Installment.validInstallments)
-        
+        var paymentData = MPPaymentData(transactionAmount: 1000)
+        let view = InstallmentScreen(
+            paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
+            installments: Installment.validInstallments,
+            onBack: {},
+            onContinue: {}
+        )
+
         assertSnapshot(
             of: UIHostingController(rootView: view),
             as: .image(on: .iPhone13)
