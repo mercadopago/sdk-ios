@@ -36,75 +36,83 @@ struct CardFormScreen: View {
     }
 
     var body: some View {
-            MPHeader(
-                title: MPStrings.CardForm.title,
-                onBack: {
-                    onBack()
-                },
-                footer: {
-                    MPFooter(
-                        label: MPStrings.Common.total,
-                        amount: MPStrings.formatPrice(paymentData.transactionAmount),
-                        buttonLabel: MPStrings.CardForm.button,
-                        action: {
-                            onContinue()
-                        }
-                    )
-                    .disabled(!cardForm.isFormValid)
-                }
-            ) {
-                VStack(spacing: theme.spacings.xsmall) {
-                    MPTextField(
-                        text: $cardForm.cardNumber,
-                        label: MPStrings.CardForm.CardNumber.label,
-                        placeholder: MPStrings.CardForm.CardNumber.placeholder,
-                        errorMessage: cardForm.$cardNumber,
-                        keyboard: .numberPad,
-                        formatter: viewModel.cardNumberFormatter,
-                    )
-                    
-                    MPTextField(
-                        text: $cardForm.cardHolder,
-                        label: MPStrings.CardForm.CardHolder.label,
-                        placeholder: MPStrings.CardForm.CardHolder.placeholder,
-                        helperText: MPStrings.CardForm.CardHolder.helperText,
-                        errorMessage: cardForm.$cardHolder,
-                    )
+        Group {
+            switch viewModel.screenState {
+            case .loading:
+                MPProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(theme.colors.background.primary)
+            case .ready:
+                MPHeader(
+                    title: MPStrings.CardForm.title,
+                    onBack: { onBack() },
+                    footer: {
+                        MPFooter(
+                            label: MPStrings.Common.total,
+                            amount: MPStrings.formatPrice(paymentData.transactionAmount),
+                            buttonLabel: MPStrings.CardForm.button,
+                            action: { onContinue() }
+                        )
+                        .disabled(!cardForm.isFormValid)
+                    }
+                ) {
+                    VStack(spacing: theme.spacings.xsmall) {
+                        MPTextField(
+                            text: $cardForm.cardNumber,
+                            label: MPStrings.CardForm.CardNumber.label,
+                            placeholder: MPStrings.CardForm.CardNumber.placeholder,
+                            errorMessage: cardForm.$cardNumber,
+                            keyboard: .numberPad,
+                            formatter: viewModel.cardNumberFormatter,
+                        )
 
-                MPTextField(
-                    text: $cardForm.expirationDate,
-                    label: MPStrings.CardForm.Expiration.label,
-                    placeholder: MPStrings.CardForm.Expiration.placeholder,
-                    errorMessage: cardForm.$expirationDate,
-                    keyboard: .numberPad,
-                    formatter: viewModel.expirationDateFormatter,
-                )
-                
-                MPTextField(
-                    text: $cardForm.securityCode,
-                    label: MPStrings.CardForm.CVV.label,
-                    placeholder: MPStrings.CardForm.CVV.placeholderDefault,
-                    errorMessage: cardForm.$securityCode,
-                    keyboard: .numberPad,
-                    formatter: viewModel.securityCodeFormatter,
-                    popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
-                )
-                
-                
-                MPTextField(
-                    text: $cardForm.documentHolder,
-                    label: MPStrings.CardForm.Document.label,
-                    placeholder: viewModel.selectTypeDocument.placeholder,
-                    errorMessage: cardForm.$documentHolder,
-                    prefix: {
-                        dropdownDocument()
-                    },
-                )
-                
+                        MPTextField(
+                            text: $cardForm.cardHolder,
+                            label: MPStrings.CardForm.CardHolder.label,
+                            placeholder: MPStrings.CardForm.CardHolder.placeholder,
+                            helperText: MPStrings.CardForm.CardHolder.helperText,
+                            errorMessage: cardForm.$cardHolder,
+                        )
+
+                        MPTextField(
+                            text: $cardForm.expirationDate,
+                            label: MPStrings.CardForm.Expiration.label,
+                            placeholder: MPStrings.CardForm.Expiration.placeholder,
+                            errorMessage: cardForm.$expirationDate,
+                            keyboard: .numberPad,
+                            formatter: viewModel.expirationDateFormatter,
+                        )
+
+                        MPTextField(
+                            text: $cardForm.securityCode,
+                            label: MPStrings.CardForm.CVV.label,
+                            placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                            errorMessage: cardForm.$securityCode,
+                            keyboard: .numberPad,
+                            formatter: viewModel.securityCodeFormatter,
+                            popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
+                        )
+
+                        MPTextField(
+                            text: $cardForm.documentHolder,
+                            label: MPStrings.CardForm.Document.label,
+                            placeholder: viewModel.selectTypeDocument?.getPlaceholder(),
+                            errorMessage: cardForm.$documentHolder,
+                            keyboard: viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
+                            formatter: viewModel.documentFormatter,
+                            prefix: {
+                                dropdownDocument()
+                            },
+                        )
+                    }
+                    .padding(.horizontal, theme.spacings.micro)
+                }
+                .background(theme.colors.background.primary)
             }
-            .padding(.horizontal, theme.spacings.micro)
         }
-        .background(theme.colors.background.primary)
+        .mpTask {
+            await viewModel.loadIdentificationTypes()
+        }
     }
         
     @ViewBuilder
@@ -113,7 +121,7 @@ struct CardFormScreen: View {
             openDocumentsSheet.toggle()
         } label: {
             HStack {
-                Text(viewModel.selectTypeDocument.name)
+                Text(viewModel.selectTypeDocument?.name ?? String())
                     .textStyle(.bodyMedium(colorType: .secondary))
                 
                 Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
@@ -130,7 +138,7 @@ struct CardFormScreen: View {
             )
             .padding(.leading, theme.spacings.micro)
         }
-        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument.name))
+        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument?.name ?? String()))
     }
 }
 

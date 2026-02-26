@@ -8,19 +8,46 @@ import SwiftUI
 import CoreMethods
 import MPComponents
 
+enum CardFormScreenState {
+    case loading
+    case ready
+}
+
 @MainActor
 final class CardFormViewModel: ObservableObject {
 
-    let configuration: MercadoPagoCheckout.CheckoutConfiguration
+    // MARK: - Dependencies
+    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
+    private let service: CheckoutServiceProtocol
 
-    // Formatters
+    // MARK: - Formatters
     let cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
     let securityCodeFormatter = SecurityCodeFormatter()
 
-    @Published var selectTypeDocument: IdentificationType = .init(name: "CPF")
+    var documentFormatter: DocumentFormatter {
+        DocumentFormatter(mask: selectTypeDocument?.getFormat() ?? String())
+    }
 
-    init(configuration: MercadoPagoCheckout.CheckoutConfiguration) {
+    // MARK: - Published State
+    @Published var selectTypeDocument: IdentificationType?
+    @Published var screenState: CardFormScreenState = .loading
+
+    // MARK: - Init
+
+    init(configuration: MercadoPagoCheckout.CheckoutConfiguration, service: CheckoutServiceProtocol = CheckoutService()) {
         self.configuration = configuration
+        self.service = service
+    }
+    
+    // MARK: - Identification Types
+    func loadIdentificationTypes() async {
+        do {
+            let types = try await service.identificationTypes()
+            selectTypeDocument = types.first
+            screenState = .ready
+        } catch {
+            screenState = .ready
+        }
     }
 }

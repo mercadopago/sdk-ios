@@ -71,6 +71,41 @@ package struct ExpirationDateFormatter: TextFormatting {
     }
 }
 
+// MARK: - Document Formatter
+
+/// A formatter that applies a mask pattern to document numbers.
+/// Uses '#' for digit positions and any other character as a literal.
+/// When the format is empty, the input is returned unchanged.
+package struct DocumentFormatter: TextFormatting {
+    private let maskFormat: String
+
+    package init(mask: String = "") {
+        self.maskFormat = mask
+    }
+
+    package func formatOnChange(_ text: String) -> String {
+        guard !maskFormat.isEmpty else { return text }
+        let digits = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        var result = ""
+        var index = digits.startIndex
+
+        for char in maskFormat where index < digits.endIndex {
+            if char == "#" {
+                result.append(digits[index])
+                index = digits.index(after: index)
+            } else {
+                result.append(char)
+            }
+        }
+
+        return result
+    }
+
+    package func formatOnCommit(_ text: String) -> String {
+        formatOnChange(text)
+    }
+}
+
 // MARK: - Security Code Formatter
 
 /// A formatter that limits CVV input to digits only.
