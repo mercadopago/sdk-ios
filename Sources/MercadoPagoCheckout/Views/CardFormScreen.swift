@@ -42,7 +42,7 @@ struct CardFormScreen: View {
                 MPProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(theme.colors.background.primary)
-            case .idle, .ready:
+            case .ready:
                 MPHeader(
                     title: MPStrings.CardForm.title,
                     onBack: { onBack() },
@@ -96,8 +96,9 @@ struct CardFormScreen: View {
                         MPTextField(
                             text: $cardForm.documentHolder,
                             label: MPStrings.CardForm.Document.label,
-                            placeholder: viewModel.selectTypeDocument.getPlaceholder(),
+                            placeholder: viewModel.selectTypeDocument?.getPlaceholder(),
                             errorMessage: cardForm.$documentHolder,
+                            keyboard: viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
                             formatter: viewModel.documentFormatter,
                             prefix: {
                                 dropdownDocument()
@@ -120,7 +121,7 @@ struct CardFormScreen: View {
             openDocumentsSheet.toggle()
         } label: {
             HStack {
-                Text(viewModel.selectTypeDocument.name)
+                Text(viewModel.selectTypeDocument?.name ?? String())
                     .textStyle(.bodyMedium(colorType: .secondary))
                 
                 Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
@@ -137,7 +138,7 @@ struct CardFormScreen: View {
             )
             .padding(.leading, theme.spacings.micro)
         }
-        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument.name))
+        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument?.name ?? String()))
     }
 }
 

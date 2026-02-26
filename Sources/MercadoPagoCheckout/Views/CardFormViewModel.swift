@@ -9,7 +9,6 @@ import CoreMethods
 import MPComponents
 
 enum CardFormScreenState {
-    case idle
     case loading
     case ready
 }
@@ -27,26 +26,25 @@ final class CardFormViewModel: ObservableObject {
     let securityCodeFormatter = SecurityCodeFormatter()
 
     var documentFormatter: DocumentFormatter {
-        DocumentFormatter(mask: selectTypeDocument.getFormat())
+        DocumentFormatter(mask: selectTypeDocument?.getFormat() ?? String())
     }
 
     // MARK: - Published State
-    @Published var selectTypeDocument: IdentificationType = .init(name: "CPF")
-    @Published var screenState: CardFormScreenState = .idle
+    @Published var selectTypeDocument: IdentificationType?
+    @Published var screenState: CardFormScreenState = .loading
 
     // MARK: - Init
 
     init(configuration: MercadoPagoCheckout.CheckoutConfiguration, service: CheckoutServiceProtocol = CheckoutService()) {
         self.configuration = configuration
         self.service = service
-        self.screenState = .loading
     }
     
     // MARK: - Identification Types
     func loadIdentificationTypes() async {
         do {
             let types = try await service.identificationTypes()
-            selectTypeDocument = types.first ?? selectTypeDocument
+            selectTypeDocument = types.first
             screenState = .ready
         } catch {
             screenState = .ready
