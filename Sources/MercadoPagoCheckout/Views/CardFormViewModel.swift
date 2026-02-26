@@ -8,6 +8,11 @@ import SwiftUI
 import CoreMethods
 import MPComponents
 
+enum CardFormScreenState {
+    case loading
+    case ready
+}
+
 @MainActor
 final class CardFormViewModel: ObservableObject {
 
@@ -20,15 +25,20 @@ final class CardFormViewModel: ObservableObject {
     let expirationDateFormatter = ExpirationDateFormatter()
     let securityCodeFormatter = SecurityCodeFormatter()
 
+    var documentFormatter: DocumentFormatter {
+        DocumentFormatter(mask: selectTypeDocument?.getFormat() ?? String())
+    }
+
     // MARK: - Published State
-    @Published var selectTypeDocument: IdentificationType = .init(name: "CPF")
-    @Published var isLoadingIdentificationTypes: Bool = true //Validar comportamento com UX
+    @Published var selectTypeDocument: IdentificationType?
+    @Published var screenState: CardFormScreenState = .loading
     @Published var binData: CardBinData?
     @Published var hasCardNumberApiError: Bool = false
 
     // MARK: - Private
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
+
 
     // MARK: - Init
 
@@ -41,10 +51,10 @@ final class CardFormViewModel: ObservableObject {
     func loadIdentificationTypes() async {
         do {
             let types = try await service.identificationTypes()
-            isLoadingIdentificationTypes = false
-            selectTypeDocument = types.first ?? selectTypeDocument
+            selectTypeDocument = types.first
+            screenState = .ready
         } catch {
-            isLoadingIdentificationTypes = false
+            screenState = .ready
         }
     }
     
