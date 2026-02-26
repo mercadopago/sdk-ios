@@ -51,7 +51,6 @@ struct CheckoutService: CheckoutServiceProtocol, BinFetchingProtocol {
         var fetchedInstallment: Installment?
         if let amount {
             let installments = try await installments(amount: amount, bin: bin)
-            
             if let fetchedIssuer {
                 fetchedInstallment = installments.first(where: { $0.issuer.id == fetchedIssuer.id })
             } else {

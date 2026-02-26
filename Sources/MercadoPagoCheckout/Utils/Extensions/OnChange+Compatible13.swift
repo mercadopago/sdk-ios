@@ -31,7 +31,9 @@ struct OnChangeModifier<V: Equatable>: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        if #available(iOS 14.0, *) {
+        if #available(iOS 17.0, *) {
+            content.onChange(of: value) { _, newValue in action(newValue) }
+        } else if #available(iOS 14.0, *) {
             content.onChange(of: value, perform: action)
         } else {
             content.onReceive(Just(value)) { newValue in

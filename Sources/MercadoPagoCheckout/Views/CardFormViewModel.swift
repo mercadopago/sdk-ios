@@ -39,15 +39,15 @@ final class CardFormViewModel: ObservableObject {
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
 
-
     // MARK: - Init
 
     init(configuration: MercadoPagoCheckout.CheckoutConfiguration, service: CheckoutServiceProtocol = CheckoutService()) {
         self.configuration = configuration
         self.service = service
     }
-    
+
     // MARK: - Identification Types
+
     func loadIdentificationTypes() async {
         do {
             let types = try await service.identificationTypes()
@@ -57,7 +57,7 @@ final class CardFormViewModel: ObservableObject {
             screenState = .ready
         }
     }
-    
+
     // MARK: - Payment Methods
 
     func onCardNumberChange(_ cardNumber: String) {
@@ -75,8 +75,8 @@ final class CardFormViewModel: ObservableObject {
             return
         }
 
-        paymentMethodTask = Task {
-            await fetchBinData(bin: bin)
+        paymentMethodTask = Task { [weak self] in
+            await self?.fetchBinData(bin: bin)
         }
     }
 
@@ -85,7 +85,12 @@ final class CardFormViewModel: ObservableObject {
         let acceptedPaymentTypeIds = configuration.paymentMethod.acceptedPaymentTypeIds
         let acceptedPaymentMethodIds = configuration.paymentMethod.acceptedPaymentMethodIds
         do {
-            let data = try await service.fetchBinData(bin: bin, amount: amount, acceptedPaymentTypeIds: acceptedPaymentTypeIds, acceptedPaymentMethodIds: acceptedPaymentMethodIds)
+            let data = try await service.fetchBinData(
+                bin: bin,
+                amount: amount,
+                acceptedPaymentTypeIds: acceptedPaymentTypeIds,
+                acceptedPaymentMethodIds: acceptedPaymentMethodIds
+            )
             guard !Task.isCancelled else { return }
             binData = data
             hasCardNumberApiError = false
