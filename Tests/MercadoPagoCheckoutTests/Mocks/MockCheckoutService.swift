@@ -26,4 +26,17 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
         }
         return try result.get()
     }
+
+    private var fetchBinDataResult: Result<CardBinData, Error>?
+
+    func setFetchBinDataResult(_ result: Result<CardBinData, Error>) {
+        fetchBinDataResult = result
+    }
+
+    func fetchBinData(bin: String, amount: Double?, acceptedPaymentTypeIds: [String], acceptedPaymentMethodIds: [String]) async throws -> CardBinData {
+        guard let result = fetchBinDataResult else {
+            throw MockError.resultNotSet
+        }
+        return try result.get()
+    }
 }

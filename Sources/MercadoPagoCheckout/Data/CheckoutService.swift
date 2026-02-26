@@ -33,9 +33,13 @@ struct CheckoutService: CheckoutServiceProtocol, BinFetchingProtocol {
 
     // MARK: - CheckoutServiceProtocol
 
-    func fetchBinData(bin: String, amount: Double?, acceptedPaymentTypeIds: [String]) async throws -> CardBinData {
+    func fetchBinData(bin: String, amount: Double?, acceptedPaymentTypeIds: [String], acceptedPaymentMethodIds: [String]) async throws -> CardBinData {
         let methods = try await paymentMethod(bin: bin)
-        guard let method = methods.first(where: { acceptedPaymentTypeIds.contains($0.paymentTypeId) }) ?? methods.first else {
+        guard let method = methods.first(where: {
+            let matchesType = acceptedPaymentTypeIds.contains($0.paymentTypeId)
+            let matchesBrand = acceptedPaymentMethodIds.isEmpty || acceptedPaymentMethodIds.contains($0.id)
+            return matchesType && matchesBrand
+        }) else {
             throw BinFetchError.paymentMethodNotFound
         }
 
@@ -46,7 +50,13 @@ struct CheckoutService: CheckoutServiceProtocol, BinFetchingProtocol {
 
         var fetchedInstallment: Installment?
         if let amount {
-            fetchedInstallment = try await installments(amount: amount, bin: bin).first
+            let installments = try await installments(amount: amount, bin: bin)
+            
+            if let fetchedIssuer {
+                fetchedInstallment = installments.first(where: { $0.issuer.id == fetchedIssuer.id })
+            } else {
+                fetchedInstallment = installments.first
+            }
         }
 
         return CardBinData(

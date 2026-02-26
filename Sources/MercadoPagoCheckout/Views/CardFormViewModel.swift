@@ -83,8 +83,9 @@ final class CardFormViewModel: ObservableObject {
     private func fetchBinData(bin: String) async {
         let amount = configuration.type.configuration.amount
         let acceptedPaymentTypeIds = configuration.paymentMethod.acceptedPaymentTypeIds
+        let acceptedPaymentMethodIds = configuration.paymentMethod.acceptedPaymentMethodIds
         do {
-            let data = try await service.fetchBinData(bin: bin, amount: amount, acceptedPaymentTypeIds: acceptedPaymentTypeIds)
+            let data = try await service.fetchBinData(bin: bin, amount: amount, acceptedPaymentTypeIds: acceptedPaymentTypeIds, acceptedPaymentMethodIds: acceptedPaymentMethodIds)
             guard !Task.isCancelled else { return }
             binData = data
             hasCardNumberApiError = false

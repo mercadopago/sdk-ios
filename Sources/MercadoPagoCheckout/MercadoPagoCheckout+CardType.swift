@@ -14,6 +14,8 @@ public extension MercadoPagoCheckout {
         case debit
         /// A prepaid card.
         case prepaid
+        
+        static var defaults: [CardType] { [.credit, .debit, .prepaid] }
     }
 }
 

@@ -11,8 +11,9 @@ public extension MercadoPagoCheckout {
         /// A credit, debit, or prepaid card payment.
         /// - Parameters:
         ///   - cardTypes: The card types accepted (e.g. `.credit`, `.debit`, `.prepaid`).
+        ///   - cardBrands: The card brands accepted (e.g. `.visa`, `.mastercard`). Empty means all brands are accepted.
         ///   - installment: Installment options for this payment method. Defaults to ``Installment/init()``.
-        case card(cardTypes: [CardType], installment: Installment? = Installment())
+        case card(cardTypes: [CardType], cardBrands: [CardBrand] = [], installment: Installment? = Installment())
         /// Pix instant payment.
         case pix
         /// Boleto bank slip payment.
@@ -25,7 +26,7 @@ public extension MercadoPagoCheckout {
         /// The default set of payment methods: card (credit, debit, prepaid), Pix, and Boleto.
         public static var defaults: [PaymentMethod] {
             [
-                .card(cardTypes: [.credit, .debit, .prepaid]),
+                .card(cardTypes: CardType.defaults, cardBrands: CardBrand.defaults),
                 .pix,
                 .boleto
             ]
@@ -36,8 +37,15 @@ public extension MercadoPagoCheckout {
 extension [MercadoPagoCheckout.PaymentMethod] {
     var acceptedPaymentTypeIds: [String] {
         flatMap { method -> [String] in
-            guard case .card(let cardTypes, _) = method else { return [] }
+            guard case .card(let cardTypes, _, _) = method else { return [] }
             return cardTypes.map(\.paymentTypeId)
+        }
+    }
+
+    var acceptedPaymentMethodIds: [String] {
+        flatMap { method -> [String] in
+            guard case .card(_, let cardBrands, _) = method else { return [] }
+            return cardBrands.map(\.paymentMethodId)
         }
     }
 }
