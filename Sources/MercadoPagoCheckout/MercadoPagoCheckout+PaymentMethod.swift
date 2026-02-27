@@ -13,12 +13,12 @@ public extension MercadoPagoCheckout {
         ///   - cardTypes: The card types accepted (e.g. `.credit`, `.debit`, `.prepaid`).
         ///   - cardBrands: The card brands accepted (e.g. `.visa`, `.mastercard`). Empty means all brands are accepted.
         ///   - installment: Installment options for this payment method. Defaults to ``Installment/init()``.
-        case card(cardTypes: [CardType], cardBrands: [CardBrand] = [], installment: Installment? = Installment())
+        case card(allowedTypes: [CardType], allowedBrands: [CardBrand] = [], installment: Installment? = Installment())
         
         /// The default set of payment methods: card (credit, debit, prepaid), Pix, and Boleto.
         public static var defaults: [PaymentMethod] {
             [
-                .card(cardTypes: CardType.defaults, cardBrands: CardBrand.defaults)
+                .card(allowedTypes: CardType.defaults, allowedBrands: CardBrand.defaults)
             ]
         }
     }
