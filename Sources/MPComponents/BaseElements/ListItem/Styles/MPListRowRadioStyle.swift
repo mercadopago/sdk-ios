@@ -16,16 +16,10 @@ package struct MPListRowRadioStyle: MPListItemStyle {
 
     @MainActor
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xtiny) {
-            if let isSelected = configuration.isSelected {
-                Toggle(isOn: .constant(isSelected.wrappedValue)) { EmptyView() }
-                    .toggleStyle(MPRadioButtonToggleStyle())
-                    .labelsHidden()
-                    .allowsHitTesting(false)
-                    .alignmentGuide(.firstTextBaseline) { d in
-                        d[VerticalAlignment.center]
-                    }
-            }
+        let hasDescription = configuration.description != nil
+        
+        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
+            radioToggle(isSelected: configuration.isSelected, hasDescription: hasDescription)
 
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 if let header = configuration.header { header }
@@ -44,4 +38,22 @@ package struct MPListRowRadioStyle: MPListItemStyle {
         .background(configuration.isPressed ? theme.colors.surface.active : Color.clear)
         .cornerRadius(theme.borderRadius.small)
     }
+    
+    @ViewBuilder
+    private func radioToggle(isSelected: Bool, hasDescription: Bool) -> some View {
+        let toggle = Toggle(isOn: .constant(isSelected)) { EmptyView() }
+            .toggleStyle(MPRadioButtonToggleStyle())
+            .labelsHidden()
+            .fixedSize()
+            .allowsHitTesting(false)
+
+        if hasDescription {
+            toggle.alignmentGuide(.firstTextBaseline) { d in
+                d[VerticalAlignment.center]
+            }
+        } else {
+            toggle
+        }
+    }
+    
 }

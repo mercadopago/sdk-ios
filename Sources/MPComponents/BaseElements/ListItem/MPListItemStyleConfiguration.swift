@@ -29,7 +29,7 @@ package struct MPListItemStyleConfiguration {
     }
 
     package let isPressed: Bool
-    package let isSelected: Binding<Bool>?
+    package let isSelected: Bool
     package let leftImage: LeftImage?
     package let title: Title?
     package let header: Header?
@@ -39,7 +39,7 @@ package struct MPListItemStyleConfiguration {
     @MainActor
     package init(
         isPressed: Bool = false,
-        isSelected: Binding<Bool>? = nil,
+        isSelected: Bool = false,
         leftImage: (some View)? = nil,
         title: (some View)? = nil,
         header: (some View)? = nil,

@@ -37,7 +37,7 @@ package struct MPListItem: View {
     package var body: some View {
         let configuration: MPListItemStyleConfiguration = .init(
             isPressed: isPressed,
-            isSelected: isSelected,
+            isSelected: isSelected.wrappedValue,
             leftImage: leftImageView,
             title: titleView,
             header: headerView,

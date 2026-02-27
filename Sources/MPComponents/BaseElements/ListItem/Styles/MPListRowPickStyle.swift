@@ -16,7 +16,7 @@ package struct MPListRowPickStyle: MPListItemStyle {
 
     @MainActor
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
-        let isSelected = configuration.isSelected?.wrappedValue == true
+        let isSelected = configuration.isSelected == true
 
         HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xtiny) {
             if let leftImage = configuration.leftImage {
