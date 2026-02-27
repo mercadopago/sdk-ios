@@ -34,9 +34,12 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
 
     @MainActor
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
-        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
+        HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xtiny) {
             if let leftImage = configuration.leftImage {
                 leftImage
+                    .alignmentGuide(.firstTextBaseline) { d in
+                        d[VerticalAlignment.center]
+                    }
             }
 
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {

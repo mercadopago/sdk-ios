@@ -28,6 +28,7 @@ package struct MPListItemStyleConfiguration {
         package let body: AnyView
     }
 
+    package let isPressed: Bool
     package let isSelected: Binding<Bool>?
     package let leftImage: LeftImage?
     package let title: Title?
@@ -37,6 +38,7 @@ package struct MPListItemStyleConfiguration {
 
     @MainActor
     package init(
+        isPressed: Bool = false,
         isSelected: Binding<Bool>? = nil,
         leftImage: (some View)? = nil,
         title: (some View)? = nil,
@@ -44,6 +46,7 @@ package struct MPListItemStyleConfiguration {
         description: (some View)? = nil,
         trailing: (some View)? = nil
     ) {
+        self.isPressed = isPressed
         self.isSelected = isSelected
         self.title = title.map { Title(body: AnyView($0)) }
         self.header = header.map { Header(body: AnyView($0)) }

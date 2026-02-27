@@ -16,35 +16,32 @@ package struct MPListRowRadioStyle: MPListItemStyle {
 
     @MainActor
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
-        Button {
-            configuration.isSelected?.wrappedValue.toggle()
-        } label: {
-            HStack(alignment: .center, spacing: theme.spacings.xtiny) {
-                if let isSelected = configuration.isSelected {
-                    Toggle(isOn: .constant(isSelected.wrappedValue)) { EmptyView() }
-                        .toggleStyle(MPRadioButtonToggleStyle())
-                        .labelsHidden()
-                }
-
-                if let leftImage = configuration.leftImage { leftImage }
-
-                VStack(alignment: .leading, spacing: theme.spacings.xnano) {
-                    if let header = configuration.header { header }
-                    if let title = configuration.title { title }
-                    if let description = configuration.description { description }
-                }
-
-                Spacer()
-
-                if let trailing = configuration.trailing {
-                    trailing
-                }
+        HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xtiny) {
+            if let isSelected = configuration.isSelected {
+                Toggle(isOn: .constant(isSelected.wrappedValue)) { EmptyView() }
+                    .toggleStyle(MPRadioButtonToggleStyle())
+                    .labelsHidden()
+                    .allowsHitTesting(false)
+                    .alignmentGuide(.firstTextBaseline) { d in
+                        d[VerticalAlignment.center]
+                    }
             }
-            .padding(.horizontal, theme.spacings.micro)
-            .padding(.vertical, theme.spacings.xtiny)
-            .cornerRadius(theme.borderRadius.small)
-            .contentShape(Rectangle())
+
+            VStack(alignment: .leading, spacing: theme.spacings.xnano) {
+                if let header = configuration.header { header }
+                if let title = configuration.title { title }
+                if let description = configuration.description { description }
+            }
+
+            Spacer()
+
+            if let trailing = configuration.trailing {
+                trailing
+            }
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, theme.spacings.micro)
+        .padding(.vertical, theme.spacings.xtiny)
+        .background(configuration.isPressed ? theme.colors.surface.active : Color.clear)
+        .cornerRadius(theme.borderRadius.small)
     }
 }

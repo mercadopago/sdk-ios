@@ -51,7 +51,7 @@ package struct MPTrailingTextIconStyle: MPListItemTrailingStyle {
 
     @MainActor
     package func makeBody(configuration: MPListItemTrailingStyleConfiguration) -> some View {
-        HStack(spacing: theme.spacings.xmicro) {
+        HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xmicro) {
             if let text = configuration.text {
                 Text(text)
                     .textStyle(.bodyMedium(colorType: configuration.textColor ?? .primary))

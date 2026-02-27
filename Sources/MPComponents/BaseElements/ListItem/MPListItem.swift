@@ -12,6 +12,7 @@ package struct MPListItem: View {
 
     @Environment(\.listItemStyle) private var style
     @Environment(\.listItemTrailingStyle) private var trailingStyle
+    @State private var isPressed = false
 
     let isSelected: Binding<Bool>
     let leftImage: Image?
@@ -35,6 +36,7 @@ package struct MPListItem: View {
 
     package var body: some View {
         let configuration: MPListItemStyleConfiguration = .init(
+            isPressed: isPressed,
             isSelected: isSelected,
             leftImage: leftImageView,
             title: titleView,
@@ -44,9 +46,19 @@ package struct MPListItem: View {
         )
 
         let resolvedStyle = style ?? MPDefaultListItemStyle()
+        
         AnyView(
             resolvedStyle.resolve(configuration: configuration)
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            isSelected.wrappedValue.toggle()
+        }
+        .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
+            withAnimation(.easeOut(duration: 0.15)) {
+                isPressed = pressing
+            }
+        }, perform: {})
     }
 
     @ViewBuilder
@@ -152,7 +164,6 @@ struct MPListItemView: View {
 
 #Preview {
     MPListItemView()
-        .listItemStyle(.radioButton)
 
 }
 #endif
