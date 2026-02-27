@@ -11,6 +11,7 @@ protocol CheckoutServiceProtocol: Sendable {
     func paymentMethod(bin: String) async throws -> [PaymentMethod]
     func issuers(bin: String, paymentMethodID: String) async throws -> [Issuer]
     func installments(amount: Double, bin: String) async throws -> [Installment]
+    func createCardToken(cardParams: CardParams) async throws -> CardToken
     func fetchBinData(
         bin: String,
         amount: Double?,
