@@ -29,7 +29,9 @@ struct CheckoutService: CheckoutServiceProtocol {
         try await coreMethods.installments(amount: amount, bin: bin)
     }
 
-    // MARK: - CheckoutServiceProtocol
+    func createCardToken(cardParams: CardParams) async throws -> CardToken {
+        try await coreMethods.createToken(cardParams)
+    }
 
     func fetchBinData(
         bin: String,
