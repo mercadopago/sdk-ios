@@ -42,7 +42,20 @@ public extension MercadoPagoCheckout {
 
         /// All predefined card brands.
         public static var defaults: [CardBrand] {
-            [.visa, .mastercard, .amex, .elo, .hipercard, .diners, .discover, .jcb, .maestro, .unionPay, .cabal, .naranja]
+            [
+                .visa, 
+                .mastercard, 
+                .amex,
+                .elo, 
+                .hipercard, 
+                .diners,
+                .discover, 
+                .jcb, 
+                .maestro, 
+                .unionPay, 
+                .cabal, 
+                .naranja
+            ]
         }
     }
 }

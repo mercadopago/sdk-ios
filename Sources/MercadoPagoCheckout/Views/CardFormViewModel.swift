@@ -41,7 +41,10 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(configuration: MercadoPagoCheckout.CheckoutConfiguration, service: CheckoutServiceProtocol = CheckoutService()) {
+    init(
+        configuration: MercadoPagoCheckout.CheckoutConfiguration,
+        service: CheckoutServiceProtocol = CheckoutService()
+    ) {
         self.configuration = configuration
         self.service = service
     }

@@ -33,7 +33,12 @@ struct CheckoutService: CheckoutServiceProtocol, BinFetchingProtocol {
 
     // MARK: - CheckoutServiceProtocol
 
-    func fetchBinData(bin: String, amount: Double?, acceptedPaymentTypeIds: [String], acceptedPaymentMethodIds: [String]) async throws -> CardBinData {
+    func fetchBinData(
+        bin: String,
+        amount: Double?,
+        acceptedPaymentTypeIds: [String],
+        acceptedPaymentMethodIds: [String]
+    ) async throws -> CardBinData {
         try await FetchBinDataUseCase(service: self).execute(
             bin: bin,
             amount: amount,

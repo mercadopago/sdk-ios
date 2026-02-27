@@ -69,7 +69,7 @@ final class InstallmentsScreenViewModel: ObservableObject {
         return getSavedCardName(
             issuerName: issuerName,
             paymentTypeLabel: MPFormatIssuerName.formattedPaymentType(type),
-            lastDigits:  "1234"
+            lastDigits: "1234"
         )
     }
     
