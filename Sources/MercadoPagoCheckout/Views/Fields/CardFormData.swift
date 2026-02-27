@@ -8,23 +8,19 @@ import MPComponents
 
  struct CardFormData {
     @CardFormValidate(
-        RequiredRule(
-            MPStrings.CardForm.CardNumber.errorEmpty
-        ),
+        RequiredRule(MPStrings.CardForm.CardNumber.errorEmpty),
         CardNumberRule()
     )
     var cardNumber: String = ""
     
     @CardFormValidate(
-        RequiredRule( MPStrings.CardForm.CardHolder.errorEmpty
-        ),
+        RequiredRule(MPStrings.CardForm.CardHolder.errorEmpty),
         CardHolderRule()
     )
     var cardHolder: String = ""
     
     @CardFormValidate(
-        RequiredRule( MPStrings.CardForm.Expiration.errorEmpty
-        ),
+        RequiredRule(MPStrings.CardForm.Expiration.errorEmpty),
         ExpirationDateRule()
     )
     var expirationDate: String = ""
@@ -36,9 +32,7 @@ import MPComponents
     var securityCode: String = ""
     
     @CardFormValidate(
-        RequiredRule(
-            MPStrings.CardForm.Document.errorEmpty
-        ),
+        RequiredRule(MPStrings.CardForm.Document.errorEmpty),
         DocumentRule()
     )
     var documentHolder: String = ""

@@ -78,9 +78,7 @@ struct MainListView: View {
         )
         
         builder.setPaymentMethod([
-            .card(cardTypes: [.credit, .debit]),
-            .pix,
-            .boleto
+            .card(allowedTypes: [.credit, .debit])
         ])
         return builder.build()
     }

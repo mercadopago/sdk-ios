@@ -38,28 +38,29 @@ struct InstallmentScreen: View {
             title: MPStrings.Installments.title,
             onBack: {
                 presentationMode.wrappedValue.dismiss()
+            },
+            content: {
+                ForEach(viewModel.payerCosts) { payerCost in
+                    MPListItem(
+                        type: .radioButton(
+                            selected: viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost)
+                        ),
+                        contentInfo: .init(
+                            title: viewModel.formatInstallmentLabel(for: payerCost),
+                            description: nil
+                        ),
+                        trailing: MPListItemTrailing(
+                            text: viewModel.formatInterestLabel(for: payerCost),
+                            color: viewModel.findInterestLabelColor(for: payerCost),
+                            type: nil
+                        ),
+                        onClick: {
+                            self.selectedPayerCost = payerCost
+                        }
+                    )
+                }
             }
-        ) {
-            ForEach(viewModel.payerCosts) { payerCost in
-                MPListItem(
-                    type: .radioButton(
-                        selected: viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost)
-                    ),
-                    contentInfo: .init(
-                        title: viewModel.formatInstallmentLabel(for: payerCost),
-                        description: nil
-                    ),
-                    trailing: MPListItemTrailing(
-                        text: viewModel.formatInterestLabel(for: payerCost),
-                        color: viewModel.findInterestLabelColor(for: payerCost),
-                        type: nil
-                    ),
-                    onClick: {
-                        self.selectedPayerCost = payerCost
-                    }
-                )
-            }
-        }
+        )
         MPFooter(
             label: MPStrings.Common.total,
             amount: viewModel.selectedTotalAmount(selectedPayerCost),

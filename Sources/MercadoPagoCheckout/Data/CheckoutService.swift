@@ -16,4 +16,32 @@ struct CheckoutService: CheckoutServiceProtocol {
     func identificationTypes() async throws -> [IdentificationType] {
         try await coreMethods.identificationTypes()
     }
+
+    func paymentMethod(bin: String) async throws -> [PaymentMethod] {
+        try await coreMethods.paymentMethods(bin: bin)
+    }
+
+    func issuers(bin: String, paymentMethodID: String) async throws -> [Issuer] {
+        try await coreMethods.issuers(bin: bin, paymentMethodID: paymentMethodID)
+    }
+
+    func installments(amount: Double, bin: String) async throws -> [Installment] {
+        try await coreMethods.installments(amount: amount, bin: bin)
+    }
+
+    // MARK: - CheckoutServiceProtocol
+
+    func fetchBinData(
+        bin: String,
+        amount: Double?,
+        acceptedPaymentTypeIds: [String],
+        acceptedPaymentMethodIds: [String]
+    ) async throws -> CardBinData {
+        try await FetchBinDataUseCase(service: self).execute(
+            bin: bin,
+            amount: amount,
+            acceptedPaymentTypeIds: acceptedPaymentTypeIds,
+            acceptedPaymentMethodIds: acceptedPaymentMethodIds
+        )
+    }
 }
