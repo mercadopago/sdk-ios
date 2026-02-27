@@ -12,16 +12,6 @@ import MPComponents
         CardNumberRule()
     )
     var cardNumber: String = ""
-
-    private var cardNumberApiError = false
-
-    var cardNumberExternalError: String? {
-        cardNumberApiError ? MPStrings.CardForm.CardNumber.errorInvalid : nil
-    }
-
-    mutating func setCardNumberApiError(_ hasError: Bool) {
-        cardNumberApiError = hasError
-    }
     
     @CardFormValidate(
         RequiredRule(MPStrings.CardForm.CardHolder.errorEmpty),
@@ -57,7 +47,6 @@ import MPComponents
     
     var isFormValid: Bool {
         return _cardNumber.errorMessages.isEmpty
-        && !cardNumberApiError
         && _cardHolder.errorMessages.isEmpty
         && _expirationDate.errorMessages.isEmpty
         && _securityCode.errorMessages.isEmpty

@@ -33,7 +33,6 @@ final class CardFormViewModel: ObservableObject {
     @Published var selectTypeDocument: IdentificationType?
     @Published var screenState: CardFormScreenState = .loading
     @Published var binData: CardBinData?
-    @Published var hasCardNumberApiError: Bool = false
 
     // MARK: - Private
     private var lastFetchedBIN: String?
@@ -74,7 +73,6 @@ final class CardFormViewModel: ObservableObject {
 
         guard let bin else {
             binData = nil
-            hasCardNumberApiError = false
             return
         }
 
@@ -96,10 +94,8 @@ final class CardFormViewModel: ObservableObject {
             )
             guard !Task.isCancelled else { return }
             binData = data
-            hasCardNumberApiError = false
         } catch {
             guard !Task.isCancelled else { return }
-            hasCardNumberApiError = true
         }
     }
 }
