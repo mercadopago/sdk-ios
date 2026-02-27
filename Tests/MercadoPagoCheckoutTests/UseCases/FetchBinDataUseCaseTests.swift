@@ -15,7 +15,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     typealias SUT = (
         useCase: FetchBinDataUseCase,
-        service: MockBinFetchingService
+        service: MockCheckoutService
     )
 
     // MARK: - Stubs
@@ -83,7 +83,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSUT() -> SUT {
-        let service = MockBinFetchingService()
+        let service = MockCheckoutService()
         let useCase = FetchBinDataUseCase(service: service)
         return (useCase, service)
     }
@@ -139,7 +139,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
     func test_execute_whenPaymentMethodFails_shouldPropagateError() async {
         // Arrange
         let sut = makeSUT()
-        await sut.service.setPaymentMethodResult(.failure(MockBinFetchingService.MockError.resultNotSet))
+        await sut.service.setPaymentMethodResult(.failure(MockCheckoutService.MockError.resultNotSet))
 
         // Act / Assert
         await XCTAssertThrowsErrorAsync(try await execute(sut.useCase))
@@ -215,7 +215,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
         // Arrange
         let sut = makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visaWithIssuer]))
-        await sut.service.setIssuersResult(.failure(MockBinFetchingService.MockError.resultNotSet))
+        await sut.service.setIssuersResult(.failure(MockCheckoutService.MockError.resultNotSet))
 
         // Act / Assert
         await XCTAssertThrowsErrorAsync(try await execute(sut.useCase))
@@ -293,7 +293,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
         // Arrange
         let sut = makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
-        await sut.service.setInstallmentsResult(.failure(MockBinFetchingService.MockError.resultNotSet))
+        await sut.service.setInstallmentsResult(.failure(MockCheckoutService.MockError.resultNotSet))
 
         // Act / Assert
         await XCTAssertThrowsErrorAsync(try await execute(sut.useCase, amount: 100.0))

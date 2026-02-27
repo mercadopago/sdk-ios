@@ -6,7 +6,7 @@
 //
 import CoreMethods
 
-struct CheckoutService: CheckoutServiceProtocol, BinFetchingProtocol {
+struct CheckoutService: CheckoutServiceProtocol {
     private let coreMethods: CoreMethods
 
     init(coreMethods: CoreMethods = CoreMethods()) {
@@ -16,8 +16,6 @@ struct CheckoutService: CheckoutServiceProtocol, BinFetchingProtocol {
     func identificationTypes() async throws -> [IdentificationType] {
         try await coreMethods.identificationTypes()
     }
-
-    // MARK: - BinFetchingProtocol
 
     func paymentMethod(bin: String) async throws -> [PaymentMethod] {
         try await coreMethods.paymentMethods(bin: bin)

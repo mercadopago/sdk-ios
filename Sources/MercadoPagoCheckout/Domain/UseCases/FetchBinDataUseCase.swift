@@ -7,9 +7,9 @@
 import CoreMethods
 
 struct FetchBinDataUseCase {
-    private let service: BinFetchingProtocol
+    private let service: CheckoutServiceProtocol
 
-    init(service: BinFetchingProtocol) {
+    init(service: CheckoutServiceProtocol) {
         self.service = service
     }
 
