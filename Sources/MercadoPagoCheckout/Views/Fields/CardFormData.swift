@@ -44,6 +44,10 @@ import MPComponents
     mutating func setDocumentLength(_ length: Int) {
         _documentHolder.update(.documentLength(length))
     }
+     
+     mutating func setCardNumberLength(_ minLength: Int = 13, _ maxLength: Int = 19) {
+         _cardNumber.update(.cardNumberRange(min: minLength, max: maxLength))
+     }
     
     var isFormValid: Bool {
         return _cardNumber.errorMessages.isEmpty

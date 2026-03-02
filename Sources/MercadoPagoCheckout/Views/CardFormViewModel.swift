@@ -21,9 +21,9 @@ final class CardFormViewModel: ObservableObject {
     private let service: CheckoutServiceProtocol
 
     // MARK: - Formatters
-    let cardNumberFormatter = CardNumberFormatter()
+    @Published var cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
-    let securityCodeFormatter = SecurityCodeFormatter()
+    @Published var securityCodeFormatter = SecurityCodeFormatter()
 
     var documentFormatter: DocumentFormatter {
         DocumentFormatter(mask: selectTypeDocument?.getFormat() ?? String())
@@ -60,6 +60,12 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Formatter Updates
+
+    func updateCardNumberMaxLength(_ maxLength: Int = 19) {
+        cardNumberFormatter = CardNumberFormatter(maxLength: maxLength)
+    }
+
     // MARK: - Payment Methods
 
     func onCardNumberChange(_ cardNumber: String) {
@@ -70,11 +76,9 @@ final class CardFormViewModel: ObservableObject {
         lastFetchedBIN = bin
 
         paymentMethodTask?.cancel()
+        binData = nil
 
-        guard let bin else {
-            binData = nil
-            return
-        }
+        guard let bin else { return }
 
         paymentMethodTask = Task { [weak self] in
             await self?.fetchBinData(bin: bin)
@@ -96,6 +100,7 @@ final class CardFormViewModel: ObservableObject {
             binData = data
         } catch {
             guard !Task.isCancelled else { return }
+            binData = nil
         }
     }
 }

@@ -116,6 +116,16 @@ struct CardFormScreen: View {
         }
         .mpOnChange(of: cardForm.cardNumber) { newValue in
             viewModel.onCardNumberChange(newValue)
+            
+        }
+        .mpOnChange(of: viewModel.binData) { binData in
+            if let cardInfo = binData?.paymentMethod.card {
+                cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
+                viewModel.updateCardNumberMaxLength(cardInfo.length.max)
+            } else {
+                cardForm.setCardNumberLength()
+                viewModel.updateCardNumberMaxLength()
+            }
         }
     }
         
