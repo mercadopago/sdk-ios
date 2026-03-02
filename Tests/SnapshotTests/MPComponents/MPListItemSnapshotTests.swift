@@ -92,7 +92,7 @@ final class MPListItemSnapshotTests: XCTestCase {
         leftImageSystemName: String? = nil
     ) -> some View {
         MPListItem(
-            isSelected: isSelected,
+            isSelected: isSelected ?? .constant(false),
             leftImage: leftImageSystemName.map(Image.init(systemName:)),
             contentInfo: .init(title: title, header: header, description: description),
             trailing: .init(text: rightText, color: rightTextColor)
