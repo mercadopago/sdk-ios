@@ -73,7 +73,6 @@ package struct MPListItem: View {
     private var titleView: some View {
         if let title = contentInfo.title {
             Text(title)
-                .textStyle(.bodyMediumTitle())
         }
     }
 
@@ -115,11 +114,8 @@ struct MPListItemView: View {
             VStack(spacing: 8) {
                 MPListItem(
                     isSelected: bindingForIndex(0),
-                    leftImage: Image(systemName: "creditcard"),
-                    contentInfo: .init(title: "Option 1", description: "Description 1111"),
-                    trailing: .init(text: "$ 1,000.00")
+                    contentInfo: .init(title: "Title"),
                 )
-                .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.right")))
                 
                 MPListItem(
                     isSelected: bindingForIndex(1),
@@ -129,15 +125,22 @@ struct MPListItemView: View {
                         color: .feedbackPositive
                     )
                 )
-                .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.left")))
+                
                 
                 MPListItem(
-                    isSelected: bindingForIndex(2),
-                    contentInfo: .init(header: "Option 3"),
-                    trailing: .init(text: "$ 1,000.00")
+                    isSelected: bindingForIndex(3),
+                    contentInfo: .init(title: "Option 3"),
+                    trailing: .init(
+                        text: MPStrings.Installments.interestFree,
+                        color: .feedbackPositive
+                    )
                 )
                 
-                .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.left")))
+                MPListItem(
+                    isSelected: bindingForIndex(4),
+                    contentInfo: .init(header: "Option 4"),
+                    trailing: .init(text: "$ 1,000.00")
+                )
             }
 
             MPListItem(

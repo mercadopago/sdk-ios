@@ -17,9 +17,9 @@ package struct MPListRowRadioStyle: MPListItemStyle {
     @MainActor
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let hasDescription = configuration.description != nil
-        
-        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
-            radioToggle(isSelected: configuration.isSelected, hasDescription: hasDescription)
+
+        HStack(alignment: hasDescription ? .top : .center, spacing: theme.spacings.xtiny) {
+            radioToggle(isSelected: configuration.isSelected)
 
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 if let header = configuration.header { header }
@@ -41,22 +41,13 @@ package struct MPListRowRadioStyle: MPListItemStyle {
         .background(configuration.isPressed ? theme.colors.surface.active : Color.clear)
         .cornerRadius(theme.borderRadius.small)
     }
-    
-    @ViewBuilder
-    private func radioToggle(isSelected: Bool, hasDescription: Bool) -> some View {
-        let toggle = Toggle(isOn: .constant(isSelected)) { EmptyView() }
+
+    private func radioToggle(isSelected: Bool) -> some View {
+        Toggle(isOn: .constant(isSelected)) { EmptyView() }
             .toggleStyle(MPRadioButtonToggleStyle())
             .labelsHidden()
             .fixedSize()
             .allowsHitTesting(false)
-
-        if hasDescription {
-            toggle.alignmentGuide(.firstTextBaseline) { aligment in
-                aligment[VerticalAlignment.center]
-            }
-        } else {
-            toggle
-        }
     }
     
 }

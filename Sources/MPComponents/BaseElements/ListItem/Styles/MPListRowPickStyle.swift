@@ -17,13 +17,11 @@ package struct MPListRowPickStyle: MPListItemStyle {
     @MainActor
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let isSelected = configuration.isSelected == true
+        let hasDescription = configuration.description != nil
 
-        HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xtiny) {
+        HStack(alignment: hasDescription ? .top : .center, spacing: theme.spacings.xtiny) {
             if let leftImage = configuration.leftImage {
                 leftImage
-                    .alignmentGuide(.firstTextBaseline) { aligment in
-                        aligment[VerticalAlignment.center]
-                    }
             }
 
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
