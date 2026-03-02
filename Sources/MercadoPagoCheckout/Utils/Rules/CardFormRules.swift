@@ -52,7 +52,7 @@ package struct CardNumberRule: CardFormRuleType {
         let digits = value.filter(\.isNumber)
         if digits.isEmpty { return MPStrings.CardForm.CardNumber.errorEmpty }
         if digits.count < min { return MPStrings.CardForm.CardNumber.errorIncomplete }
-        if digits.count > max || !luhnCheck(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
+        if !luhnCheck(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
         return nil
     }
 
