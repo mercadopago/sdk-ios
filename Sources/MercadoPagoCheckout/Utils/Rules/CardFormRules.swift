@@ -119,6 +119,16 @@ package struct CardHolderRule: CardFormRuleType {
     package func validate(_ value: String) -> String? {
         let clearValue = value.trimmingCharacters(in: .whitespaces)
         guard !clearValue.isEmpty else { return MPStrings.CardForm.CardHolder.errorEmpty }
-        return clearValue.count > 1 ? MPStrings.CardForm.CardHolder.errorIncomplete : nil
+        
+        let allowed = CharacterSet.letters.union(.whitespaces)
+        if clearValue.unicodeScalars.contains(where: { !allowed.contains($0) }) {
+            return MPStrings.CardForm.CardHolder.errorInvalidFormat
+        }
+        
+        if clearValue.count < 2 {
+            return MPStrings.CardForm.CardHolder.errorIncomplete
+        }
+
+        return nil
     }
 }
