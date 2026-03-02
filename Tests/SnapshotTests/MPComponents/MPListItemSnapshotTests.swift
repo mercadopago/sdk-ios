@@ -80,6 +80,54 @@ final class MPListItemSnapshotTests: XCTestCase {
         )
     }
 
+    // MARK: - Pick Style
+
+    func test_pickStyle_allStatesComparison() {
+        FontName.registerCustomFonts()
+
+        let view = createTestView {
+            VStack(spacing: 12) {
+                self.listItem(
+                    title: "Default",
+                    description: "With description",
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    isSelected: .constant(true),
+                    leftImageSystemName: "creditcard"
+                )
+
+                self.listItem(
+                    title: "Selected",
+                    description: "With description",
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    isSelected: .constant(false)
+                )
+
+                self.listItem(
+                    title: "Title only",
+                    rightText: "$ 1,000.00",
+                    rightTextColor: .primary,
+                    isSelected: .constant(true)
+                )
+
+                self.listItem(
+                    title: "Without trailing"
+                )
+            }
+            .listItemStyle(MPListRowPickStyle())
+            .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.right")))
+        }
+
+        let hostingController = UIHostingController(rootView: view)
+
+        assertSnapshot(
+            of: hostingController,
+            as: .image(precision: 0.95, size: CGSize(width: 360, height: 400)),
+            named: "pick_all_states_comparison"
+        )
+    }
+
     // MARK: - Helper Methods
 
     private func listItem(
