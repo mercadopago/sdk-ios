@@ -23,7 +23,10 @@ package struct MPListRowRadioStyle: MPListItemStyle {
 
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 if let header = configuration.header { header }
-                if let title = configuration.title { title }
+                if let title = configuration.title {
+                    title
+                        .textStyle(.bodyMediumTitle())
+                }
                 if let description = configuration.description { description }
             }
 

@@ -14,15 +14,15 @@ import MPFoundation
 /// and is specialized for a `TextStyleConfiguration`.
 package protocol TextStyle: StyleProtocol, Identifiable where Configuration == TextStyleConfiguration {}
 
-/// A configuration structure that holds the original `Text` view to be styled.
+/// A configuration structure that holds the original view to be styled.
 package struct TextStyleConfiguration {
-    /// The `Text` view that the style will be applied to.
-    package let content: Text
+    /// The view that the style will be applied to.
+    package let content: AnyView
 
     /// Creates a text style configuration.
-    /// - Parameter content: The `Text` view to be styled.
-    package init(content: Text) {
-        self.content = content
+    /// - Parameter content: The view to be styled.
+    package init(content: some View) {
+        self.content = AnyView(content)
     }
 }
 

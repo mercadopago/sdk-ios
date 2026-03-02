@@ -8,9 +8,9 @@
 import SwiftUI
 import MPFoundation
 
-package extension Text {
-    
-    /// Applies a custom text style to the current `Text` instance.
+package extension View {
+
+    /// Applies a custom text style to the current view.
     ///
     /// This modifier resolves the given style and sets it in the view's environment,
     /// allowing child views to inherit the style.

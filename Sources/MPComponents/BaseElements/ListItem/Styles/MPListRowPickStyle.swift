@@ -28,7 +28,10 @@ package struct MPListRowPickStyle: MPListItemStyle {
 
             VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 if let header = configuration.header { header }
-                if let title = configuration.title { title }
+                if let title = configuration.title {
+                    title
+                        .textStyle(.large())
+                }
                 if let description = configuration.description { description }
             }
 
