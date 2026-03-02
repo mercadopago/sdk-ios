@@ -86,7 +86,7 @@ struct CardFormScreen: View {
                             MPTextField(
                                 text: $cardForm.securityCode,
                                 label: MPStrings.CardForm.CVV.label,
-                                placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                                placeholder: viewModel.cvvPlaceholder,
                                 errorMessage: cardForm.$securityCode,
                                 keyboard: .numberPad,
                                 formatter: viewModel.securityCodeFormatter,
@@ -122,9 +122,12 @@ struct CardFormScreen: View {
             if let cardInfo = binData?.paymentMethod.card {
                 cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
                 viewModel.updateCardNumberMaxLength(cardInfo.length.max)
+                cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
+                viewModel.updateSecurityCodeMaxLength(cardInfo.securityCode.length)
             } else {
                 cardForm.setCardNumberLength()
                 viewModel.updateCardNumberMaxLength()
+                viewModel.updateSecurityCodeMaxLength()
             }
         }
     }

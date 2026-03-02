@@ -34,6 +34,12 @@ final class CardFormViewModel: ObservableObject {
     @Published var screenState: CardFormScreenState = .loading
     @Published var binData: CardBinData?
 
+    var cvvPlaceholder: String {
+        binData?.paymentMethod.card?.securityCode.length == 4
+            ? MPStrings.CardForm.CVV.placeholderAmex
+            : MPStrings.CardForm.CVV.placeholderDefault
+    }
+
     // MARK: - Private
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
@@ -64,6 +70,10 @@ final class CardFormViewModel: ObservableObject {
 
     func updateCardNumberMaxLength(_ maxLength: Int = 19) {
         cardNumberFormatter = CardNumberFormatter(maxLength: maxLength)
+    }
+    
+    func updateSecurityCodeMaxLength(_ maxLength: Int = 4) {
+        securityCodeFormatter = SecurityCodeFormatter(maxLength: maxLength)
     }
 
     // MARK: - Payment Methods
