@@ -117,6 +117,8 @@ package struct DocumentRule: CardFormRuleType {
 // MARK: - Card Holder Rule
 package struct CardHolderRule: CardFormRuleType {
     package func validate(_ value: String) -> String? {
-        return value.trimmingCharacters(in: .whitespaces).isEmpty ? MPStrings.CardForm.CardHolder.errorEmpty : nil
+        let clearValue = value.trimmingCharacters(in: .whitespaces)
+        guard !clearValue.isEmpty else { return MPStrings.CardForm.CardHolder.errorEmpty }
+        return clearValue.count > 1 ? MPStrings.CardForm.CardHolder.errorIncomplete : nil
     }
 }

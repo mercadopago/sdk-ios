@@ -25,7 +25,7 @@
 "card_holder.label" = "Nome do titular";
 "card_holder.placeholder" = "Ex.: Maria dos Santos";
 "card_holder.error.empty" = "Preencha este campo.";
-"card_holder.error.incomplete" = "Insira-o conforme está no cartão.";
+"card_holder.error.incomplete" = "Insira conforme está no cartão.";
 "card_holder.error.invalid_format" = "Digite apenas letras e números.";
 "card_holder.helper.text" = "Conforme aparece no cartão.";
 
