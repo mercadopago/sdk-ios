@@ -51,8 +51,8 @@ package struct MPListRowRadioStyle: MPListItemStyle {
             .allowsHitTesting(false)
 
         if hasDescription {
-            toggle.alignmentGuide(.firstTextBaseline) { d in
-                d[VerticalAlignment.center]
+            toggle.alignmentGuide(.firstTextBaseline) { aligment in
+                aligment[VerticalAlignment.center]
             }
         } else {
             toggle

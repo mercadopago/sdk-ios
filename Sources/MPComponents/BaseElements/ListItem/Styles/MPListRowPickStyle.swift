@@ -21,8 +21,8 @@ package struct MPListRowPickStyle: MPListItemStyle {
         HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xtiny) {
             if let leftImage = configuration.leftImage {
                 leftImage
-                    .alignmentGuide(.firstTextBaseline) { d in
-                        d[VerticalAlignment.center]
+                    .alignmentGuide(.firstTextBaseline) { aligment in
+                        aligment[VerticalAlignment.center]
                     }
             }
 
