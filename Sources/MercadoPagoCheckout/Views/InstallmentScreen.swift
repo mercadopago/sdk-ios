@@ -42,21 +42,15 @@ struct InstallmentScreen: View {
             content: {
                 ForEach(viewModel.payerCosts) { payerCost in
                     MPListItem(
-                        type: .radioButton(
-                            selected: viewModel.isSelected(payerCost, selectedPayerCost: selectedPayerCost)
-                        ),
+                        isSelected: bindingForPayerCost(payerCost),
                         contentInfo: .init(
                             title: viewModel.formatInstallmentLabel(for: payerCost),
                             description: nil
                         ),
                         trailing: MPListItemTrailing(
                             text: viewModel.formatInterestLabel(for: payerCost),
-                            color: viewModel.findInterestLabelColor(for: payerCost),
-                            type: nil
-                        ),
-                        onClick: {
-                            self.selectedPayerCost = payerCost
-                        }
+                            color: viewModel.findInterestLabelColor(for: payerCost)
+                        )
                     )
                 }
             }
@@ -65,6 +59,13 @@ struct InstallmentScreen: View {
             label: MPStrings.Common.total,
             amount: viewModel.selectedTotalAmount(selectedPayerCost),
             description: viewModel.formatFooterDescription()
+        )
+    }
+
+    private func bindingForPayerCost(_ payerCost: Installment.PayerCost) -> Binding<Bool> {
+        Binding(
+            get: { selectedPayerCost == payerCost },
+            set: { if $0 { selectedPayerCost = payerCost } }
         )
     }
 }
@@ -78,6 +79,7 @@ struct InstallmentScreen: View {
         onBack: {},
         onContinue: {}
     )
+    .listItemStyle(.radioButton)
 }
 
 #if DEBUG

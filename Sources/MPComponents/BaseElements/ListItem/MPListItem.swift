@@ -51,14 +51,14 @@ package struct MPListItem: View {
             resolvedStyle.resolve(configuration: configuration)
         )
         .contentShape(Rectangle())
-        .onTapGesture {
-            isSelected.wrappedValue.toggle()
-        }
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
             withAnimation(.easeOut(duration: 0.15)) {
                 isPressed = pressing
             }
         }, perform: {})
+        .onTapGesture {
+            isSelected.wrappedValue.toggle()
+        }
     }
 
     @ViewBuilder
