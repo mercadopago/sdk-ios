@@ -120,8 +120,6 @@ struct MPListItemView: View {
                     trailing: .init(text: "$ 1,000.00")
                 )
                 .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.right")))
-
-
                 
                 MPListItem(
                     isSelected: bindingForIndex(1),
@@ -132,8 +130,6 @@ struct MPListItemView: View {
                     )
                 )
                 .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.left")))
-
-                
                 
                 MPListItem(
                     isSelected: bindingForIndex(2),
