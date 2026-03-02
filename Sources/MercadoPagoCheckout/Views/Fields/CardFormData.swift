@@ -41,8 +41,8 @@ import MPComponents
         _securityCode.update(.securityCodeLength(length))
     }
 
-    mutating func setDocumentLength(_ length: Int) {
-        _documentHolder.update(.documentLength(length))
+     mutating func setDocumentLength(_ min: Int, _ max: Int) {
+        _documentHolder.update(.documentLength(min: min, max: max))
     }
      
      mutating func setCardNumberLength(_ minLength: Int = 13, _ maxLength: Int = 19) {

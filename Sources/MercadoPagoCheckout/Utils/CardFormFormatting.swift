@@ -84,14 +84,18 @@ package struct ExpirationDateFormatter: TextFormatting {
 /// When the format is empty, the input is returned unchanged.
 package struct DocumentFormatter: TextFormatting {
     private let maskFormat: String
+    private let maxLength: Int
 
-    package init(mask: String = "") {
+    package init(mask: String = "", maxLength: Int = 20) {
         self.maskFormat = mask
+        self.maxLength = maxLength
     }
 
     package func formatOnChange(_ text: String) -> String {
-        guard !maskFormat.isEmpty else { return text }
-        let digits = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        let digits = String(
+            text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined().prefix(maxLength)
+        )
+        guard !maskFormat.isEmpty else { return digits }
         var result = ""
         var index = digits.startIndex
 

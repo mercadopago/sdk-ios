@@ -130,6 +130,11 @@ struct CardFormScreen: View {
                 viewModel.updateSecurityCodeMaxLength()
             }
         }
+        .mpOnChange(of: viewModel.selectTypeDocument) { identificationType in
+            if let identificationType {
+                cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
+            }
+        }
     }
         
     @ViewBuilder

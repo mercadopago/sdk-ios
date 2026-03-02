@@ -24,10 +24,7 @@ final class CardFormViewModel: ObservableObject {
     @Published var cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
     @Published var securityCodeFormatter = SecurityCodeFormatter()
-
-    var documentFormatter: DocumentFormatter {
-        DocumentFormatter(mask: selectTypeDocument?.getFormat() ?? String())
-    }
+    var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
     @Published var selectTypeDocument: IdentificationType?
@@ -60,6 +57,7 @@ final class CardFormViewModel: ObservableObject {
         do {
             let types = try await service.identificationTypes()
             selectTypeDocument = types.first
+            updateIdentificationType()
             screenState = .ready
         } catch {
             screenState = .ready
@@ -74,6 +72,13 @@ final class CardFormViewModel: ObservableObject {
     
     func updateSecurityCodeMaxLength(_ maxLength: Int = 4) {
         securityCodeFormatter = SecurityCodeFormatter(maxLength: maxLength)
+    }
+    
+    func updateIdentificationType() {
+        documentFormatter = DocumentFormatter(
+            mask: selectTypeDocument?.getFormat() ?? String(),
+            maxLength: selectTypeDocument?.maxLenght ?? 20
+        )
     }
 
     // MARK: - Payment Methods

@@ -11,7 +11,7 @@ import MPComponents
 package enum CardValidationRequirement {
     case cardNumberRange(min: Int, max: Int)
     case securityCodeLength(Int)
-    case documentLength(Int)
+    case documentLength(min: Int, max: Int)
 }
 
 package protocol CardFormRuleType {
@@ -101,16 +101,21 @@ package struct SecurityCodeRule: CardFormRuleType {
 
 // MARK: - Document Rule
 package struct DocumentRule: CardFormRuleType {
-    private var length = 19
+    private var maxLength = 20
+    private var minLength = 1
     
     mutating package func apply(_ requirement: CardValidationRequirement) {
-        if case let .documentLength(newLen) = requirement { self.length = newLen }
+        if case let .documentLength(minLen, maxLen) = requirement {
+            self.minLength = minLen; self.maxLength = maxLen
+        }
     }
     
     package func validate(_ value: String) -> String? {
         let digits = value.filter(\.isNumber)
         if digits.isEmpty { return MPStrings.CardForm.Document.errorEmpty }
-        return digits.count < length ? MPStrings.CardForm.Document.errorIncomplete : nil
+        if !(minLength...maxLength).contains(digits.count) { return MPStrings.CardForm.Document.errorIncomplete }
+        if digits.allSatisfy({ $0 == "0" }) { return MPStrings.CardForm.Document.errorInvalid }
+        return nil
     }
 }
 
