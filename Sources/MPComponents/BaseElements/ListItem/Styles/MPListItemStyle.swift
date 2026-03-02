@@ -47,6 +47,7 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
                 }
                 if let title = configuration.title {
                     title
+                        .textStyle(.bodyMediumTitle())
                 }
                 if let description = configuration.description {
                     description
