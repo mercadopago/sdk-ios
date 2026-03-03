@@ -149,7 +149,7 @@ package struct CardHolderRule: CardFormRuleType {
         let clearValue = value.trimmingCharacters(in: .whitespaces)
         guard !clearValue.isEmpty else { return MPStrings.CardForm.CardHolder.errorEmpty }
         
-        let allowed = CharacterSet.letters.union(.whitespaces)
+        let allowed = CharacterSet.letters.union(.whitespaces).union(.decimalDigits)
         if clearValue.unicodeScalars.contains(where: { !allowed.contains($0) }) {
             return MPStrings.CardForm.CardHolder.errorInvalidFormat
         }

@@ -27,10 +27,14 @@ final class CardFormViewModel: ObservableObject {
     var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
-    @Published var selectTypeDocument: IdentificationType?
     @Published var screenState: CardFormScreenState = .loading
-    @Published var binData: CardBinData?
-    @Published var fetchBinError: BinFetchError? 
+    @Published var selectTypeDocument: IdentificationType? {
+        didSet { updateIdentificationType() }
+    }
+    @Published var binData: CardBinData? {
+        didSet { updateFormatters(for: binData) }
+    }
+    @Published var fetchBinError: BinFetchError?
 
     var cvvPlaceholder: String {
         binData?.paymentMethod.card?.securityCode.length == 4
@@ -67,19 +71,21 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Formatter Updates
 
-    func updateCardNumberMaxLength(_ maxLength: Int = 19) {
-        cardNumberFormatter = CardNumberFormatter(maxLength: maxLength)
-    }
-    
-    func updateSecurityCodeMaxLength(_ maxLength: Int = 4) {
-        securityCodeFormatter = SecurityCodeFormatter(maxLength: maxLength)
-    }
-    
     func updateIdentificationType() {
         documentFormatter = DocumentFormatter(
             mask: selectTypeDocument?.getFormat() ?? String(),
             maxLength: selectTypeDocument?.maxLenght ?? 20
         )
+    }
+
+    private func updateFormatters(for binData: CardBinData?) {
+        if let cardInfo = binData?.paymentMethod.card {
+            cardNumberFormatter = CardNumberFormatter(maxLength: cardInfo.length.max)
+            securityCodeFormatter = SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
+        } else {
+            cardNumberFormatter = CardNumberFormatter()
+            securityCodeFormatter = SecurityCodeFormatter()
+        }
     }
 
     // MARK: - Payment Methods

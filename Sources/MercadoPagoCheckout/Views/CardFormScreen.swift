@@ -62,6 +62,7 @@ struct CardFormScreen: View {
                                 label: MPStrings.CardForm.CardNumber.label,
                                 placeholder: MPStrings.CardForm.CardNumber.placeholder,
                                 errorMessage: cardForm.$cardNumber,
+                                forceShowErrors: viewModel.fetchBinError != nil,
                                 keyboard: .numberPad,
                                 formatter: viewModel.cardNumberFormatter,
                             )
@@ -121,13 +122,9 @@ struct CardFormScreen: View {
         .mpOnChange(of: viewModel.binData) { binData in
             if let cardInfo = binData?.paymentMethod.card {
                 cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
-                viewModel.updateCardNumberMaxLength(cardInfo.length.max)
                 cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
-                viewModel.updateSecurityCodeMaxLength(cardInfo.securityCode.length)
             } else {
                 cardForm.setCardNumberLength()
-                viewModel.updateCardNumberMaxLength()
-                viewModel.updateSecurityCodeMaxLength()
             }
         }
         .mpOnChange(of: viewModel.selectTypeDocument) { identificationType in

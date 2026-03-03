@@ -56,6 +56,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let suffixView: Suffix
     
     private let popoverText: String?
+    private let forceShowErrors: Bool
 
     // MARK: - Environment
     @Environment(\.mpTextFieldStyle) private var style: any MPTextFieldStyle
@@ -92,6 +93,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         placeholder: String?,
         helperText: String? = nil,
         errorMessage: @autoclosure @escaping () -> [String]? = nil,
+        forceShowErrors: Bool = false,
         keyboard: UIKeyboardType = .default,
         contentType: UITextContentType? = nil,
         autocorrection: UITextAutocorrectionType = .default,
@@ -115,6 +117,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.prefixView = prefix()
         self.suffixView = suffix()
         self.popoverText = popoverText
+        self.forceShowErrors = forceShowErrors
         self.errorMessageProvider = errorMessage
         self._internalState = State(initialValue: .idle)
     }
@@ -235,7 +238,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         if isReadOnly { return .readOnly }
         if !isEnabled { return .disabled }
         
-        if let error = errorMessageProvider()?.first, !error.isEmpty, !text.isEmpty {
+        if let error = errorMessageProvider()?.first, !error.isEmpty, forceShowErrors {
             return isEditing ? .focusError(error) : .error(error)
         }
         return internalState
