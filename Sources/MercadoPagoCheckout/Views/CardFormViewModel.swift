@@ -21,26 +21,29 @@ final class CardFormViewModel: ObservableObject {
     private let service: CheckoutServiceProtocol
 
     // MARK: - Formatters
-    @Published var cardNumberFormatter = CardNumberFormatter()
+    @Published private(set) var cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
-    @Published var securityCodeFormatter = SecurityCodeFormatter()
-    var documentFormatter = DocumentFormatter()
+    @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
+    private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
-    @Published var screenState: CardFormScreenState = .loading
-    @Published var selectTypeDocument: IdentificationType? {
+    @Published private(set) var screenState: CardFormScreenState = .loading
+    @Published private(set) var selectTypeDocument: IdentificationType? {
         didSet { updateIdentificationType() }
     }
-    @Published var binData: CardBinData? {
+    @Published private(set) var binData: CardBinData? {
         didSet { updateFormatters(for: binData) }
     }
-    @Published var fetchBinError: BinFetchError?
+    @Published private(set) var fetchBinError: BinFetchError?
 
     var cvvPlaceholder: String {
-        binData?.paymentMethod.card?.securityCode.length == 4
+        binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
             ? MPStrings.CardForm.CVV.placeholderAmex
             : MPStrings.CardForm.CVV.placeholderDefault
     }
+
+    // MARK: - Constants
+    private static let amexSecurityCodeLength = 4
 
     // MARK: - Private
     private var lastFetchedBIN: String?
@@ -62,7 +65,6 @@ final class CardFormViewModel: ObservableObject {
         do {
             let types = try await service.identificationTypes()
             selectTypeDocument = types.first
-            updateIdentificationType()
             screenState = .ready
         } catch {
             screenState = .ready
@@ -71,7 +73,7 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Formatter Updates
 
-    func updateIdentificationType() {
+    private func updateIdentificationType() {
         documentFormatter = DocumentFormatter(
             mask: selectTypeDocument?.getFormat() ?? String(),
             maxLength: selectTypeDocument?.maxLenght ?? 20

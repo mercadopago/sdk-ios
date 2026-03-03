@@ -66,17 +66,18 @@ package struct CardNumberRule: CardFormRuleType {
         case .paymentMethodNotAllowed(let method):
             return MPStrings.CardForm.CardNumber.errorSellerExclusion(brand: method)
         case .paymentTypeNotAllowed(let cardType):
-            let cardTypeDisplay = cardTypeDisplayName(cardType)
-            return MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: cardTypeDisplay)
+            guard let cardType else {
+                return MPStrings.CardForm.CardNumber.errorInvalid
+            }
+            return MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: cardTypeDisplayName(cardType))
         }
     }
 
-    private func cardTypeDisplayName(_ cardType: MercadoPagoCheckout.CardType?) -> String {
+    private func cardTypeDisplayName(_ cardType: MercadoPagoCheckout.CardType) -> String {
         switch cardType {
         case .credit: return MPStrings.Common.creditCard
         case .debit: return MPStrings.Common.debitCard
         case .prepaid: return MPStrings.Common.prepaidCard
-        default: return String()
         }
     }
 

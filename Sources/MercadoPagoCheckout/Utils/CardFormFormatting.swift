@@ -92,10 +92,12 @@ package struct DocumentFormatter: TextFormatting {
     }
 
     package func formatOnChange(_ text: String) -> String {
+        guard !maskFormat.isEmpty else {
+            return String(text.prefix(maxLength))
+        }
         let digits = String(
             text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined().prefix(maxLength)
         )
-        guard !maskFormat.isEmpty else { return digits }
         var result = ""
         var index = digits.startIndex
 
