@@ -135,6 +135,9 @@ struct CardFormScreen: View {
                 cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
             }
         }
+        .mpOnChange(of: viewModel.fetchBinError) { error in
+            cardForm.setCardNumberExternalError(error)
+        }
     }
         
     @ViewBuilder

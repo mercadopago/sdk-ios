@@ -20,6 +20,7 @@
 "card_number.error.seller_exclusion" = "La tienda no acepta tarjetas %@.";
 "card_number.error.credit_only" = "La tienda solo acepta tarjetas de crédito.";
 "card_number.error.debit_only" = "La tienda solo acepta tarjetas de débito.";
+"card_number.error.type_not_allowed" = "La tienda no acepta %@.";
 
 // MARK: - Card Holder
 "card_holder.label" = "Nombre del titular";
@@ -84,6 +85,7 @@
 "common.currency" = "$"
 "common.credit" = "Crédito";
 "common.debit" = "Débito";
+"common.prepaid" = "Prepaga";
 
 // MARK: - Errors
 "error.generic" = "Algo salió mal. Por favor, intentá de nuevo.";

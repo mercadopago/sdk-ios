@@ -25,7 +25,16 @@ struct FetchBinDataUseCase {
             let matchesBrand = acceptedPaymentMethodIds.isEmpty || acceptedPaymentMethodIds.contains($0.id)
             return matchesType && matchesBrand
         }) else {
-            throw BinFetchError.paymentMethodNotFound
+            if let typeMatchedMethod = methods.first(where: {
+                acceptedPaymentTypeIds.contains($0.paymentTypeId) &&
+                !acceptedPaymentMethodIds.contains($0.id)
+            }) {
+                throw BinFetchError.paymentMethodNotAllowed(typeMatchedMethod.id)
+            } else {
+                let detectedMethod = methods.first(where: { !acceptedPaymentTypeIds.contains($0.paymentTypeId) })
+                let detectedCardType = MercadoPagoCheckout.CardType(paymentTypeId: detectedMethod?.paymentTypeId)
+                throw BinFetchError.paymentTypeNotAllowed(detectedCardType)
+            }
         }
 
         var fetchedIssuer: Issuer?
@@ -53,6 +62,7 @@ struct FetchBinDataUseCase {
 
 // MARK: - Private
 
-private enum BinFetchError: Error {
-    case paymentMethodNotFound
+package enum BinFetchError: Error, Equatable {
+    case paymentMethodNotAllowed(String)
+    case paymentTypeNotAllowed(MercadoPagoCheckout.CardType?)
 }

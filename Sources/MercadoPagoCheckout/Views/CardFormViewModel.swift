@@ -30,6 +30,7 @@ final class CardFormViewModel: ObservableObject {
     @Published var selectTypeDocument: IdentificationType?
     @Published var screenState: CardFormScreenState = .loading
     @Published var binData: CardBinData?
+    @Published var fetchBinError: BinFetchError? 
 
     var cvvPlaceholder: String {
         binData?.paymentMethod.card?.securityCode.length == 4
@@ -92,6 +93,7 @@ final class CardFormViewModel: ObservableObject {
 
         paymentMethodTask?.cancel()
         binData = nil
+        fetchBinError = nil
 
         guard let bin else { return }
 
@@ -113,6 +115,10 @@ final class CardFormViewModel: ObservableObject {
             )
             guard !Task.isCancelled else { return }
             binData = data
+        } catch let error as BinFetchError {
+            guard !Task.isCancelled else { return }
+            binData = nil
+            self.fetchBinError = error
         } catch {
             guard !Task.isCancelled else { return }
             binData = nil

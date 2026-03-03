@@ -55,6 +55,12 @@ extension MPStrings {
             
             /// Debit cards only error
             package static var errorDebitOnly: String { localized("card_number.error.debit_only") }
+
+            /// Payment type not accepted error
+            /// - Parameter cardType: The detected card type display name (e.g. "Débito", "Crédito")
+            package static func errorTypeNotAllowed(cardType: String) -> String {
+                localized("card_number.error.type_not_allowed", cardType)
+            }
         }
         
         // MARK: - Card Holder

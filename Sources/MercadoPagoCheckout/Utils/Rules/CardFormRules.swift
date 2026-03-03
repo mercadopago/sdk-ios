@@ -10,6 +10,7 @@ import MPComponents
 
 package enum CardValidationRequirement {
     case cardNumberRange(min: Int, max: Int)
+    case cardNumberExternalError(BinFetchError?)
     case securityCodeLength(Int)
     case documentLength(min: Int, max: Int)
 }
@@ -41,19 +42,42 @@ package struct RequiredRule: CardFormRuleType {
 
 package struct CardNumberRule: CardFormRuleType {
     private var min = 13, max = 19
-
+    private var externalError: BinFetchError?
+    
     mutating package func apply(_ requirement: CardValidationRequirement) {
         if case let .cardNumberRange(newMin, newMax) = requirement {
             self.min = newMin; self.max = newMax
+        } else if case let .cardNumberExternalError(binFetchError) = requirement {
+            self.externalError = binFetchError
         }
     }
 
     package func validate(_ value: String) -> String? {
         let digits = value.filter(\.isNumber)
         if digits.isEmpty { return MPStrings.CardForm.CardNumber.errorEmpty }
+        if let externalError { return validateExternalError(externalError) } else { return nil }
         if digits.count < min { return MPStrings.CardForm.CardNumber.errorIncomplete }
         if !luhnCheck(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
         return nil
+    }
+    
+    private func validateExternalError(_ error: BinFetchError) -> String? {
+        switch error {
+        case .paymentMethodNotAllowed(let method):
+            return MPStrings.CardForm.CardNumber.errorSellerExclusion(brand: method)
+        case .paymentTypeNotAllowed(let cardType):
+            let cardTypeDisplay = cardTypeDisplayName(cardType)
+            return MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: cardTypeDisplay)
+        }
+    }
+
+    private func cardTypeDisplayName(_ cardType: MercadoPagoCheckout.CardType?) -> String {
+        switch cardType {
+        case .credit: return MPStrings.Common.creditCard
+        case .debit: return MPStrings.Common.debitCard
+        case .prepaid: return MPStrings.Common.prepaidCard
+        default: return String()
+        }
     }
 
     private func luhnCheck(_ text: String) -> Bool {

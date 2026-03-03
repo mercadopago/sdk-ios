@@ -48,7 +48,10 @@ extension MPStrings {
         
         /// Payment type name for Debit
         package static var debitCard: String { localized("common.debit") }
-        
+
+        /// Payment type name for Prepaid
+        package static var prepaidCard: String { localized("common.prepaid") }
+
         package enum Accessibility: Sendable {
             package enum TextField: Sendable {
                 package static var moreInfo: String { localized("common.accessibility.textfield.moreInfo") }
