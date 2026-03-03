@@ -161,6 +161,7 @@ struct CardFormScreen: View {
                 Text(type.name).tag(Optional(type))
             }
         }
+        .fixedSize(horizontal: true, vertical: false)
         .accentColor(theme.textFields.standard.idle.textColor)
         .accessibility(label: Text(verbatim: viewModel.selectTypeDocument?.name ?? String()))
     }
@@ -170,6 +171,8 @@ struct CardFormScreen: View {
         HStack {
             Text(viewModel.selectTypeDocument?.name ?? String())
                 .textStyle(.bodyMedium(colorType: .secondary))
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
 
             Image(systemName: "chevron.down")
                 .renderingMode(.template)
@@ -177,6 +180,7 @@ struct CardFormScreen: View {
                 .padding(.horizontal, theme.spacings.xmicro)
         }
         .padding(.leading, theme.spacings.micro)
+        .animation(nil)
     }
 }
 
