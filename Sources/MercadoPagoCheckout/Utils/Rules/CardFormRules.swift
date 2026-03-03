@@ -55,7 +55,7 @@ package struct CardNumberRule: CardFormRuleType {
     package func validate(_ value: String) -> String? {
         let digits = value.filter(\.isNumber)
         if digits.isEmpty { return MPStrings.CardForm.CardNumber.errorEmpty }
-        if let externalError { return validateExternalError(externalError) } else { return nil }
+        if let externalError { return validateExternalError(externalError) }
         if digits.count < min { return MPStrings.CardForm.CardNumber.errorIncomplete }
         if !luhnCheck(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
         return nil
