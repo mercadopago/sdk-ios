@@ -19,6 +19,7 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
     private var issuersResult: Result<[Issuer], Error>?
     private var installmentsResult: Result<[Installment], Error>?
     private var fetchBinDataResult: Result<CardBinData, Error>?
+    private var createCardTokenResult: Result<CardToken, Error>?
 
     func setIdentificationTypesResult(_ result: Result<[IdentificationType], Error>) {
         identificationTypesResult = result
@@ -38,6 +39,10 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
 
     func setFetchBinDataResult(_ result: Result<CardBinData, Error>) {
         fetchBinDataResult = result
+    }
+
+    func setCreateCardTokenResult(_ result: Result<CardToken, Error>) {
+        createCardTokenResult = result
     }
 
     func identificationTypes() async throws -> [IdentificationType] {
@@ -67,6 +72,11 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
         acceptedPaymentMethodIds: [String]
     ) async throws -> CardBinData {
         guard let result = fetchBinDataResult else { throw MockError.resultNotSet }
+        return try result.get()
+    }
+
+    func createCardToken(cardParams: CardParams) async throws -> CardToken {
+        guard let result = createCardTokenResult else { throw MockError.resultNotSet }
         return try result.get()
     }
 }

@@ -95,7 +95,7 @@ final class CardFormViewModelTests: XCTestCase {
         let service = MockCheckoutService()
         let configuration = MercadoPagoCheckout.CheckoutConfiguration(
             type: .cardForm(cardFormConfiguration: .init()),
-            paymentMethod: [.card(cardTypes: [.credit, .debit, .prepaid])]
+            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
         let viewModel = CardFormViewModel(configuration: configuration, service: service)
         return (viewModel, service)
@@ -132,12 +132,12 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertNil(sut.viewModel.binData)
     }
 
-    func test_init_hasCardNumberApiErrorShouldBeFalse() {
+    func test_init_fetchBinErrorShouldBeNil() {
         // Arrange / Act
         let sut = makeSUT()
 
         // Assert
-        XCTAssertFalse(sut.viewModel.hasCardNumberApiError)
+        XCTAssertNil(sut.viewModel.fetchBinError)
     }
 
     // MARK: - loadIdentificationTypes
@@ -216,7 +216,7 @@ final class CardFormViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertNil(sut.viewModel.binData)
-        XCTAssertFalse(sut.viewModel.hasCardNumberApiError)
+        XCTAssertNil(sut.viewModel.fetchBinError)
     }
 
     func test_onCardNumberChange_whenDigitsReach8_withSuccess_shouldSetBinData() async {
@@ -230,20 +230,20 @@ final class CardFormViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
-        XCTAssertFalse(sut.viewModel.hasCardNumberApiError)
+        XCTAssertNil(sut.viewModel.fetchBinError)
     }
 
     func test_onCardNumberChange_whenDigitsReach8_withError_shouldSetApiError() async {
         // Arrange
         let sut = makeSUT()
-        await sut.service.setFetchBinDataResult(.failure(MockCheckoutService.MockError.resultNotSet))
+        await sut.service.setFetchBinDataResult(.failure(BinFetchError.paymentMethodNotAllowed("visa")))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await waitForChange(sut.viewModel.$hasCardNumberApiError)
+        await waitForChange(sut.viewModel.$fetchBinError)
 
         // Assert
-        XCTAssertTrue(sut.viewModel.hasCardNumberApiError)
+        XCTAssertNotNil(sut.viewModel.fetchBinError)
         XCTAssertNil(sut.viewModel.binData)
     }
 
@@ -259,16 +259,16 @@ final class CardFormViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertNil(sut.viewModel.binData)
-        XCTAssertFalse(sut.viewModel.hasCardNumberApiError)
+        XCTAssertNil(sut.viewModel.fetchBinError)
     }
 
     func test_onCardNumberChange_whenSameBINCalledTwice_shouldNotRefetch() async {
         // Arrange — first call fails
         let sut = makeSUT()
-        await sut.service.setFetchBinDataResult(.failure(MockCheckoutService.MockError.resultNotSet))
+        await sut.service.setFetchBinDataResult(.failure(BinFetchError.paymentMethodNotAllowed("visa")))
         sut.viewModel.onCardNumberChange("12345678")
-        await waitForChange(sut.viewModel.$hasCardNumberApiError)
-        XCTAssertTrue(sut.viewModel.hasCardNumberApiError)
+        await waitForChange(sut.viewModel.$fetchBinError)
+        XCTAssertNotNil(sut.viewModel.fetchBinError)
 
         // Change result to success, but call with same BIN
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
@@ -277,16 +277,16 @@ final class CardFormViewModelTests: XCTestCase {
         sut.viewModel.onCardNumberChange("12345678")
 
         // Assert — state unchanged
-        XCTAssertTrue(sut.viewModel.hasCardNumberApiError)
+        XCTAssertNotNil(sut.viewModel.fetchBinError)
         XCTAssertNil(sut.viewModel.binData)
     }
 
     func test_onCardNumberChange_whenDifferentBINAfterError_shouldRefetchAndClearError() async {
         // Arrange — first BIN fails
         let sut = makeSUT()
-        await sut.service.setFetchBinDataResult(.failure(MockCheckoutService.MockError.resultNotSet))
+        await sut.service.setFetchBinDataResult(.failure(BinFetchError.paymentMethodNotAllowed("visa")))
         sut.viewModel.onCardNumberChange("12345678")
-        await waitForChange(sut.viewModel.$hasCardNumberApiError)
+        await waitForChange(sut.viewModel.$fetchBinError)
 
         // Act — different BIN with success
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.master))
@@ -294,7 +294,7 @@ final class CardFormViewModelTests: XCTestCase {
         await waitForChange(sut.viewModel.$binData)
 
         // Assert
-        XCTAssertFalse(sut.viewModel.hasCardNumberApiError)
+        XCTAssertNil(sut.viewModel.fetchBinError)
         XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.master)
     }
 
