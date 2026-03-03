@@ -30,6 +30,7 @@ final class CardFormViewModel: ObservableObject {
     }
 
     // MARK: - Published State
+    private(set) var identificationTypes: [IdentificationType] = []
     @Published var selectTypeDocument: IdentificationType?
     @Published var screenState: CardFormScreenState = .loading
     @Published var binData: CardBinData?
@@ -53,6 +54,7 @@ final class CardFormViewModel: ObservableObject {
     func loadIdentificationTypes() async {
         do {
             let types = try await service.identificationTypes()
+            identificationTypes = types
             selectTypeDocument = types.first
             screenState = .ready
         } catch {

@@ -17,7 +17,6 @@ struct CardFormScreen: View {
     
     // MARK: States View
     @State private var cardForm = CardFormData()
-    @State private var openDocumentsSheet: Bool = false
     @Binding private var paymentData: MPPaymentData
 
     // MARK: Enviroments
@@ -120,29 +119,64 @@ struct CardFormScreen: View {
     }
         
     @ViewBuilder
-    func dropdownDocument() -> some View {
-        Button {
-            openDocumentsSheet.toggle()
-        } label: {
-            HStack {
-                Text(viewModel.selectTypeDocument?.name ?? String())
-                    .textStyle(.bodyMedium(colorType: .secondary))
-                
-                Image(systemName: openDocumentsSheet ? "chevron.up" : "chevron.down")
-                    .renderingMode(.template)
-                    .foregroundColor(theme.textFields.standard.idle.borderColor)
-                    .padding(.horizontal, theme.spacings.xmicro)
+    private func dropdownDocument() -> some View {
+        HStack(spacing: 0) {
+            if #available(iOS 14.0, *) {
+                documentPickerMenu()
+            } else {
+                documentPickerFallback()
             }
-            .frame(maxHeight: .infinity)
-            .overlay(
-                Rectangle()
-                    .frame(width: theme.borderWidth.small)
-                    .foregroundColor(theme.textFields.standard.idle.borderColor),
-                alignment: .trailing
-            )
-            .padding(.leading, theme.spacings.micro)
+
+            Rectangle()
+                .fill(theme.textFields.standard.idle.borderColor)
+                .frame(width: theme.borderWidth.small)
+        }
+    }
+
+    @available(iOS 14.0, *)
+    @ViewBuilder
+    private func documentPickerMenu() -> some View {
+        Menu {
+            Picker(
+                selection: $viewModel.selectTypeDocument,
+                label: EmptyView()
+            ) {
+                ForEach(viewModel.identificationTypes, id: \.id) { type in
+                    Text(type.name).tag(Optional(type))
+                }
+            }
+        } label: {
+            documentLabel()
         }
         .accessibility(label: Text(verbatim: viewModel.selectTypeDocument?.name ?? String()))
+    }
+
+    @ViewBuilder
+    private func documentPickerFallback() -> some View {
+        Picker(
+            selection: $viewModel.selectTypeDocument,
+            label: documentLabel()
+        ) {
+            ForEach(viewModel.identificationTypes, id: \.id) { type in
+                Text(type.name).tag(Optional(type))
+            }
+        }
+        .accentColor(theme.textFields.standard.idle.textColor)
+        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument?.name ?? String()))
+    }
+
+    @ViewBuilder
+    private func documentLabel() -> some View {
+        HStack {
+            Text(viewModel.selectTypeDocument?.name ?? String())
+                .textStyle(.bodyMedium(colorType: .secondary))
+
+            Image(systemName: "chevron.down")
+                .renderingMode(.template)
+                .foregroundColor(theme.textFields.standard.idle.borderColor)
+                .padding(.horizontal, theme.spacings.xmicro)
+        }
+        .padding(.leading, theme.spacings.micro)
     }
 }
 
