@@ -42,7 +42,7 @@ package struct RequiredRule: CardFormRuleType {
 // MARK: Card Number Rule
 
 package struct CardNumberRule: CardFormRuleType {
-    private var min = 13, max = 19
+    private var min = 13, max = 16
     private var externalError: BinFetchError?
     
     mutating package func apply(_ requirement: CardValidationRequirement) {
