@@ -12,6 +12,7 @@ package struct CardFormValidate {
     private var value: String
     private var rules: [any CardFormRuleType]
     package private(set) var errorMessages: [String] = []
+    package private(set) var liveErrorMessages: [String] = []
 
     package var wrappedValue: String {
         get { value }
@@ -35,5 +36,6 @@ package struct CardFormValidate {
 
     private mutating func validate() {
         errorMessages = rules.compactMap { $0.validate(value) }
+        liveErrorMessages = rules.compactMap { $0.validateLive(value) }
     }
 }

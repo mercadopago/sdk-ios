@@ -45,7 +45,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let placeholder: String?
     private let helperText: String?
     private let errorMessageProvider: () -> [String]?
-    
+    private let liveErrorMessageProvider: () -> [String]?
+
     private let keyboard: UIKeyboardType
     private let contentType: UITextContentType?
     private let autocorrection: UITextAutocorrectionType
@@ -54,9 +55,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let formatter: TextFormatting?
     private let prefixView: Prefix
     private let suffixView: Suffix
-    
+
     private let popoverText: String?
-    private let forceShowErrors: Bool
 
     // MARK: - Environment
     @Environment(\.mpTextFieldStyle) private var style: any MPTextFieldStyle
@@ -93,7 +93,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         placeholder: String?,
         helperText: String? = nil,
         errorMessage: @autoclosure @escaping () -> [String]? = nil,
-        forceShowErrors: Bool = false,
+        liveErrorMessage: @autoclosure @escaping () -> [String]? = nil,
         keyboard: UIKeyboardType = .default,
         contentType: UITextContentType? = nil,
         autocorrection: UITextAutocorrectionType = .default,
@@ -117,8 +117,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.prefixView = prefix()
         self.suffixView = suffix()
         self.popoverText = popoverText
-        self.forceShowErrors = forceShowErrors
         self.errorMessageProvider = errorMessage
+        self.liveErrorMessageProvider = liveErrorMessage
         self._internalState = State(initialValue: .idle)
     }
 
@@ -237,8 +237,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         // ReadOnly / Disabled override any other state
         if isReadOnly { return .readOnly }
         if !isEnabled { return .disabled }
-        
-        if let error = errorMessageProvider()?.first, !error.isEmpty, forceShowErrors {
+
+        if let error = liveErrorMessageProvider()?.first, !error.isEmpty {
             return isEditing ? .focusError(error) : .error(error)
         }
         return internalState

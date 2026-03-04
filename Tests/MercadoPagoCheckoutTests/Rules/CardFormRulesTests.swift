@@ -57,6 +57,28 @@ final class CardFormRulesTests: XCTestCase {
         XCTAssertNotNil(result)
     }
 
+    func test_cardNumberRule_whenAllDigitsSame_shouldReturnInvalidError() {
+        // Arrange
+        let rule = CardNumberRule()
+
+        // Act — all digits repeated (1111111111111111)
+        let result = rule.validate("1111 1111 1111 1111")
+
+        // Assert
+        XCTAssertNotNil(result)
+    }
+
+    func test_cardNumberRule_whenAllDigitsSameDifferentDigit_shouldReturnInvalidError() {
+        // Arrange
+        let rule = CardNumberRule()
+
+        // Act — all digits repeated (4444444444444444)
+        let result = rule.validate("4444 4444 4444 4444")
+
+        // Assert
+        XCTAssertNotNil(result)
+    }
+
     func test_cardNumberRule_whenPaymentMethodNotAllowed_shouldReturnSellerExclusionError() {
         // Arrange
         var rule = CardNumberRule()
@@ -126,6 +148,90 @@ final class CardFormRulesTests: XCTestCase {
 
         // Act — valid Luhn, no external error
         let result = rule.validate("4111 1111 1111 1111")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    // MARK: - CardNumberRule (validateLive)
+
+    func test_cardNumberRule_validateLive_whenEmpty_shouldReturnNil() {
+        // Arrange
+        let rule = CardNumberRule()
+
+        // Act
+        let result = rule.validateLive("")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_cardNumberRule_validateLive_whenBelowMinLength_shouldReturnNil() {
+        // Arrange — number with fewer than 13 digits should not trigger live errors
+        var rule = CardNumberRule()
+        rule.apply(.cardNumberRange(min: 16, max: 16))
+
+        // Act
+        let result = rule.validateLive("1111 1111 11")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_cardNumberRule_validateLive_whenAllDigitsSameAndComplete_shouldReturnInvalidError() {
+        // Arrange
+        let rule = CardNumberRule()
+
+        // Act
+        let result = rule.validateLive("1111 1111 1111 1111")
+
+        // Assert
+        XCTAssertNotNil(result)
+    }
+
+    func test_cardNumberRule_validateLive_whenValidNumber_shouldReturnNil() {
+        // Arrange
+        let rule = CardNumberRule()
+
+        // Act — 4111111111111111 is a valid non-repeated number
+        let result = rule.validateLive("4111 1111 1111 1111")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_cardNumberRule_validateLive_whenExternalError_shouldReturnError() {
+        // Arrange
+        var rule = CardNumberRule()
+        rule.apply(.cardNumberExternalError(.paymentMethodNotAllowed("visa")))
+
+        // Act
+        let result = rule.validateLive("4111 1111 1111 1111")
+
+        // Assert
+        XCTAssertNotNil(result)
+    }
+
+    func test_cardNumberRule_validateLive_whenExternalErrorCleared_shouldReturnNil() {
+        // Arrange
+        var rule = CardNumberRule()
+        rule.apply(.cardNumberExternalError(.paymentMethodNotAllowed("visa")))
+        rule.apply(.cardNumberExternalError(nil))
+
+        // Act
+        let result = rule.validateLive("4111 1111 1111 1111")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_cardNumberRule_validateLive_whenEmptyWithExternalError_shouldReturnNil() {
+        // Arrange — external error set but field is empty: should not show error
+        var rule = CardNumberRule()
+        rule.apply(.cardNumberExternalError(.paymentMethodNotAllowed("visa")))
+
+        // Act
+        let result = rule.validateLive("")
 
         // Assert
         XCTAssertNil(result)

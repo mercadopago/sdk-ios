@@ -62,7 +62,7 @@ struct CardFormScreen: View {
                                 label: MPStrings.CardForm.CardNumber.label,
                                 placeholder: MPStrings.CardForm.CardNumber.placeholder,
                                 errorMessage: cardForm.$cardNumber,
-                                forceShowErrors: viewModel.fetchBinError != nil,
+                                liveErrorMessage: cardForm.cardNumberLiveErrors,
                                 keyboard: .numberPad,
                                 formatter: viewModel.cardNumberFormatter,
                             )

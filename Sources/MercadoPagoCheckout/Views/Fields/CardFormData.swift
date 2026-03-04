@@ -53,6 +53,8 @@ struct CardFormData {
         _cardNumber.update(.cardNumberExternalError(error))
     }
     
+    var cardNumberLiveErrors: [String] { _cardNumber.liveErrorMessages }
+
     var isFormValid: Bool {
         return _cardNumber.errorMessages.isEmpty
         && _cardHolder.errorMessages.isEmpty

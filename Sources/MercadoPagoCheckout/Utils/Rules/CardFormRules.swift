@@ -17,12 +17,13 @@ package enum CardValidationRequirement {
 
 package protocol CardFormRuleType {
     func validate(_ value: String) -> String?
+    func validateLive(_ value: String) -> String?
     mutating func apply(_ requirement: CardValidationRequirement)
 }
 
 extension CardFormRuleType {
     mutating package func apply(_ requirement: CardValidationRequirement) {}
-
+    package func validateLive(_ value: String) -> String? { nil }
 }
 
 // MARK: Rules
@@ -57,10 +58,25 @@ package struct CardNumberRule: CardFormRuleType {
         if digits.isEmpty { return MPStrings.CardForm.CardNumber.errorEmpty }
         if let externalError { return validateExternalError(externalError) }
         if digits.count < min { return MPStrings.CardForm.CardNumber.errorIncomplete }
+        if isAllRepeatedDigits(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
         if !luhnCheck(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
         return nil
     }
-    
+
+    package func validateLive(_ value: String) -> String? {
+        let digits = value.filter(\.isNumber)
+        guard !digits.isEmpty else { return nil }
+        if let externalError { return validateExternalError(externalError) }
+        guard digits.count >= min else { return nil }
+        if isAllRepeatedDigits(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
+        return nil
+    }
+
+    private func isAllRepeatedDigits(_ digits: String) -> Bool {
+        guard let first = digits.first else { return false }
+        return digits.dropFirst().allSatisfy { $0 == first }
+    }
+
     private func validateExternalError(_ error: BinFetchError) -> String? {
         switch error {
         case .paymentMethodNotAllowed(let method):
