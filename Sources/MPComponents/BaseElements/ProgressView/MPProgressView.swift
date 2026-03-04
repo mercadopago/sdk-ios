@@ -8,25 +8,13 @@ import SwiftUI
 
 package struct MPProgressView: View {
 
+    @Environment(\.mpProgressViewSize) private var size: MPProgressViewSize
+    @Environment(\.mpProgressViewStyle) private var style: any MPProgressViewStyle
+
     package init() {}
 
     package var body: some View {
-        if #available(iOS 14.0, *) {
-            ProgressView()
-        } else {
-            ActivityIndicatorView()
-        }
+        let configuration = MPProgressViewStyleConfiguration(size: size)
+        return AnyView(style.resolve(configuration: configuration))
     }
-}
-
-// MARK: - iOS 13 fallback
-
-private struct ActivityIndicatorView: UIViewRepresentable {
-    func makeUIView(context: Context) -> UIActivityIndicatorView {
-        let view = UIActivityIndicatorView(style: .medium)
-        view.startAnimating()
-        return view
-    }
-
-    func updateUIView(_ uiView: UIActivityIndicatorView, context: Context) {}
 }
