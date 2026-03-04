@@ -66,7 +66,7 @@ struct CardFormScreen: View {
                                 keyboard: .numberPad,
                                 formatter: viewModel.cardNumberFormatter,
                             )
-
+                            
                             MPTextField(
                                 text: $cardForm.cardHolder,
                                 label: MPStrings.CardForm.CardHolder.label,
@@ -74,7 +74,7 @@ struct CardFormScreen: View {
                                 helperText: MPStrings.CardForm.CardHolder.helperText,
                                 errorMessage: cardForm.$cardHolder,
                             )
-
+                            
                             MPTextField(
                                 text: $cardForm.expirationDate,
                                 label: MPStrings.CardForm.Expiration.label,
@@ -83,12 +83,13 @@ struct CardFormScreen: View {
                                 keyboard: .numberPad,
                                 formatter: viewModel.expirationDateFormatter,
                             )
-
+                            
                             MPTextField(
                                 text: $cardForm.securityCode,
                                 label: MPStrings.CardForm.CVV.label,
                                 placeholder: viewModel.cvvPlaceholder,
-                                errorMessage: cardForm.$securityCode,
+                                helperText: cardForm.isSecurityCodeOptional ? MPStrings.CardForm.CVV.optional : nil,
+                                errorMessage: cardForm.isSecurityCodeOptional ? nil : cardForm.$securityCode,
                                 keyboard: .numberPad,
                                 formatter: viewModel.securityCodeFormatter,
                                 popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
@@ -120,12 +121,13 @@ struct CardFormScreen: View {
             
         }
         .mpOnChange(of: viewModel.binData) { binData in
-            if let cardInfo = binData?.paymentMethod.card {
+            if let cardInfo = binData?.paymentMethod.card, cardInfo.length.max > 0 {
                 cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
                 cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
             } else {
                 cardForm.setCardNumberLength()
             }
+            cardForm.setSecurityCodeOptional(isOptional: viewModel.isSecurityCodeOptional)
         }
         .mpOnChange(of: viewModel.selectTypeDocument) { identificationType in
             if let identificationType {

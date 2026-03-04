@@ -30,6 +30,7 @@ struct CardFormData {
         SecurityCodeRule()
     )
     var securityCode: String = ""
+    private(set) var isSecurityCodeOptional: Bool = false
     
     @CardFormValidate(
         RequiredRule(MPStrings.CardForm.Document.errorEmpty),
@@ -53,13 +54,17 @@ struct CardFormData {
         _cardNumber.update(.cardNumberExternalError(error))
     }
     
+    mutating func setSecurityCodeOptional(isOptional: Bool) {
+        isSecurityCodeOptional = isOptional
+    }
+    
     var cardNumberLiveErrors: [String] { _cardNumber.liveErrorMessages }
 
     var isFormValid: Bool {
         return _cardNumber.errorMessages.isEmpty
         && _cardHolder.errorMessages.isEmpty
         && _expirationDate.errorMessages.isEmpty
-        && _securityCode.errorMessages.isEmpty
+        && (isSecurityCodeOptional || _securityCode.errorMessages.isEmpty)
         && _documentHolder.errorMessages.isEmpty
     }
 }

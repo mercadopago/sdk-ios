@@ -125,8 +125,8 @@ package struct SecurityCodeFormatter: TextFormatting {
     private let maxLength: Int
     
     /// Creates a security code formatter.
-    /// - Parameter maxLength: Maximum digits allowed. Default is 4 (for Amex).
-    package init(maxLength: Int = 4) {
+    /// - Parameter maxLength: Maximum digits allowed. Default is 3.
+    package init(maxLength: Int = 3) {
         self.maxLength = maxLength
     }
     

@@ -41,6 +41,13 @@ final class CardFormViewModel: ObservableObject {
             ? MPStrings.CardForm.CVV.placeholderAmex
             : MPStrings.CardForm.CVV.placeholderDefault
     }
+    
+    var isSecurityCodeOptional: Bool {
+        guard let securityCode = binData?.paymentMethod.card?.securityCode else {
+            return false
+        }
+        return securityCode.length < 1
+    }
 
     // MARK: - Constants
     private static let amexSecurityCodeLength = 4
@@ -82,8 +89,12 @@ final class CardFormViewModel: ObservableObject {
 
     private func updateFormatters(for binData: CardBinData?) {
         if let cardInfo = binData?.paymentMethod.card {
-            cardNumberFormatter = CardNumberFormatter(maxLength: cardInfo.length.max)
-            securityCodeFormatter = SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
+            cardNumberFormatter = cardInfo.length.max > 0
+                ? CardNumberFormatter(maxLength: cardInfo.length.max)
+                : CardNumberFormatter()
+            securityCodeFormatter = cardInfo.securityCode.length > 0
+                ? SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
+                : SecurityCodeFormatter()
         } else {
             cardNumberFormatter = CardNumberFormatter()
             securityCodeFormatter = SecurityCodeFormatter()
