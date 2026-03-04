@@ -14,7 +14,7 @@ public extension MercadoPagoCheckout {
         /// Visa card network.
         case visa
         /// Mastercard network.
-        case mastercard
+        case master
         /// American Express card network.
         case amex
         /// Elo card network (Brazil).
@@ -44,7 +44,7 @@ public extension MercadoPagoCheckout {
         public static var defaults: [CardBrand] {
             [
                 .visa, 
-                .mastercard, 
+                .master,
                 .amex,
                 .elo, 
                 .hipercard, 
@@ -64,7 +64,7 @@ extension MercadoPagoCheckout.CardBrand {
     var paymentMethodId: String {
         switch self {
         case .visa:              return "visa"
-        case .mastercard:        return "mastercard"
+        case .master:        return "master"
         case .amex:              return "amex"
         case .elo:               return "elo"
         case .hipercard:         return "hipercard"
