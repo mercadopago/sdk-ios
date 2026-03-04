@@ -64,7 +64,7 @@ extension MercadoPagoCheckout.CardBrand {
     var paymentMethodId: String {
         switch self {
         case .visa:              return "visa"
-        case .master:        return "master"
+        case .master:           return "master"
         case .amex:              return "amex"
         case .elo:               return "elo"
         case .hipercard:         return "hipercard"
