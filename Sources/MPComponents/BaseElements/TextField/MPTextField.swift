@@ -45,8 +45,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let placeholder: String?
     private let helperText: String?
     private let errorMessageProvider: () -> [String]?
-    private let externalError: String?
-    
+    private let liveErrorMessageProvider: () -> [String]?
+
     private let keyboard: UIKeyboardType
     private let contentType: UITextContentType?
     private let autocorrection: UITextAutocorrectionType
@@ -55,7 +55,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     private let formatter: TextFormatting?
     private let prefixView: Prefix
     private let suffixView: Suffix
-    
+
     private let popoverText: String?
 
     // MARK: - Environment
@@ -93,7 +93,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         placeholder: String?,
         helperText: String? = nil,
         errorMessage: @autoclosure @escaping () -> [String]? = nil,
-        externalError: String? = nil,
+        liveErrorMessage: @autoclosure @escaping () -> [String]? = nil,
         keyboard: UIKeyboardType = .default,
         contentType: UITextContentType? = nil,
         autocorrection: UITextAutocorrectionType = .default,
@@ -118,7 +118,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.suffixView = suffix()
         self.popoverText = popoverText
         self.errorMessageProvider = errorMessage
-        self.externalError = externalError
+        self.liveErrorMessageProvider = liveErrorMessage
         self._internalState = State(initialValue: .idle)
     }
 
@@ -238,10 +238,9 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         if isReadOnly { return .readOnly }
         if !isEnabled { return .disabled }
 
-        if let externalError {
-            return isEditing ? .focusError(externalError) : .error(externalError)
+        if let error = liveErrorMessageProvider()?.first, !error.isEmpty {
+            return isEditing ? .focusError(error) : .error(error)
         }
-
         return internalState
     }
 

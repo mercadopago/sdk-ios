@@ -102,6 +102,14 @@ let package = Package(
                 "MPComponents",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
             ]
+        ),
+        .testTarget(
+            name: "MercadoPagoCheckoutTests",
+            dependencies: [
+                "MercadoPagoCheckout",
+                "CommonTests",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+            ]
         )
     ]
 )
