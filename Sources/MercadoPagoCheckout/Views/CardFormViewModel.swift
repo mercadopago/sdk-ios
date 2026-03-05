@@ -4,9 +4,9 @@
 //
 //  Created by Guilherme Prata Costa on 28/01/26.
 //
-import SwiftUI
 import CoreMethods
 import MPComponents
+import SwiftUI
 
 enum CardFormScreenState {
     case loading
@@ -15,37 +15,45 @@ enum CardFormScreenState {
 
 @MainActor
 final class CardFormViewModel: ObservableObject {
-
     // MARK: - Dependencies
+
     private let configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let service: CheckoutServiceProtocol
 
     // MARK: - Formatters
+
     @Published private(set) var cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
     @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
     private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
+
     @Published private(set) var screenState: CardFormScreenState = .loading
-    @Published private(set) var selectTypeDocument: IdentificationType? {
-        didSet { updateIdentificationType() }
+    @Published var selectTypeDocument: IdentificationType? {
+        didSet { self.updateIdentificationType() }
     }
+
+    var identificationTypes: [IdentificationType] = []
+
     @Published private(set) var binData: CardBinData? {
-        didSet { updateFormatters(for: binData) }
+        didSet { self.updateFormatters(for: self.binData) }
     }
+
     @Published private(set) var fetchBinError: BinFetchError?
 
     var cvvPlaceholder: String {
-        binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
+        self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
             ? MPStrings.CardForm.CVV.placeholderAmex
             : MPStrings.CardForm.CVV.placeholderDefault
     }
 
     // MARK: - Constants
+
     private static let amexSecurityCodeLength = 4
 
     // MARK: - Private
+
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
 
@@ -64,29 +72,30 @@ final class CardFormViewModel: ObservableObject {
     func loadIdentificationTypes() async {
         do {
             let types = try await service.identificationTypes()
-            selectTypeDocument = types.first
-            screenState = .ready
+            self.identificationTypes = types
+            self.selectTypeDocument = types.first
+            self.screenState = .ready
         } catch {
-            screenState = .ready
+            self.screenState = .ready
         }
     }
 
     // MARK: - Formatter Updates
 
     private func updateIdentificationType() {
-        documentFormatter = DocumentFormatter(
-            mask: selectTypeDocument?.getFormat() ?? String(),
-            maxLength: selectTypeDocument?.maxLenght ?? 20
+        self.documentFormatter = DocumentFormatter(
+            mask: self.selectTypeDocument?.getFormat() ?? String(),
+            maxLength: self.selectTypeDocument?.maxLenght ?? 20
         )
     }
 
     private func updateFormatters(for binData: CardBinData?) {
         if let cardInfo = binData?.paymentMethod.card {
-            cardNumberFormatter = CardNumberFormatter(maxLength: cardInfo.length.max)
-            securityCodeFormatter = SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
+            self.cardNumberFormatter = CardNumberFormatter(maxLength: cardInfo.length.max)
+            self.securityCodeFormatter = SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
         } else {
-            cardNumberFormatter = CardNumberFormatter()
-            securityCodeFormatter = SecurityCodeFormatter()
+            self.cardNumberFormatter = CardNumberFormatter()
+            self.securityCodeFormatter = SecurityCodeFormatter()
         }
     }
 
@@ -96,24 +105,24 @@ final class CardFormViewModel: ObservableObject {
         let digits = cardNumber.filter(\.isNumber)
         let bin = digits.count >= 8 ? String(digits.prefix(8)) : nil
 
-        guard bin != lastFetchedBIN else { return }
-        lastFetchedBIN = bin
+        guard bin != self.lastFetchedBIN else { return }
+        self.lastFetchedBIN = bin
 
-        paymentMethodTask?.cancel()
-        binData = nil
-        fetchBinError = nil
+        self.paymentMethodTask?.cancel()
+        self.binData = nil
+        self.fetchBinError = nil
 
         guard let bin else { return }
 
-        paymentMethodTask = Task { [weak self] in
+        self.paymentMethodTask = Task { [weak self] in
             await self?.fetchBinData(bin: bin)
         }
     }
 
     private func fetchBinData(bin: String) async {
-        let amount = configuration.type.configuration.amount
-        let acceptedPaymentTypeIds = configuration.paymentMethod.acceptedPaymentTypeIds
-        let acceptedPaymentMethodIds = configuration.paymentMethod.acceptedPaymentMethodIds
+        let amount = self.configuration.type.configuration.amount
+        let acceptedPaymentTypeIds = self.configuration.paymentMethod.acceptedPaymentTypeIds
+        let acceptedPaymentMethodIds = self.configuration.paymentMethod.acceptedPaymentMethodIds
         do {
             let data = try await service.fetchBinData(
                 bin: bin,
@@ -122,14 +131,14 @@ final class CardFormViewModel: ObservableObject {
                 acceptedPaymentMethodIds: acceptedPaymentMethodIds
             )
             guard !Task.isCancelled else { return }
-            binData = data
+            self.binData = data
         } catch let error as BinFetchError {
             guard !Task.isCancelled else { return }
             binData = nil
             self.fetchBinError = error
         } catch {
             guard !Task.isCancelled else { return }
-            binData = nil
+            self.binData = nil
         }
     }
 }
