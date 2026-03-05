@@ -40,8 +40,7 @@ struct CardFormScreen: View {
             switch viewModel.screenState {
             case .loading:
                 MPProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(theme.colors.background.primary)
+                    .size(.xlarge)
             case .ready:
                 MPHeader(
                     title: MPStrings.CardForm.title,

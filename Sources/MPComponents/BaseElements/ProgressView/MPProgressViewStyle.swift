@@ -79,7 +79,7 @@ package struct MPIndeterminateProgressViewStyle: MPProgressViewStyle {
         Circle()
             .trim(from: pathStart, to: pathEnd)
             .stroke(
-                theme.colors.interactive.fillLoudIdle,
+                theme.colors.border.accent,
                 style: StrokeStyle(lineWidth: configuration.size.lineWidth, lineCap: .round)
             )
             .rotationEffect(.degrees(spinRotation - 90))
