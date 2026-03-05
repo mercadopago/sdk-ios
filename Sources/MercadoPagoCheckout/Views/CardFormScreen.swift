@@ -61,6 +61,7 @@ struct CardFormScreen: View {
                                 label: MPStrings.CardForm.CardNumber.label,
                                 placeholder: MPStrings.CardForm.CardNumber.placeholder,
                                 errorMessage: cardForm.$cardNumber,
+                                liveErrorMessage: cardForm.cardNumberLiveErrors,
                                 keyboard: .numberPad,
                                 formatter: viewModel.cardNumberFormatter,
                             )
@@ -85,7 +86,7 @@ struct CardFormScreen: View {
                             MPTextField(
                                 text: $cardForm.securityCode,
                                 label: MPStrings.CardForm.CVV.label,
-                                placeholder: MPStrings.CardForm.CVV.placeholderDefault,
+                                placeholder: viewModel.cvvPlaceholder,
                                 errorMessage: cardForm.$securityCode,
                                 keyboard: .numberPad,
                                 formatter: viewModel.securityCodeFormatter,
@@ -115,6 +116,23 @@ struct CardFormScreen: View {
         }
         .mpOnChange(of: cardForm.cardNumber) { newValue in
             viewModel.onCardNumberChange(newValue)
+            
+        }
+        .mpOnChange(of: viewModel.binData) { binData in
+            if let cardInfo = binData?.paymentMethod.card {
+                cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
+                cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
+            } else {
+                cardForm.setCardNumberLength()
+            }
+        }
+        .mpOnChange(of: viewModel.selectTypeDocument) { identificationType in
+            if let identificationType {
+                cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
+            }
+        }
+        .mpOnChange(of: viewModel.fetchBinError) { error in
+            cardForm.setCardNumberExternalError(error)
         }
     }
         

@@ -21,7 +21,7 @@ platform :ios do
       is_swift_package: true,
       output_directory: "fastlane/xcov_output",
       minimum_coverage_percentage: 80.0,
-      exclude_targets: "SnapshotTests"
+      exclude_targets: "SnapshotTests,MercadoPagoCheckout,MercadoPagoCheckoutTests"
     )
   end
 

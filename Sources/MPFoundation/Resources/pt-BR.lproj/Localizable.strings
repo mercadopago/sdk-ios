@@ -20,12 +20,13 @@
 "card_number.error.seller_exclusion" = "A loja não aceita cartões %@.";
 "card_number.error.credit_only" = "A loja só aceita cartões de crédito.";
 "card_number.error.debit_only" = "A loja só aceita cartões de débito.";
+"card_number.error.type_not_allowed" = "A loja não aceita %@.";
 
 // MARK: - Card Holder
 "card_holder.label" = "Nome do titular";
 "card_holder.placeholder" = "Ex.: Maria dos Santos";
 "card_holder.error.empty" = "Preencha este campo.";
-"card_holder.error.incomplete" = "Insira-o conforme está no cartão.";
+"card_holder.error.incomplete" = "Insira conforme está no cartão.";
 "card_holder.error.invalid_format" = "Digite apenas letras e números.";
 "card_holder.helper.text" = "Conforme aparece no cartão.";
 
@@ -84,6 +85,7 @@
 "common.currency" = "R$";
 "common.credit" = "Crédito";
 "common.debit" = "Débito";
+"common.prepaid" = "Pré-pago";
 
 // MARK: - Errors
 "error.generic" = "Algo deu errado. Por favor, tente novamente.";

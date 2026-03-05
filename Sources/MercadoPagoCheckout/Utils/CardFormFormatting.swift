@@ -13,18 +13,24 @@ import MPComponents
 /// A formatter that applies a mask pattern to card numbers.
 package struct CardNumberFormatter: TextFormatting {
     private let maskFormat: String
-    
-    /// Creates a card number formatter with the specified mask.
-    /// - Parameter mask: The mask pattern where '#' represents a digit.
-    package init(mask: String = "#### #### #### ####") {
+    private let maxLength: Int
+
+    /// Creates a card number formatter with the specified mask and max digit count.
+    /// - Parameters:
+    ///   - mask: The mask pattern where '#' represents a digit.
+    ///   - maxLength: Maximum number of digits accepted. Default is 19.
+    package init(mask: String = "#### #### #### ####", maxLength: Int = 19) {
         self.maskFormat = mask
+        self.maxLength = maxLength
     }
-    
+
     package func formatOnChange(_ text: String) -> String {
-        let cleanNumber = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        let cleanNumber = String(
+            text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined().prefix(maxLength)
+        )
         var result = ""
         var index = cleanNumber.startIndex
-        
+
         for char in maskFormat where index < cleanNumber.endIndex {
             if char == "#" {
                 result.append(cleanNumber[index])
@@ -33,7 +39,7 @@ package struct CardNumberFormatter: TextFormatting {
                 result.append(char)
             }
         }
-        
+
         return result
     }
     
@@ -78,14 +84,20 @@ package struct ExpirationDateFormatter: TextFormatting {
 /// When the format is empty, the input is returned unchanged.
 package struct DocumentFormatter: TextFormatting {
     private let maskFormat: String
+    private let maxLength: Int
 
-    package init(mask: String = "") {
+    package init(mask: String = "", maxLength: Int = 20) {
         self.maskFormat = mask
+        self.maxLength = maxLength
     }
 
     package func formatOnChange(_ text: String) -> String {
-        guard !maskFormat.isEmpty else { return text }
-        let digits = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        guard !maskFormat.isEmpty else {
+            return String(text.prefix(maxLength))
+        }
+        let digits = String(
+            text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined().prefix(maxLength)
+        )
         var result = ""
         var index = digits.startIndex
 

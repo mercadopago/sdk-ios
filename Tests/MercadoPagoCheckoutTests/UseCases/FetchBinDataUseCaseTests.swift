@@ -298,6 +298,56 @@ final class FetchBinDataUseCaseTests: XCTestCase {
         // Act / Assert
         await XCTAssertThrowsErrorAsync(try await execute(sut.useCase, amount: 100.0))
     }
+
+    // MARK: - BinFetchError Detection
+
+    func test_execute_whenTypeMatchesButBrandExcluded_shouldThrowPaymentMethodNotAllowed() async {
+        // Arrange — visa is credit_card (accepted type) but excluded from accepted brands
+        let sut = makeSUT()
+        await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
+
+        // Act / Assert
+        do {
+            _ = try await execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: ["master"])
+            XCTFail("Expected paymentMethodNotAllowed error")
+        } catch BinFetchError.paymentMethodNotAllowed(let method) {
+            XCTAssertEqual(method, PaymentMethodStub.visa.id)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func test_execute_whenTypeDoesNotMatch_shouldThrowPaymentTypeNotAllowed() async {
+        // Arrange — debitVisa is debit_card, only credit_card accepted
+        let sut = makeSUT()
+        await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.debitVisa]))
+
+        // Act / Assert
+        do {
+            _ = try await execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: [])
+            XCTFail("Expected paymentTypeNotAllowed error")
+        } catch BinFetchError.paymentTypeNotAllowed(let cardType) {
+            XCTAssertEqual(cardType, .debit)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func test_execute_whenMultipleMethodsAndBothBrandExcluded_shouldThrowWithFirstDetectedBrand() async {
+        // Arrange — visa and master are both credit_card, neither is in accepted brands
+        let sut = makeSUT()
+        await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa, PaymentMethodStub.master]))
+
+        // Act / Assert
+        do {
+            _ = try await execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: ["amex"])
+            XCTFail("Expected paymentMethodNotAllowed error")
+        } catch BinFetchError.paymentMethodNotAllowed(let method) {
+            XCTAssertEqual(method, PaymentMethodStub.visa.id)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
 }
 
 // MARK: - Async Test Helpers

@@ -21,19 +21,29 @@ final class CardFormViewModel: ObservableObject {
     private let service: CheckoutServiceProtocol
 
     // MARK: - Formatters
-    let cardNumberFormatter = CardNumberFormatter()
+    @Published private(set) var cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
-    let securityCodeFormatter = SecurityCodeFormatter()
-
-    var documentFormatter: DocumentFormatter {
-        DocumentFormatter(mask: selectTypeDocument?.getFormat() ?? String())
-    }
+    @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
+    private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
-    private(set) var identificationTypes: [IdentificationType] = []
-    @Published var selectTypeDocument: IdentificationType?
-    @Published var screenState: CardFormScreenState = .loading
-    @Published var binData: CardBinData?
+    @Published private(set) var screenState: CardFormScreenState = .loading
+    @Published private(set) var selectTypeDocument: IdentificationType? {
+        didSet { updateIdentificationType() }
+    }
+    @Published private(set) var binData: CardBinData? {
+        didSet { updateFormatters(for: binData) }
+    }
+    @Published private(set) var fetchBinError: BinFetchError?
+
+    var cvvPlaceholder: String {
+        binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
+            ? MPStrings.CardForm.CVV.placeholderAmex
+            : MPStrings.CardForm.CVV.placeholderDefault
+    }
+
+    // MARK: - Constants
+    private static let amexSecurityCodeLength = 4
 
     // MARK: - Private
     private var lastFetchedBIN: String?
@@ -62,6 +72,25 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Formatter Updates
+
+    private func updateIdentificationType() {
+        documentFormatter = DocumentFormatter(
+            mask: selectTypeDocument?.getFormat() ?? String(),
+            maxLength: selectTypeDocument?.maxLenght ?? 20
+        )
+    }
+
+    private func updateFormatters(for binData: CardBinData?) {
+        if let cardInfo = binData?.paymentMethod.card {
+            cardNumberFormatter = CardNumberFormatter(maxLength: cardInfo.length.max)
+            securityCodeFormatter = SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
+        } else {
+            cardNumberFormatter = CardNumberFormatter()
+            securityCodeFormatter = SecurityCodeFormatter()
+        }
+    }
+
     // MARK: - Payment Methods
 
     func onCardNumberChange(_ cardNumber: String) {
@@ -72,11 +101,10 @@ final class CardFormViewModel: ObservableObject {
         lastFetchedBIN = bin
 
         paymentMethodTask?.cancel()
+        binData = nil
+        fetchBinError = nil
 
-        guard let bin else {
-            binData = nil
-            return
-        }
+        guard let bin else { return }
 
         paymentMethodTask = Task { [weak self] in
             await self?.fetchBinData(bin: bin)
@@ -96,8 +124,13 @@ final class CardFormViewModel: ObservableObject {
             )
             guard !Task.isCancelled else { return }
             binData = data
+        } catch let error as BinFetchError {
+            guard !Task.isCancelled else { return }
+            binData = nil
+            self.fetchBinError = error
         } catch {
             guard !Task.isCancelled else { return }
+            binData = nil
         }
     }
 }

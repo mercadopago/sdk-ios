@@ -6,7 +6,7 @@
 //
 import MPComponents
 
- struct CardFormData {
+struct CardFormData {
     @CardFormValidate(
         RequiredRule(MPStrings.CardForm.CardNumber.errorEmpty),
         CardNumberRule()
@@ -40,11 +40,21 @@ import MPComponents
     mutating func setSecurityCodeLength(_ length: Int) {
         _securityCode.update(.securityCodeLength(length))
     }
-
-    mutating func setDocumentLength(_ length: Int) {
-        _documentHolder.update(.documentLength(length))
+    
+    mutating func setDocumentLength(_ min: Int, _ max: Int) {
+        _documentHolder.update(.documentLength(min: min, max: max))
     }
     
+    mutating func setCardNumberLength(_ minLength: Int = 13, _ maxLength: Int = 19) {
+        _cardNumber.update(.cardNumberRange(min: minLength, max: maxLength))
+    }
+    
+    mutating func setCardNumberExternalError(_ error: BinFetchError?) {
+        _cardNumber.update(.cardNumberExternalError(error))
+    }
+    
+    var cardNumberLiveErrors: [String] { _cardNumber.liveErrorMessages }
+
     var isFormValid: Bool {
         return _cardNumber.errorMessages.isEmpty
         && _cardHolder.errorMessages.isEmpty
