@@ -60,9 +60,9 @@ package extension View {
 
 package protocol MPProgressViewStyle: StyleProtocol, Identifiable where Configuration == MPProgressViewStyleConfiguration {}
 
-// MARK: - Default Style
+// MARK: - Indeterminate Style
 
-package struct MPDefaultProgressViewStyle: MPProgressViewStyle {
+package struct MPIndeterminateProgressViewStyle: MPProgressViewStyle {
     package var id: UUID = .init()
 
     @Environment(\.checkoutTheme) var theme: MPTheme
@@ -76,18 +76,14 @@ package struct MPDefaultProgressViewStyle: MPProgressViewStyle {
 
     @MainActor
     package func makeBody(configuration: MPProgressViewStyleConfiguration) -> some View {
-        ZStack {
-            Circle()
-                .stroke(theme.colors.interactive.fillQuietIdle, lineWidth: configuration.size.lineWidth)
-            Circle()
-                .trim(from: pathStart, to: pathEnd)
-                .stroke(
-                    theme.colors.interactive.fillLoudIdle,
-                    style: StrokeStyle(lineWidth: configuration.size.lineWidth, lineCap: .round)
-                )
-                .rotationEffect(.degrees(spinRotation - 90))
-        }
-        .frame(width: configuration.size.diameter, height: configuration.size.diameter)
+        Circle()
+            .trim(from: pathStart, to: pathEnd)
+            .stroke(
+                theme.colors.interactive.fillLoudIdle,
+                style: StrokeStyle(lineWidth: configuration.size.lineWidth, lineCap: .round)
+            )
+            .rotationEffect(.degrees(spinRotation - 90))
+            .frame(width: configuration.size.diameter, height: configuration.size.diameter)
         .onAppear {
             rotationTask = Task { await runRotationLoop() }
             pathTask = Task { await runPathLoop() }
@@ -149,7 +145,7 @@ private struct ResolvedMPProgressViewStyle<Style: MPProgressViewStyle>: View {
 
 private struct MPProgressViewStyleKey: @preconcurrency EnvironmentKey {
     @MainActor
-    static var defaultValue: any MPProgressViewStyle = MPDefaultProgressViewStyle()
+    static var defaultValue: any MPProgressViewStyle = MPIndeterminateProgressViewStyle()
 }
 
 extension EnvironmentValues {
