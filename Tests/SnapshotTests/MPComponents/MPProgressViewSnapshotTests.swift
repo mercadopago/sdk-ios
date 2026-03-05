@@ -14,7 +14,7 @@ final class MPProgressViewSnapshotTests: XCTestCase {
 
     func test_animationMoments() async throws {
         let view = createTestView {
-            MPProgressView()
+            MPProgressIndicator()
         }
 
         let hostingController = UIHostingController(rootView: view)

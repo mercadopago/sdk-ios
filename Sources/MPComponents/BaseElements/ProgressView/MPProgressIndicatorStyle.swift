@@ -9,7 +9,7 @@ import MPFoundation
 
 // MARK: - Size
 
-package enum MPProgressViewSize: Sendable {
+package enum MPProgressIndicatorSize: Sendable {
     case xsmall
     case small
     case medium
@@ -39,30 +39,30 @@ package enum MPProgressViewSize: Sendable {
 
 // MARK: - Size Environment
 
-private struct MPProgressViewSizeKey: EnvironmentKey {
-    static let defaultValue: MPProgressViewSize = .medium
+private struct MPProgressViewIndicatorKey: EnvironmentKey {
+    static let defaultValue: MPProgressIndicatorSize = .medium
 }
 
 extension EnvironmentValues {
-    var mpProgressViewSize: MPProgressViewSize {
-        get { self[MPProgressViewSizeKey.self] }
-        set { self[MPProgressViewSizeKey.self] = newValue }
+    var mpProgressIndicatorSize: MPProgressIndicatorSize {
+        get { self[MPProgressViewIndicatorKey.self] }
+        set { self[MPProgressViewIndicatorKey.self] = newValue }
     }
 }
 
 package extension View {
-    func size(_ size: MPProgressViewSize) -> some View {
-        environment(\.mpProgressViewSize, size)
+    func size(_ size: MPProgressIndicatorSize) -> some View {
+        environment(\.mpProgressIndicatorSize, size)
     }
 }
 
 // MARK: - Style Protocol
 
-package protocol MPProgressViewStyle: StyleProtocol, Identifiable where Configuration == MPProgressViewStyleConfiguration {}
+package protocol MPProgressIndicatorStyle: StyleProtocol, Identifiable where Configuration == MPProgressIndicatorStyleConfiguration {}
 
 // MARK: - Indeterminate Style
 
-package struct MPIndeterminateProgressViewStyle: MPProgressViewStyle {
+package struct MPIndeterminateProgressViewStyle: MPProgressIndicatorStyle {
     package var id: UUID = .init()
 
     @Environment(\.checkoutTheme) var theme: MPTheme
@@ -75,7 +75,7 @@ package struct MPIndeterminateProgressViewStyle: MPProgressViewStyle {
     package init() {}
 
     @MainActor
-    package func makeBody(configuration: MPProgressViewStyleConfiguration) -> some View {
+    package func makeBody(configuration: MPProgressIndicatorStyleConfiguration) -> some View {
         Circle()
             .trim(from: pathStart, to: pathEnd)
             .stroke(
@@ -125,14 +125,14 @@ package struct MPIndeterminateProgressViewStyle: MPProgressViewStyle {
 
 // MARK: - Style Resolution
 
-package extension MPProgressViewStyle {
+package extension MPProgressIndicatorStyle {
     @MainActor
     func resolve(configuration: Configuration) -> some View {
         ResolvedMPProgressViewStyle(style: self, configuration: configuration)
     }
 }
 
-private struct ResolvedMPProgressViewStyle<Style: MPProgressViewStyle>: View {
+private struct ResolvedMPProgressViewStyle<Style: MPProgressIndicatorStyle>: View {
     let style: Style
     let configuration: Style.Configuration
 
@@ -145,18 +145,18 @@ private struct ResolvedMPProgressViewStyle<Style: MPProgressViewStyle>: View {
 
 private struct MPProgressViewStyleKey: @preconcurrency EnvironmentKey {
     @MainActor
-    static var defaultValue: any MPProgressViewStyle = MPIndeterminateProgressViewStyle()
+    static var defaultValue: any MPProgressIndicatorStyle = MPIndeterminateProgressViewStyle()
 }
 
 extension EnvironmentValues {
-    var mpProgressViewStyle: any MPProgressViewStyle {
+    var mpProgressViewStyle: any MPProgressIndicatorStyle {
         get { self[MPProgressViewStyleKey.self] }
         set { self[MPProgressViewStyleKey.self] = newValue }
     }
 }
 
 package extension View {
-    func mpProgressViewStyle<S: MPProgressViewStyle>(_ style: S) -> some View {
+    func mpProgressViewStyle<S: MPProgressIndicatorStyle>(_ style: S) -> some View {
         environment(\.mpProgressViewStyle, style)
     }
 }

@@ -7,7 +7,7 @@
 import SwiftUI
 
 /// Configuration passed to ``MPProgressViewStyle`` for rendering.
-package struct MPProgressViewStyleConfiguration {
+package struct MPProgressIndicatorStyleConfiguration {
     /// The size of the progress indicator.
-    package let size: MPProgressViewSize
+    package let size: MPProgressIndicatorSize
 }

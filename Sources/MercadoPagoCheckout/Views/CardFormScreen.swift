@@ -39,7 +39,7 @@ struct CardFormScreen: View {
         Group {
             switch viewModel.screenState {
             case .loading:
-                MPProgressView()
+                MPProgressIndicator()
                     .size(.xlarge)
             case .ready:
                 MPHeader(
