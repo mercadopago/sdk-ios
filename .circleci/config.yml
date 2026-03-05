@@ -1,0 +1,150 @@
+version: 2.1
+
+orbs:
+  macos: circleci/macos@2.5.4
+
+executors:
+  default:
+    macos:
+      xcode: 26.1.1
+
+commands:
+  setup_environment:
+    steps:
+      - macos/install-rosetta
+      - macos/switch-ruby:
+          version: "3.4.7"
+      - run:
+          name: Install Dependencies
+          command: make setup
+
+jobs:
+  build-and-test:
+    circleci_ip_ranges: false
+    executor: default
+    steps:
+      - checkout
+      - setup_environment
+      - run:
+          name: Run SwiftLint
+          command: swiftlint
+      - run:
+          name: Run SwiftFormat
+          command: make format
+      - run:
+          name: Execute Tests and Coverage
+          command: bundle exec fastlane test
+      - store_artifacts:
+          path: fastlane/xcov_output
+          destination: code-coverage
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+            - vendor/bundle
+
+  snapshot-tests:
+    executor: default
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_environment
+      - run:
+          name: Run Snapshot Tests
+          command: bundle exec fastlane snapshot_tests
+
+  generate-doc:
+    executor: default
+    steps:
+      - checkout
+      - setup_environment
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:QCKwvoOSf76ROiASMPP0agO6EhQpXF8HFtX7x+pDvk0"
+      - run:
+          name: Configure Git for deployment
+          command: |
+            git config --global user.email "dev@mercadopago.com"
+            git config --global user.name "CI Build"
+      - run:
+          name: Generate documentation
+          command: ./scripts/generate-doc.sh
+      - run:
+          name: Deploy DocC to GitHub Pages
+          command: ./scripts/deploy-doc.sh
+          
+  publish-release:
+    executor: default
+    environment:
+      GITHUB_TOKEN: ${GH_TOKEN}
+    steps:
+      - checkout
+      - setup_environment
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:QCKwvoOSf76ROiASMPP0agO6EhQpXF8HFtX7x+pDvk0"
+      - run:
+          name: Configure Git for GitHub access
+          command: |
+            git config --global user.email "dev@mercadopago.com"
+            git config --global user.name "CI Build"
+      - run:
+          name: Install GitHub CLI
+          command: |
+            brew install gh
+      - run:
+          name: Configure CocoaPods authentication
+          command: |
+            mkdir -p ~/.cocoapods
+            echo "machine trunk.cocoapods.org" > ~/.netrc
+            echo "  login $COCOAPODS_TRUNK_TOKEN" >> ~/.netrc
+            echo "  password $COCOAPODS_TRUNK_TOKEN" >> ~/.netrc
+            chmod 0600 ~/.netrc
+      - run:
+          name: Check if new version needs to be published
+          command: |
+            # Get current version from VERSION file
+            CURRENT_VERSION=$(cat VERSION)
+            echo "Current version in VERSION file: $CURRENT_VERSION"
+            
+            # Get the latest git tag
+            git fetch --tags
+            LATEST_TAG=$(git tag --sort=-v:refname | head -n 1)
+            echo "Latest git tag: $LATEST_TAG"
+            
+            if [ "$CURRENT_VERSION" == "$LATEST_TAG" ]; then
+              echo "Version $CURRENT_VERSION is already published. Skipping publication."
+              exit 0
+            else
+              echo "New version detected: $CURRENT_VERSION. Publishing..."
+              ./scripts/publish-release.sh
+            fi
+
+workflows:
+  version: 2
+
+  main-workflow:
+    jobs:
+      - build-and-test:
+          filters:
+            branches:
+              ignore: main
+      - snapshot-tests:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              ignore: main
+      - generate-doc:
+          filters:
+            branches:
+              only:
+                - main
+      - publish-release:
+          filters:
+            branches:
+              only:
+                - main
+
+
+

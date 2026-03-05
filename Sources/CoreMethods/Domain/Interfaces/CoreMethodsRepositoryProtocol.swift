@@ -1,0 +1,15 @@
+//
+//  CoreMethodsRepository.swift
+//  MercadoPagoSDK-iOS
+//
+//  Created by Guilherme Prata Costa on 18/02/25.
+//
+import Foundation
+
+protocol CoreMethodsRepositoryProtocol: Sendable {
+    func generateCardToken(_ data: CardTokenBody) async throws -> CardTokenResponse
+    func getIdentificationTypes() async throws -> [IdentificationTypesResponse]
+    func getInstallments(params: InstallmentsParams) async throws -> [Installment]
+    func getPaymentMethods(params: PaymentMethodsParams) async throws -> [PaymentMethod]
+    func getIssuers(params: IssuersParams) async throws -> [Issuer]
+}

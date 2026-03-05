@@ -1,0 +1,135 @@
+//
+//  MercadoPagoSDK.swift
+//  MercadoPagoSDK-iOS
+//
+//  Created by Guilherme Prata Costa on 11/02/25.
+//
+
+import Foundation
+
+#if SWIFT_PACKAGE
+    import MPAnalytics
+#endif
+
+/// Main entry point for MercadoPago SDK
+public final class MercadoPagoSDK: @unchecked Sendable {
+    public static let shared: MercadoPagoSDK = {
+        let container = CoreDependencyContainer.shared
+
+        return MercadoPagoSDK(dependencies: container)
+    }()
+
+    /// Configuration options for MercadoPagoSDK
+    public struct Configuration: Sendable {
+        let publicKey: String
+        package let locale: String
+        package let country: MercadoPagoSDK.Country
+
+        /// Initialize SDK configuration
+        /// - Parameters:
+        ///   - publicKey: Your MercadoPago public key
+        ///   - locale: Locale identifier (defaults to system locale)
+        ///   - country: The country code of your Mercado Pago associated with the public key. It uses the ISO 3166-1 alpha-3 standard.
+        public init(
+            publicKey: String,
+            locale: String = Locale.current.identifier,
+            country: Country
+        ) {
+            self.publicKey = publicKey
+            self.locale = locale
+            self.country = country
+        }
+    }
+
+    private(set) var isInitialized = false
+    package var configuration: Configuration?
+    private(set) var analyticsMonitoringTask: Task<Void, Never>?
+
+    typealias Dependency = HasAnalytics
+
+    private let dependencies: Dependency
+
+    init(dependencies: Dependency) {
+        self.dependencies = dependencies
+    }
+
+    /// Initialize the SDK with required configuration
+    /// Should call only once, when app open (AppDelegate, SceneDelegate or @main
+    /// - Parameter configuration: SDK configuration options
+    public func initialize(_ configuration: Configuration) {
+        verifyCanBeInitialized(configuration)
+        
+        self.configuration = configuration
+        self.isInitialized = true
+
+        self.analyticsMonitoringTask = Task(priority: .background) {
+            await self.dependencies.analytics.initialize(
+                version: MPSDKVersion.version,
+                siteID: configuration.country.getSiteId()
+            )
+            
+            await sendInitializeAnalyticsEvent()
+        }
+    }
+    
+    /// New configuration of SDK with a different public key or locale
+    /// - Parameter configuration: SDK configuration options
+    public func setNewConfiguration(_ configuration: Configuration) {
+        assert(
+            self.isInitialized,
+            SDKError.notInitialized.rawValue
+        )
+        
+        self.configuration = configuration
+        self.analyticsMonitoringTask?.cancel()
+        
+        self.analyticsMonitoringTask = Task(priority: .utility) {
+            await self.dependencies.analytics.initialize(
+                version: MPSDKVersion.version,
+                siteID: configuration.country.getSiteId()
+            )
+            
+            await sendInitializeAnalyticsEvent()
+        }
+    }
+
+    /// Get the configured public key
+    /// - Returns: The public key string
+    package func getPublicKey() -> String {
+        guard let key = configuration?.publicKey else {
+            assert(self.configuration?.publicKey.isEmpty ?? true, SDKError.notInitialized.rawValue)
+            return ""
+        }
+
+        return key
+    }
+}
+
+private extension MercadoPagoSDK {
+    func verifyCanBeInitialized(_ configuration: Configuration) {
+        assert(
+            !self.isInitialized,
+            SDKError.alreadyInitialized.rawValue
+        )
+
+        assert(
+            !configuration.publicKey.isEmpty,
+            SDKError.invalidPublicKey.rawValue
+        )
+    }
+
+    func sendInitializeAnalyticsEvent() async {
+        let eventData = MPInicializationEventData(
+            locale: self.configuration?.locale ?? "",
+            distribution: self.dependencies.analytics.sellerInfo.getDistribution().rawValue,
+            minimumVersionApp: self.dependencies.analytics.sellerInfo.getTargetMinimum(),
+            publicKey: self.getPublicKey(),
+            sdkVersion: MPSDKVersion.version
+        )
+
+        await self.dependencies.analytics
+            .trackEvent("/checkout_api_native/initialize")
+            .setEventData(eventData)
+            .send()
+    }
+}
