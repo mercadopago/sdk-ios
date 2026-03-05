@@ -73,6 +73,7 @@ struct CardFormBrick: View {
                 route = .reviewAndConfirm
             }
         )
+        .listItemStyle(.radioButton)
     }
     
     @ViewBuilder
