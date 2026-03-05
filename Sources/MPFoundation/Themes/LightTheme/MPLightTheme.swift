@@ -283,7 +283,7 @@ public struct LightTypography: MPTypography {
         
         self.body = .init(
             large: .init(
-                default: .custom(.regular, size: 18),
+                default: .custom(.regular, size: 16),
                 emphasis: .custom(.bold, size: 16)
             ),
             medium: .init(

@@ -5,50 +5,58 @@
 //  Created by [Your Name] on [Date].
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 package struct MPListItem: View {
-    
     @Environment(\.listItemStyle) private var style
-    
-    let type: MPListItemType?
+    @Environment(\.listItemTrailingStyle) private var trailingStyle
+    @State private var isPressed = false
+
+    let isSelected: Binding<Bool>
     let leftImage: Image?
     let contentInfo: MPListItemContentInfo
     let trailing: MPListItemTrailing?
-    var onClick: (() -> Void)?
-    
+
     package init(
-        type: MPListItemType? = nil,
+        isSelected: Binding<Bool> = .constant(false),
         leftImage: Image? = nil,
         contentInfo: MPListItemContentInfo,
-        trailing: MPListItemTrailing? = nil,
-        onClick: (() -> Void)? = nil
+        trailing: MPListItemTrailing? = nil
     ) {
-        self.type = type
+        self.isSelected = isSelected
         self.leftImage = leftImage
         self.contentInfo = contentInfo
         self.trailing = trailing
-        self.onClick = onClick
     }
-    
-    package var body: some View {        
+
+    package var body: some View {
         let configuration: MPListItemStyleConfiguration = .init(
-            leftImage: leftImageView,
-            title: titleView,
-            header: headerView,
-            description: descriptionView,
-            textRight: textRightView,
-            rightContent: rightContent,
-            selectedButton: selectedButton,
-            radioButton: radioButtonView
+            isPressed: isPressed,
+            isSelected: isSelected.wrappedValue,
+            leftImage: self.leftImageView,
+            title: self.titleView,
+            header: self.headerView,
+            description: self.descriptionView,
+            trailing: self.trailingView
         )
-        
+
+        let resolvedStyle = self.style ?? MPDefaultListItemStyle()
+
         AnyView(
-            style.resolve(configuration: configuration)
+            resolvedStyle.resolve(configuration: configuration)
         )
+        .contentShape(Rectangle())
+        .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
+            withAnimation(.easeOut(duration: 0.15)) {
+                self.isPressed = pressing
+            }
+        }, perform: {})
+        .onTapGesture {
+            self.isSelected.wrappedValue.toggle()
+        }
     }
-    
+
     @ViewBuilder
     private var headerView: some View {
         if let header = contentInfo.header {
@@ -56,15 +64,14 @@ package struct MPListItem: View {
                 .textStyle(.bodyMedium())
         }
     }
-    
+
     @ViewBuilder
     private var titleView: some View {
         if let title = contentInfo.title {
             Text(title)
-                .textStyle(.bodyMediumTitle())
         }
     }
-    
+
     @ViewBuilder
     private var descriptionView: some View {
         if let description = contentInfo.description {
@@ -72,127 +79,83 @@ package struct MPListItem: View {
                 .textStyle(.bodyMedium())
         }
     }
-    
-    @ViewBuilder
-    private var textRightView: some View {
-        if let text = trailing?.text {
-            Text(text)
-                .textStyle(.bodyMedium(colorType: trailing?.color ?? .primary))
-        }
-    }
-    
-    @ViewBuilder
-    private var radioButtonView: some View {
-        switch type {
-        case .radioButton(let selected):
-            Toggle(isOn: .constant(selected)) { EmptyView() }
-                .toggleStyle(MPRadioButtonToggleStyle())
-                .labelsHidden()
-        default:
-            EmptyView()
-        }
-    }
-    
+
     @ViewBuilder
     private var leftImageView: some View {
-        leftImage
+        self.leftImage
     }
 
     @ViewBuilder
-    private var selectedButton: some View {
-        if let onClick {
-            Button {
-                onClick()
-            } label: {
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+    private var trailingView: some View {
+        if let trailing {
+            let config = MPListItemTrailingStyleConfiguration(
+                text: trailing.text,
+                textColor: trailing.color
+            )
+            let resolved = self.trailingStyle ?? MPTrailingTextStyle()
+            AnyView(resolved.resolve(configuration: config))
         }
     }
-    
-    @ViewBuilder
-    private var rightContent: some View {
-        if let content = trailing?.type {
-            switch content {
-            case .icon(let image):
-                image
-            case .none:
-                EmptyView()
-            }
-        }
-    }
-    
 }
 
 #if DEBUG
-struct MPListItemView: View {
-    @State private var selectedIndex: Int? = 0
+    struct MPListItemView: View {
+        @State private var selectedIndex: Int? = 0
 
-    var body: some View {
-        VStack(spacing: 16) {
-            MPListItem(
-                type: .radioButton(selected: bindingForIndex(0)),
-                leftImage: Image(systemName: "creditcard"),
-                contentInfo: .init(title: "Option 1", description: "Description"),
-                trailing:.init(
-                    text: "$ 1,000.00",
-                    type: .icon(Image(systemName: "chevron.right"))
-                ),
-                onClick: {
-                    selectedIndex = 0 }
-            )
-            MPListItem(
-                type: .radioButton(selected: bindingForIndex(1)),
-                contentInfo: .init(title: "Option 2", description: "Description"),
-                trailing:.init(
-                    text: MPStrings.Installments.interestFree,
-                    color: .feedbackPositive,
-                    type: .icon(Image(systemName: "chevron.right"))
-                ),
-                onClick: { selectedIndex = 1 }
-            )
-            
-            MPListItem(
-                type: .radioButton(selected: bindingForIndex(2)),
-                contentInfo: .init(header: "Option 3"),
-                trailing:.init(
-                    text: "$ 1,000.00"
-                ),
-                onClick: {
-                    selectedIndex = 2 }
-            )
-            
-            MPListItem(
-                type: .radioButton(selected: bindingForIndex(3)),
-                contentInfo: .init(title: "Title", header: "Option 3", description: "description"),
-                trailing:.init(
-                    text: "$ 1,000.00"
-                ),
-                onClick: {
-                    selectedIndex = 3 }
-            )
-            
-            MPListItem(
-                leftImage: Image(systemName: "creditcard"),
-                contentInfo: .init(title: "Title", description: "Description")
+        public init() {}
+
+        public var body: some View {
+            VStack(spacing: 16) {
+                VStack(spacing: 8) {
+                    MPListItem(
+                        isSelected: self.bindingForIndex(0),
+                        contentInfo: .init(title: "Title")
+                    )
+
+                    MPListItem(
+                        isSelected: self.bindingForIndex(1),
+                        contentInfo: .init(title: "Option 2", description: "Description"),
+                        trailing: .init(
+                            text: MPStrings.Installments.interestFree,
+                            color: .feedbackPositive
+                        )
+                    )
+
+                    MPListItem(
+                        isSelected: self.bindingForIndex(3),
+                        contentInfo: .init(title: "Option 3"),
+                        trailing: .init(
+                            text: MPStrings.Installments.interestFree,
+                            color: .feedbackPositive
+                        )
+                    )
+
+                    MPListItem(
+                        isSelected: self.bindingForIndex(4),
+                        contentInfo: .init(header: "Option 4"),
+                        trailing: .init(text: "$ 1,000.00")
+                    )
+                }
+
+                MPListItem(
+                    leftImage: Image(systemName: "creditcard"),
+                    contentInfo: .init(title: "Default style", description: "Text-only trailing 11"),
+                    trailing: .init(text: "$ 500.00")
+                )
+            }
+            .listItemStyle(.radioButton)
+            .padding()
+        }
+
+        private func bindingForIndex(_ index: Int) -> Binding<Bool> {
+            Binding(
+                get: { self.selectedIndex == index },
+                set: { if $0 { self.selectedIndex = index } }
             )
         }
-        .padding()
-        .loadMPFonts()
     }
 
-    private func bindingForIndex(_ index: Int) -> Bool {
-        if selectedIndex == index {
-            return true
-        } else {
-            return false
-        }
+    #Preview {
+        MPListItemView()
     }
-}
-
-#Preview {
-    MPListItemView()
-}
 #endif

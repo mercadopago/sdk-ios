@@ -40,12 +40,6 @@ final class InstallmentsScreenViewModel: ObservableObject {
         return payerCost.installmentRate == 0 ? .feedbackPositive : nil
     }
     
-    // MARK: - Actions
-
-    func isSelected(_ payerCost: Installment.PayerCost, selectedPayerCost: Installment.PayerCost?) -> Bool {
-        selectedPayerCost?.id == payerCost.id
-    }
-    
     // MARK: - Footer
     
     func selectedTotalAmount(_ selected: Installment.PayerCost?) -> String {

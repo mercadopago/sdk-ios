@@ -1,0 +1,122 @@
+//
+//  MPListItemTrailingStyle.swift
+//  MPComponents
+//
+//  Created by Guilherme Prata Costa on 24/02/26.
+//
+
+import SwiftUI
+import MPFoundation
+
+// MARK: - Protocol
+
+package protocol MPListItemTrailingStyle: StyleProtocol, Identifiable
+    where Configuration == MPListItemTrailingStyleConfiguration {}
+
+// MARK: - Configuration
+
+package struct MPListItemTrailingStyleConfiguration {
+    package let text: String?
+    package let textColor: TextStyleColorType?
+}
+
+// MARK: - Text-only style (default)
+
+package struct MPTrailingTextStyle: MPListItemTrailingStyle {
+    package var id: UUID = .init()
+
+    package init() {}
+
+    @MainActor
+    package func makeBody(configuration: MPListItemTrailingStyleConfiguration) -> some View {
+        if let text = configuration.text {
+            Text(text)
+                .textStyle(.bodyMedium(colorType: configuration.textColor ?? .primary))
+        }
+    }
+}
+
+// MARK: - Text + Icon style
+
+package struct MPTrailingTextIconStyle: MPListItemTrailingStyle {
+    package var id: UUID = .init()
+
+    let icon: Image
+
+    package init(icon: Image) {
+        self.icon = icon
+    }
+
+    @Environment(\.checkoutTheme) private var theme: MPTheme
+
+    @MainActor
+    package func makeBody(configuration: MPListItemTrailingStyleConfiguration) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xmicro) {
+            if let text = configuration.text {
+                Text(text)
+                    .textStyle(.bodyMedium(colorType: configuration.textColor ?? .primary))
+            }
+            icon
+                .foregroundColor(theme.colors.icon.accent)
+        }
+    }
+}
+
+// MARK: - Convenience extensions
+
+extension MPListItemTrailingStyle where Self == MPTrailingTextStyle {
+    /// Text-only trailing: `.listItemTrailingStyle(.text)`
+    package static var text: MPTrailingTextStyle { MPTrailingTextStyle() }
+}
+
+extension MPListItemTrailingStyle where Self == MPTrailingTextIconStyle {
+    /// Text + icon trailing: `.listItemTrailingStyle(.textIcon(Image(...)))`
+    package static func textIcon(_ icon: Image) -> MPTrailingTextIconStyle {
+        MPTrailingTextIconStyle(icon: icon)
+    }
+}
+
+// MARK: - Environment
+
+private struct ListItemTrailingStyleKey: @preconcurrency EnvironmentKey {
+    @MainActor static var defaultValue: (any MPListItemTrailingStyle)? = nil
+}
+
+extension EnvironmentValues {
+    var listItemTrailingStyle: (any MPListItemTrailingStyle)? {
+        get { self[ListItemTrailingStyleKey.self] }
+        set { self[ListItemTrailingStyleKey.self] = newValue }
+    }
+}
+
+// MARK: - Resolver
+
+package extension MPListItemTrailingStyle {
+    @MainActor
+    func resolve(configuration: Configuration) -> some View {
+        ResolvedListItemTrailingStyle(style: self, configuration: configuration)
+    }
+}
+
+private struct ResolvedListItemTrailingStyle<Style: MPListItemTrailingStyle>: View {
+    let style: Style
+    let configuration: Style.Configuration
+
+    var body: some View {
+        style.makeBody(configuration: configuration)
+    }
+}
+
+// MARK: - View modifier
+
+package extension View {
+    /// Sets the trailing style for `MPListItem` views within this view.
+    /// Outermost caller wins — inner modifiers are ignored if an ancestor already set a style.
+    func listItemTrailingStyle<S: MPListItemTrailingStyle>(_ style: S) -> some View {
+        transformEnvironment(\.listItemTrailingStyle) { current in
+            if current == nil {
+                current = style
+            }
+        }
+    }
+}
