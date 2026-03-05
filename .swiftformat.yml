@@ -1,0 +1,71 @@
+--exclude Pods,**/.build,**/Package.swift,vendor/bundle,scripts,fastlane,**/L10n.swift,**/Assets.swift,**/*.generated.swift,**/Generated,xcode-productivity/**/*.swift,**/Carthage/**/*.swift
+
+--lineaftermarks true
+--typeblanklines remove
+--allman false
+--emptybraces no-space
+--enumnamespaces always
+--asynccapturing
+--patternlet hoist
+--throwcapturing
+--modifierorder
+--someAny false
+--self insert
+--redundanttype inferred
+--closurevoid remove
+--semicolons never
+--importgrouping alpha
+--operatorfunc spaced
+--nospaceoperators
+--ranges spaced
+--trailingclosures
+--nevertrailing
+--commas inline
+--trimwhitespace always
+--shortoptionals always
+--stripunusedargs always
+--voidtype void
+--yodaswap always
+--elseposition same-line
+--guardelse auto
+--indent 4
+--smarttabs enabled
+--indentcase false
+--ifdef indent
+--indentstrings false
+--decimalgrouping 3,6
+--binarygrouping 4,8
+--octalgrouping 4,8
+--hexgrouping 4,8
+--fractiongrouping disabled
+--exponentgrouping disabled
+--hexliteralcase uppercase
+--exponentcase uppercase
+--operatorfunc spaced
+--maxwidth none
+--assetliterals visual-width
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--closingparen balanced
+--wrapreturntype preserve
+--wrapconditions preserve
+--wrapeffects preserve
+--funcattributes preserve
+--typeattributes preserve
+--varattributes preserve
+--conflictmarkers reject
+--extensionmark "MARK: - %t + %c"
+--fragment false
+--groupedextension "MARK: %c"
+--linebreaks lf
+--nowrapoperators
+--swiftversion 5.8
+--selfrequired
+--tabwidth unspecified
+--typemark "MARK: - %t"
+--wrapternary default
+--wraptypealiases preserve
+--xcodeindentation disabled
+--enable andOperator, anyObjectProtocol, assertionFailures, blankLinesAtEndOfScope, blankLinesBetweenScopes, blockComments, conditionalAssignment, consecutiveBlankLines, consecutiveSpaces, docComments, duplicateImports, initCoderUnavailable, leadingDelimiters, preferKeyPath, redundantBackticks, redundantBreak, redundantClosure, redundantExtensionACL, redundantFileprivate, redundantGet, redundantInit, redundantLet, redundantLetError, redundantNilInit, redundantObjc, redundantOptionalBinding, redundantParens, redundantPattern, spaceAroundBraces, spaceAroundBrackets, spaceAroundComments, spaceAroundGenerics, spaceAroundParens, spaceInsideBraces, spaceInsideBrackets, spaceInsideComments, spaceInsideGenerics, spaceInsideParens, strongOutlets, strongifiedSelf, todos, redundantTypedThrows, redundantProperty
+--disable hoistAwait, acronyms, fileHeader, isEmpty, extensionAccessControl, sortDeclarations, genericExtensions, redundantRawValues, redundantReturn, redundantStaticSelf, sortSwitchCases, sortTypealiases, wrapConditionalBodies, wrapenumcases, wrapMultilineStatementBraces, wrapSingleLineComments, wrapSwitchCases, markTypes, organizeDeclarations, preferForLoop
