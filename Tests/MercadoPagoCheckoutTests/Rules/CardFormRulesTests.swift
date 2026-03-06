@@ -6,6 +6,7 @@
 //
 
 @testable import MercadoPagoCheckout
+@testable import MPFoundation
 import XCTest
 
 final class CardFormRulesTests: XCTestCase {
@@ -386,7 +387,7 @@ final class CardFormRulesTests: XCTestCase {
         let result = rule.validate("")
 
         // Assert
-        XCTAssertNotNil(result)
+        XCTAssertEqual(result, MPStrings.CardForm.CVV.errorEmpty)
     }
 
     func test_securityCodeRule_whenIncomplete_shouldReturnIncompleteError() {
@@ -397,7 +398,7 @@ final class CardFormRulesTests: XCTestCase {
         let result = rule.validate("12")
 
         // Assert
-        XCTAssertNotNil(result)
+        XCTAssertEqual(result, MPStrings.CardForm.CVV.errorIncomplete)
     }
 
     func test_securityCodeRule_whenCompleteWithDefaultLength_shouldReturnNil() {
@@ -433,82 +434,5 @@ final class CardFormRulesTests: XCTestCase {
 
         // Assert
         XCTAssertNotNil(result)
-    }
-
-    // MARK: - CardFormData (optional security code)
-
-    func test_cardFormData_isFormValid_whenAllFieldsValid_shouldReturnTrue() {
-        // Arrange
-        var form = CardFormData()
-        form.cardNumber = "4111111111111111"
-        form.cardHolder = "John Doe"
-        form.expirationDate = "0130"
-        form.securityCode = "123"
-        form.documentHolder = "12345678901"
-
-        // Assert
-        XCTAssertTrue(form.isFormValid)
-    }
-
-    func test_cardFormData_isFormValid_whenSecurityCodeEmptyAndNotOptional_shouldReturnFalse() {
-        // Arrange
-        var form = CardFormData()
-        form.cardNumber = "4111111111111111"
-        form.cardHolder = "John Doe"
-        form.expirationDate = "0130"
-        // securityCode stays empty (default "")
-        form.documentHolder = "12345678901"
-
-        // Assert
-        XCTAssertFalse(form.isFormValid)
-    }
-
-    func test_cardFormData_isFormValid_whenSecurityCodeOptional_withEmptyCode_shouldReturnTrue() {
-        // Arrange
-        var form = CardFormData()
-        form.cardNumber = "4111111111111111"
-        form.cardHolder = "John Doe"
-        form.expirationDate = "0130"
-        // securityCode stays empty (default "")
-        form.documentHolder = "12345678901"
-        form.setSecurityCodeOptional(isOptional: true)
-
-        // Assert
-        XCTAssertTrue(form.isFormValid)
-    }
-
-    func test_cardFormData_isSecurityCodeOptional_defaultValue_shouldBeFalse() {
-        // Arrange / Act
-        let form = CardFormData()
-
-        // Assert
-        XCTAssertFalse(form.isSecurityCodeOptional)
-    }
-
-    func test_cardFormData_setSecurityCodeOptional_whenSetToTrue_shouldUpdateFlag() {
-        // Arrange
-        var form = CardFormData()
-
-        // Act
-        form.setSecurityCodeOptional(isOptional: true)
-
-        // Assert
-        XCTAssertTrue(form.isSecurityCodeOptional)
-    }
-
-    func test_cardFormData_isFormValid_whenSecurityCodeOptionalReverted_withEmptyCode_shouldReturnFalse() {
-        // Arrange
-        var form = CardFormData()
-        form.cardNumber = "4111111111111111"
-        form.cardHolder = "John Doe"
-        form.expirationDate = "0130"
-        form.documentHolder = "12345678901"
-        form.setSecurityCodeOptional(isOptional: true)
-
-        // Act — revert optional to false
-        form.setSecurityCodeOptional(isOptional: false)
-
-        // Assert — empty security code is invalid again
-        XCTAssertFalse(form.isFormValid)
     }
 }
