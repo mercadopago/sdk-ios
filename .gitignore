@@ -91,3 +91,6 @@ buildServer.json
 Example/Sources/ExampleApp.swift
 
 CLAUDE.md
+
+# SDD Kit — artefatos intermediarios de extracao (nao versionar)
+meli/extracted/
