@@ -44,11 +44,11 @@
 "cvv.error.empty" = "Completa este campo.";
 "cvv.error.incomplete" = "Ingresa el código completo.";
 "cvv.optional" = "Dato opcional.";
-"cvv.tooltip.static.default" = "Es un número de 3 dígitos que está al dorso de tu tarjeta.";
-"cvv.tooltip.static.amex" = "Es un número de 4 dígitos que está al frente de tu tarjeta.";
+"cvv.tooltip.static.default" = "Es un número de 3 dígitos que está en el dorso de tu tarjeta.";
+"cvv.tooltip.static.amex" = "Es un número de 4 dígitos que está en el frente de tu tarjeta.";
 "cvv.tooltip.dynamic.default" = "Es un número de 3 dígitos que encuentras en la app de tu banco o billetera.";
 "cvv.tooltip.dynamic.amex" = "Es un número de 4 dígitos que encuentras en la app de tu banco o billetera.";
-"cvv.tooltip.unknown.default" = "Es un número de 3 dígitos. Lo encuentras al dorso de tu tarjeta o en la app de tu banco o billetera.";
+"cvv.tooltip.unknown.default" = "Es un número de 3 dígitos que está en el dorso de tu tarjeta.";
 "cvv.tooltip.unknown.amex" = "Es un número de 4 dígitos. Lo encuentras al frente de tu tarjeta o en la app de tu banco o billetera.";
 
 // MARK: - Issuer (Multiple Issuers)

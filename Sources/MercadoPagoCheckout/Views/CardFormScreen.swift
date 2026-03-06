@@ -91,7 +91,7 @@ struct CardFormScreen: View {
                                 errorMessage: self.viewModel.isSecurityCodeOptional ? nil : self.cardForm.$securityCode,
                                 keyboard: .numberPad,
                                 formatter: self.viewModel.securityCodeFormatter,
-                                popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
+                                popoverText: self.viewModel.cvvTooltipText
                             )
 
                             MPTextField(

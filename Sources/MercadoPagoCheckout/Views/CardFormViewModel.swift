@@ -47,7 +47,17 @@ final class CardFormViewModel: ObservableObject {
             ? MPStrings.CardForm.CVV.placeholderAmex
             : MPStrings.CardForm.CVV.placeholderDefault
     }
-    
+
+    var cvvTooltipText: String {
+        guard let securityCode = binData?.paymentMethod.card?.securityCode else {
+            return MPStrings.CardForm.CVV.tooltipStaticDefault
+        }
+        let isFrontAmex = securityCode.location == "front" && securityCode.length == Self.amexSecurityCodeLength
+        return isFrontAmex
+            ? MPStrings.CardForm.CVV.tooltipStaticAmex
+            : MPStrings.CardForm.CVV.tooltipStaticDefault
+    }
+
     var isSecurityCodeOptional: Bool {
         guard let securityCode = binData?.paymentMethod.card?.securityCode else {
             return false
@@ -98,10 +108,10 @@ final class CardFormViewModel: ObservableObject {
 
     private func updateFormatters(for binData: CardBinData?) {
         if let cardInfo = binData?.paymentMethod.card {
-            cardNumberFormatter = cardInfo.length.max > 0
+            self.cardNumberFormatter = cardInfo.length.max > 0
                 ? CardNumberFormatter(maxLength: cardInfo.length.max)
                 : CardNumberFormatter()
-            securityCodeFormatter = cardInfo.securityCode.length > 0
+            self.securityCodeFormatter = cardInfo.securityCode.length > 0
                 ? SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
                 : SecurityCodeFormatter()
         } else {
