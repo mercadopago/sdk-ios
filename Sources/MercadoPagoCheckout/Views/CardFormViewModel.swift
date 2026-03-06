@@ -41,6 +41,7 @@ final class CardFormViewModel: ObservableObject {
     }
 
     @Published private(set) var fetchBinError: BinFetchError?
+    @Published private(set) var snackbarError: BinFetchError?
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
@@ -111,6 +112,7 @@ final class CardFormViewModel: ObservableObject {
         self.paymentMethodTask?.cancel()
         self.binData = nil
         self.fetchBinError = nil
+        self.snackbarError = nil
 
         guard let bin else { return }
 
@@ -135,7 +137,12 @@ final class CardFormViewModel: ObservableObject {
         } catch let error as BinFetchError {
             guard !Task.isCancelled else { return }
             binData = nil
-            self.fetchBinError = error
+            switch error {
+            case .networkError, .serviceError:
+                self.snackbarError = error
+            default:
+                self.fetchBinError = error
+            }
         } catch {
             guard !Task.isCancelled else { return }
             self.binData = nil

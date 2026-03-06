@@ -12,16 +12,31 @@ import MPComponents
 
 /// A formatter that applies a mask pattern to card numbers.
 package struct CardNumberFormatter: TextFormatting {
+    private static let maskByLength: [Int: String] = [
+        8:  "#### ####",
+        9:  "#### #####",
+        10: "#### ######",
+        11: "#### #### ###",
+        12: "#### #### ####",
+        13: "#### ###### ###",
+        14: "#### ###### ####",
+        15: "#### ###### #####",
+        16: "#### #### #### ####",
+        17: "#### #### #### #####",
+        18: "#### #### #### ######",
+        19: "#### #### #### #### ###"
+    ]
+    private static let defaultMask = "#### #### #### ####"
+
     private let maskFormat: String
     private let maxLength: Int
 
-    /// Creates a card number formatter with the specified mask and max digit count.
-    /// - Parameters:
-    ///   - mask: The mask pattern where '#' represents a digit.
-    ///   - maxLength: Maximum number of digits accepted. Default is 19.
-    package init(mask: String = "#### #### #### ####", maxLength: Int = 19) {
-        self.maskFormat = mask
+    /// Creates a card number formatter for the specified max digit count.
+    /// The mask is automatically selected based on `maxLength`.
+    /// - Parameter maxLength: Maximum number of digits accepted. Default is 19.
+    package init(maxLength: Int = 19) {
         self.maxLength = maxLength
+        self.maskFormat = Self.maskByLength[maxLength] ?? Self.defaultMask
     }
 
     package func formatOnChange(_ text: String) -> String {

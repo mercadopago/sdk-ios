@@ -17,6 +17,8 @@ struct CardFormScreen: View {
     
     // MARK: States View
     @State private var cardForm = CardFormData()
+    @State private var isSnackbarPresented = false
+    @State private var footerHeight: CGFloat = 0
     @Binding private var paymentData: MPPaymentData
 
     // MARK: Enviroments
@@ -40,6 +42,7 @@ struct CardFormScreen: View {
             case .loading:
                 MPProgressIndicator()
                     .size(.xlarge)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .ready:
                 MPHeader(
                     title: MPStrings.CardForm.title,
@@ -52,6 +55,11 @@ struct CardFormScreen: View {
                             action: { onContinue() }
                         )
                         .disabled(!cardForm.isFormValid)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear.onAppear { footerHeight = geo.size.height }
+                            }
+                        )
                     },
                     content: {
                         VStack(spacing: theme.spacings.xsmall) {
@@ -107,9 +115,15 @@ struct CardFormScreen: View {
                         .padding(.horizontal, theme.spacings.micro)
                     }
                 )
-                .background(theme.colors.background.primary)
+                .messageSnackbar(
+                    isPresented: $isSnackbarPresented,
+                    text: MPStrings.Errors.generic,
+                    state: .negative,
+                    bottomPadding: footerHeight
+                )
             }
         }
+        .background(theme.colors.background.primary.edgesIgnoringSafeArea(.all))
         .mpTask {
             await viewModel.loadIdentificationTypes()
         }
@@ -132,6 +146,9 @@ struct CardFormScreen: View {
         }
         .mpOnChange(of: viewModel.fetchBinError) { error in
             cardForm.setCardNumberExternalError(error)
+        }
+        .mpOnChange(of: viewModel.snackbarError) { error in
+            if error != nil { isSnackbarPresented = true }
         }
     }
         
