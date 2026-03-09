@@ -40,8 +40,8 @@ final class CardFormViewModel: ObservableObject {
         didSet { self.updateFormatters(for: self.binData) }
     }
 
-    @Published private(set) var fetchBinError: BinFetchError?
-    @Published private(set) var snackbarError: BinFetchError?
+    @Published private(set) var binFetchError: BinFetchError?
+    @Published private(set) var showSnackbar = false
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
@@ -111,13 +111,27 @@ final class CardFormViewModel: ObservableObject {
 
         self.paymentMethodTask?.cancel()
         self.binData = nil
-        self.fetchBinError = nil
-        self.snackbarError = nil
+        self.binFetchError = nil
 
         guard let bin else { return }
 
         self.paymentMethodTask = Task { [weak self] in
             await self?.fetchBinData(bin: bin)
+        }
+    }
+
+    func retryBinFetch() {
+        guard self.binData == nil, let lastFetchedBIN,
+              binFetchError == .networkError || binFetchError == .serviceError else { return }
+        self.binFetchError = nil
+        self.showSnackbar = false
+        self.paymentMethodTask?.cancel()
+        self.paymentMethodTask = Task { [weak self] in
+            await self?.fetchBinData(bin: lastFetchedBIN)
+            guard let self, !Task.isCancelled else { return }
+            if self.binFetchError == .networkError || self.binFetchError == .serviceError {
+                self.showSnackbar = true
+            }
         }
     }
 
@@ -137,12 +151,7 @@ final class CardFormViewModel: ObservableObject {
         } catch let error as BinFetchError {
             guard !Task.isCancelled else { return }
             binData = nil
-            switch error {
-            case .networkError, .serviceError:
-                self.snackbarError = error
-            default:
-                self.fetchBinError = error
-            }
+            self.binFetchError = error
         } catch {
             guard !Task.isCancelled else { return }
             self.binData = nil
