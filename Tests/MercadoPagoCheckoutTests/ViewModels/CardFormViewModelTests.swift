@@ -435,7 +435,7 @@ final class CardFormViewModelTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStaticDefault)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
     }
 
     func test_cvvTooltipText_whenCardInfoIsNil_shouldReturnStaticDefault() async {
@@ -448,47 +448,52 @@ final class CardFormViewModelTests: XCTestCase {
         await self.waitForChange(sut.viewModel.$binData)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStaticDefault)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
     }
 
-    func test_cvvTooltipText_whenLocationIsBack_shouldReturnStaticDefault() async {
+    func test_cvvTooltipText_whenLocationIsBack_shouldReturnStaticDefault() async throws {
         // Arrange — visa with 3-digit CVV, location: "back"
         let sut = self.makeSUT()
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaWithCVV))
+        let securityCode = try XCTUnwrap(CardBinDataStub.visaWithCVV.paymentMethod.card?.securityCode)
+        let expectedText = MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binData)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStaticDefault)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, expectedText)
     }
 
-    func test_cvvTooltipText_whenLocationIsFrontAndAmexLength_shouldReturnStaticAmex() async {
+    func test_cvvTooltipText_whenLocationIsFrontAndAmexLength_shouldReturnStaticAmex() async throws {
         // Arrange — amex with 4-digit CVV, location: "front"
         let sut = self.makeSUT()
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.amex))
+        let securityCode = try XCTUnwrap(CardBinDataStub.amex.paymentMethod.card?.securityCode)
+        let expectedText = MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binData)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStaticAmex)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, expectedText)
     }
 
-    func test_cvvTooltipText_whenBinDataCleared_shouldReturnStaticDefault() async {
+    func test_cvvTooltipText_whenBinDataCleared_shouldReturnStaticDefault() async throws {
         // Arrange — start with amex card
         let sut = self.makeSUT()
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.amex))
+        let amexSecurityCode = try XCTUnwrap(CardBinDataStub.amex.paymentMethod.card?.securityCode)
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binData)
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStaticAmex)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: amexSecurityCode.length, location: amexSecurityCode.location))
 
         // Act — clearing resets binData to nil
         sut.viewModel.onCardNumberChange("123")
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStaticDefault)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
     }
 }
