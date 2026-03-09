@@ -13,9 +13,9 @@ import Foundation
 /// - Parameters:
 ///   - maxAttempts: Maximum number of attempts. Defaults to 2.
 ///   - operation: The async throwing closure to execute.
-@MainActor
 func withRetry<T>(
     maxAttempts: Int = 2,
+    isolation _: isolated (any Actor)? = #isolation,
     operation: () async throws -> T
 ) async throws -> T {
     var lastError: Error?

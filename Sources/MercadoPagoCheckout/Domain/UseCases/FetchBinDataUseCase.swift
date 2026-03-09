@@ -28,12 +28,12 @@ struct FetchBinDataUseCase {
             acceptedPaymentMethodIds: acceptedPaymentMethodIds
         )
 
-        var fetchedIssuer: Issuer? = try await filterIssuer(
+        let fetchedIssuer: Issuer? = try await filterIssuer(
             method,
             bin: bin
         )
-     
-        var fetchedInstallment: Installment? = try await filterInstallments(
+
+        let fetchedInstallment: Installment? = try await filterInstallments(
             amount: amount,
             bin: bin,
             issuer: fetchedIssuer
@@ -45,16 +45,17 @@ struct FetchBinDataUseCase {
             installment: fetchedInstallment
         )
     }
+
     private func getPaymentMethods(from bin: String) async throws -> [PaymentMethod] {
         do {
-            return try await service.paymentMethod(bin: bin)
+            return try await self.service.paymentMethod(bin: bin)
         } catch let error as APIClientError {
             throw BinFetchError(from: error)
         } catch {
             throw BinFetchError.serviceError
         }
     }
-    
+
     private func filterPaymentMethod(
         _ methods: [PaymentMethod],
         acceptedPaymentTypeIds: [String],
@@ -67,7 +68,7 @@ struct FetchBinDataUseCase {
         }) else {
             if let typeMatchedMethod = methods.first(where: {
                 acceptedPaymentTypeIds.contains($0.paymentTypeId) &&
-                !acceptedPaymentMethodIds.contains($0.id)
+                    !acceptedPaymentMethodIds.contains($0.id)
             }) {
                 throw BinFetchError.paymentMethodNotAllowed(typeMatchedMethod.id)
             } else {
@@ -78,21 +79,21 @@ struct FetchBinDataUseCase {
         }
         return method
     }
-    
+
     private func filterIssuer(
         _ method: PaymentMethod,
         bin: String
     ) async throws -> Issuer? {
-        guard  method.additionalInfoNeeded?.contains("issuer_id") == true else { return nil }
+        guard method.additionalInfoNeeded?.contains("issuer_id") == true else { return nil }
         do {
-            return try await service.issuers(bin: bin, paymentMethodID: method.id).first
+            return try await self.service.issuers(bin: bin, paymentMethodID: method.id).first
         } catch let error as APIClientError {
             throw BinFetchError(from: error)
         } catch {
             throw BinFetchError.serviceError
         }
     }
-    
+
     private func filterInstallments(
         amount: Double?,
         bin: String,
@@ -129,7 +130,7 @@ private extension BinFetchError {
         switch error {
         case .networkError:
             self = .networkError
-        case .apiError(let response) where response.code == "not_found":
+        case let .apiError(response) where response.code == "not_found":
             self = .paymentMethodNotFound
         default:
             self = .serviceError

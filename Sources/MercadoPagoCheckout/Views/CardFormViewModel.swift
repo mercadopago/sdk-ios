@@ -49,6 +49,10 @@ final class CardFormViewModel: ObservableObject {
             : MPStrings.CardForm.CVV.placeholderDefault
     }
 
+    private var isRetriableBinError: Bool {
+        self.binFetchError == .networkError || self.binFetchError == .serviceError
+    }
+
     // MARK: - Constants
 
     private static let amexSecurityCodeLength = 4
@@ -122,17 +126,14 @@ final class CardFormViewModel: ObservableObject {
     }
 
     func retryBinFetch() {
-        guard self.binData == nil, let lastFetchedBIN,
-              binFetchError == .networkError || binFetchError == .serviceError else { return }
+        guard self.binData == nil, let lastFetchedBIN, isRetriableBinError else { return }
         self.binFetchError = nil
         self.showSnackbar = false
         self.paymentMethodTask?.cancel()
         self.paymentMethodTask = Task { [weak self] in
             await self?.fetchBinData(bin: lastFetchedBIN)
             guard let self, !Task.isCancelled else { return }
-            if self.binFetchError == .networkError || self.binFetchError == .serviceError {
-                self.showSnackbar = true
-            }
+            if self.isRetriableBinError { self.showSnackbar = true }
         }
     }
 
