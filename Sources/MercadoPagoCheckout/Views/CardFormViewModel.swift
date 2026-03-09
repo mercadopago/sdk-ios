@@ -72,12 +72,13 @@ final class CardFormViewModel: ObservableObject {
 
     func loadIdentificationTypes() async {
         do {
-            let types = try await service.identificationTypes()
+            let types = try await withRetry { try await self.service.identificationTypes() }
             self.identificationTypes = types
             self.selectTypeDocument = types.first
             self.screenState = .ready
         } catch {
             self.screenState = .ready
+            self.showSnackbar = true
         }
     }
 

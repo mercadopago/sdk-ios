@@ -119,14 +119,14 @@ struct CardFormScreen: View {
                         .padding(.horizontal, self.theme.spacings.micro)
                     }
                 )
-                .messageSnackbar(
-                    isPresented: self.$isSnackbarPresented,
-                    text: MPStrings.Errors.generic,
-                    state: .negative,
-                    bottomPadding: self.footerHeight
-                )
             }
         }
+        .messageSnackbar(
+            isPresented: self.$isSnackbarPresented,
+            text: MPStrings.Errors.generic,
+            state: .negative,
+            bottomPadding: self.footerHeight
+        )
         .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
         .mpTask {
             await self.viewModel.loadIdentificationTypes()

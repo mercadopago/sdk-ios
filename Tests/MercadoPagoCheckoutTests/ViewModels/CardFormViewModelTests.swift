@@ -204,6 +204,38 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(sut.viewModel.selectTypeDocument, defaultDocument)
     }
 
+    func test_loadIdentificationTypes_whenFirstAttemptFails_andRetrySucceeds_shouldSetTypes() async {
+        // Arrange — first call fails, second (retry) succeeds
+        let sut = self.makeSUT()
+        await sut.service.setSequentialIdentificationTypesResults(
+            .failure(MockCheckoutService.MockError.resultNotSet),
+            .success([IdentificationTypeStub.cpf])
+        )
+
+        // Act
+        await sut.viewModel.loadIdentificationTypes()
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.screenState, .ready)
+        XCTAssertEqual(sut.viewModel.selectTypeDocument, IdentificationTypeStub.cpf)
+    }
+
+    func test_loadIdentificationTypes_whenBothAttemptsFail_shouldSetReadyStateWithoutTypes() async {
+        // Arrange — both attempts fail
+        let sut = self.makeSUT()
+        await sut.service.setSequentialIdentificationTypesResults(
+            .failure(MockCheckoutService.MockError.resultNotSet),
+            .failure(MockCheckoutService.MockError.resultNotSet)
+        )
+
+        // Act
+        await sut.viewModel.loadIdentificationTypes()
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.screenState, .ready)
+        XCTAssertTrue(sut.viewModel.identificationTypes.isEmpty)
+    }
+
     // MARK: - onCardNumberChange
 
     func test_onCardNumberChange_whenDigitsLessThan8_shouldNotFetchBinData() {
