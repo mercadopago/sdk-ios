@@ -44,8 +44,9 @@
 "cvv.error.empty" = "Preencha este campo.";
 "cvv.error.incomplete" = "Insira o código completo.";
 "cvv.optional" = "Dado opcional.";
-"cvv.tooltip.static.default" = "É um número de 3 dígitos que está atrás do seu cartão.";
-"cvv.tooltip.static.amex" = "É um número de 4 dígitos que está na parte da frente do seu cartão.";
+"cvv.tooltip.static" = "É um número de %ld dígitos que está %@ do seu cartão.";
+"cvv.tooltip.location.back" = "atrás";
+"cvv.tooltip.location.front" = "na parte da frente";
 "cvv.tooltip.dynamic.default" = "É um número de 3 dígitos. Você o encontra no app do seu banco ou carteira digital.";
 "cvv.tooltip.dynamic.amex" = "É um número de 4 dígitos. Você o encontra no app do seu banco ou carteira digital.";
 "cvv.tooltip.unknown.default" = "É um número de 3 dígitos que está atrás do seu cartão.";

@@ -50,12 +50,9 @@ final class CardFormViewModel: ObservableObject {
 
     var cvvTooltipText: String {
         guard let securityCode = binData?.paymentMethod.card?.securityCode else {
-            return MPStrings.CardForm.CVV.tooltipStaticDefault
+            return MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back")
         }
-        let isFrontAmex = securityCode.location == "front" && securityCode.length == Self.amexSecurityCodeLength
-        return isFrontAmex
-            ? MPStrings.CardForm.CVV.tooltipStaticAmex
-            : MPStrings.CardForm.CVV.tooltipStaticDefault
+        return MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
     }
 
     var isSecurityCodeOptional: Bool {
