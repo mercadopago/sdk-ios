@@ -15,10 +15,10 @@ struct CardFormBrick: View {
 
     @State private var route: Route?
     @State private var paymentData: MPPaymentData
+    @State private var cardFormViewModel: CardFormViewModel
 
     private let themeDark: MPTheme
     private let themeLight: MPTheme
-    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
 
     private let onResult: (MercadoPagoCheckoutResult) -> Void
 
@@ -32,7 +32,7 @@ struct CardFormBrick: View {
         self.onResult = onResult
         self.themeDark = appearance.dark
         self.themeLight = appearance.light
-        self.configuration = configuration
+        self._cardFormViewModel = State(initialValue: CardFormViewModel(configuration: configuration))
         self.paymentData = MPPaymentData(transactionAmount: configuration.type.configuration.amount ?? 0)
     }
 
@@ -54,7 +54,7 @@ struct CardFormBrick: View {
     private func cardFormScreen() -> some View {
         CardFormScreen(
             paymentData: self.$paymentData,
-            viewModel: .init(configuration: self.configuration),
+            viewModel: self.cardFormViewModel,
             onBack: { self.cancelCheckout() },
             onContinue: {
                 // TODO: callback

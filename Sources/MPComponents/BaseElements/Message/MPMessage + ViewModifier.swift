@@ -12,9 +12,10 @@ struct MPMessageSnackbarModifier: ViewModifier {
     let text: String
     let state: MPMessageState
     let duration: MPMessageDuration
+    let bottomPadding: CGFloat
 
     @State private var hideWorkItem: DispatchWorkItem?
-    
+
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -36,6 +37,7 @@ struct MPMessageSnackbarModifier: ViewModifier {
                 .onAppear { scheduleHide() }
                 .onDisappear { hideWorkItem?.cancel() }
             }
+            .padding(.bottom, bottomPadding)
         }
     }
     private func scheduleHide() {
@@ -60,14 +62,16 @@ package extension View {
         isPresented: Binding<Bool>,
         text: String,
         state: MPMessageState = .informative,
-        duration: MPMessageDuration = .normal
+        duration: MPMessageDuration = .normal,
+        bottomPadding: CGFloat = 0
     ) -> some View {
         modifier(
             MPMessageSnackbarModifier(
                 isPresented: isPresented,
                 text: text,
                 state: state,
-                duration: duration
+                duration: duration,
+                bottomPadding: bottomPadding
             )
         )
     }

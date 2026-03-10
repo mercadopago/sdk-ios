@@ -17,6 +17,8 @@ struct CardFormScreen: View {
     // MARK: States View
 
     @State private var cardForm = CardFormData()
+    @State private var isSnackbarPresented = false
+    @State private var footerHeight: CGFloat = 0
     @Binding private var paymentData: MPPaymentData
 
     // MARK: Enviroments
@@ -41,6 +43,7 @@ struct CardFormScreen: View {
             case .loading:
                 MPProgressIndicator()
                     .size(.xlarge)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .ready:
                 MPHeader(
                     title: MPStrings.CardForm.title,
@@ -64,6 +67,11 @@ struct CardFormScreen: View {
                             )
                         )
                         .disabled(!self.cardForm.isFormValid)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear.onAppear { self.footerHeight = geo.size.height }
+                            }
+                        )
                     },
                     content: {
                         VStack(spacing: self.theme.spacings.xsmall) {
@@ -74,6 +82,9 @@ struct CardFormScreen: View {
                                 errorMessage: self.cardForm.$cardNumber,
                                 liveErrorMessage: self.cardForm.cardNumberLiveErrors,
                                 keyboard: .numberPad,
+                                onEditingChanged: { isEditing in
+                                    if !isEditing { self.viewModel.retryBinFetch() }
+                                },
                                 formatter: self.viewModel.cardNumberFormatter
                             )
 
@@ -119,9 +130,15 @@ struct CardFormScreen: View {
                         .padding(.horizontal, self.theme.spacings.micro)
                     }
                 )
-                .background(self.theme.colors.background.primary)
             }
         }
+        .messageSnackbar(
+            isPresented: self.$isSnackbarPresented,
+            text: MPStrings.Errors.generic,
+            state: .negative,
+            bottomPadding: self.footerHeight
+        )
+        .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
         .mpTask {
             await self.viewModel.loadIdentificationTypes()
         }
@@ -129,20 +146,16 @@ struct CardFormScreen: View {
             self.viewModel.onCardNumberChange(newValue)
         }
         .mpOnChange(of: self.viewModel.binData) { binData in
-            if let cardInfo = binData?.paymentMethod.card {
-                self.cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
-                self.cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
-            } else {
-                self.cardForm.setCardNumberLength()
-            }
+            self.updateCardNumberLength(binData: binData)
         }
         .mpOnChange(of: self.viewModel.selectTypeDocument) { identificationType in
-            if let identificationType {
-                self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
-            }
+            self.updateIdentificationTypes(identificationType)
         }
-        .mpOnChange(of: self.viewModel.fetchBinError) { error in
+        .mpOnChange(of: self.viewModel.binFetchError) { error in
             self.cardForm.setCardNumberExternalError(error)
+        }
+        .mpOnChange(of: self.viewModel.showSnackbar) { show in
+            if show { self.isSnackbarPresented = true }
         }
     }
 
@@ -205,6 +218,20 @@ struct CardFormScreen: View {
         }
         .padding(.leading, self.theme.spacings.micro)
         .animation(nil)
+    }
+
+    private func updateCardNumberLength(binData: CardBinData?) {
+        if let cardInfo = binData?.paymentMethod.card {
+            self.cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
+            self.cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
+        } else {
+            self.cardForm.setCardNumberLength()
+        }
+    }
+
+    private func updateIdentificationTypes(_ identificationType: IdentificationType?) {
+        guard let identificationType else { return }
+        self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
     }
 }
 

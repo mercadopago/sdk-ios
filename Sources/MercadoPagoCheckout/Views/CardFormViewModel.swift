@@ -40,12 +40,17 @@ final class CardFormViewModel: ObservableObject {
         didSet { self.updateFormatters(for: self.binData) }
     }
 
-    @Published private(set) var fetchBinError: BinFetchError?
+    @Published private(set) var binFetchError: BinFetchError?
+    @Published private(set) var showSnackbar = false
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
             ? MPStrings.CardForm.CVV.placeholderAmex
             : MPStrings.CardForm.CVV.placeholderDefault
+    }
+
+    private var isRetriableBinError: Bool {
+        self.binFetchError == .networkError || self.binFetchError == .serviceError
     }
 
     // MARK: - Constants
@@ -71,12 +76,13 @@ final class CardFormViewModel: ObservableObject {
 
     func loadIdentificationTypes() async {
         do {
-            let types = try await service.identificationTypes()
+            let types = try await withRetry { try await self.service.identificationTypes() }
             self.identificationTypes = types
             self.selectTypeDocument = types.first
             self.screenState = .ready
         } catch {
             self.screenState = .ready
+            self.showSnackbar = true
         }
     }
 
@@ -144,12 +150,24 @@ final class CardFormViewModel: ObservableObject {
 
         self.paymentMethodTask?.cancel()
         self.binData = nil
-        self.fetchBinError = nil
+        self.binFetchError = nil
 
         guard let bin else { return }
 
         self.paymentMethodTask = Task { [weak self] in
             await self?.fetchBinData(bin: bin)
+        }
+    }
+
+    func retryBinFetch() {
+        guard self.binData == nil, let lastFetchedBIN, isRetriableBinError else { return }
+        self.binFetchError = nil
+        self.showSnackbar = false
+        self.paymentMethodTask?.cancel()
+        self.paymentMethodTask = Task { [weak self] in
+            await self?.fetchBinData(bin: lastFetchedBIN)
+            guard let self, !Task.isCancelled else { return }
+            if self.isRetriableBinError { self.showSnackbar = true }
         }
     }
 
@@ -169,7 +187,7 @@ final class CardFormViewModel: ObservableObject {
         } catch let error as BinFetchError {
             guard !Task.isCancelled else { return }
             binData = nil
-            self.fetchBinError = error
+            self.binFetchError = error
         } catch {
             guard !Task.isCancelled else { return }
             self.binData = nil
