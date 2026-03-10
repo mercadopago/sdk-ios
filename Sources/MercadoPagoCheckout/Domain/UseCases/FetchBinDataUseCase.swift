@@ -28,16 +28,12 @@ struct FetchBinDataUseCase {
             acceptedPaymentMethodIds: acceptedPaymentMethodIds
         )
 
-        let fetchedIssuer: Issuer? = try await filterIssuer(
-            method,
-            bin: bin
-        )
+        async let issuersTask = self.filterIssuer(method, bin: bin)
+        async let installmentsTask = self.filterInstallmentsRaw(amount: amount, bin: bin)
 
-        let fetchedInstallment: Installment? = try await filterInstallments(
-            amount: amount,
-            bin: bin,
-            issuer: fetchedIssuer
-        )
+        let fetchedIssuer = try await issuersTask
+        let allInstallments = try await installmentsTask
+        let fetchedInstallment = self.pickInstallment(from: allInstallments, issuer: fetchedIssuer)
 
         return CardBinData(
             paymentMethod: method,
@@ -94,24 +90,22 @@ struct FetchBinDataUseCase {
         }
     }
 
-    private func filterInstallments(
-        amount: Double?,
-        bin: String,
-        issuer fetchedIssuer: Issuer? = nil
-    ) async throws -> Installment? {
-        guard let amount else { return nil }
+    private func filterInstallmentsRaw(amount: Double?, bin: String) async throws -> [Installment] {
+        guard let amount else { return [] }
         do {
-            let installments = try await service.installments(amount: amount, bin: bin)
-            if let fetchedIssuer {
-                return installments.first(where: { $0.issuer.id == fetchedIssuer.id })
-            } else {
-                return installments.first
-            }
+            return try await self.service.installments(amount: amount, bin: bin)
         } catch let error as APIClientError {
             throw BinFetchError(from: error)
         } catch {
             throw BinFetchError.serviceError
         }
+    }
+
+    private func pickInstallment(from installments: [Installment], issuer: Issuer?) -> Installment? {
+        if let issuer {
+            return installments.first(where: { $0.issuer.id == issuer.id })
+        }
+        return installments.first
     }
 }
 
