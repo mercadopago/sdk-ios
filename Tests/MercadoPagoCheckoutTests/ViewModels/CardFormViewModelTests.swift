@@ -8,6 +8,7 @@
 import Combine
 @testable import CoreMethods
 @testable import MercadoPagoCheckout
+@testable import MPComponents
 import XCTest
 
 @MainActor
@@ -98,6 +99,50 @@ final class CardFormViewModelTests: XCTestCase {
         )
         let viewModel = CardFormViewModel(configuration: configuration, service: service)
         return (viewModel, service)
+    }
+
+    private func makeSUTWithAmount(_ amount: Double) -> SUT {
+        let service = MockCheckoutService()
+        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
+            type: .cardForm(cardFormConfiguration: .init(amount: amount)),
+            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
+        )
+        let viewModel = CardFormViewModel(configuration: configuration, service: service)
+        return (viewModel, service)
+    }
+
+    private enum CardTokenStub {
+        static let valid = CardToken(
+            token: "test_token_12345",
+            publicKey: nil,
+            bin: nil,
+            expirationMonth: nil,
+            expirationYear: nil,
+            lastFourDigits: nil,
+            cardHolder: nil,
+            status: nil,
+            dateCreated: nil,
+            dateLastUpdated: nil,
+            dateDue: nil,
+            luhnValidation: nil,
+            liveMode: nil,
+            requireEsc: nil,
+            cardNumberLength: nil,
+            securityCodeLength: nil,
+            truncCardNumber: nil
+        )
+    }
+
+    private enum CardFormDataStub {
+        static var validForm: CardFormData {
+            var form = CardFormData()
+            form.cardNumber = "4111111111111111"
+            form.cardHolder = "John Doe"
+            form.expirationDate = "12/27"
+            form.securityCode = "123"
+            form.documentHolder = "12345678900"
+            return form
+        }
     }
 
     private func waitForChange<T>(
@@ -442,6 +487,114 @@ final class CardFormViewModelTests: XCTestCase {
         // Assert
         XCTAssertFalse(sut.viewModel.showSnackbar)
         XCTAssertNotNil(sut.viewModel.binData)
+    }
+
+    // MARK: - footerAmount
+
+    func test_footerAmount_whenConfigurationHasNoAmount_shouldReturnNil() {
+        // Arrange / Act
+        let sut = self.makeSUT()
+
+        // Assert
+        XCTAssertNil(sut.viewModel.footerAmount())
+    }
+
+    func test_footerAmount_whenConfigurationHasAmount_shouldReturnMPAmountData() {
+        // Arrange / Act
+        let sut = self.makeSUTWithAmount(500.0)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.footerAmount(), MPAmountData(from: 500.0))
+    }
+
+    // MARK: - submitCardToken
+
+    func test_submitCardToken_whenServiceSucceeds_shouldReturnToken() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+
+        // Act
+        let result = try await sut.viewModel.submitCardToken(cardForm: CardFormDataStub.validForm)
+
+        // Assert
+        XCTAssertEqual(result, CardTokenStub.valid)
+    }
+
+    func test_submitCardToken_whenServiceFails_shouldThrowError() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.failure(MockCheckoutService.MockError.resultNotSet))
+
+        // Act & Assert
+        do {
+            _ = try await sut.viewModel.submitCardToken(cardForm: CardFormDataStub.validForm)
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is MockCheckoutService.MockError)
+        }
+    }
+
+    func test_submitCardToken_shouldStripSpacesFromCardNumber() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var cardForm = CardFormDataStub.validForm
+        cardForm.cardNumber = "4111 1111 1111 1111"
+
+        // Act
+        _ = try await sut.viewModel.submitCardToken(cardForm: cardForm)
+
+        // Assert
+        let captured = await sut.service.capturedCardParams
+        XCTAssertEqual(captured?.cardNumber, "4111111111111111")
+    }
+
+    func test_submitCardToken_shouldPrefixYearWithCurrentCentury() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var cardForm = CardFormDataStub.validForm
+        cardForm.expirationDate = "12/27"
+
+        // Act
+        _ = try await sut.viewModel.submitCardToken(cardForm: cardForm)
+
+        // Assert
+        let captured = await sut.service.capturedCardParams
+        let expectedCentury = Calendar.current.component(.year, from: Date()) / 100
+        XCTAssertEqual(captured?.expirationYear, "\(expectedCentury)27")
+        XCTAssertEqual(captured?.expirationMonth, "12")
+    }
+
+    func test_submitCardToken_shouldStripMaskFromDocument() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var cardForm = CardFormDataStub.validForm
+        cardForm.documentHolder = "123.456.789-09"
+
+        // Act
+        _ = try await sut.viewModel.submitCardToken(cardForm: cardForm)
+
+        // Assert
+        let captured = await sut.service.capturedCardParams
+        XCTAssertEqual(captured?.documentNumber, "12345678909")
+    }
+
+    func test_submitCardToken_whenCalledWithDocumentTypeSelected_shouldPassDocumentType() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+
+        // Act
+        _ = try await sut.viewModel.submitCardToken(cardForm: CardFormDataStub.validForm)
+
+        // Assert
+        let captured = await sut.service.capturedCardParams
+        XCTAssertEqual(captured?.documentType, IdentificationTypeStub.cpf.id)
     }
 
     func test_retryBinFetch_whenCalledTwice_withNetworkError_shouldShowSnackbarBothTimes() async {
