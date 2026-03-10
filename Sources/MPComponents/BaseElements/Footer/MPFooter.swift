@@ -13,12 +13,11 @@ import SwiftUI
 ///
 /// ```swift
 /// MPFooter(
-///     label: "Total",
-///     amount: "R$ 500",
-///     description: "Santander Crédito **** 4561"
-///     buttonLabel: "Pay",
-///     action: {
-///       print("action")
+///     title: "Total",
+///     amount: .init(currencySymbol: "R$", integerPart: "500", decimalPart: "00"),
+///     subtitle: "Santander Crédito **** 4561",
+///     buttonData: .init(text: "Pay") {
+///         print("action")
 ///     }
 /// )
 /// ```
@@ -41,9 +40,10 @@ package struct MPFooter: View {
     /// Creates a new footer with the specified configuration.
     ///
     /// - Parameters:
-    ///   - title: The label to display on the left (e.g., "Total")
-    ///   - amount: The amount value to display on the right
-    ///   - subtitle: Optional description to display on the right below
+    ///   - title: Label displayed on the left side of the summary line (e.g., "Total").
+    ///   - amount: Structured amount displayed on the right side. Pass `nil` to hide the summary line entirely.
+    ///   - subtitle: Optional text displayed below the summary line, right-aligned (e.g., selected card info).
+    ///   - buttonData: Optional call-to-action button configuration. The button is hidden when `isEnabled` is `false`.
     package init(
         title: String = String(),
         amount: MPAmountData? = nil,
@@ -59,11 +59,11 @@ package struct MPFooter: View {
     package init(
         title: String,
         amount: MPAmountData? = nil,
-        description: String? = nil
+        subtitle: String? = nil
     ) {
         self.title = title
         self.amount = amount
-        self.subtitle = description
+        self.subtitle = subtitle
         self.buttonData = nil
     }
 
@@ -86,7 +86,7 @@ package struct MPFooter: View {
 
     @ViewBuilder
     private var summaryLineView: some View {
-        if let amount {
+        if !self.title.isEmpty, self.amount != nil {
             HStack(alignment: .center, spacing: self.theme.spacings.xtiny) {
                 // Label
                 Text(self.title)
@@ -197,15 +197,3 @@ package struct MPFooter: View {
         }
     }
 #endif
-
-package struct MPAmountData {
-    var currencySymbol: String
-    var integerPart: String
-    var decimalPart: String
-}
-
-package struct MPFixedFooterButtonData {
-    var text: String
-    var style: MPButtonStyle.Variant = .loud
-    var onClick: () -> Void
-}

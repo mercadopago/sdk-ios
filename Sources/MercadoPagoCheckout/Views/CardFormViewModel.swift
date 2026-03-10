@@ -99,6 +99,13 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Footer
+
+    func footerAmount() -> MPAmountData? {
+        guard let amount = configuration.type.configuration.amount else { return nil }
+        return MPAmountData(from: amount)
+    }
+
     // MARK: - Payment Methods
 
     func onCardNumberChange(_ cardNumber: String) {

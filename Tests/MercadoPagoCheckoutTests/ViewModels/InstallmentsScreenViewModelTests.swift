@@ -7,6 +7,7 @@
 
 @testable import CoreMethods
 @testable import MercadoPagoCheckout
+@testable import MPComponents
 @testable import MPFoundation
 import XCTest
 
@@ -84,7 +85,7 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
         let result = sut.selectedTotalAmount(nil)
 
         // Assert
-        XCTAssertEqual("\(MPStrings.Common.currency) 1.000,00", result)
+        XCTAssertEqual(MPAmountData(from: 1000.0), result)
     }
 
     func test_selectedTotalAmount_whenSelected_shouldReturnSelectedTotalAmount() {
@@ -96,7 +97,7 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
         let result = sut.selectedTotalAmount(selectedPayerCost)
 
         // Assert
-        XCTAssertEqual("\(MPStrings.Common.currency) 1.221,10", result)
+        XCTAssertEqual(MPAmountData(from: 1221.1), result)
     }
 
     // MARK: - Helpers:
