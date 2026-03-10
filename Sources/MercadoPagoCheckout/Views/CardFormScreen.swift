@@ -4,22 +4,25 @@
 //
 //  Created by Guilherme Prata Costa on 14/11/25.
 //
-import SwiftUI
-import MPComponents
 import CoreMethods
+import MPComponents
+import SwiftUI
 
 struct CardFormScreen: View {
-    
     private let onBack: () -> Void
     private let onContinue: () -> Void
-    
+
     @ObservedObject private var viewModel: CardFormViewModel
-    
+
     // MARK: States View
+
     @State private var cardForm = CardFormData()
+    @State private var isSnackbarPresented = false
+    @State private var footerHeight: CGFloat = 0
     @Binding private var paymentData: MPPaymentData
 
     // MARK: Enviroments
+
     @Environment(\.checkoutTheme) var theme: MPTheme
 
     init(
@@ -36,175 +39,193 @@ struct CardFormScreen: View {
 
     var body: some View {
         Group {
-            switch viewModel.screenState {
+            switch self.viewModel.screenState {
             case .loading:
                 MPProgressIndicator()
                     .size(.xlarge)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .ready:
                 MPHeader(
                     title: MPStrings.CardForm.title,
-                    onBack: { onBack() },
+                    onBack: { self.onBack() },
                     footer: {
                         MPFooter(
                             label: MPStrings.Common.total,
-                            amount: MPStrings.formatPrice(paymentData.transactionAmount),
+                            amount: MPStrings.formatPrice(self.paymentData.transactionAmount),
                             buttonLabel: MPStrings.CardForm.button,
-                            action: { onContinue() }
+                            action: { self.onContinue() }
                         )
-                        .disabled(!cardForm.isFormValid)
+                        .disabled(!self.cardForm.isFormValid)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear.onAppear { self.footerHeight = geo.size.height }
+                            }
+                        )
                     },
                     content: {
-                        VStack(spacing: theme.spacings.xsmall) {
+                        VStack(spacing: self.theme.spacings.xsmall) {
                             MPTextField(
-                                text: $cardForm.cardNumber,
+                                text: self.$cardForm.cardNumber,
                                 label: MPStrings.CardForm.CardNumber.label,
                                 placeholder: MPStrings.CardForm.CardNumber.placeholder,
-                                errorMessage: cardForm.$cardNumber,
-                                liveErrorMessage: cardForm.cardNumberLiveErrors,
+                                errorMessage: self.cardForm.$cardNumber,
+                                liveErrorMessage: self.cardForm.cardNumberLiveErrors,
                                 keyboard: .numberPad,
-                                formatter: viewModel.cardNumberFormatter,
+                                onEditingChanged: { isEditing in
+                                    if !isEditing { self.viewModel.retryBinFetch() }
+                                },
+                                formatter: self.viewModel.cardNumberFormatter
                             )
 
                             MPTextField(
-                                text: $cardForm.cardHolder,
+                                text: self.$cardForm.cardHolder,
                                 label: MPStrings.CardForm.CardHolder.label,
                                 placeholder: MPStrings.CardForm.CardHolder.placeholder,
                                 helperText: MPStrings.CardForm.CardHolder.helperText,
-                                errorMessage: cardForm.$cardHolder,
+                                errorMessage: self.cardForm.$cardHolder
                             )
 
                             MPTextField(
-                                text: $cardForm.expirationDate,
+                                text: self.$cardForm.expirationDate,
                                 label: MPStrings.CardForm.Expiration.label,
                                 placeholder: MPStrings.CardForm.Expiration.placeholder,
-                                errorMessage: cardForm.$expirationDate,
+                                errorMessage: self.cardForm.$expirationDate,
                                 keyboard: .numberPad,
-                                formatter: viewModel.expirationDateFormatter,
+                                formatter: self.viewModel.expirationDateFormatter
                             )
 
                             MPTextField(
-                                text: $cardForm.securityCode,
+                                text: self.$cardForm.securityCode,
                                 label: MPStrings.CardForm.CVV.label,
-                                placeholder: viewModel.cvvPlaceholder,
-                                errorMessage: cardForm.$securityCode,
+                                placeholder: self.viewModel.cvvPlaceholder,
+                                errorMessage: self.cardForm.$securityCode,
                                 keyboard: .numberPad,
-                                formatter: viewModel.securityCodeFormatter,
+                                formatter: self.viewModel.securityCodeFormatter,
                                 popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
                             )
 
                             MPTextField(
-                                text: $cardForm.documentHolder,
+                                text: self.$cardForm.documentHolder,
                                 label: MPStrings.CardForm.Document.label,
-                                placeholder: viewModel.selectTypeDocument?.getPlaceholder(),
-                                errorMessage: cardForm.$documentHolder,
-                                keyboard: viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
-                                formatter: viewModel.documentFormatter,
+                                placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
+                                errorMessage: self.cardForm.$documentHolder,
+                                keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
+                                formatter: self.viewModel.documentFormatter,
                                 prefix: {
-                                    dropdownDocument()
-                                },
+                                    self.dropdownDocument()
+                                }
                             )
                         }
-                        .padding(.horizontal, theme.spacings.micro)
+                        .padding(.horizontal, self.theme.spacings.micro)
                     }
                 )
-                .background(theme.colors.background.primary)
             }
         }
+        .messageSnackbar(
+            isPresented: self.$isSnackbarPresented,
+            text: MPStrings.Errors.generic,
+            state: .negative,
+            bottomPadding: self.footerHeight
+        )
+        .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
         .mpTask {
-            await viewModel.loadIdentificationTypes()
+            await self.viewModel.loadIdentificationTypes()
         }
-        .mpOnChange(of: cardForm.cardNumber) { newValue in
-            viewModel.onCardNumberChange(newValue)
-            
+        .mpOnChange(of: self.cardForm.cardNumber) { newValue in
+            self.viewModel.onCardNumberChange(newValue)
         }
-        .mpOnChange(of: viewModel.binData) { binData in
-            if let cardInfo = binData?.paymentMethod.card {
-                cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
-                cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
-            } else {
-                cardForm.setCardNumberLength()
-            }
+        .mpOnChange(of: self.viewModel.binData) { binData in
+            self.updateCardNumberLength(binData: binData)
         }
-        .mpOnChange(of: viewModel.selectTypeDocument) { identificationType in
-            if let identificationType {
-                cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
-            }
+        .mpOnChange(of: self.viewModel.selectTypeDocument) { identificationType in
+            self.updateIdentificationTypes(identificationType)
         }
-        .mpOnChange(of: viewModel.fetchBinError) { error in
-            cardForm.setCardNumberExternalError(error)
+        .mpOnChange(of: self.viewModel.binFetchError) { error in
+            self.cardForm.setCardNumberExternalError(error)
+        }
+        .mpOnChange(of: self.viewModel.showSnackbar) { show in
+            if show { self.isSnackbarPresented = true }
         }
     }
-        
-    @ViewBuilder
+
     private func dropdownDocument() -> some View {
         HStack(spacing: 0) {
             if #available(iOS 14.0, *) {
-                documentPickerMenu()
+                self.documentPickerMenu()
             } else {
-                documentPickerFallback()
+                self.documentPickerFallback()
             }
 
             Rectangle()
-                .fill(theme.textFields.standard.idle.borderColor)
-                .frame(width: theme.borderWidth.small)
+                .fill(self.theme.textFields.standard.idle.borderColor)
+                .frame(width: self.theme.borderWidth.small)
         }
     }
 
     @available(iOS 14.0, *)
-    @ViewBuilder
     private func documentPickerMenu() -> some View {
         Menu {
             Picker(
-                selection: $viewModel.selectTypeDocument,
+                selection: self.$viewModel.selectTypeDocument,
                 label: EmptyView()
             ) {
-                ForEach(viewModel.identificationTypes, id: \.id) { type in
+                ForEach(self.viewModel.identificationTypes, id: \.id) { type in
                     Text(type.name).tag(Optional(type))
                 }
             }
         } label: {
-            documentLabel()
+            self.documentLabel()
         }
-        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument?.name ?? String()))
+        .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
     }
 
-    @ViewBuilder
     private func documentPickerFallback() -> some View {
         Picker(
-            selection: $viewModel.selectTypeDocument,
-            label: documentLabel()
+            selection: self.$viewModel.selectTypeDocument,
+            label: self.documentLabel()
         ) {
-            ForEach(viewModel.identificationTypes, id: \.id) { type in
+            ForEach(self.viewModel.identificationTypes, id: \.id) { type in
                 Text(type.name).tag(Optional(type))
             }
         }
         .fixedSize(horizontal: true, vertical: false)
-        .accentColor(theme.textFields.standard.idle.textColor)
-        .accessibility(label: Text(verbatim: viewModel.selectTypeDocument?.name ?? String()))
+        .accentColor(self.theme.textFields.standard.idle.textColor)
+        .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
     }
 
-    @ViewBuilder
     private func documentLabel() -> some View {
         HStack {
-            Text(viewModel.selectTypeDocument?.name ?? String())
+            Text(self.viewModel.selectTypeDocument?.name ?? String())
                 .textStyle(.bodyMedium(colorType: .secondary))
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
 
             Image(systemName: "chevron.down")
                 .renderingMode(.template)
-                .foregroundColor(theme.textFields.standard.idle.borderColor)
-                .padding(.horizontal, theme.spacings.xmicro)
+                .foregroundColor(self.theme.textFields.standard.idle.borderColor)
+                .padding(.horizontal, self.theme.spacings.xmicro)
         }
-        .padding(.leading, theme.spacings.micro)
+        .padding(.leading, self.theme.spacings.micro)
         .animation(nil)
+    }
+
+    private func updateCardNumberLength(binData: CardBinData?) {
+        if let cardInfo = binData?.paymentMethod.card {
+            self.cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
+            self.cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
+        } else {
+            self.cardForm.setCardNumberLength()
+        }
+    }
+
+    private func updateIdentificationTypes(_ identificationType: IdentificationType?) {
+        guard let identificationType else { return }
+        self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
     }
 }
 
 struct CardForm_Previews: PreviewProvider {
-    
     static var previews: some View {
-        
         ThemeProvider(
             light: MPLightTheme(),
             dark: MPLightTheme()
@@ -219,6 +240,5 @@ struct CardForm_Previews: PreviewProvider {
                 )
             )
         }
-
     }
 }

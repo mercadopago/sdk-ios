@@ -86,6 +86,10 @@ package struct CardNumberRule: CardFormRuleType {
                 return MPStrings.CardForm.CardNumber.errorInvalid
             }
             return MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: cardTypeDisplayName(cardType))
+        case .paymentMethodNotFound:
+            return MPStrings.CardForm.CardNumber.errorInvalid
+        case .networkError, .serviceError:
+            return nil
         }
     }
 

@@ -51,7 +51,7 @@ let package = Package(
         
         .target(
             name: "MercadoPagoCheckout",
-            dependencies: ["MPComponents", "CoreMethods"]
+            dependencies: ["MPComponents", "CoreMethods", "MPCore"]
         ),
         .target(
             name: "MPComponents",
