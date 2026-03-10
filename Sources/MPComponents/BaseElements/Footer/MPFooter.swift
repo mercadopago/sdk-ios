@@ -27,9 +27,9 @@ package struct MPFooter: View {
     
     // MARK: - Properties
     
-    private let label: String
-    private let amount: String
-    private let description: String?
+    private let title: String
+    private let amount: MPAmountData?
+    private let subtitle: String?
     private let buttonLabel: String?
     private let action: (() -> Void)?
     
@@ -43,31 +43,31 @@ package struct MPFooter: View {
     /// Creates a new footer with the specified configuration.
     ///
     /// - Parameters:
-    ///   - label: The label to display on the left (e.g., "Total")
+    ///   - title: The label to display on the left (e.g., "Total")
     ///   - amount: The amount value to display on the right
-    ///   - description: Optional description to display on the right below
+    ///   - subtitle: Optional description to display on the right below
     package init(
-        label: String,
-        amount: String,
-        description: String? = nil,
+        title: String = String(),
+        amount: MPAmountData? = nil,
+        subtitle: String? = nil,
         buttonLabel: String,
         action: @escaping () -> Void
     ) {
-        self.label = label
+        self.title = title
         self.amount = amount
-        self.description = description
+        self.subtitle = subtitle
         self.buttonLabel = buttonLabel
         self.action = action
     }
     
     package init(
-        label: String,
-        amount: String,
+        title: String,
+        amount: MPAmountData? = nil,
         description: String? = nil
     ) {
-        self.label = label
+        self.title = title
         self.amount = amount
-        self.description = description
+        self.subtitle = description
         self.buttonLabel = nil
         self.action = nil
     }
@@ -79,7 +79,7 @@ package struct MPFooter: View {
             summaryLine: summaryLineView,
             descriptionLine: descriptionLineView,
             button: button,
-            hasDescription: description != nil
+            hasDescription: subtitle != nil
         )
         
         return AnyView(
@@ -91,29 +91,28 @@ package struct MPFooter: View {
     
     @ViewBuilder
     private var summaryLineView: some View {
-        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
-            // Label
-            Text(label)
-                .textStyle(.largeEmphasis())
-                .lineLimit(1)
-            
-            Spacer()
-            
-            // Amount
-            Text(amount)
-                .textStyle(.largeEmphasis())
-                .foregroundColor(theme.colors.text.primary)
-                .lineLimit(1)
+        if let amount {
+            HStack(alignment: .center, spacing: theme.spacings.xtiny) {
+                // Label
+                Text(title)
+                    .textStyle(.largeEmphasis())
+                    .lineLimit(1)
+                
+                Spacer()
+                
+                // Amount
+                amountView
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibility(label: Text("\(title) \(amount)"))
         }
-        .accessibilityElement(children: .ignore)
-        .accessibility(label: Text("\(label) \(amount)"))
     }
     
     // MARK: - Description Line View
     
     @ViewBuilder
     private var descriptionLineView: some View {
-        if let descriptionText = description {
+        if let descriptionText = subtitle {
             HStack {
                 Spacer()
                 
@@ -134,6 +133,30 @@ package struct MPFooter: View {
             }
         }
     }
+    
+    @ViewBuilder
+    private var amountView: some View {
+        if let amount {
+            HStack(alignment: .top, spacing: theme.spacings.xnano) {
+                Text(amount.currencySymbol)
+                    .textStyle(.largeEmphasis())
+                    .foregroundColor(theme.colors.text.primary)
+                    .lineLimit(1)
+                Text(amount.integerPart)
+                    .textStyle(.largeEmphasis())
+                    .foregroundColor(theme.colors.text.primary)
+                    .lineLimit(1)
+                VStack(alignment: .leading) {
+                    Text(amount.decimalPart)
+                        .textStyle(.smallMediumEmphasis())
+                        .foregroundColor(theme.colors.text.primary)
+                        .lineLimit(1)
+                    Spacer()
+                }
+                .fixedSize()
+            }
+        }
+    }
 }
 
 // MARK: - Preview
@@ -146,9 +169,9 @@ struct MPFooter_Previews: PreviewProvider {
             
             // Footer with description
             MPFooter(
-                label: "Total",
-                amount: "R$ 500",
-                description: "Santander Crédito **** 4561",
+                title: "Total",
+                amount: .init(currencySymbol: "R$", integerPart: "500", decimalPart: "00"),
+                subtitle: "Santander Crédito **** 4561",
                 buttonLabel: MPStrings.CardForm.button,
                 action: {
                     print("button action")
@@ -158,8 +181,8 @@ struct MPFooter_Previews: PreviewProvider {
             
             // Footer without description
             MPFooter(
-                label: "Total",
-                amount: "R$ 1.250,00",
+                title: "Total",
+                amount: .init(currencySymbol: "R$", integerPart: "1.250", decimalPart: "00"),
                 buttonLabel: MPStrings.CardForm.button,
                 action: {
                     print("button action")
@@ -170,3 +193,10 @@ struct MPFooter_Previews: PreviewProvider {
     }
 }
 #endif
+
+
+package struct MPAmountData {
+    var currencySymbol: String
+    var integerPart: String
+    var decimalPart: String
+}
