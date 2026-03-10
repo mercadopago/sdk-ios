@@ -106,6 +106,33 @@ final class CardFormViewModel: ObservableObject {
         return MPAmountData(from: amount)
     }
 
+    // MARK: - Card Token
+
+    func submitCardToken(cardForm: CardFormData) async throws -> CardToken {
+        let params = self.buildCardParams(from: cardForm)
+        return try await self.service.createCardToken(cardParams: params)
+    }
+
+    private func buildCardParams(from cardForm: CardFormData) -> CardParams {
+        let rawCardNumber = cardForm.cardNumber.filter(\.isNumber)
+        let expirationParts = cardForm.expirationDate.split(separator: "/")
+        let month = String(expirationParts.first ?? "")
+        let shortYear = String(expirationParts.dropFirst().first ?? "")
+        let century = Calendar.current.component(.year, from: Date()) / 100
+        let year = "\(century)\(shortYear)"
+        let rawDocument = cardForm.documentHolder.filter(\.isNumber)
+
+        return CardParams(
+            cardNumber: rawCardNumber,
+            expirationYear: year,
+            expirationMonth: month,
+            securityCode: cardForm.securityCode,
+            documentType: self.selectTypeDocument?.id,
+            documentNumber: rawDocument.isEmpty ? nil : rawDocument,
+            cardHolderName: cardForm.cardHolder
+        )
+    }
+
     // MARK: - Payment Methods
 
     func onCardNumberChange(_ cardNumber: String) {

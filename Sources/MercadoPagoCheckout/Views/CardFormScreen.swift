@@ -51,7 +51,16 @@ struct CardFormScreen: View {
                             amount: self.viewModel.footerAmount(),
                             buttonData: .init(
                                 text: MPStrings.CardForm.button,
-                                onClick: { self.onContinue() }
+                                onClick: {
+                                    Task {
+                                        do {
+                                            let _ = try await self.viewModel.submitCardToken(cardForm: self.cardForm)
+                                            self.onContinue()
+                                        } catch {
+                                            // TODO: handle tokenization error
+                                        }
+                                    }
+                                }
                             )
                         )
                         .disabled(!self.cardForm.isFormValid)
