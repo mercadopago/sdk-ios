@@ -57,7 +57,8 @@ struct CardFormBrick: View {
             viewModel: self.cardFormViewModel,
             onBack: { self.cancelCheckout() },
             onContinue: {
-                self.route = .installments
+                // TODO: callback
+                self.presentationMode.wrappedValue.dismiss()
             }
         )
     }

@@ -50,10 +50,21 @@ struct CardFormScreen: View {
                     onBack: { self.onBack() },
                     footer: {
                         MPFooter(
-                            label: MPStrings.Common.total,
-                            amount: MPStrings.formatPrice(self.paymentData.transactionAmount),
-                            buttonLabel: MPStrings.CardForm.button,
-                            action: { self.onContinue() }
+                            title: MPStrings.Common.total,
+                            amount: self.viewModel.footerAmount(),
+                            buttonData: .init(
+                                text: MPStrings.CardForm.button,
+                                onClick: {
+                                    Task {
+                                        do {
+                                            let _ = try await self.viewModel.submitCardToken(cardForm: self.cardForm)
+                                            self.onContinue()
+                                        } catch {
+                                            // TODO: handle tokenization error
+                                        }
+                                    }
+                                }
+                            )
                         )
                         .disabled(!self.cardForm.isFormValid)
                         .background(

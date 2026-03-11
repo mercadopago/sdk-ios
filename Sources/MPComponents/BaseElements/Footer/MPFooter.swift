@@ -5,168 +5,195 @@
 //  Created by Guilherme Prata Costa on 24/11/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 /// A footer component that displays payment summary information such as total amount and payment method details.
 /// ## Usage
 ///
 /// ```swift
 /// MPFooter(
-///     label: "Total",
-///     amount: "R$ 500",
-///     description: "Santander Crédito **** 4561"
-///     buttonLabel: "Pay",
-///     action: {
-///       print("action")
+///     title: "Total",
+///     amount: .init(currencySymbol: "R$", integerPart: "500", decimalPart: "00"),
+///     subtitle: "Santander Crédito **** 4561",
+///     buttonData: .init(text: "Pay") {
+///         print("action")
 ///     }
 /// )
 /// ```
 ///
 package struct MPFooter: View {
-    
     // MARK: - Properties
-    
-    private let label: String
-    private let amount: String
-    private let description: String?
-    private let buttonLabel: String?
-    private let action: (() -> Void)?
-    
+
+    private let title: String
+    private let amount: MPAmountData?
+    private let subtitle: String?
+    private let buttonData: MPFixedFooterButtonData?
+
     // MARK: - Environment
-    
+
     @Environment(\.mpFooterStyle) private var style: any MPFooterStyle
     @Environment(\.checkoutTheme) var theme: MPTheme
-    
+
     // MARK: - Initialization
-    
+
     /// Creates a new footer with the specified configuration.
     ///
     /// - Parameters:
-    ///   - label: The label to display on the left (e.g., "Total")
-    ///   - amount: The amount value to display on the right
-    ///   - description: Optional description to display on the right below
+    ///   - title: Label displayed on the left side of the summary line (e.g., "Total").
+    ///   - amount: Structured amount displayed on the right side. Pass `nil` to hide the summary line entirely.
+    ///   - subtitle: Optional text displayed below the summary line, right-aligned (e.g., selected card info).
+    ///   - buttonData: Optional call-to-action button configuration. The button is hidden when `isEnabled` is `false`.
     package init(
-        label: String,
-        amount: String,
-        description: String? = nil,
-        buttonLabel: String,
-        action: @escaping () -> Void
+        title: String = String(),
+        amount: MPAmountData? = nil,
+        subtitle: String? = nil,
+        buttonData: MPFixedFooterButtonData? = nil
     ) {
-        self.label = label
+        self.title = title
         self.amount = amount
-        self.description = description
-        self.buttonLabel = buttonLabel
-        self.action = action
+        self.subtitle = subtitle
+        self.buttonData = buttonData
     }
-    
+
     package init(
-        label: String,
-        amount: String,
-        description: String? = nil
+        title: String,
+        amount: MPAmountData? = nil,
+        subtitle: String? = nil
     ) {
-        self.label = label
+        self.title = title
         self.amount = amount
-        self.description = description
-        self.buttonLabel = nil
-        self.action = nil
+        self.subtitle = subtitle
+        self.buttonData = nil
     }
-    
+
     // MARK: - Body
-    
+
     package var body: some View {
         let configuration = MPFooterStyleConfiguration(
             summaryLine: summaryLineView,
             descriptionLine: descriptionLineView,
             button: button,
-            hasDescription: description != nil
+            hasDescription: subtitle != nil
         )
-        
+
         return AnyView(
-            style.resolve(configuration: configuration)
+            self.style.resolve(configuration: configuration)
         )
     }
-    
+
     // MARK: - Summary Line View
-    
+
     @ViewBuilder
     private var summaryLineView: some View {
-        HStack(alignment: .center, spacing: theme.spacings.xtiny) {
-            // Label
-            Text(label)
-                .textStyle(.largeEmphasis())
-                .lineLimit(1)
-            
-            Spacer()
-            
-            // Amount
-            Text(amount)
-                .textStyle(.largeEmphasis())
-                .foregroundColor(theme.colors.text.primary)
-                .lineLimit(1)
+        if !self.title.isEmpty, self.amount != nil {
+            HStack(alignment: .center, spacing: self.theme.spacings.xtiny) {
+                // Label
+                Text(self.title)
+                    .textStyle(.largeEmphasis())
+                    .lineLimit(1)
+
+                Spacer()
+
+                // Amount
+                self.amountView
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibility(label: Text(self.createAccessibilityLabel()))
         }
-        .accessibilityElement(children: .ignore)
-        .accessibility(label: Text("\(label) \(amount)"))
     }
-    
+
     // MARK: - Description Line View
-    
+
     @ViewBuilder
     private var descriptionLineView: some View {
-        if let descriptionText = description {
+        if let descriptionText = subtitle {
             HStack {
                 Spacer()
-                
+
                 Text(descriptionText)
                     .textStyle(.bodyMedium(colorType: .secondary))
                     .lineLimit(1)
             }
         }
     }
-    
+
     @ViewBuilder
     private var button: some View {
-        if let action, let buttonLabel {
+        if let buttonData {
             Button {
-                action()
+                buttonData.onClick()
             } label: {
-                Text(buttonLabel)
+                Text(buttonData.text)
+            }
+            .mpButtonStyle(variant: buttonData.style)
+        }
+    }
+
+    @ViewBuilder
+    private var amountView: some View {
+        if let amount {
+            HStack(alignment: .top, spacing: self.theme.spacings.xnano) {
+                Text(amount.currencySymbol)
+                    .textStyle(.largeEmphasis())
+                    .foregroundColor(self.theme.colors.text.primary)
+                    .lineLimit(1)
+                Text(amount.integerPart)
+                    .textStyle(.largeEmphasis())
+                    .foregroundColor(self.theme.colors.text.primary)
+                    .lineLimit(1)
+                VStack(alignment: .leading) {
+                    Text(amount.decimalPart)
+                        .textStyle(.smallMediumEmphasis())
+                        .foregroundColor(self.theme.colors.text.primary)
+                        .lineLimit(1)
+                    Spacer()
+                }
+                .fixedSize()
             }
         }
+    }
+
+    private func createAccessibilityLabel() -> String {
+        return "\(self.title) \(self.amount?.currencySymbol ?? "") \(self.amount?.integerPart ?? ""), \(self.amount?.decimalPart ?? "")"
     }
 }
 
 // MARK: - Preview
 
 #if DEBUG
-struct MPFooter_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            
-            // Footer with description
-            MPFooter(
-                label: "Total",
-                amount: "R$ 500",
-                description: "Santander Crédito **** 4561",
-                buttonLabel: MPStrings.CardForm.button,
-                action: {
-                    print("button action")
-                }
-            )
-            .disabled(true)
-            
-            // Footer without description
-            MPFooter(
-                label: "Total",
-                amount: "R$ 1.250,00",
-                buttonLabel: MPStrings.CardForm.button,
-                action: {
-                    print("button action")
-                }
-            )
+    struct MPFooter_Previews: PreviewProvider {
+        static var previews: some View {
+            VStack(spacing: 20) {
+                Spacer()
+
+                // Footer with description
+                MPFooter(
+                    title: "Total",
+                    amount: .init(currencySymbol: "R$", integerPart: "500", decimalPart: "00"),
+                    subtitle: "Santander Crédito **** 4561",
+                    buttonData: .init(
+                        text: MPStrings.CardForm.button,
+                        onClick: {
+                            print("button action")
+                        }
+                    )
+                )
+                .disabled(true)
+
+                // Footer without description
+                MPFooter(
+                    title: "Total",
+                    amount: .init(currencySymbol: "R$", integerPart: "1.250", decimalPart: "00"),
+                    buttonData: .init(
+                        text: MPStrings.CardForm.button,
+                        onClick: {
+                            print("button action")
+                        }
+                    )
+                )
+            }
+            .loadMPFonts()
         }
-        .loadMPFonts()
     }
-}
 #endif
