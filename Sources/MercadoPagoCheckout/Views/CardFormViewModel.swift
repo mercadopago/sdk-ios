@@ -193,4 +193,24 @@ final class CardFormViewModel: ObservableObject {
             self.binData = nil
         }
     }
+
+    // MARK: - Payment Data
+
+    func createPaymentData(_ amount: Double, cardToken: CardToken, cardFormData: CardFormData) -> MPPaymentData {
+        guard let selectTypeDocument else {
+            return .init(token: cardToken.token)
+        }
+        return .init(
+            transactionAmount: amount,
+            token: cardToken.token,
+            installment: 1,
+            paymentMethodId: self.binData?.paymentMethod.id,
+            paymentTypeId: self.binData?.paymentMethod.paymentTypeId,
+            issuerId: self.binData?.issuer?.id,
+            payer: .init(
+                type: selectTypeDocument.type,
+                number: cardFormData.documentHolder
+            )
+        )
+    }
 }

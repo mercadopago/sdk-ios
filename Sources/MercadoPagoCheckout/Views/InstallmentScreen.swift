@@ -73,7 +73,7 @@ struct InstallmentScreen: View {
 #Preview {
     InstallmentScreen(
         paymentData: .constant(
-            MPPaymentData(transactionAmount: 100)
+            MPPaymentData(transactionAmount: 100, token: "")
         ),
         installments: InstallmentMock.visa,
         onBack: {},

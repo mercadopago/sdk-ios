@@ -10,7 +10,9 @@ import SwiftUI
 
 struct CardFormScreen: View {
     private let onBack: () -> Void
-    private let onContinue: () -> Void
+    private let onSuccess: (MPPaymentData) -> Void
+    private let onFailure: (MercadoPagoCheckoutError) -> Void
+    private let transactionAmount: Double
 
     @ObservedObject private var viewModel: CardFormViewModel
 
@@ -19,22 +21,23 @@ struct CardFormScreen: View {
     @State private var cardForm = CardFormData()
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
-    @Binding private var paymentData: MPPaymentData
 
     // MARK: Enviroments
 
     @Environment(\.checkoutTheme) var theme: MPTheme
 
     init(
-        paymentData: Binding<MPPaymentData>,
+        transactionAmount: Double,
         viewModel: CardFormViewModel,
         onBack: @escaping () -> Void = {},
-        onContinue: @escaping () -> Void = {}
+        onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
+        onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.onBack = onBack
-        self.onContinue = onContinue
-        self._paymentData = paymentData
+        self.onSuccess = onSuccess
+        self.onFailure = onFailure
+        self.transactionAmount = transactionAmount
     }
 
     var body: some View {
@@ -57,10 +60,17 @@ struct CardFormScreen: View {
                                 onClick: {
                                     Task {
                                         do {
-                                            let _ = try await self.viewModel.submitCardToken(cardForm: self.cardForm)
-                                            self.onContinue()
+                                            let cardToken = try await self.viewModel.submitCardToken(cardForm: self.cardForm)
+                                            let paymentData = self.viewModel.createPaymentData(
+                                                self.transactionAmount,
+                                                cardToken: cardToken,
+                                                cardFormData: self.cardForm
+                                            )
+                                            self.onSuccess(paymentData)
+                                        } catch let error as MercadoPagoCheckoutError {
+                                            self.onFailure(error)
                                         } catch {
-                                            // TODO: handle tokenization error
+                                            self.onFailure(.serviceError(error.localizedDescription))
                                         }
                                     }
                                 }
@@ -242,7 +252,7 @@ struct CardForm_Previews: PreviewProvider {
             dark: MPLightTheme()
         ) {
             CardFormScreen(
-                paymentData: .constant(MPPaymentData(transactionAmount: 100)),
+                transactionAmount: 100,
                 viewModel: .init(
                     configuration: .init(
                         type: .cardForm(cardFormConfiguration: .init()),
