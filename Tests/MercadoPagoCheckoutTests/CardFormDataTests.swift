@@ -21,10 +21,10 @@ final class CardFormDataTests: XCTestCase {
         form.documentHolder = "12345678901"
 
         // Assert
-        XCTAssertTrue(form.isFormValid(isSecurityCodeOptional: false))
+        XCTAssertTrue(form.isFormValid(isSecurityCodeMandatory: true))
     }
 
-    func test_isFormValid_whenSecurityCodeEmptyAndNotOptional_shouldReturnFalse() {
+    func test_isFormValid_whenSecurityCodeEmptyAndMandatory_shouldReturnFalse() {
         // Arrange
         var form = CardFormData()
         form.cardNumber = "4111111111111111"
@@ -34,10 +34,10 @@ final class CardFormDataTests: XCTestCase {
         form.documentHolder = "12345678901"
 
         // Assert
-        XCTAssertFalse(form.isFormValid(isSecurityCodeOptional: false))
+        XCTAssertFalse(form.isFormValid(isSecurityCodeMandatory: true))
     }
 
-    func test_isFormValid_whenSecurityCodeOptional_withEmptyCode_shouldReturnTrue() {
+    func test_isFormValid_whenSecurityCodeNotMandatory_withEmptyCode_shouldReturnTrue() {
         // Arrange
         var form = CardFormData()
         form.cardNumber = "4111111111111111"
@@ -47,10 +47,10 @@ final class CardFormDataTests: XCTestCase {
         form.documentHolder = "12345678901"
 
         // Assert
-        XCTAssertTrue(form.isFormValid(isSecurityCodeOptional: true))
+        XCTAssertTrue(form.isFormValid(isSecurityCodeMandatory: false))
     }
 
-    func test_isFormValid_whenSecurityCodeOptionalFalse_withEmptyCode_shouldReturnFalse() {
+    func test_isFormValid_whenSecurityCodeMandatory_withEmptyCode_shouldReturnFalse() {
         // Arrange
         var form = CardFormData()
         form.cardNumber = "4111111111111111"
@@ -58,7 +58,7 @@ final class CardFormDataTests: XCTestCase {
         form.expirationDate = "0130"
         form.documentHolder = "12345678901"
 
-        // Assert — empty security code is invalid when not optional
-        XCTAssertFalse(form.isFormValid(isSecurityCodeOptional: false))
+        // Assert — empty security code is invalid when mandatory
+        XCTAssertFalse(form.isFormValid(isSecurityCodeMandatory: true))
     }
 }

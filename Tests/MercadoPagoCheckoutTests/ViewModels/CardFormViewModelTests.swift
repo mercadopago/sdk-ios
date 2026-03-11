@@ -402,10 +402,20 @@ final class CardFormViewModelTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Assert
-        XCTAssertFalse(sut.viewModel.isSecurityCodeOptional)
+        XCTAssertFalse(sut.viewModel.showSnackbar)
     }
 
-    func test_isSecurityCodeOptional_whenCardInfoIsNil_shouldReturnFalse() async {
+    // MARK: - isSecurityCodeMandatory
+
+    func test_isSecurityCodeMandatory_whenBinDataIsNil_shouldReturnTrue() {
+        // Arrange / Act
+        let sut = self.makeSUT()
+
+        // Assert
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
+    }
+
+    func test_isSecurityCodeMandatory_whenCardInfoIsNil_shouldReturnTrue() async {
         // Arrange — visa stub has card: nil
         let sut = self.makeSUT()
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
@@ -415,10 +425,10 @@ final class CardFormViewModelTests: XCTestCase {
         await self.waitForChange(sut.viewModel.$binData)
 
         // Assert
-        XCTAssertFalse(sut.viewModel.isSecurityCodeOptional)
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
     }
 
-    func test_isSecurityCodeOptional_whenSecurityCodeLengthIsPositive_shouldReturnFalse() async {
+    func test_isSecurityCodeMandatory_whenSecurityCodeLengthIsPositive_shouldReturnTrue() async {
         // Arrange
         let sut = self.makeSUT()
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaWithCVV))
@@ -428,10 +438,10 @@ final class CardFormViewModelTests: XCTestCase {
         await self.waitForChange(sut.viewModel.$binData)
 
         // Assert
-        XCTAssertFalse(sut.viewModel.isSecurityCodeOptional)
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
     }
 
-    func test_isSecurityCodeOptional_whenSecurityCodeLengthIsZero_shouldReturnTrue() async {
+    func test_isSecurityCodeMandatory_whenSecurityCodeLengthIsZero_shouldReturnFalse() async {
         // Arrange
         let sut = self.makeSUT()
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaOptionalCVV))
@@ -441,23 +451,23 @@ final class CardFormViewModelTests: XCTestCase {
         await self.waitForChange(sut.viewModel.$binData)
 
         // Assert
-        XCTAssertTrue(sut.viewModel.isSecurityCodeOptional)
+        XCTAssertFalse(sut.viewModel.isSecurityCodeMandatory)
     }
 
-    func test_isSecurityCodeOptional_whenBinDataCleared_shouldReturnFalse() async {
+    func test_isSecurityCodeMandatory_whenBinDataCleared_shouldReturnTrue() async {
         // Arrange — start with optional CVV
         let sut = self.makeSUT()
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaOptionalCVV))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binData)
-        XCTAssertTrue(sut.viewModel.isSecurityCodeOptional)
+        XCTAssertFalse(sut.viewModel.isSecurityCodeMandatory)
 
         // Act — clearing below 8 digits resets binData to nil synchronously
         sut.viewModel.onCardNumberChange("123")
 
         // Assert
         XCTAssertNil(sut.viewModel.binData)
-        XCTAssertFalse(sut.viewModel.isSecurityCodeOptional)
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
     }
 
     // MARK: - cvvTooltipText
@@ -527,12 +537,9 @@ final class CardFormViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
-
-    // MARK: - isSecurityCodeOptional
-
-    func test_isSecurityCodeOptional_whenBinDataIsNil_shouldReturnFalse() {
-        XCTAssertFalse(sut.viewModel.showSnackbar)
     }
+
+    // MARK: - retryBinFetch
 
     func test_retryBinFetch_whenNoPreviousError_shouldNotShowSnackbar() {
         // Arrange — no BIN fetch has occurred

@@ -55,7 +55,7 @@ struct CardFormScreen: View {
                             buttonLabel: MPStrings.CardForm.button,
                             action: { self.onContinue() }
                         )
-                        .disabled(!self.cardForm.isFormValid(isSecurityCodeOptional: self.viewModel.isSecurityCodeOptional))
+                        .disabled(!self.cardForm.isFormValid(isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory))
                         .background(
                             GeometryReader { geo in
                                 Color.clear.onAppear { self.footerHeight = geo.size.height }
@@ -94,16 +94,17 @@ struct CardFormScreen: View {
                                 formatter: self.viewModel.expirationDateFormatter
                             )
 
-                            MPTextField(
-                                text: self.$cardForm.securityCode,
-                                label: MPStrings.CardForm.CVV.label,
-                                placeholder: self.viewModel.cvvPlaceholder,
-                                helperText: self.viewModel.isSecurityCodeOptional ? MPStrings.CardForm.CVV.optional : nil,
-                                errorMessage: self.viewModel.isSecurityCodeOptional ? nil : self.cardForm.$securityCode,
-                                keyboard: .numberPad,
-                                formatter: self.viewModel.securityCodeFormatter,
-                                popoverText: self.viewModel.cvvTooltipText
-                            )
+                            if self.viewModel.isSecurityCodeMandatory {
+                                MPTextField(
+                                    text: self.$cardForm.securityCode,
+                                    label: MPStrings.CardForm.CVV.label,
+                                    placeholder: self.viewModel.cvvPlaceholder,
+                                    errorMessage: self.cardForm.$securityCode,
+                                    keyboard: .numberPad,
+                                    formatter: self.viewModel.securityCodeFormatter,
+                                    popoverText: self.viewModel.cvvTooltipText
+                                )
+                            }
 
                             MPTextField(
                                 text: self.$cardForm.documentHolder,

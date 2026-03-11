@@ -56,13 +56,13 @@ final class CardFormViewModel: ObservableObject {
         return MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
     }
 
-    var isSecurityCodeOptional: Bool {
+    var isSecurityCodeMandatory: Bool {
         guard let securityCode = binData?.paymentMethod.card?.securityCode else {
-            return false
+            return true
         }
-        return securityCode.length < 1
+        return securityCode.length > 0
     }
-    
+
     private var isRetriableBinError: Bool {
         self.binFetchError == .networkError || self.binFetchError == .serviceError
     }

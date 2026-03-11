@@ -57,11 +57,11 @@ struct CardFormData {
         _cardNumber.liveErrorMessages
     }
 
-    func isFormValid(isSecurityCodeOptional: Bool) -> Bool {
+    func isFormValid(isSecurityCodeMandatory: Bool) -> Bool {
         return _cardNumber.errorMessages.isEmpty
             && _cardHolder.errorMessages.isEmpty
             && _expirationDate.errorMessages.isEmpty
-            && (isSecurityCodeOptional || _securityCode.errorMessages.isEmpty)
+            && (isSecurityCodeMandatory ? _securityCode.errorMessages.isEmpty : true)
             && _documentHolder.errorMessages.isEmpty
     }
 }
