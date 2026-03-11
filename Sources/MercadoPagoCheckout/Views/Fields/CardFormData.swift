@@ -45,7 +45,7 @@ struct CardFormData {
         _documentHolder.update(.documentLength(min: min, max: max))
     }
 
-    mutating func setCardNumberLength(_ minLength: Int = 13, _ maxLength: Int = 19) {
+    mutating func setCardNumberLength(_ minLength: Int = 13, _ maxLength: Int = 16) {
         _cardNumber.update(.cardNumberRange(min: minLength, max: maxLength))
     }
 
