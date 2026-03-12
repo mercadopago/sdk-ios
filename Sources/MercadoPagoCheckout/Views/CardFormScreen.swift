@@ -12,7 +12,7 @@ struct CardFormScreen: View {
     private let onBack: () -> Void
     private let onSuccess: (MPPaymentData) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
-    private let transactionAmount: Double
+    private let transactionAmount: Double?
 
     @ObservedObject private var viewModel: CardFormViewModel
 
@@ -27,7 +27,7 @@ struct CardFormScreen: View {
     @Environment(\.checkoutTheme) var theme: MPTheme
 
     init(
-        transactionAmount: Double,
+        transactionAmount: Double?,
         viewModel: CardFormViewModel,
         onBack: @escaping () -> Void = {},
         onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
@@ -60,10 +60,8 @@ struct CardFormScreen: View {
                                 onClick: {
                                     Task {
                                         do {
-                                            let cardToken = try await self.viewModel.submitCardToken(cardForm: self.cardForm)
-                                            let paymentData = self.viewModel.createPaymentData(
+                                            let paymentData = try await self.viewModel.submitPaymentData(
                                                 self.transactionAmount,
-                                                cardToken: cardToken,
                                                 cardFormData: self.cardForm
                                             )
                                             self.onSuccess(paymentData)
@@ -76,6 +74,7 @@ struct CardFormScreen: View {
                                 }
                             )
                         )
+                        .isLoading(self.viewModel.isTokenizing)
                         .disabled(!self.cardForm.isFormValid)
                         .background(
                             GeometryReader { geo in

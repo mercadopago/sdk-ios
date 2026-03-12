@@ -42,6 +42,7 @@ final class CardFormViewModel: ObservableObject {
 
     @Published private(set) var binFetchError: BinFetchError?
     @Published private(set) var showSnackbar = false
+    @Published private(set) var isTokenizing = false
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
@@ -114,7 +115,7 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Card Token
 
-    func submitCardToken(cardForm: CardFormData) async throws -> CardToken {
+    private func createCardToken(cardForm: CardFormData) async throws -> CardToken {
         let params = self.buildCardParams(from: cardForm)
         return try await self.service.createCardToken(cardParams: params)
     }
@@ -196,10 +197,18 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Payment Data
 
-    func createPaymentData(_ amount: Double, cardToken: CardToken, cardFormData: CardFormData) -> MPPaymentData {
-        guard let selectTypeDocument else {
-            return .init(token: cardToken.token)
+    func submitPaymentData(_ amount: Double?, cardFormData: CardFormData) async throws -> MPPaymentData {
+        self.isTokenizing = true
+        let cardToken = try await self.createCardToken(cardForm: cardFormData)
+
+        var payer: MPPaymentData.Payer? {
+            guard let selectTypeDocument else { return nil }
+            return .init(
+                type: selectTypeDocument.type,
+                number: cardFormData.documentHolder
+            )
         }
+
         return .init(
             transactionAmount: amount,
             token: cardToken.token,
@@ -207,10 +216,7 @@ final class CardFormViewModel: ObservableObject {
             paymentMethodId: self.binData?.paymentMethod.id,
             paymentTypeId: self.binData?.paymentMethod.paymentTypeId,
             issuerId: self.binData?.issuer?.id,
-            payer: .init(
-                type: selectTypeDocument.type,
-                number: cardFormData.documentHolder
-            )
+            payer: payer
         )
     }
 }
