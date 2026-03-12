@@ -133,6 +133,17 @@ final class CardFormViewModelTests: XCTestCase {
         )
     }
 
+    private enum IssuerStub {
+        static let bradesco = Issuer(
+            id: "24",
+            name: "Bradesco",
+            merchantAccountId: "",
+            processingMode: "aggregator",
+            status: "active",
+            thumbnail: ""
+        )
+    }
+
     private enum CardFormDataStub {
         static var validForm: CardFormData {
             var form = CardFormData()
@@ -595,6 +606,135 @@ final class CardFormViewModelTests: XCTestCase {
         // Assert
         let captured = await sut.service.capturedCardParams
         XCTAssertEqual(captured?.documentType, IdentificationTypeStub.cpf.id)
+    }
+
+    // MARK: - createPaymentData
+
+    func test_createPaymentData_whenDocumentTypeIsNil_shouldReturnOnlyToken() {
+        // Arrange
+        let sut = self.makeSUT()
+        // selectTypeDocument starts nil (no identificationTypes loaded)
+
+        // Act
+        let result = sut.viewModel.createPaymentData(
+            100.0,
+            cardToken: CardTokenStub.valid,
+            cardFormData: CardFormDataStub.validForm
+        )
+
+        // Assert
+        XCTAssertEqual(result.token, CardTokenStub.valid.token)
+        XCTAssertNil(result.transactionAmount)
+        XCTAssertNil(result.installment)
+        XCTAssertNil(result.paymentMethodId)
+        XCTAssertNil(result.paymentTypeId)
+        XCTAssertNil(result.issuerId)
+        XCTAssertNil(result.payer)
+    }
+
+    func test_createPaymentData_whenDocumentTypeIsSelected_shouldIncludePayer() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        var cardForm = CardFormDataStub.validForm
+        cardForm.documentHolder = "12345678900"
+
+        // Act
+        let result = sut.viewModel.createPaymentData(
+            200.0,
+            cardToken: CardTokenStub.valid,
+            cardFormData: cardForm
+        )
+
+        // Assert
+        XCTAssertEqual(result.payer?.type, IdentificationTypeStub.cpf.type)
+        XCTAssertEqual(result.payer?.number, "12345678900")
+    }
+
+    func test_createPaymentData_whenDocumentTypeIsSelected_shouldSetTransactionAmountAndInstallment() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+
+        // Act
+        let result = sut.viewModel.createPaymentData(
+            350.0,
+            cardToken: CardTokenStub.valid,
+            cardFormData: CardFormDataStub.validForm
+        )
+
+        // Assert
+        XCTAssertEqual(result.transactionAmount, 350.0)
+        XCTAssertEqual(result.installment, 1)
+        XCTAssertEqual(result.token, CardTokenStub.valid.token)
+    }
+
+    func test_createPaymentData_whenBinDataIsAvailable_shouldIncludePaymentMethodAndTypeIds() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Act
+        let result = sut.viewModel.createPaymentData(
+            100.0,
+            cardToken: CardTokenStub.valid,
+            cardFormData: CardFormDataStub.validForm
+        )
+
+        // Assert
+        XCTAssertEqual(result.paymentMethodId, "visa")
+        XCTAssertEqual(result.paymentTypeId, "credit_card")
+    }
+
+    func test_createPaymentData_whenBinDataIsNil_shouldHaveNilPaymentMethodIds() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        // No bin fetch triggered — binData remains nil
+
+        // Act
+        let result = sut.viewModel.createPaymentData(
+            100.0,
+            cardToken: CardTokenStub.valid,
+            cardFormData: CardFormDataStub.validForm
+        )
+
+        // Assert
+        XCTAssertNil(result.paymentMethodId)
+        XCTAssertNil(result.paymentTypeId)
+        XCTAssertNil(result.issuerId)
+    }
+
+    func test_createPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        let binDataWithIssuer = CardBinData(
+            paymentMethod: CardBinDataStub.visa.paymentMethod,
+            issuer: IssuerStub.bradesco,
+            installment: nil
+        )
+        await sut.service.setFetchBinDataResult(.success(binDataWithIssuer))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Act
+        let result = sut.viewModel.createPaymentData(
+            100.0,
+            cardToken: CardTokenStub.valid,
+            cardFormData: CardFormDataStub.validForm
+        )
+
+        // Assert
+        XCTAssertEqual(result.issuerId, IssuerStub.bradesco.id)
     }
 
     func test_retryBinFetch_whenCalledTwice_withNetworkError_shouldShowSnackbarBothTimes() async {
