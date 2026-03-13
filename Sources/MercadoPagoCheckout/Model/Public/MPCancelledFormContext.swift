@@ -2,35 +2,33 @@
 //  MPCancelledFormContext.swift
 //  MercadoPagoSDK
 //
-//  Created by Guilherme Prata Costa on 13/03/26.
-//
 
-/// Contains information about the state of form fields when the user cancelled the checkout.
+/// Contains the state of all form fields at the time the user cancelled the checkout.
 public struct MPCancelledFormContext: Sendable, Equatable {
-    /// The list of fields that had errors at the time of cancellation.
-    public let fieldErrors: [FieldError]
+    /// The state of each field at the time of cancellation.
+    public let fields: [FieldState]
 
-    public init(fieldErrors: [FieldError]) {
-        self.fieldErrors = fieldErrors
+    public init(fields: [FieldState]) {
+        self.fields = fields
     }
 }
 
 extension MPCancelledFormContext {
-    /// Represents an error in a specific field.
-    public struct FieldError: Sendable, Equatable {
-        /// The field that had an error.
+    /// The state of a specific form field at cancellation time.
+    public struct FieldState: Sendable, Equatable {
+        /// The form field.
         public let field: Field
-        /// The reason for the error.
-        public let reason: Reason
+        /// The state of the field.
+        public let state: State
 
-        public init(field: Field, reason: Reason) {
+        public init(field: Field, state: State) {
             self.field = field
-            self.reason = reason
+            self.state = state
         }
     }
 }
 
-extension MPCancelledFormContext.FieldError {
+extension MPCancelledFormContext.FieldState {
     /// The form field identifiers.
     public enum Field: Sendable, Equatable {
         case cardNumber
@@ -40,17 +38,19 @@ extension MPCancelledFormContext.FieldError {
         case document
     }
 
-    /// The reason a field had an error.
-    public enum Reason: Sendable, Equatable {
+    /// The state of a field at cancellation time.
+    public enum State: Sendable, Equatable {
+        /// The field was filled with a valid value.
+        case valid
         /// The field was left empty.
         case empty
         /// The field was partially filled.
         case incomplete
         /// The field contained an invalid value.
         case invalid
-        /// The card brand is not accepted.
+        /// The card brand is not accepted by the seller.
         case cardBrandNotAccepted(brand: String)
-        /// The card type is not accepted.
+        /// The card type is not accepted by the seller.
         case cardTypeNotAccepted(cardType: MercadoPagoCheckout.CardType?)
     }
 }

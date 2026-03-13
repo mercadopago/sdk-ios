@@ -90,7 +90,7 @@ struct MainListView: View {
         case let .error(error):
             print(error)
         case let .userCancelled(context):
-            print("User cancelled with \(context.fieldErrors.count) field error(s)\n details: \(context.fieldErrors)")
+            print("User cancelled with \(context.fields.count) field error(s)\n details: \(context.fields)")
         }
     }
 
