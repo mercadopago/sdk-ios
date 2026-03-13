@@ -5,11 +5,11 @@
 //  Created by SDK on 03/03/26.
 //
 
-import XCTest
 @testable import MercadoPagoCheckout
+@testable import MPFoundation
+import XCTest
 
 final class CardFormRulesTests: XCTestCase {
-
     // MARK: - CardNumberRule
 
     func test_cardNumberRule_whenEmpty_shouldReturnEmptyError() {
@@ -375,5 +375,64 @@ final class CardFormRulesTests: XCTestCase {
             let roundtripped = MercadoPagoCheckout.CardType(paymentTypeId: cardType.paymentTypeId)
             XCTAssertEqual(roundtripped, cardType)
         }
+    }
+
+    // MARK: - SecurityCodeRule
+
+    func test_securityCodeRule_whenEmpty_shouldReturnEmptyError() {
+        // Arrange
+        let rule = SecurityCodeRule()
+
+        // Act
+        let result = rule.validate("")
+
+        // Assert
+        XCTAssertEqual(result, MPStrings.CardForm.CVV.errorEmpty)
+    }
+
+    func test_securityCodeRule_whenIncomplete_shouldReturnIncompleteError() {
+        // Arrange — default length is 3
+        let rule = SecurityCodeRule()
+
+        // Act
+        let result = rule.validate("12")
+
+        // Assert
+        XCTAssertEqual(result, MPStrings.CardForm.CVV.errorIncomplete)
+    }
+
+    func test_securityCodeRule_whenCompleteWithDefaultLength_shouldReturnNil() {
+        // Arrange
+        let rule = SecurityCodeRule()
+
+        // Act
+        let result = rule.validate("123")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_securityCodeRule_whenAmexLengthApplied_withFourDigits_shouldReturnNil() {
+        // Arrange
+        var rule = SecurityCodeRule()
+        rule.apply(.securityCodeLength(4))
+
+        // Act
+        let result = rule.validate("1234")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_securityCodeRule_whenAmexLengthApplied_withThreeDigits_shouldReturnIncompleteError() {
+        // Arrange
+        var rule = SecurityCodeRule()
+        rule.apply(.securityCodeLength(4))
+
+        // Act
+        let result = rule.validate("123")
+
+        // Assert
+        XCTAssertNotNil(result)
     }
 }

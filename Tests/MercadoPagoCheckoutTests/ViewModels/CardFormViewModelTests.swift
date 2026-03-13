@@ -9,6 +9,7 @@ import Combine
 @testable import CoreMethods
 @testable import MercadoPagoCheckout
 @testable import MPComponents
+@testable import MPFoundation
 import XCTest
 
 @MainActor
@@ -62,6 +63,22 @@ final class CardFormViewModelTests: XCTestCase {
             installment: nil
         )
 
+        static let visaWithCVV = CardBinData(
+            paymentMethod: makePaymentMethodWithCard(id: "visa", paymentTypeId: "credit_card", securityCodeLength: 3),
+            issuer: nil,
+            installment: nil
+        )
+        static let visaOptionalCVV = CardBinData(
+            paymentMethod: makePaymentMethodWithCard(id: "visa", paymentTypeId: "credit_card", securityCodeLength: 0),
+            issuer: nil,
+            installment: nil
+        )
+        static let amex = CardBinData(
+            paymentMethod: makePaymentMethodWithCard(id: "amex", paymentTypeId: "credit_card", securityCodeLength: 4, location: "front"),
+            issuer: nil,
+            installment: nil
+        )
+
         private static func makePaymentMethod(id: String, paymentTypeId: String) -> PaymentMethod {
             PaymentMethod(
                 id: id,
@@ -78,6 +95,42 @@ final class CardFormViewModelTests: XCTestCase {
                 financialInstitution: nil,
                 issuer: nil,
                 card: nil,
+                bins: nil,
+                marketplace: nil,
+                deferredCapture: nil,
+                agreements: nil,
+                payerCosts: nil,
+                labels: nil,
+                additionalInfoNeeded: nil
+            )
+        }
+
+        private static func makePaymentMethodWithCard(
+            id: String,
+            paymentTypeId: String,
+            securityCodeLength: Int,
+            location: String = "back"
+        ) -> PaymentMethod {
+            PaymentMethod(
+                id: id,
+                paymentTypeId: paymentTypeId,
+                status: "active",
+                processingMode: "aggregator",
+                accreditationTime: 0,
+                merchantAccountId: "",
+                siteId: "MLB",
+                thumbnail: nil,
+                minAccreditationDays: 0,
+                maxAccreditationDays: 0,
+                totalFinancialCost: 0,
+                financialInstitution: nil,
+                issuer: nil,
+                card: PaymentMethod.CardInfo(
+                    bin: 0,
+                    length: .init(min: 16, max: 16),
+                    validation: "standard",
+                    securityCode: .init(mode: "mandatory", location: location, length: securityCodeLength)
+                ),
                 bins: nil,
                 marketplace: nil,
                 deferredCapture: nil,
@@ -407,6 +460,142 @@ final class CardFormViewModelTests: XCTestCase {
         // Assert
         XCTAssertFalse(sut.viewModel.showSnackbar)
     }
+
+    // MARK: - isSecurityCodeMandatory
+
+    func test_isSecurityCodeMandatory_whenBinDataIsNil_shouldReturnTrue() {
+        // Arrange / Act
+        let sut = self.makeSUT()
+
+        // Assert
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
+    }
+
+    func test_isSecurityCodeMandatory_whenCardInfoIsNil_shouldReturnTrue() async {
+        // Arrange — visa stub has card: nil
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
+    }
+
+    func test_isSecurityCodeMandatory_whenSecurityCodeLengthIsPositive_shouldReturnTrue() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaWithCVV))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
+    }
+
+    func test_isSecurityCodeMandatory_whenSecurityCodeLengthIsZero_shouldReturnFalse() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaOptionalCVV))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        XCTAssertFalse(sut.viewModel.isSecurityCodeMandatory)
+    }
+
+    func test_isSecurityCodeMandatory_whenBinDataCleared_shouldReturnTrue() async {
+        // Arrange — start with optional CVV
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaOptionalCVV))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+        XCTAssertFalse(sut.viewModel.isSecurityCodeMandatory)
+
+        // Act — clearing below 8 digits resets binData to nil synchronously
+        sut.viewModel.onCardNumberChange("123")
+
+        // Assert
+        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
+    }
+
+    // MARK: - cvvTooltipText
+
+    func test_cvvTooltipText_whenBinDataIsNil_shouldReturnStaticDefault() {
+        // Arrange / Act
+        let sut = self.makeSUT()
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
+    }
+
+    func test_cvvTooltipText_whenCardInfoIsNil_shouldReturnStaticDefault() async {
+        // Arrange — visa stub has card: nil
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
+    }
+
+    func test_cvvTooltipText_whenLocationIsBack_shouldReturnStaticDefault() async throws {
+        // Arrange — visa with 3-digit CVV, location: "back"
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaWithCVV))
+        let securityCode = try XCTUnwrap(CardBinDataStub.visaWithCVV.paymentMethod.card?.securityCode)
+        let expectedText = MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, expectedText)
+    }
+
+    func test_cvvTooltipText_whenLocationIsFrontAndAmexLength_shouldReturnStaticAmex() async throws {
+        // Arrange — amex with 4-digit CVV, location: "front"
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.amex))
+        let securityCode = try XCTUnwrap(CardBinDataStub.amex.paymentMethod.card?.securityCode)
+        let expectedText = MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, expectedText)
+    }
+
+    func test_cvvTooltipText_whenBinDataCleared_shouldReturnStaticDefault() async throws {
+        // Arrange — start with amex card
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.amex))
+        let amexSecurityCode = try XCTUnwrap(CardBinDataStub.amex.paymentMethod.card?.securityCode)
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: amexSecurityCode.length, location: amexSecurityCode.location))
+
+        // Act — clearing resets binData to nil
+        sut.viewModel.onCardNumberChange("123")
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
+    }
+
+    // MARK: - retryBinFetch
 
     func test_retryBinFetch_whenNoPreviousError_shouldNotShowSnackbar() {
         // Arrange — no BIN fetch has occurred

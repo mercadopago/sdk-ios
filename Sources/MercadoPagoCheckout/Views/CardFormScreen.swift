@@ -75,7 +75,7 @@ struct CardFormScreen: View {
                             )
                         )
                         .isLoading(self.viewModel.isTokenizing)
-                        .disabled(!self.cardForm.isFormValid)
+                        .disabled(!self.cardForm.isFormValid(isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory))
                         .background(
                             GeometryReader { geo in
                                 Color.clear.onAppear { self.footerHeight = geo.size.height }
@@ -114,15 +114,17 @@ struct CardFormScreen: View {
                                 formatter: self.viewModel.expirationDateFormatter
                             )
 
-                            MPTextField(
-                                text: self.$cardForm.securityCode,
-                                label: MPStrings.CardForm.CVV.label,
-                                placeholder: self.viewModel.cvvPlaceholder,
-                                errorMessage: self.cardForm.$securityCode,
-                                keyboard: .numberPad,
-                                formatter: self.viewModel.securityCodeFormatter,
-                                popoverText: MPStrings.CardForm.CVV.tooltipStaticDefault
-                            )
+                            if self.viewModel.isSecurityCodeMandatory {
+                                MPTextField(
+                                    text: self.$cardForm.securityCode,
+                                    label: MPStrings.CardForm.CVV.label,
+                                    placeholder: self.viewModel.cvvPlaceholder,
+                                    errorMessage: self.cardForm.$securityCode,
+                                    keyboard: .numberPad,
+                                    formatter: self.viewModel.securityCodeFormatter,
+                                    popoverText: self.viewModel.cvvTooltipText
+                                )
+                            }
 
                             MPTextField(
                                 text: self.$cardForm.documentHolder,
@@ -235,6 +237,7 @@ struct CardFormScreen: View {
             self.cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
         } else {
             self.cardForm.setCardNumberLength()
+            self.cardForm.cleanSecurityCodeField()
         }
     }
 

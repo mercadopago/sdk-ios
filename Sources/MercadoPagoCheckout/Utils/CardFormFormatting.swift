@@ -34,7 +34,7 @@ package struct CardNumberFormatter: TextFormatting {
     /// Creates a card number formatter for the specified max digit count.
     /// The mask is automatically selected based on `maxLength`.
     /// - Parameter maxLength: Maximum number of digits accepted. Default is 16.
-    package init(maxLength: Int = 16) {
+    package init(maxLength: Int = 19) {
         self.maxLength = maxLength
         self.maskFormat = Self.maskByLength[maxLength] ?? Self.defaultMask
     }
@@ -139,8 +139,8 @@ package struct SecurityCodeFormatter: TextFormatting {
     private let maxLength: Int
 
     /// Creates a security code formatter.
-    /// - Parameter maxLength: Maximum digits allowed. Default is 4 (for Amex).
-    package init(maxLength: Int = 4) {
+    /// - Parameter maxLength: Maximum digits allowed. Default is 3.
+    package init(maxLength: Int = 3) {
         self.maxLength = maxLength
     }
 

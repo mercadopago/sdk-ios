@@ -50,6 +50,20 @@ final class CardFormViewModel: ObservableObject {
             : MPStrings.CardForm.CVV.placeholderDefault
     }
 
+    var cvvTooltipText: String {
+        guard let securityCode = binData?.paymentMethod.card?.securityCode else {
+            return MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back")
+        }
+        return MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
+    }
+
+    var isSecurityCodeMandatory: Bool {
+        guard let securityCode = binData?.paymentMethod.card?.securityCode else {
+            return true
+        }
+        return securityCode.length > 0
+    }
+
     private var isRetriableBinError: Bool {
         self.binFetchError == .networkError || self.binFetchError == .serviceError
     }
@@ -98,8 +112,12 @@ final class CardFormViewModel: ObservableObject {
 
     private func updateFormatters(for binData: CardBinData?) {
         if let cardInfo = binData?.paymentMethod.card {
-            self.cardNumberFormatter = CardNumberFormatter(maxLength: cardInfo.length.max)
-            self.securityCodeFormatter = SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
+            self.cardNumberFormatter = cardInfo.length.max > 0
+                ? CardNumberFormatter(maxLength: cardInfo.length.max)
+                : CardNumberFormatter()
+            self.securityCodeFormatter = cardInfo.securityCode.length > 0
+                ? SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
+                : SecurityCodeFormatter()
         } else {
             self.cardNumberFormatter = CardNumberFormatter()
             self.securityCodeFormatter = SecurityCodeFormatter()

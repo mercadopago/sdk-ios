@@ -10,51 +10,72 @@ import Foundation
 // MARK: - Card Form
 
 extension MPStrings {
-    
     /// All strings related to the card form screen
     package enum CardForm {
         /// Form screen title
-        package static var title: String { localized("form.title") }
-        
+        package static var title: String {
+            localized("form.title")
+        }
+
         /// Form submit button text
-        package static var button: String { localized("form.button") }
-        
+        package static var button: String {
+            localized("form.button")
+        }
+
         // MARK: - Card Number
-        
+
         /// Card number field strings
-        package enum CardNumber: Sendable {
+        package enum CardNumber {
             /// Field label
-            package static var label: String { localized("card_number.label") }
-            
+            package static var label: String {
+                localized("card_number.label")
+            }
+
             /// Field placeholder
-            package static var placeholder: String { localized("card_number.placeholder") }
-            
+            package static var placeholder: String {
+                localized("card_number.placeholder")
+            }
+
             /// Empty field error
-            package static var errorEmpty: String { localized("card_number.error.empty") }
-            
+            package static var errorEmpty: String {
+                localized("card_number.error.empty")
+            }
+
             /// Incomplete number error
-            package static var errorIncomplete: String { localized("card_number.error.incomplete") }
-            
+            package static var errorIncomplete: String {
+                localized("card_number.error.incomplete")
+            }
+
             /// Invalid number error
-            package static var errorInvalid: String { localized("card_number.error.invalid") }
-            
+            package static var errorInvalid: String {
+                localized("card_number.error.invalid")
+            }
+
             /// Credit limit exceeded error
-            package static var errorCreditLimit: String { localized("card_number.error.credit_limit") }
-            
+            package static var errorCreditLimit: String {
+                localized("card_number.error.credit_limit")
+            }
+
             /// Debit balance insufficient error
-            package static var errorDebitBalance: String { localized("card_number.error.debit_balance") }
-            
+            package static var errorDebitBalance: String {
+                localized("card_number.error.debit_balance")
+            }
+
             /// Seller exclusion error (card brand not accepted)
             /// - Parameter brand: The card brand name
             package static func errorSellerExclusion(brand: String) -> String {
                 localized("card_number.error.seller_exclusion", brand)
             }
-            
+
             /// Credit cards only error
-            package static var errorCreditOnly: String { localized("card_number.error.credit_only") }
-            
+            package static var errorCreditOnly: String {
+                localized("card_number.error.credit_only")
+            }
+
             /// Debit cards only error
-            package static var errorDebitOnly: String { localized("card_number.error.debit_only") }
+            package static var errorDebitOnly: String {
+                localized("card_number.error.debit_only")
+            }
 
             /// Payment type not accepted error
             /// - Parameter cardType: The detected card type display name (e.g. "Débito", "Crédito")
@@ -62,130 +83,194 @@ extension MPStrings {
                 localized("card_number.error.type_not_allowed", cardType)
             }
         }
-        
+
         // MARK: - Card Holder
-        
+
         /// Card holder name field strings
         package enum CardHolder {
             /// Field label
-            package static var label: String { localized("card_holder.label") }
-            
+            package static var label: String {
+                localized("card_holder.label")
+            }
+
             /// Field placeholder
-            package static var placeholder: String { localized("card_holder.placeholder") }
-            
+            package static var placeholder: String {
+                localized("card_holder.placeholder")
+            }
+
             /// Empty field error
-            package static var errorEmpty: String { localized("card_holder.error.empty") }
-            
+            package static var errorEmpty: String {
+                localized("card_holder.error.empty")
+            }
+
             /// Incomplete name error
-            package static var errorIncomplete: String { localized("card_holder.error.incomplete") }
-            
+            package static var errorIncomplete: String {
+                localized("card_holder.error.incomplete")
+            }
+
             /// Invalid format error
-            package static var errorInvalidFormat: String { localized("card_holder.error.invalid_format") }
-            
+            package static var errorInvalidFormat: String {
+                localized("card_holder.error.invalid_format")
+            }
+
             /// Helper Text
-            package static var helperText: String { localized("card_holder.helper.text") }
+            package static var helperText: String {
+                localized("card_holder.helper.text")
+            }
         }
-        
+
         // MARK: - Expiration Date
-        
+
         /// Expiration date field strings
         package enum Expiration {
             /// Field label
-            package static var label: String { localized("expiration.label") }
-            
+            package static var label: String {
+                localized("expiration.label")
+            }
+
             /// Field placeholder
-            package static var placeholder: String { localized("expiration.placeholder") }
-            
+            package static var placeholder: String {
+                localized("expiration.placeholder")
+            }
+
             /// Empty field error
-            package static var errorEmpty: String { localized("expiration.error.empty") }
-            
+            package static var errorEmpty: String {
+                localized("expiration.error.empty")
+            }
+
             /// Incomplete date error
-            package static var errorIncomplete: String { localized("expiration.error.incomplete") }
-            
+            package static var errorIncomplete: String {
+                localized("expiration.error.incomplete")
+            }
+
             /// Invalid date error
-            package static var errorInvalid: String { localized("expiration.error.invalid") }
+            package static var errorInvalid: String {
+                localized("expiration.error.invalid")
+            }
         }
-        
+
         // MARK: - Security Code (CVV)
-        
+
         /// Security code field strings
         package enum CVV {
             /// Field label
-            package static var label: String { localized("cvv.label") }
-            
+            package static var label: String {
+                localized("cvv.label")
+            }
+
             /// Default placeholder (3 digits)
-            package static var placeholderDefault: String { localized("cvv.placeholder.default") }
-            
+            package static var placeholderDefault: String {
+                localized("cvv.placeholder.default")
+            }
+
             /// Amex placeholder (4 digits)
-            package static var placeholderAmex: String { localized("cvv.placeholder.amex") }
-            
+            package static var placeholderAmex: String {
+                localized("cvv.placeholder.amex")
+            }
+
             /// Empty field error
-            package static var errorEmpty: String { localized("cvv.error.empty") }
-            
+            package static var errorEmpty: String {
+                localized("cvv.error.empty")
+            }
+
             /// Incomplete code error
-            package static var errorIncomplete: String { localized("cvv.error.incomplete") }
-            
+            package static var errorIncomplete: String {
+                localized("cvv.error.incomplete")
+            }
+
             /// Optional field indicator
-            package static var optional: String { localized("cvv.optional") }
-            
-            /// Tooltip for static CVV (default cards)
-            package static var tooltipStaticDefault: String { localized("cvv.tooltip.static.default") }
-            
-            /// Tooltip for static CVV (Amex)
-            package static var tooltipStaticAmex: String { localized("cvv.tooltip.static.amex") }
-            
+            package static var optional: String {
+                localized("cvv.optional")
+            }
+
+            /// Tooltip for static CVV, parameterized by security code length and card location.
+            /// - Parameters:
+            ///   - length: Number of digits in the security code.
+            ///   - location: Location on the card (`"front"` or `"back"`).
+            package static func tooltipStatic(length: Int, location: String) -> String {
+                let locationKey = location == "front" ? "cvv.tooltip.location.front" : "cvv.tooltip.location.back"
+                return localized("cvv.tooltip.static", length, localized(locationKey))
+            }
+
             /// Tooltip for dynamic CVV (default cards)
-            package static var tooltipDynamicDefault: String { localized("cvv.tooltip.dynamic.default") }
-            
+            package static var tooltipDynamicDefault: String {
+                localized("cvv.tooltip.dynamic.default")
+            }
+
             /// Tooltip for dynamic CVV (Amex)
-            package static var tooltipDynamicAmex: String { localized("cvv.tooltip.dynamic.amex") }
-            
+            package static var tooltipDynamicAmex: String {
+                localized("cvv.tooltip.dynamic.amex")
+            }
+
             /// Tooltip for unknown CVV type (default cards)
-            package static var tooltipUnknownDefault: String { localized("cvv.tooltip.unknown.default") }
-            
+            package static var tooltipUnknownDefault: String {
+                localized("cvv.tooltip.unknown.default")
+            }
+
             /// Tooltip for unknown CVV type (Amex)
-            package static var tooltipUnknownAmex: String { localized("cvv.tooltip.unknown.amex") }
+            package static var tooltipUnknownAmex: String {
+                localized("cvv.tooltip.unknown.amex")
+            }
         }
-        
+
         // MARK: - Issuer
-        
+
         /// Issuer selection strings (multiple issuers)
         package enum Issuer {
             /// Field label
-            package static var label: String { localized("issuer.label") }
-            
+            package static var label: String {
+                localized("issuer.label")
+            }
+
             /// Field placeholder
-            package static var placeholder: String { localized("issuer.placeholder") }
-            
+            package static var placeholder: String {
+                localized("issuer.placeholder")
+            }
+
             /// Empty selection error
-            package static var errorEmpty: String { localized("issuer.error.empty") }
+            package static var errorEmpty: String {
+                localized("issuer.error.empty")
+            }
         }
-        
+
         // MARK: - Document
-        
+
         /// Document field strings
         package enum Document {
             /// Field label
-            package static var label: String { localized("document.label") }
-            
+            package static var label: String {
+                localized("document.label")
+            }
+
             /// Document type (e.g., CPF, DNI)
-            package static var type: String { localized("document.type") }
-            
+            package static var type: String {
+                localized("document.type")
+            }
+
             /// Field placeholder
-            package static var placeholder: String { localized("document.placeholder") }
-            
+            package static var placeholder: String {
+                localized("document.placeholder")
+            }
+
             /// Empty field error
-            package static var errorEmpty: String { localized("document.error.empty") }
-            
+            package static var errorEmpty: String {
+                localized("document.error.empty")
+            }
+
             /// Incomplete document error
-            package static var errorIncomplete: String { localized("document.error.incomplete") }
-            
+            package static var errorIncomplete: String {
+                localized("document.error.incomplete")
+            }
+
             /// Invalid document error
-            package static var errorInvalid: String { localized("document.error.invalid") }
-            
+            package static var errorInvalid: String {
+                localized("document.error.invalid")
+            }
+
             /// Funding restriction error
-            package static var errorFunding: String { localized("document.error.funding") }
+            package static var errorFunding: String {
+                localized("document.error.funding")
+            }
         }
     }
 }
-

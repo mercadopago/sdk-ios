@@ -49,6 +49,10 @@ struct CardFormData {
         _cardNumber.update(.cardNumberRange(min: minLength, max: maxLength))
     }
 
+    mutating func cleanSecurityCodeField() {
+        self.securityCode = ""
+    }
+
     mutating func setCardNumberExternalError(_ error: BinFetchError?) {
         _cardNumber.update(.cardNumberExternalError(error))
     }
@@ -57,11 +61,11 @@ struct CardFormData {
         _cardNumber.liveErrorMessages
     }
 
-    var isFormValid: Bool {
+    func isFormValid(isSecurityCodeMandatory: Bool) -> Bool {
         return _cardNumber.errorMessages.isEmpty
             && _cardHolder.errorMessages.isEmpty
             && _expirationDate.errorMessages.isEmpty
-            && _securityCode.errorMessages.isEmpty
+            && (isSecurityCodeMandatory ? _securityCode.errorMessages.isEmpty : true)
             && _documentHolder.errorMessages.isEmpty
     }
 }
