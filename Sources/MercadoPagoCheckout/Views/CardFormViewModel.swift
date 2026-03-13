@@ -209,12 +209,17 @@ final class CardFormViewModel: ObservableObject {
             )
         }
 
+        guard let binData else {
+            // TODO: - Map correct error
+            throw NSError()
+        }
+
         return .init(
             transactionAmount: amount,
             token: cardToken.token,
             installment: 1,
-            paymentMethodId: self.binData?.paymentMethod.id,
-            paymentTypeId: self.binData?.paymentMethod.paymentTypeId,
+            paymentMethodId: binData.paymentMethod.id,
+            paymentTypeId: binData.paymentMethod.paymentTypeId,
             issuerId: self.binData?.issuer?.id,
             payer: payer
         )
