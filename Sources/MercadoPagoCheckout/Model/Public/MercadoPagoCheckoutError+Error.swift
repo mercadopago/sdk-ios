@@ -1,5 +1,5 @@
 //
-//  MercadoPagoCheckoutError+Erros.swift
+//  MercadoPagoCheckoutError+Error.swift
 //  MercadoPagoSDK
 //
 //  Created by Danielle Nozaki Ogawa on 12/03/26.
@@ -29,6 +29,6 @@ extension MercadoPagoCheckoutError {
 
 extension MercadoPagoCheckoutError: Equatable {
     public static func == (lhs: MercadoPagoCheckoutError, rhs: MercadoPagoCheckoutError) -> Bool {
-        lhs.code == rhs.code
+        lhs.code == rhs.code && lhs.locationDescription == rhs.locationDescription
     }
 }

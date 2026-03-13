@@ -33,7 +33,7 @@ package struct CardNumberFormatter: TextFormatting {
 
     /// Creates a card number formatter for the specified max digit count.
     /// The mask is automatically selected based on `maxLength`.
-    /// - Parameter maxLength: Maximum number of digits accepted. Default is 16.
+    /// - Parameter maxLength: Maximum number of digits accepted. Default is 19.
     package init(maxLength: Int = 19) {
         self.maxLength = maxLength
         self.maskFormat = Self.maskByLength[maxLength] ?? Self.defaultMask

@@ -264,6 +264,7 @@ final class CardFormViewModel: ObservableObject {
             let paymentData = try self.createPaymentData(transactionAmount, cardToken: cardToken, cardFormData: cardForm)
             onSuccess(paymentData)
         } catch {
+            guard !Task.isCancelled else { return }
             onFailure(error)
         }
     }
