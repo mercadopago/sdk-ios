@@ -7,7 +7,7 @@
 
 // MARK: - Form Title & Buttons
 "form.title" = "Preencha os dados do cartão";
-"form.button" = "Pagar";
+"form.button" = "Salvar cartão";
 
 // MARK: - Card Number
 "card_number.label" = "Número do cartão";

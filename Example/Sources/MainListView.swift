@@ -5,9 +5,9 @@
 //  Created by Guilherme Prata Costa on 16/01/25.
 //
 
+import MercadoPagoCheckout
 import SwiftUI
 import UIKit
-import MercadoPagoCheckout
 
 struct MainListView: View {
     @State private var showingCardForm = false
@@ -32,11 +32,11 @@ struct MainListView: View {
                     Button("show(onResult:) - SwiftUI") {
                         self.showBuilderShow = true
                     }
-                    
+
                     Button("present(from:onResult:)") {
-                        presentCheckout()
+                        self.presentCheckout()
                     }
-                    
+
                     Button("push(to:onResult:)") {
                         self.showBuilderPresent = true
                     }
@@ -55,12 +55,12 @@ struct MainListView: View {
             CardFormViewControllerRepresentable()
         }
         .fullScreenCover(isPresented: self.$showBuilderShow) {
-            buildCheckout().show(onResult: handleResult)
+            self.buildCheckout().show(onResult: self.handleResult)
         }
         .fullScreenCover(isPresented: self.$showBuilderPresent) {
-            BuilderPushExample(checkout: buildCheckout(), onResult: { result in
-                handleResult(result)
-                showBuilderPresent = false
+            BuilderPushExample(checkout: self.buildCheckout(), onResult: { result in
+                self.handleResult(result)
+                self.showBuilderPresent = false
             })
         }
         .sheet(isPresented: self.$showingCardFormSwiftUI) {
@@ -70,13 +70,13 @@ struct MainListView: View {
             DebugView()
         }
     }
-    
+
     private func buildCheckout() -> MercadoPagoCheckout {
         let builder = MercadoPagoCheckout.Builder(
             checkoutType: .cardForm(cardFormConfiguration: .init()),
             checkoutAppearance: .init()
         )
-        
+
         builder.setPaymentMethod([
             .card(allowedTypes: [.credit, .debit])
         ])
@@ -85,8 +85,8 @@ struct MainListView: View {
 
     private func handleResult(_ result: MercadoPagoCheckoutResult) {
         switch result {
-        case .success:
-            print("Success")
+        case let .success(paymentData):
+            print(paymentData)
         case .error:
             print("Error")
         case .userCancelled:
@@ -101,9 +101,8 @@ struct MainListView: View {
         while let presented = topVC.presentedViewController {
             topVC = presented
         }
-        buildCheckout().present(from: topVC, onResult: handleResult)
+        self.buildCheckout().present(from: topVC, onResult: self.handleResult)
     }
-
 }
 
 // MARK: - Builder push(to:) example
@@ -112,16 +111,16 @@ struct BuilderPushExample: UIViewControllerRepresentable {
     let checkout: MercadoPagoCheckout
     let onResult: (MercadoPagoCheckoutResult) -> Void
 
-    func makeUIViewController(context: Context) -> UINavigationController {
+    func makeUIViewController(context _: Context) -> UINavigationController {
         let nav = UINavigationController()
         nav.setNavigationBarHidden(true, animated: false)
         DispatchQueue.main.async {
-            checkout.push(to: nav, onResult: onResult)
+            self.checkout.push(to: nav, onResult: self.onResult)
         }
         return nav
     }
 
-    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
+    func updateUIViewController(_: UINavigationController, context _: Context) {}
 }
 
 struct CardFormViewControllerRepresentable: UIViewControllerRepresentable {
