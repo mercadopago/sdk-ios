@@ -237,6 +237,7 @@ struct CardFormScreen: View {
             self.cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
         } else {
             self.cardForm.setCardNumberLength()
+            self.cardForm.cleanSecurityCodeField()
         }
     }
 

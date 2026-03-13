@@ -49,6 +49,10 @@ struct CardFormData {
         _cardNumber.update(.cardNumberRange(min: minLength, max: maxLength))
     }
 
+    mutating func cleanSecurityCodeField() {
+        self.securityCode = ""
+    }
+
     mutating func setCardNumberExternalError(_ error: BinFetchError?) {
         _cardNumber.update(.cardNumberExternalError(error))
     }
