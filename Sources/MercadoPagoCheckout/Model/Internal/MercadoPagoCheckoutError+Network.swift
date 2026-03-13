@@ -20,20 +20,20 @@ extension MercadoPagoCheckoutError {
                  .callIsActive,
                  .networkConnectionLost:
                 self.init(
-                    code: .noConnection,
+                    code: .networkConnectionFailed,
                     _localizedDescription: "No internet connection.",
                     location: location
                 )
             case .timedOut:
                 self.init(
-                    code: .timeout,
+                    code: .networkTimeout,
                     _localizedDescription: "The request timed out.",
                     location: location
                 )
             default:
                 self.init(
-                    code: .noConnection,
-                    _localizedDescription: "No internet connection.",
+                    code: .unknown,
+                    _localizedDescription: underlying.localizedDescription,
                     location: location
                 )
             }

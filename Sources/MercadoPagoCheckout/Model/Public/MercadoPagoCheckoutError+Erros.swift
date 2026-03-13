@@ -6,12 +6,12 @@
 //
 
 extension MercadoPagoCheckoutError {
-    public static var noConnection: Code {
-        .noConnection
+    public static var networkConnectionFailed: Code {
+        .networkConnectionFailed
     }
 
-    public static var timeout: Code {
-        .timeout
+    public static var networkTimeout: Code {
+        .networkTimeout
     }
 
     public static var service: Code {

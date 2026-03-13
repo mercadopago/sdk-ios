@@ -41,35 +41,18 @@ struct CardFormBrick: View {
     }
 
     var body: some View {
-        if let error = configurationError {
-            Color.clear.onAppear {
-                self.onResult(.error(error))
-                self.presentationMode.wrappedValue.dismiss()
-            }
-        } else {
-            ThemeProvider(
-                light: self.themeLight,
-                dark: self.themeDark
-            ) {
-                NavigationView {
-                    ZStack {
-                        self.cardFormScreen()
-                        self.navigationLinks()
-                    }
+        ThemeProvider(
+            light: self.themeLight,
+            dark: self.themeDark
+        ) {
+            NavigationView {
+                ZStack {
+                    self.cardFormScreen()
+                    self.navigationLinks()
                 }
-                .navigationViewStyle(StackNavigationViewStyle())
             }
+            .navigationViewStyle(StackNavigationViewStyle())
         }
-    }
-
-    private var configurationError: MercadoPagoCheckoutError? {
-        guard !self.configuration.paymentMethod.acceptedPaymentTypeIds.isEmpty else {
-            return MercadoPagoCheckoutError(
-                code: .invalidConfiguration,
-                _localizedDescription: "No payment types configured. Provide at least one card type in CheckoutConfiguration.paymentMethod.", location: .cardForm
-            )
-        }
-        return nil
     }
 
     private func cardFormScreen() -> some View {
