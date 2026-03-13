@@ -22,7 +22,6 @@ public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugString
     }
 
     public enum LocationDescription: String, CaseIterable, Equatable {
-        case cardForm
         case tokenization
         case identification
         case paymentMethods

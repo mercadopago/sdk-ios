@@ -66,10 +66,9 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private var isRetriableBinError: Bool {
-        guard let error = binNetworkError else { return false }
-        return error.code == .networkConnectionFailed
-            || error.code == .networkTimeout
-            || error.code == .serviceError
+        return self.binNetworkError?.code == .networkConnectionFailed
+            || self.binNetworkError?.code == .networkTimeout
+            || self.binNetworkError?.code == .serviceError
     }
 
     // MARK: - Constants
@@ -229,7 +228,7 @@ final class CardFormViewModel: ObservableObject {
             guard let selectTypeDocument else { return nil }
             return .init(
                 type: selectTypeDocument.type,
-                number: cardFormData.documentHolder
+                number: cardFormData.documentHolder.filter(\.isNumber)
             )
         }
 
