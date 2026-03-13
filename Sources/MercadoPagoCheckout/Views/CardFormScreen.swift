@@ -10,7 +10,9 @@ import SwiftUI
 
 struct CardFormScreen: View {
     private let onBack: () -> Void
-    private let onContinue: () -> Void
+    private let onSuccess: (MPPaymentData) -> Void
+    private let onFailure: (MercadoPagoCheckoutError) -> Void
+    private let transactionAmount: Double?
 
     @ObservedObject private var viewModel: CardFormViewModel
 
@@ -19,22 +21,23 @@ struct CardFormScreen: View {
     @State private var cardForm = CardFormData()
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
-    @Binding private var paymentData: MPPaymentData
 
     // MARK: Enviroments
 
     @Environment(\.checkoutTheme) var theme: MPTheme
 
     init(
-        paymentData: Binding<MPPaymentData>,
+        transactionAmount: Double?,
         viewModel: CardFormViewModel,
         onBack: @escaping () -> Void = {},
-        onContinue: @escaping () -> Void = {}
+        onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
+        onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.onBack = onBack
-        self.onContinue = onContinue
-        self._paymentData = paymentData
+        self.onSuccess = onSuccess
+        self.onFailure = onFailure
+        self.transactionAmount = transactionAmount
     }
 
     var body: some View {
@@ -50,11 +53,28 @@ struct CardFormScreen: View {
                     onBack: { self.onBack() },
                     footer: {
                         MPFooter(
-                            label: MPStrings.Common.total,
-                            amount: MPStrings.formatPrice(self.paymentData.transactionAmount),
-                            buttonLabel: MPStrings.CardForm.button,
-                            action: { self.onContinue() }
+                            title: MPStrings.Common.total,
+                            amount: self.viewModel.footerAmount(),
+                            buttonData: .init(
+                                text: MPStrings.CardForm.button,
+                                onClick: {
+                                    Task {
+                                        do {
+                                            let paymentData = try await self.viewModel.submitPaymentData(
+                                                self.transactionAmount,
+                                                cardFormData: self.cardForm
+                                            )
+                                            self.onSuccess(paymentData)
+                                        } catch let error as MercadoPagoCheckoutError {
+                                            self.onFailure(error)
+                                        } catch {
+                                            self.onFailure(.serviceError(error.localizedDescription))
+                                        }
+                                    }
+                                }
+                            )
                         )
+                        .isLoading(self.viewModel.isTokenizing)
                         .disabled(!self.cardForm.isFormValid(isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory))
                         .background(
                             GeometryReader { geo in
@@ -233,7 +253,7 @@ struct CardForm_Previews: PreviewProvider {
             dark: MPLightTheme()
         ) {
             CardFormScreen(
-                paymentData: .constant(MPPaymentData(transactionAmount: 100)),
+                transactionAmount: 100,
                 viewModel: .init(
                     configuration: .init(
                         type: .cardForm(cardFormConfiguration: .init()),

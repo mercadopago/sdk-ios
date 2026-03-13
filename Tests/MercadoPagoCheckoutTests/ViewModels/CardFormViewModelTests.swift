@@ -8,6 +8,7 @@
 import Combine
 @testable import CoreMethods
 @testable import MercadoPagoCheckout
+@testable import MPComponents
 @testable import MPFoundation
 import XCTest
 
@@ -151,6 +152,61 @@ final class CardFormViewModelTests: XCTestCase {
         )
         let viewModel = CardFormViewModel(configuration: configuration, service: service)
         return (viewModel, service)
+    }
+
+    private func makeSUTWithAmount(_ amount: Double) -> SUT {
+        let service = MockCheckoutService()
+        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
+            type: .cardForm(cardFormConfiguration: .init(amount: amount)),
+            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
+        )
+        let viewModel = CardFormViewModel(configuration: configuration, service: service)
+        return (viewModel, service)
+    }
+
+    private enum CardTokenStub {
+        static let valid = CardToken(
+            token: "test_token_12345",
+            publicKey: nil,
+            bin: nil,
+            expirationMonth: nil,
+            expirationYear: nil,
+            lastFourDigits: nil,
+            cardHolder: nil,
+            status: nil,
+            dateCreated: nil,
+            dateLastUpdated: nil,
+            dateDue: nil,
+            luhnValidation: nil,
+            liveMode: nil,
+            requireEsc: nil,
+            cardNumberLength: nil,
+            securityCodeLength: nil,
+            truncCardNumber: nil
+        )
+    }
+
+    private enum IssuerStub {
+        static let bradesco = Issuer(
+            id: "24",
+            name: "Bradesco",
+            merchantAccountId: "",
+            processingMode: "aggregator",
+            status: "active",
+            thumbnail: ""
+        )
+    }
+
+    private enum CardFormDataStub {
+        static var validForm: CardFormData {
+            var form = CardFormData()
+            form.cardNumber = "4111111111111111"
+            form.cardHolder = "John Doe"
+            form.expirationDate = "12/27"
+            form.securityCode = "123"
+            form.documentHolder = "12345678900"
+            return form
+        }
     }
 
     private func waitForChange<T>(
@@ -631,6 +687,234 @@ final class CardFormViewModelTests: XCTestCase {
         // Assert
         XCTAssertFalse(sut.viewModel.showSnackbar)
         XCTAssertNotNil(sut.viewModel.binData)
+    }
+
+    // MARK: - footerAmount
+
+    func test_footerAmount_whenConfigurationHasNoAmount_shouldReturnNil() {
+        // Arrange / Act
+        let sut = self.makeSUT()
+
+        // Assert
+        XCTAssertNil(sut.viewModel.footerAmount())
+    }
+
+    func test_footerAmount_whenConfigurationHasAmount_shouldReturnMPAmountData() {
+        // Arrange / Act
+        let sut = self.makeSUTWithAmount(500.0)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.footerAmount(), MPAmountData(from: 500.0))
+    }
+
+    // MARK: - submitPaymentData
+
+    func test_submitPaymentData_whenServiceSucceeds_shouldReturnPaymentDataWithToken() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+
+        // Act
+        let result = try await sut.viewModel.submitPaymentData(nil, cardFormData: CardFormDataStub.validForm)
+
+        // Assert
+        XCTAssertEqual(result.token, CardTokenStub.valid.token)
+    }
+
+    func test_submitPaymentData_whenServiceFails_shouldThrowError() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.failure(MockCheckoutService.MockError.resultNotSet))
+
+        // Act & Assert
+        do {
+            _ = try await sut.viewModel.submitPaymentData(nil, cardFormData: CardFormDataStub.validForm)
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(error is MockCheckoutService.MockError)
+        }
+    }
+
+    func test_submitPaymentData_shouldSetIsTokenizingTrue() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+
+        // Act
+        _ = try await sut.viewModel.submitPaymentData(nil, cardFormData: CardFormDataStub.validForm)
+
+        // Assert
+        XCTAssertTrue(sut.viewModel.isTokenizing)
+    }
+
+    func test_submitPaymentData_shouldStripSpacesFromCardNumber() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var cardForm = CardFormDataStub.validForm
+        cardForm.cardNumber = "4111 1111 1111 1111"
+
+        // Act
+        _ = try await sut.viewModel.submitPaymentData(nil, cardFormData: cardForm)
+
+        // Assert
+        let captured = await sut.service.capturedCardParams
+        XCTAssertEqual(captured?.cardNumber, "4111111111111111")
+    }
+
+    func test_submitPaymentData_shouldPrefixYearWithCurrentCentury() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var cardForm = CardFormDataStub.validForm
+        cardForm.expirationDate = "12/27"
+
+        // Act
+        _ = try await sut.viewModel.submitPaymentData(nil, cardFormData: cardForm)
+
+        // Assert
+        let captured = await sut.service.capturedCardParams
+        let expectedCentury = Calendar.current.component(.year, from: Date()) / 100
+        XCTAssertEqual(captured?.expirationYear, "\(expectedCentury)27")
+        XCTAssertEqual(captured?.expirationMonth, "12")
+    }
+
+    func test_submitPaymentData_shouldStripMaskFromDocument() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var cardForm = CardFormDataStub.validForm
+        cardForm.documentHolder = "123.456.789-09"
+
+        // Act
+        _ = try await sut.viewModel.submitPaymentData(nil, cardFormData: cardForm)
+
+        // Assert
+        let captured = await sut.service.capturedCardParams
+        XCTAssertEqual(captured?.documentNumber, "12345678909")
+    }
+
+    func test_submitPaymentData_whenCalledWithDocumentTypeSelected_shouldPassDocumentType() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+
+        // Act
+        _ = try await sut.viewModel.submitPaymentData(nil, cardFormData: CardFormDataStub.validForm)
+
+        // Assert
+        let captured = await sut.service.capturedCardParams
+        XCTAssertEqual(captured?.documentType, IdentificationTypeStub.cpf.id)
+    }
+
+    func test_submitPaymentData_whenDocumentTypeIsNil_shouldReturnOnlyToken() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        // selectTypeDocument starts nil (no identificationTypes loaded)
+
+        // Act
+        let result = try await sut.viewModel.submitPaymentData(nil, cardFormData: CardFormDataStub.validForm)
+
+        // Assert
+        XCTAssertEqual(result.token, CardTokenStub.valid.token)
+        XCTAssertNil(result.transactionAmount)
+        XCTAssertNil(result.paymentMethodId)
+        XCTAssertNil(result.paymentTypeId)
+        XCTAssertNil(result.issuerId)
+        XCTAssertNil(result.payer)
+    }
+
+    func test_submitPaymentData_whenDocumentTypeIsSelected_shouldIncludePayer() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var cardForm = CardFormDataStub.validForm
+        cardForm.documentHolder = "12345678900"
+
+        // Act
+        let result = try await sut.viewModel.submitPaymentData(200.0, cardFormData: cardForm)
+
+        // Assert
+        XCTAssertEqual(result.payer?.type, IdentificationTypeStub.cpf.type)
+        XCTAssertEqual(result.payer?.number, "12345678900")
+    }
+
+    func test_submitPaymentData_whenDocumentTypeIsSelected_shouldSetTransactionAmountAndInstallment() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+
+        // Act
+        let result = try await sut.viewModel.submitPaymentData(350.0, cardFormData: CardFormDataStub.validForm)
+
+        // Assert
+        XCTAssertEqual(result.transactionAmount, 350.0)
+        XCTAssertEqual(result.installment, 1)
+        XCTAssertEqual(result.token, CardTokenStub.valid.token)
+    }
+
+    func test_submitPaymentData_whenBinDataIsAvailable_shouldIncludePaymentMethodAndTypeIds() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+
+        // Act
+        let result = try await sut.viewModel.submitPaymentData(100.0, cardFormData: CardFormDataStub.validForm)
+
+        // Assert
+        XCTAssertEqual(result.paymentMethodId, "visa")
+        XCTAssertEqual(result.paymentTypeId, "credit_card")
+    }
+
+    func test_submitPaymentData_whenBinDataIsNil_shouldHaveNilPaymentMethodIds() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        // No bin fetch triggered — binData remains nil
+
+        // Act
+        let result = try await sut.viewModel.submitPaymentData(100.0, cardFormData: CardFormDataStub.validForm)
+
+        // Assert
+        XCTAssertNil(result.paymentMethodId)
+        XCTAssertNil(result.paymentTypeId)
+        XCTAssertNil(result.issuerId)
+    }
+
+    func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
+        await sut.viewModel.loadIdentificationTypes()
+        let binDataWithIssuer = CardBinData(
+            paymentMethod: CardBinDataStub.visa.paymentMethod,
+            issuer: IssuerStub.bradesco,
+            installment: nil
+        )
+        await sut.service.setFetchBinDataResult(.success(binDataWithIssuer))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+
+        // Act
+        let result = try await sut.viewModel.submitPaymentData(100.0, cardFormData: CardFormDataStub.validForm)
+
+        // Assert
+        XCTAssertEqual(result.issuerId, IssuerStub.bradesco.id)
     }
 
     func test_retryBinFetch_whenCalledTwice_withNetworkError_shouldShowSnackbarBothTimes() async {
