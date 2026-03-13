@@ -40,7 +40,8 @@ final class CardFormViewModel: ObservableObject {
         didSet { self.updateFormatters(for: self.binData) }
     }
 
-    @Published private(set) var binFetchError: BinFetchError?
+    @Published private(set) var cardAcceptanceError: CardAcceptanceError?
+    @Published private(set) var binNetworkError: MercadoPagoCheckoutError?
     @Published private(set) var showSnackbar = false
     @Published private(set) var isTokenizing = false
 
@@ -65,7 +66,10 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private var isRetriableBinError: Bool {
-        self.binFetchError == .networkError || self.binFetchError == .serviceError
+        guard let error = binNetworkError else { return false }
+        return error.code == .networkConnectionFailed
+            || error.code == .networkTimeout
+            || error.code == .serviceError
     }
 
     // MARK: - Constants
@@ -164,7 +168,8 @@ final class CardFormViewModel: ObservableObject {
 
         self.paymentMethodTask?.cancel()
         self.binData = nil
-        self.binFetchError = nil
+        self.cardAcceptanceError = nil
+        self.binNetworkError = nil
 
         guard let bin else { return }
 
@@ -175,7 +180,8 @@ final class CardFormViewModel: ObservableObject {
 
     func retryBinFetch() {
         guard self.binData == nil, let lastFetchedBIN, isRetriableBinError else { return }
-        self.binFetchError = nil
+        self.cardAcceptanceError = nil
+        self.binNetworkError = nil
         self.showSnackbar = false
         self.paymentMethodTask?.cancel()
         self.paymentMethodTask = Task { [weak self] in
@@ -198,10 +204,14 @@ final class CardFormViewModel: ObservableObject {
             )
             guard !Task.isCancelled else { return }
             self.binData = data
-        } catch let error as BinFetchError {
+        } catch let error as CardAcceptanceError {
             guard !Task.isCancelled else { return }
-            binData = nil
-            self.binFetchError = error
+            self.binData = nil
+            self.cardAcceptanceError = error
+        } catch let error as MercadoPagoCheckoutError {
+            guard !Task.isCancelled else { return }
+            self.binData = nil
+            self.binNetworkError = error
         } catch {
             guard !Task.isCancelled else { return }
             self.binData = nil

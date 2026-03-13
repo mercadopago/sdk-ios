@@ -8,9 +8,9 @@ import CoreMethods
 
 protocol CheckoutServiceProtocol: Sendable {
     func identificationTypes() async throws(MercadoPagoCheckoutError) -> [IdentificationType]
-    func paymentMethod(bin: String) async throws -> [PaymentMethod]
-    func issuers(bin: String, paymentMethodID: String) async throws -> [Issuer]
-    func installments(amount: Double, bin: String) async throws -> [Installment]
+    func paymentMethod(bin: String) async throws(MercadoPagoCheckoutError) -> [PaymentMethod]
+    func issuers(bin: String, paymentMethodID: String) async throws(MercadoPagoCheckoutError) -> [Issuer]
+    func installments(amount: Double, bin: String) async throws(MercadoPagoCheckoutError) -> [Installment]
     func createCardToken(cardParams: CardParams) async throws(MercadoPagoCheckoutError) -> CardToken
     func fetchBinData(
         bin: String,

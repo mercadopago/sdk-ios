@@ -165,7 +165,7 @@ struct CardFormScreen: View {
         .mpOnChange(of: self.viewModel.selectTypeDocument) { identificationType in
             self.updateIdentificationTypes(identificationType)
         }
-        .mpOnChange(of: self.viewModel.binFetchError) { error in
+        .mpOnChange(of: self.viewModel.cardAcceptanceError) { error in
             self.cardForm.setCardNumberExternalError(error)
         }
         .mpOnChange(of: self.viewModel.showSnackbar) { show in

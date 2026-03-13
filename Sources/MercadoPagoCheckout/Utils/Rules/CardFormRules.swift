@@ -10,7 +10,7 @@ import MPComponents
 
 package enum CardValidationRequirement {
     case cardNumberRange(min: Int, max: Int)
-    case cardNumberExternalError(BinFetchError?)
+    case cardNumberExternalError(CardAcceptanceError?)
     case securityCodeLength(Int)
     case documentLength(min: Int, max: Int)
 }
@@ -46,7 +46,7 @@ package struct RequiredRule: CardFormRuleType {
 
 package struct CardNumberRule: CardFormRuleType {
     private var min = 13, max = 19
-    private var externalError: BinFetchError?
+    private var externalError: CardAcceptanceError?
 
     package mutating func apply(_ requirement: CardValidationRequirement) {
         if case let .cardNumberRange(newMin, newMax) = requirement {
@@ -81,7 +81,7 @@ package struct CardNumberRule: CardFormRuleType {
         return digits.dropFirst().allSatisfy { $0 == first }
     }
 
-    private func validateExternalError(_ error: BinFetchError) -> String? {
+    private func validateExternalError(_ error: CardAcceptanceError) -> String? {
         switch error {
         case let .paymentMethodNotAllowed(method):
             return MPStrings.CardForm.CardNumber.errorSellerExclusion(brand: method)
@@ -92,8 +92,6 @@ package struct CardNumberRule: CardFormRuleType {
             return MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: self.cardTypeDisplayName(cardType))
         case .paymentMethodNotFound:
             return MPStrings.CardForm.CardNumber.errorInvalid
-        case .networkError, .serviceError:
-            return nil
         }
     }
 

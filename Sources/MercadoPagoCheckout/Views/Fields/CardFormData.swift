@@ -37,7 +37,7 @@ struct CardFormData {
     )
     var documentHolder = ""
 
-    private var currentBinFetchError: BinFetchError?
+    private var cardAcceptanceError: CardAcceptanceError?
 
     mutating func setSecurityCodeLength(_ length: Int) {
         _securityCode.update(.securityCodeLength(length))
@@ -55,8 +55,8 @@ struct CardFormData {
         self.securityCode = ""
     }
 
-    mutating func setCardNumberExternalError(_ error: BinFetchError?) {
-        self.currentBinFetchError = error
+    mutating func setCardNumberExternalError(_ error: CardAcceptanceError?) {
+        self.cardAcceptanceError = error
         _cardNumber.update(.cardNumberExternalError(error))
     }
 
@@ -88,12 +88,11 @@ struct CardFormData {
         guard !_cardNumber.errorMessages.isEmpty else { return nil }
         let digits = self.cardNumber.filter(\.isNumber)
         if digits.isEmpty { return .empty }
-        if let binError = currentBinFetchError {
-            switch binError {
+        if let acceptanceError = cardAcceptanceError {
+            switch acceptanceError {
             case let .paymentMethodNotAllowed(brand): return .cardBrandNotAccepted(brand: brand)
             case let .paymentTypeNotAllowed(cardType): return .cardTypeNotAccepted(cardType: cardType)
             case .paymentMethodNotFound: return .invalid
-            case .networkError, .serviceError: break
             }
         }
         return _cardNumber.errorMessages.contains(MPStrings.CardForm.CardNumber.errorIncomplete) ? .incomplete : .invalid
