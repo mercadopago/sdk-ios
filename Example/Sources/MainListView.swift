@@ -87,10 +87,10 @@ struct MainListView: View {
         switch result {
         case let .success(paymentData):
             print(paymentData)
-        case .error:
-            print("Error")
-        case .userCancelled:
-            print("User cancelled")
+        case let .error(error):
+            print(error)
+        case let .userCancelled(context):
+            print("User cancelled with \(context.fieldErrors.count) field error(s)\n details: \(context.fieldErrors)")
         }
     }
 

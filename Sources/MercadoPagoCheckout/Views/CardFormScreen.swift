@@ -9,7 +9,7 @@ import MPComponents
 import SwiftUI
 
 struct CardFormScreen: View {
-    private let onBack: () -> Void
+    private let onBack: (MPCancelledFormContext) -> Void
     private let onSuccess: (MPPaymentData) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double?
@@ -29,7 +29,7 @@ struct CardFormScreen: View {
     init(
         transactionAmount: Double?,
         viewModel: CardFormViewModel,
-        onBack: @escaping () -> Void = {},
+        onBack: @escaping (MPCancelledFormContext) -> Void = { _ in },
         onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
@@ -50,7 +50,7 @@ struct CardFormScreen: View {
             case .ready:
                 MPHeader(
                     title: MPStrings.CardForm.title,
-                    onBack: { self.onBack() },
+                    onBack: { self.onBack(self.cardForm.cancelledFormContext) },
                     footer: {
                         MPFooter(
                             title: MPStrings.Common.total,
@@ -59,16 +59,13 @@ struct CardFormScreen: View {
                                 text: MPStrings.CardForm.button,
                                 onClick: {
                                     Task {
-                                        do {
-                                            let paymentData = try await self.viewModel.submitPaymentData(
-                                                self.transactionAmount,
-                                                cardFormData: self.cardForm
-                                            )
-                                            self.onSuccess(paymentData)
-                                        } catch let error as MercadoPagoCheckoutError {
-                                            self.onFailure(error)
-                                        } catch {
-                                            self.onFailure(.serviceError(error.localizedDescription))
+                                        try await self.viewModel.submitCardData(
+                                            cardForm: self.cardForm,
+                                            transactionAmount: self.transactionAmount
+                                        ) {
+                                            self.onSuccess($0)
+                                        } onFailure: {
+                                            self.onFailure($0)
                                         }
                                     }
                                 }
@@ -151,7 +148,13 @@ struct CardFormScreen: View {
         )
         .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
         .mpTask {
-            await self.viewModel.loadIdentificationTypes()
+            do {
+                try await self.viewModel.loadIdentificationTypes()
+            } catch let error as MercadoPagoCheckoutError {
+                self.onFailure(error)
+            } catch {
+                self.onFailure(MercadoPagoCheckoutError(code: .unknown, _localizedDescription: error.localizedDescription, location: .identification))
+            }
         }
         .mpOnChange(of: self.cardForm.cardNumber) { newValue in
             self.viewModel.onCardNumberChange(newValue)

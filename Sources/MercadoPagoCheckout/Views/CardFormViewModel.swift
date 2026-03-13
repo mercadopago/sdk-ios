@@ -89,16 +89,18 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Identification Types
 
-    func loadIdentificationTypes() async {
+    func loadIdentificationTypes() async throws {
+        let types: [IdentificationType]
         do {
-            let types = try await withRetry { try await self.service.identificationTypes() }
-            self.identificationTypes = types
-            self.selectTypeDocument = types.first
-            self.screenState = .ready
+            types = try await withRetry { try await self.service.identificationTypes() }
+        } catch let error as APIClientError {
+            throw MercadoPagoCheckoutError(from: error, location: .identification)
         } catch {
-            self.screenState = .ready
-            self.showSnackbar = true
+            throw MercadoPagoCheckoutError(code: .unknown, _localizedDescription: error.localizedDescription, location: .identification)
         }
+        self.identificationTypes = types
+        self.selectTypeDocument = types.first
+        self.screenState = .ready
     }
 
     // MARK: - Formatter Updates
@@ -135,7 +137,17 @@ final class CardFormViewModel: ObservableObject {
 
     private func createCardToken(cardForm: CardFormData) async throws -> CardToken {
         let params = self.buildCardParams(from: cardForm)
-        return try await self.service.createCardToken(cardParams: params)
+        do {
+            return try await self.service.createCardToken(cardParams: params)
+        } catch let error as APIClientError {
+            throw MercadoPagoCheckoutError(from: error, location: .tokenization)
+        } catch {
+            throw MercadoPagoCheckoutError(
+                code: .unknown,
+                _localizedDescription: "Card tokenization failed. \(error.localizedDescription)",
+                location: .tokenization
+            )
+        }
     }
 
     private func buildCardParams(from cardForm: CardFormData) -> CardParams {
@@ -215,10 +227,7 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Payment Data
 
-    func submitPaymentData(_ amount: Double?, cardFormData: CardFormData) async throws -> MPPaymentData {
-        self.isTokenizing = true
-        let cardToken = try await self.createCardToken(cardForm: cardFormData)
-
+    private func createPaymentData(_ amount: Double?, cardToken: CardToken, cardFormData: CardFormData) throws -> MPPaymentData {
         var payer: MPPaymentData.Payer? {
             guard let selectTypeDocument else { return nil }
             return .init(
@@ -241,5 +250,28 @@ final class CardFormViewModel: ObservableObject {
             issuerId: self.binData?.issuer?.id,
             payer: payer
         )
+    }
+
+    func submitCardData(cardForm: CardFormData, transactionAmount: Double?, onSuccess: (MPPaymentData) -> Void, onFailure: (MercadoPagoCheckoutError) -> Void) async {
+        do {
+            self.isTokenizing = true
+            let cardToken = try await self.createCardToken(cardForm: cardForm)
+            let paymentData = try self.createPaymentData(
+                transactionAmount,
+                cardToken: cardToken,
+                cardFormData: cardForm
+            )
+            onSuccess(paymentData)
+        } catch let error as MercadoPagoCheckoutError {
+            onFailure(error)
+        } catch {
+            onFailure(
+                MercadoPagoCheckoutError(
+                    code: .unknown,
+                    _localizedDescription: "Unknown error ocurred while submitting card token. Error: \(error.localizedDescription)",
+                    location: .tokenization
+                )
+            )
+        }
     }
 }
