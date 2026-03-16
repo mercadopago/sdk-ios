@@ -155,7 +155,7 @@ struct CardFormScreen: View {
             } catch let error as MercadoPagoCheckoutError {
                 self.onFailure(error)
             } catch {
-                self.onFailure(MercadoPagoCheckoutError(code: .unknown, _localizedDescription: error.localizedDescription, location: .identification))
+                self.onFailure(MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .identification))
             }
         }
         .mpOnChange(of: self.cardForm.cardNumber) { newValue in

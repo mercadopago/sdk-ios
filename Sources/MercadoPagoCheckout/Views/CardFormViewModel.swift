@@ -235,7 +235,7 @@ final class CardFormViewModel: ObservableObject {
         guard let binData else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
-                _localizedDescription: "Couldn't create payment data: bin data is missing",
+                localizedDescription: "Couldn't create payment data: bin data is missing",
                 location: .paymentMethods
             )
         }

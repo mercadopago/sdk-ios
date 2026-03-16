@@ -34,10 +34,10 @@ public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugString
     private let _userInfo: [String: Any]
     private let _location: LocationDescription
 
-    init(code: Code, _localizedDescription: String, _userInfo: [String: Any] = [:], location: LocationDescription) {
+    init(code: Code, localizedDescription: String, userInfo: [String: Any] = [:], location: LocationDescription) {
         self.code = code
-        self._localizedDescription = _localizedDescription
-        self._userInfo = _userInfo
+        self._localizedDescription = localizedDescription
+        self._userInfo = userInfo
         self._location = location
     }
 
@@ -50,6 +50,7 @@ public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugString
     }
 
     public var debugDescription: String {
+        // swiftlint:disable:next line_length
         "\(#file):\(#line): MercadoPagoCheckoutError(code: \(self.code.rawValue), location: \(self._location.rawValue), description: \(self._localizedDescription))"
     }
 

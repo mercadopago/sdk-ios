@@ -21,71 +21,71 @@ extension MercadoPagoCheckoutError {
                  .networkConnectionLost:
                 self.init(
                     code: .networkConnectionFailed,
-                    _localizedDescription: "No internet connection.",
+                    localizedDescription: "No internet connection.",
                     location: location
                 )
             case .timedOut:
                 self.init(
                     code: .networkTimeout,
-                    _localizedDescription: "The request timed out.",
+                    localizedDescription: "The request timed out.",
                     location: location
                 )
             default:
                 self.init(
                     code: .unknown,
-                    _localizedDescription: underlying.localizedDescription,
+                    localizedDescription: underlying.localizedDescription,
                     location: location
                 )
             }
         case let .apiError(error):
             self.init(
                 code: .serviceError,
-                _localizedDescription: "An error occurred. Check the error_code for more details.",
-                _userInfo: ["error_code": error.code],
+                localizedDescription: "An error occurred. Check the error_code for more details.",
+                userInfo: ["error_code": error.code],
                 location: location
             )
         case let .statusCode(status):
             self.init(
                 code: .serviceError,
-                _localizedDescription: "An error occurred. Check the status_code for more details.",
-                _userInfo: ["status_code": status],
+                localizedDescription: "An error occurred. Check the status_code for more details.",
+                userInfo: ["status_code": status],
                 location: location
             )
         case .invalidURL:
             self.init(
                 code: .unknown,
-                _localizedDescription: "Invalid URL.",
+                localizedDescription: "Invalid URL.",
                 location: location
             )
         case let .invalidResponse(data):
             self.init(
                 code: .unknown,
-                _localizedDescription: "invalid_response",
-                _userInfo: ["data": data],
+                localizedDescription: "invalid_response",
+                userInfo: ["data": data],
                 location: location
             )
         case let .decodingFailed(error):
             self.init(
                 code: .unknown,
-                _localizedDescription: error.localizedDescription,
+                localizedDescription: error.localizedDescription,
                 location: location
             )
         case let .requestFailed(error):
             self.init(
                 code: .unknown,
-                _localizedDescription: error.localizedDescription,
+                localizedDescription: error.localizedDescription,
                 location: location
             )
         case let .notExpectedHttpResponseCode(code: status):
             self.init(
                 code: .unknown,
-                _localizedDescription: "Not expected HTTP response code: \(status)",
+                localizedDescription: "Not expected HTTP response code: \(status)",
                 location: location
             )
         case .urlRequestIsEmpty:
             self.init(
                 code: .unknown,
-                _localizedDescription: "URL request is empty",
+                localizedDescription: "URL request is empty",
                 location: location
             )
         }

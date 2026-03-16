@@ -20,7 +20,7 @@ struct CheckoutService: CheckoutServiceProtocol {
         } catch let error as APIClientError {
             throw MercadoPagoCheckoutError(from: error, location: .identification)
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, _localizedDescription: error.localizedDescription, location: .identification)
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .identification)
         }
     }
 
@@ -30,7 +30,7 @@ struct CheckoutService: CheckoutServiceProtocol {
         } catch let error as APIClientError {
             throw MercadoPagoCheckoutError(from: error, location: .paymentMethods)
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, _localizedDescription: error.localizedDescription, location: .paymentMethods)
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .paymentMethods)
         }
     }
 
@@ -40,7 +40,7 @@ struct CheckoutService: CheckoutServiceProtocol {
         } catch let error as APIClientError {
             throw MercadoPagoCheckoutError(from: error, location: .paymentMethods)
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, _localizedDescription: error.localizedDescription, location: .paymentMethods)
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .paymentMethods)
         }
     }
 
@@ -50,7 +50,7 @@ struct CheckoutService: CheckoutServiceProtocol {
         } catch let error as APIClientError {
             throw MercadoPagoCheckoutError(from: error, location: .installments)
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, _localizedDescription: error.localizedDescription, location: .installments)
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .installments)
         }
     }
 
@@ -60,7 +60,7 @@ struct CheckoutService: CheckoutServiceProtocol {
         } catch let error as APIClientError {
             throw MercadoPagoCheckoutError(from: error, location: .tokenization)
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, _localizedDescription: error.localizedDescription, location: .tokenization)
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .tokenization)
         }
     }
 
