@@ -16,6 +16,7 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
     
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.isEnabled) private var isEnabled: Bool
+    @Environment(\.mpHeaderIsScrollable) private var isScrollable: Bool
 
     package init() {}
     
@@ -45,15 +46,15 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
             .padding(.horizontal, theme.spacings.xtiny)
             .background(theme.colors.background.primary)
             .background(
-            theme.colors.background.primary
-                .shadow(
-                    color: Color.black.opacity(0.1),
-                    radius: 8, x: 0, y: -4
-                )
-                .mask(
-                    Rectangle()
-                        .padding(.top, -20)
-                )
+                theme.colors.background.primary
+                    .shadow(
+                        color: isScrollable ? Color.black.opacity(0.1) : .clear,
+                        radius: 8, x: 0, y: -4
+                    )
+                    .mask(
+                        Rectangle()
+                            .padding(.top, -20)
+                    )
             )
         }
     }
