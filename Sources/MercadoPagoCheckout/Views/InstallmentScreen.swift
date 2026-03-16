@@ -132,70 +132,7 @@ struct InstallmentScreen: View {
                     minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
                     discountRate: 0.0, reimbursementRate: 0.0, labels: [],
                     paymentMethodOptionId: ""
-                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                ),
-//                Installment.PayerCost(
-//                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-//                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-//                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-//                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-//                    paymentMethodOptionId: ""
-//                )
+                )
             ],
             agreements: []
         )
