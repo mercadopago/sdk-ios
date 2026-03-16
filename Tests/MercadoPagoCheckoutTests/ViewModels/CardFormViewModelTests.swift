@@ -628,7 +628,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_retryBinFetch_whenNetworkError_andRetryFails_shouldShowSnackbar() async {
         // Arrange — initial fetch fails with networkError
         let sut = self.makeSUT()
-        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, _localizedDescription: "", location: .paymentMethods)
+        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "", location: .paymentMethods)
         await sut.service.setFetchBinDataResult(.failure(networkError))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binNetworkError)
@@ -646,7 +646,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_retryBinFetch_whenServiceError_andRetryFails_shouldShowSnackbar() async {
         // Arrange — initial fetch fails with serviceError
         let sut = self.makeSUT()
-        let serviceError = MercadoPagoCheckoutError(code: .serviceError, _localizedDescription: "", location: .paymentMethods)
+        let serviceError = MercadoPagoCheckoutError(code: .serviceError, localizedDescription: "", location: .paymentMethods)
         await sut.service.setFetchBinDataResult(.failure(serviceError))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binNetworkError)
@@ -664,7 +664,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_retryBinFetch_whenNetworkError_andRetrySucceeds_shouldNotShowSnackbar() async {
         // Arrange — initial fetch fails with networkError
         let sut = self.makeSUT()
-        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, _localizedDescription: "", location: .paymentMethods)
+        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "", location: .paymentMethods)
         await sut.service.setFetchBinDataResult(.failure(networkError))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binNetworkError)
@@ -995,7 +995,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_retryBinFetch_whenCalledTwice_withNetworkError_shouldShowSnackbarBothTimes() async {
         // Arrange — initial fetch fails
         let sut = self.makeSUT()
-        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, _localizedDescription: "", location: .paymentMethods)
+        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "", location: .paymentMethods)
         await sut.service.setFetchBinDataResult(.failure(networkError))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binNetworkError)
