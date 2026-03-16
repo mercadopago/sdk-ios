@@ -113,5 +113,10 @@ struct CardFormBrick: View {
         self.route = nil
         self.onResult(.error(error))
         self.presentationMode.wrappedValue.dismiss()
+        SnackbarWindowPresenter.show(
+            message: MPStrings.Errors.generic,
+            lightTheme: self.themeLight,
+            darkTheme: self.themeDark
+        )
     }
 }
