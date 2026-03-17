@@ -21,7 +21,6 @@ struct CardFormScreen: View {
     @State private var cardForm = CardFormData()
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
-    @State private var submitTask: Task<Void, Never>?
 
     // MARK: Enviroments
 
@@ -59,17 +58,12 @@ struct CardFormScreen: View {
                             buttonData: .init(
                                 text: MPStrings.CardForm.button,
                                 onClick: {
-                                    self.submitTask?.cancel()
-                                    self.submitTask = Task {
-                                        await self.viewModel.submitCardData(
-                                            cardForm: self.cardForm,
-                                            transactionAmount: self.transactionAmount
-                                        ) {
-                                            self.onSuccess($0)
-                                        } onFailure: {
-                                            self.onFailure($0)
-                                        }
-                                    }
+                                    await self.viewModel.submitCardData(
+                                        cardForm: self.cardForm,
+                                        transactionAmount: self.transactionAmount,
+                                        onSuccess: { self.onSuccess($0) },
+                                        onFailure: { self.onFailure($0) }
+                                    )
                                 }
                             )
                         )
@@ -172,9 +166,6 @@ struct CardFormScreen: View {
         }
         .mpOnChange(of: self.viewModel.showSnackbar) { show in
             if show { self.isSnackbarPresented = true }
-        }
-        .onDisappear {
-            self.submitTask?.cancel()
         }
     }
 

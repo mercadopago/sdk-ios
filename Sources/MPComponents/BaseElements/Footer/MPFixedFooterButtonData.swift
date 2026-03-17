@@ -18,9 +18,9 @@ package struct MPFixedFooterButtonData {
     /// Visual variant of the button. Defaults to `.loud`.
     var style: MPButtonStyle.Variant = .loud
     /// Closure invoked when the button is tapped.
-    var onClick: () -> Void
+    var onClick: () async -> Void
 
-    package init(text: String, style: MPButtonStyle.Variant = .loud, onClick: @escaping () -> Void) {
+    package init(text: String, style: MPButtonStyle.Variant = .loud, onClick: @escaping () async -> Void) {
         self.text = text
         self.style = style
         self.onClick = onClick
