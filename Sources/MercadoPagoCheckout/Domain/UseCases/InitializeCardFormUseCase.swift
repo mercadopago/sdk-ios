@@ -29,16 +29,15 @@ struct InitializeCardFormUseCase: Sendable {
         data: CardFormInitializationInput,
         config _: MercadoPagoCheckout.CardFormConfiguration
     ) -> CardFormInitializationOutput {
-        let custom: CardFormCustomTexts? = nil
         let fields = data.fields
 
         return CardFormInitializationOutput(
-            title: custom?.title ?? data.title,
-            button: custom?.button ?? data.buttonVariants.save,
+            title: data.title,
+            button: data.buttonVariants.save,
             fields: .init(
                 cardNumber: .init(
-                    label: custom?.cardNumber?.label ?? fields.cardNumber.label,
-                    placeholder: custom?.cardNumber?.placeholder ?? fields.cardNumber.placeholder,
+                    label: fields.cardNumber.label,
+                    placeholder: fields.cardNumber.placeholder,
                     validation: .init(
                         errorEmpty: fields.cardNumber.validation.errorEmpty,
                         errorIncomplete: fields.cardNumber.validation.errorIncomplete,
@@ -48,8 +47,8 @@ struct InitializeCardFormUseCase: Sendable {
                     )
                 ),
                 cardHolder: .init(
-                    label: custom?.cardHolder?.label ?? fields.cardHolder.label,
-                    placeholder: custom?.cardHolder?.placeholder ?? fields.cardHolder.placeholder,
+                    label: fields.cardHolder.label,
+                    placeholder: fields.cardHolder.placeholder,
                     helperText: fields.cardHolder.helperText,
                     validation: .init(
                         errorEmpty: fields.cardHolder.validation.errorEmpty,
@@ -58,8 +57,8 @@ struct InitializeCardFormUseCase: Sendable {
                     )
                 ),
                 expiration: .init(
-                    label: custom?.expiration?.label ?? fields.expiration.label,
-                    placeholder: custom?.expiration?.placeholder ?? fields.expiration.placeholder,
+                    label: fields.expiration.label,
+                    placeholder: fields.expiration.placeholder,
                     validation: .init(
                         errorEmpty: fields.expiration.validation.errorEmpty,
                         errorIncomplete: fields.expiration.validation.errorIncomplete,
@@ -67,21 +66,21 @@ struct InitializeCardFormUseCase: Sendable {
                     )
                 ),
                 cvv: .init(
-                    label: custom?.cvv?.label ?? fields.cvv.label,
-                    placeholderDefault: custom?.cvv?.placeholder ?? fields.cvv.placeholderDefault,
-                    placeholderAmex: custom?.cvv?.placeholder ?? fields.cvv.placeholderAmex,
+                    label: fields.cvv.label,
+                    placeholderDefault: fields.cvv.placeholderDefault,
+                    placeholderAmex: fields.cvv.placeholderAmex,
                     validation: .init(
                         errorEmpty: fields.cvv.validation.errorEmpty,
                         errorIncomplete: fields.cvv.validation.errorIncomplete
                     )
                 ),
                 issuer: .init(
-                    label: custom?.issuer?.label ?? fields.issuer.label,
-                    placeholder: custom?.issuer?.placeholder ?? fields.issuer.placeholder
+                    label: fields.issuer.label,
+                    placeholder: fields.issuer.placeholder
                 ),
                 document: .init(
-                    label: custom?.document?.label ?? fields.document.label,
-                    placeholder: custom?.document?.placeholder ?? fields.document.placeholder,
+                    label: fields.document.label,
+                    placeholder: fields.document.placeholder,
                     validation: .init(
                         errorEmpty: fields.document.validation.errorEmpty,
                         errorIncomplete: fields.document.validation.errorIncomplete,
