@@ -97,12 +97,13 @@ struct MainListView: View {
     }
 
     private func handleResult(_ result: MercadoPagoCheckoutResult) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(0.6))
             switch result {
             case let .success(paymentData):
                 self.alertItem = AlertItem(
                     title: "Pagamento cadastrado",
-                    message: "Método: \(paymentData.paymentMethodId)\type: \(paymentData.paymentTypeId)"
+                    message: "Método: \(paymentData.paymentMethodId)\nToken: \(paymentData.token)"
                 )
             case let .error(error):
                 self.alertItem = AlertItem(

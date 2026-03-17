@@ -18,7 +18,8 @@ enum SnackbarWindowPresenter {
         darkTheme: MPTheme
     ) {
         // Waits for the brick's modal dismiss animation to complete (~0.35s default)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        Task { @MainActor in
+            try await Task.sleep(nanoseconds: 350_000_000)
             self.present(message: message, state: state, lightTheme: lightTheme, darkTheme: darkTheme)
         }
     }
