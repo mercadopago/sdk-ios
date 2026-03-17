@@ -24,7 +24,7 @@ enum CardFormTexts {
             let errorEmpty: String
             let errorIncomplete: String
             let errorInvalid: String
-            let errorSellerExclusion: String
+            let errorMethodNotAllowed: String
             let errorTypeNotAllowed: String
         }
     }
@@ -38,7 +38,7 @@ enum CardFormTexts {
         struct Validation {
             let errorEmpty: String
             let errorIncomplete: String
-            let errorInvalidFormat: String
+            let errorInvalid: String
         }
     }
 

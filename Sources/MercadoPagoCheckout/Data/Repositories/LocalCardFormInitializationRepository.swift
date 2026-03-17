@@ -33,7 +33,7 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                         errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
                         errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
-                        errorSellerExclusion: MPStrings.CardForm.CardNumber.errorSellerExclusion(brand: "%@"),
+                        errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorSellerExclusion(brand: "%@"),
                         errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
                     )
                 ),
@@ -44,7 +44,7 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
-                        errorInvalidFormat: MPStrings.CardForm.CardHolder.errorInvalidFormat
+                        errorInvalid: MPStrings.CardForm.CardHolder.errorInvalidFormat
                     )
                 ),
                 expiration: .init(
