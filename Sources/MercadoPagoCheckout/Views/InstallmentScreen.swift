@@ -53,12 +53,14 @@ struct InstallmentScreen: View {
                         )
                     )
                 }
+            },
+            footer: {
+                MPFooter(
+                    title: MPStrings.Common.total,
+                    amount: self.viewModel.selectedTotalAmount(self.selectedPayerCost),
+                    subtitle: self.viewModel.formatFooterDescription()
+                )
             }
-        )
-        MPFooter(
-            title: MPStrings.Common.total,
-            amount: self.viewModel.selectedTotalAmount(self.selectedPayerCost),
-            subtitle: self.viewModel.formatFooterDescription()
         )
     }
 
