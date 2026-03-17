@@ -102,18 +102,18 @@ struct MainListView: View {
             switch result {
             case let .success(paymentData):
                 self.alertItem = AlertItem(
-                    title: "Pagamento cadastrado",
-                    message: "Método: \(paymentData.paymentMethodId)\nToken: \(paymentData.token)"
+                    title: "Sucess",
+                    message: "Method: \(paymentData.paymentMethodId)\nToken: \(paymentData.token)"
                 )
             case let .error(error):
                 self.alertItem = AlertItem(
-                    title: "Erro",
+                    title: "Error",
                     message: error.localizedDescription
                 )
             case .userCancelled:
                 self.alertItem = AlertItem(
-                    title: "Cancelado",
-                    message: "O usuário cancelou o formulário."
+                    title: "Cancelled",
+                    message: "User has cancelled."
                 )
             }
         }
