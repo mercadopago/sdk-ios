@@ -15,7 +15,7 @@ struct CardFormBrick: View {
 
     @State private var route: Route?
     @State private var paymentData: MPPaymentData
-    @State private var cardFormViewModel: CardFormViewModel
+    @ObservedObject private var cardFormViewModel: CardFormViewModel
 
     private let themeDark: MPTheme
     private let themeLight: MPTheme
@@ -37,7 +37,7 @@ struct CardFormBrick: View {
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
-        self._cardFormViewModel = State(initialValue: CardFormViewModel(configuration: configuration))
+        self._cardFormViewModel = ObservedObject(wrappedValue: CardFormViewModel(configuration: configuration))
     }
 
     var body: some View {
@@ -47,16 +47,31 @@ struct CardFormBrick: View {
         ) {
             NavigationView {
                 ZStack {
-                    self.cardFormScreen()
+                    switch self.cardFormViewModel.screenState {
+                    case .loading:
+                        MPProgressIndicator()
+                            .size(.xlarge)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    case let .ready(initResult):
+                        self.cardFormScreen(initResult: initResult)
+                    }
                     self.navigationLinks()
                 }
             }
             .navigationViewStyle(StackNavigationViewStyle())
         }
+        .mpTask {
+            do {
+                try await self.cardFormViewModel.loadInitData()
+            } catch {
+                self.onResult(.error(.serviceError(error.localizedDescription)))
+            }
+        }
     }
 
-    private func cardFormScreen() -> some View {
+    private func cardFormScreen(initResult: CardFormInitializationOutput) -> some View {
         CardFormScreen(
+            initResult: initResult,
             transactionAmount: self.transactionAmount,
             viewModel: self.cardFormViewModel,
             onBack: { context in self.cancelCheckout(context: context) },

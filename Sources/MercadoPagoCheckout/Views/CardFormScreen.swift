@@ -10,6 +10,8 @@ import SwiftUI
 
 struct CardFormScreen: View {
     private let onBack: (MPCancelledFormContext) -> Void
+    private let initResult: CardFormInitializationOutput
+    private let onBack: () -> Void
     private let onSuccess: (MPPaymentData) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double?
@@ -18,7 +20,7 @@ struct CardFormScreen: View {
 
     // MARK: States View
 
-    @State private var cardForm = CardFormData()
+    @State private var cardForm: CardFormData
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
 
@@ -27,12 +29,15 @@ struct CardFormScreen: View {
     @Environment(\.checkoutTheme) var theme: MPTheme
 
     init(
+        initResult: CardFormInitializationOutput,
         transactionAmount: Double?,
         viewModel: CardFormViewModel,
         onBack: @escaping (MPCancelledFormContext) -> Void = { _ in },
         onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
+        self.initResult = initResult
+        self._cardForm = State(initialValue: CardFormData(fields: initResult.fields))
         self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.onBack = onBack
         self.onSuccess = onSuccess
@@ -41,101 +46,99 @@ struct CardFormScreen: View {
     }
 
     var body: some View {
-        Group {
-            switch self.viewModel.screenState {
-            case .loading:
-                MPProgressIndicator()
-                    .size(.xlarge)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            case .ready:
-                MPHeader(
-                    title: MPStrings.CardForm.title,
-                    onBack: { self.onBack(self.cardForm.cancelledFormContext) },
-                    footer: {
-                        MPFooter(
-                            title: MPStrings.Common.total,
-                            amount: self.viewModel.footerAmount(),
-                            buttonData: .init(
-                                text: MPStrings.CardForm.button,
-                                onClick: {
-                                    await self.viewModel.submitCardData(
-                                        cardForm: self.cardForm,
-                                        transactionAmount: self.transactionAmount,
-                                        onSuccess: { self.onSuccess($0) },
-                                        onFailure: { self.onFailure($0) }
+        MPHeader(
+            title: self.initResult.title,
+            onBack: { self.onBack() },
+            footer: {
+                MPFooter(
+                    title: MPStrings.Common.total,
+                    amount: self.viewModel.footerAmount(),
+                    buttonData: .init(
+                        text: self.initResult.button,
+                        onClick: {
+                            Task {
+                                do {
+                                    let paymentData = try await self.viewModel.submitPaymentData(
+                                        self.transactionAmount,
+                                        cardFormData: self.cardForm
                                     )
+                                    self.onSuccess(paymentData)
+                                } catch let error as MercadoPagoCheckoutError {
+                                    self.onFailure(error)
+                                } catch {
+                                    self.onFailure(.serviceError(error.localizedDescription))
                                 }
-                            )
-                        )
-                        .isLoading(self.viewModel.isTokenizing)
-                        .disabled(!self.cardForm.isFormValid(isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory))
-                        .background(
-                            GeometryReader { geo in
-                                Color.clear.onAppear { self.footerHeight = geo.size.height }
                             }
-                        )
-                    },
-                    content: {
-                        VStack(spacing: self.theme.spacings.xsmall) {
-                            MPTextField(
-                                text: self.$cardForm.cardNumber,
-                                label: MPStrings.CardForm.CardNumber.label,
-                                placeholder: MPStrings.CardForm.CardNumber.placeholder,
-                                errorMessage: self.cardForm.$cardNumber,
-                                liveErrorMessage: self.cardForm.cardNumberLiveErrors,
-                                keyboard: .numberPad,
-                                onEditingChanged: { isEditing in
-                                    if !isEditing { self.viewModel.retryBinFetch() }
-                                },
-                                formatter: self.viewModel.cardNumberFormatter
-                            )
-
-                            MPTextField(
-                                text: self.$cardForm.cardHolder,
-                                label: MPStrings.CardForm.CardHolder.label,
-                                placeholder: MPStrings.CardForm.CardHolder.placeholder,
-                                helperText: MPStrings.CardForm.CardHolder.helperText,
-                                errorMessage: self.cardForm.$cardHolder
-                            )
-
-                            MPTextField(
-                                text: self.$cardForm.expirationDate,
-                                label: MPStrings.CardForm.Expiration.label,
-                                placeholder: MPStrings.CardForm.Expiration.placeholder,
-                                errorMessage: self.cardForm.$expirationDate,
-                                keyboard: .numberPad,
-                                formatter: self.viewModel.expirationDateFormatter
-                            )
-
-                            if self.viewModel.isSecurityCodeMandatory {
-                                MPTextField(
-                                    text: self.$cardForm.securityCode,
-                                    label: MPStrings.CardForm.CVV.label,
-                                    placeholder: self.viewModel.cvvPlaceholder,
-                                    errorMessage: self.cardForm.$securityCode,
-                                    keyboard: .numberPad,
-                                    formatter: self.viewModel.securityCodeFormatter,
-                                    popoverText: self.viewModel.cvvTooltipText
-                                )
-                            }
-
-                            MPTextField(
-                                text: self.$cardForm.documentHolder,
-                                label: MPStrings.CardForm.Document.label,
-                                placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
-                                errorMessage: self.cardForm.$documentHolder,
-                                keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
-                                formatter: self.viewModel.documentFormatter,
-                                prefix: {
-                                    self.dropdownDocument()
-                                }
-                            )
                         }
-                        .padding(.horizontal, self.theme.spacings.micro)
+                    )
+                )
+                .isLoading(self.viewModel.isTokenizing)
+                .disabled(!self.cardForm.isFormValid(isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory))
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.onAppear { self.footerHeight = geo.size.height }
                     }
                 )
+            },
+            content: {
+                VStack(spacing: self.theme.spacings.xsmall) {
+                    MPTextField(
+                        text: self.$cardForm.cardNumber,
+                        label: self.initResult.fields.cardNumber.label,
+                        placeholder: self.initResult.fields.cardNumber.placeholder,
+                        errorMessage: self.cardForm.$cardNumber,
+                        liveErrorMessage: self.cardForm.cardNumberLiveErrors,
+                        keyboard: .numberPad,
+                        onEditingChanged: { isEditing in
+                            if !isEditing { self.viewModel.retryBinFetch() }
+                        },
+                        formatter: self.viewModel.cardNumberFormatter
+                    )
+
+                    MPTextField(
+                        text: self.$cardForm.cardHolder,
+                        label: self.initResult.fields.cardHolder.label,
+                        placeholder: self.initResult.fields.cardHolder.placeholder,
+                        helperText: self.initResult.fields.cardHolder.helperText,
+                        errorMessage: self.cardForm.$cardHolder
+                    )
+
+                    MPTextField(
+                        text: self.$cardForm.expirationDate,
+                        label: self.initResult.fields.expiration.label,
+                        placeholder: self.initResult.fields.expiration.placeholder,
+                        errorMessage: self.cardForm.$expirationDate,
+                        keyboard: .numberPad,
+                        formatter: self.viewModel.expirationDateFormatter
+                    )
+
+                    if self.viewModel.isSecurityCodeMandatory {
+                        MPTextField(
+                            text: self.$cardForm.securityCode,
+                            label: self.initResult.fields.cvv.label,
+                            placeholder: self.viewModel.cvvPlaceholder,
+                            errorMessage: self.cardForm.$securityCode,
+                            keyboard: .numberPad,
+                            formatter: self.viewModel.securityCodeFormatter,
+                            popoverText: self.viewModel.cvvTooltipText
+                        )
+                    }
+
+                    MPTextField(
+                        text: self.$cardForm.documentHolder,
+                        label: self.initResult.fields.document.label,
+                        placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
+                        errorMessage: self.cardForm.$documentHolder,
+                        keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
+                        formatter: self.viewModel.documentFormatter,
+                        prefix: {
+                            self.dropdownDocument()
+                        }
+                    )
+                }
+                .padding(.horizontal, self.theme.spacings.micro)
             }
-        }
+        )
         .messageSnackbar(
             isPresented: self.$isSnackbarPresented,
             text: MPStrings.Errors.generic,
@@ -143,15 +146,6 @@ struct CardFormScreen: View {
             bottomPadding: self.footerHeight
         )
         .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
-        .mpTask {
-            do {
-                try await self.viewModel.loadIdentificationTypes()
-            } catch let error as MercadoPagoCheckoutError {
-                self.onFailure(error)
-            } catch {
-                self.onFailure(MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .identification))
-            }
-        }
         .mpOnChange(of: self.cardForm.cardNumber) { newValue in
             self.viewModel.onCardNumberChange(newValue)
         }
@@ -243,24 +237,5 @@ struct CardFormScreen: View {
     private func updateIdentificationTypes(_ identificationType: IdentificationType?) {
         guard let identificationType else { return }
         self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
-    }
-}
-
-struct CardForm_Previews: PreviewProvider {
-    static var previews: some View {
-        ThemeProvider(
-            light: MPLightTheme(),
-            dark: MPLightTheme()
-        ) {
-            CardFormScreen(
-                transactionAmount: 100,
-                viewModel: .init(
-                    configuration: .init(
-                        type: .cardForm(cardFormConfiguration: .init()),
-                        paymentMethod: []
-                    )
-                )
-            )
-        }
     }
 }

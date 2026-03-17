@@ -8,17 +8,18 @@ import CoreMethods
 import MPComponents
 import SwiftUI
 
-enum CardFormScreenState {
-    case loading
-    case ready
-}
-
 @MainActor
 final class CardFormViewModel: ObservableObject {
+    enum ScreenState {
+        case loading
+        case ready(CardFormInitializationOutput)
+    }
+
     // MARK: - Dependencies
 
     private let configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let service: CheckoutServiceProtocol
+    private let initializeUseCase: InitializeCardFormUseCase
 
     // MARK: - Formatters
 
@@ -29,7 +30,6 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Published State
 
-    @Published private(set) var screenState: CardFormScreenState = .loading
     @Published var selectTypeDocument: IdentificationType? {
         didSet { self.updateIdentificationType() }
     }
@@ -44,6 +44,7 @@ final class CardFormViewModel: ObservableObject {
     @Published private(set) var binNetworkError: MercadoPagoCheckoutError?
     @Published private(set) var showSnackbar = false
     @Published private(set) var isTokenizing = false
+    @Published private(set) var screenState: ScreenState = .loading
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
@@ -84,19 +85,29 @@ final class CardFormViewModel: ObservableObject {
 
     init(
         configuration: MercadoPagoCheckout.CheckoutConfiguration,
-        service: CheckoutServiceProtocol = CheckoutService()
+        service: CheckoutServiceProtocol = CheckoutService(),
+        initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase()
     ) {
         self.configuration = configuration
         self.service = service
+        self.initializeUseCase = initializeUseCase
     }
 
-    // MARK: - Identification Types
+    // MARK: - Initialization
 
-    func loadIdentificationTypes() async throws {
-        let types = try await withRetry { try await self.service.identificationTypes() }
-        self.identificationTypes = types
-        self.selectTypeDocument = types.first
-        self.screenState = .ready
+    func loadInitData() async throws {
+        let config = self.extractCardFormConfig()
+        let result = try await self.initializeUseCase.execute(config: config)
+        self.identificationTypes = result.identificationTypes
+        self.selectTypeDocument = result.identificationTypes.first
+        self.screenState = .ready(result)
+    }
+
+    private func extractCardFormConfig() -> MercadoPagoCheckout.CardFormConfiguration {
+        if case let .cardForm(config) = configuration.type {
+            return config
+        }
+        return MercadoPagoCheckout.CardFormConfiguration()
     }
 
     // MARK: - Formatter Updates

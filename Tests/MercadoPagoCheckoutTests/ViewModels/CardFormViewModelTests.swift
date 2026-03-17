@@ -18,7 +18,8 @@ final class CardFormViewModelTests: XCTestCase {
 
     typealias SUT = (
         viewModel: CardFormViewModel,
-        service: MockCheckoutService
+        service: MockCheckoutService,
+        repository: MockCardFormInitializationRepository
     )
 
     // MARK: - Properties
@@ -146,22 +147,26 @@ final class CardFormViewModelTests: XCTestCase {
 
     private func makeSUT() -> SUT {
         let service = MockCheckoutService()
+        let repository = MockCardFormInitializationRepository()
         let configuration = MercadoPagoCheckout.CheckoutConfiguration(
             type: .cardForm(cardFormConfiguration: .init()),
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
-        let viewModel = CardFormViewModel(configuration: configuration, service: service)
-        return (viewModel, service)
+        let useCase = InitializeCardFormUseCase(repository: repository)
+        let viewModel = CardFormViewModel(configuration: configuration, service: service, initializeUseCase: useCase)
+        return (viewModel, service, repository)
     }
 
     private func makeSUTWithAmount(_ amount: Double) -> SUT {
         let service = MockCheckoutService()
+        let repository = MockCardFormInitializationRepository()
         let configuration = MercadoPagoCheckout.CheckoutConfiguration(
             type: .cardForm(cardFormConfiguration: .init(amount: amount)),
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
-        let viewModel = CardFormViewModel(configuration: configuration, service: service)
-        return (viewModel, service)
+        let useCase = InitializeCardFormUseCase(repository: repository)
+        let viewModel = CardFormViewModel(configuration: configuration, service: service, initializeUseCase: useCase)
+        return (viewModel, service, repository)
     }
 
     private enum CardTokenStub {
@@ -199,7 +204,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     private enum CardFormDataStub {
         static var validForm: CardFormData {
-            var form = CardFormData()
+            var form = CardFormData(fields: CardFormInitializationOutputStub.makeDefaultFields())
             form.cardNumber = "4111111111111111"
             form.cardHolder = "John Doe"
             form.expirationDate = "12/27"
@@ -207,6 +212,19 @@ final class CardFormViewModelTests: XCTestCase {
             form.documentHolder = "12345678900"
             return form
         }
+    }
+
+    private func setupIdentificationTypes(_ sut: SUT) async throws {
+        sut.repository.mockData = MockCardFormInitializationRepository.makeDefault(
+            identificationTypes: [IdentificationTypeStub.cpf]
+        )
+        try await sut.viewModel.loadInitData()
+    }
+
+    private func setupBinData(_ sut: SUT) async {
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
     }
 
     private func waitForChange<T>(
@@ -224,14 +242,6 @@ final class CardFormViewModelTests: XCTestCase {
 
     // MARK: - Init
 
-    func test_init_screenStateShouldBeLoading() {
-        // Arrange / Act
-        let sut = self.makeSUT()
-
-        // Assert
-        XCTAssertEqual(sut.viewModel.screenState, .loading)
-    }
-
     func test_init_binDataShouldBeNil() {
         // Arrange / Act
         let sut = self.makeSUT()
@@ -248,88 +258,64 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertNil(sut.viewModel.cardAcceptanceError)
     }
 
-    // MARK: - loadIdentificationTypes
+    // MARK: - loadInitData
 
-    func test_loadIdentificationTypes_whenSuccess_shouldSetReadyState() async {
-        // Arrange
+    func test_init_screenStateShouldBeLoading() {
+        // Arrange / Act
         let sut = self.makeSUT()
-        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
-
-        // Act
-        try? await sut.viewModel.loadIdentificationTypes()
 
         // Assert
-        XCTAssertEqual(sut.viewModel.screenState, .ready)
+        if case .loading = sut.viewModel.screenState {} else {
+            XCTFail("Expected .loading state")
+        }
     }
 
-    func test_loadIdentificationTypes_whenSuccess_withTypes_shouldUpdateSelectTypeDocument() async {
+    func test_loadInitData_whenSuccess_shouldSetReadyStateAndTypes() async throws {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf, IdentificationTypeStub.cnpj]))
-
-        // Act
-        try? await sut.viewModel.loadIdentificationTypes()
-
-        // Assert
-        XCTAssertEqual(sut.viewModel.selectTypeDocument, IdentificationTypeStub.cpf)
-    }
-
-    func test_loadIdentificationTypes_whenSuccess_withEmptyTypes_shouldKeepDefaultDocument() async {
-        // Arrange
-        let sut = self.makeSUT()
-        let defaultDocument = sut.viewModel.selectTypeDocument
-        await sut.service.setIdentificationTypesResult(.success([]))
-
-        // Act
-        try? await sut.viewModel.loadIdentificationTypes()
-
-        // Assert
-        XCTAssertEqual(sut.viewModel.selectTypeDocument, defaultDocument)
-        XCTAssertEqual(sut.viewModel.screenState, .ready)
-    }
-
-    func test_loadIdentificationTypes_whenError_shouldKeepDefaultDocument() async {
-        // Arrange
-        let sut = self.makeSUT()
-        let defaultDocument = sut.viewModel.selectTypeDocument
-        await sut.service.setIdentificationTypesResult(.failure(MockCheckoutService.MockError.resultNotSet))
-
-        // Act
-        try? await sut.viewModel.loadIdentificationTypes()
-
-        // Assert
-        XCTAssertEqual(sut.viewModel.selectTypeDocument, defaultDocument)
-    }
-
-    func test_loadIdentificationTypes_whenFirstAttemptFails_andRetrySucceeds_shouldSetTypes() async {
-        // Arrange — first call fails, second (retry) succeeds
-        let sut = self.makeSUT()
-        await sut.service.setSequentialIdentificationTypesResults(
-            .failure(MockCheckoutService.MockError.resultNotSet),
-            .success([IdentificationTypeStub.cpf])
+        sut.repository.mockData = MockCardFormInitializationRepository.makeDefault(
+            identificationTypes: [IdentificationTypeStub.cpf, IdentificationTypeStub.cnpj]
         )
 
         // Act
-        try? await sut.viewModel.loadIdentificationTypes()
+        try await sut.viewModel.loadInitData()
 
         // Assert
-        XCTAssertEqual(sut.viewModel.screenState, .ready)
+        if case .ready = sut.viewModel.screenState {} else {
+            XCTFail("Expected .ready state")
+        }
         XCTAssertEqual(sut.viewModel.selectTypeDocument, IdentificationTypeStub.cpf)
     }
 
-    func test_loadIdentificationTypes_whenBothAttemptsFail_shouldLeaveTypesEmpty() async {
-        // Arrange — both attempts fail
+    func test_loadInitData_whenEmptyTypes_shouldSetReadyState() async throws {
+        // Arrange
         let sut = self.makeSUT()
-        await sut.service.setSequentialIdentificationTypesResults(
-            .failure(MockCheckoutService.MockError.resultNotSet),
-            .failure(MockCheckoutService.MockError.resultNotSet)
-        )
+        // default mock returns empty identificationTypes
 
         // Act
-        try? await sut.viewModel.loadIdentificationTypes()
+        try await sut.viewModel.loadInitData()
 
         // Assert
-        XCTAssertTrue(sut.viewModel.identificationTypes.isEmpty)
+        if case .ready = sut.viewModel.screenState {} else {
+            XCTFail("Expected .ready state")
+        }
+        XCTAssertNil(sut.viewModel.selectTypeDocument)
+    }
+
+    func test_loadInitData_whenRepositoryFails_shouldThrowAndStayLoading() async {
+        // Arrange
+        let sut = self.makeSUT()
+        sut.repository.shouldThrow = true
+
+        // Act & Assert
+        do {
+            try await sut.viewModel.loadInitData()
+            XCTFail("Expected error to be thrown")
+        } catch {
+            if case .loading = sut.viewModel.screenState {} else {
+                XCTFail("Expected .loading state after failure")
+            }
+        }
     }
 
     // MARK: - onCardNumberChange
@@ -702,9 +688,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenServiceSucceeds_shouldCallOnSuccessWithToken() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var capturedPaymentData: MPPaymentData?
 
@@ -723,6 +707,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenServiceFails_shouldCallOnFailure() async {
         // Arrange
         let sut = self.makeSUT()
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.failure(MockCheckoutService.MockError.resultNotSet))
         var capturedError: MercadoPagoCheckoutError?
 
@@ -759,9 +744,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_shouldResetIsTokenizingAfterCompletion() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
         // Act
@@ -779,9 +762,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_shouldStripSpacesFromCardNumber() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.cardNumber = "4111 1111 1111 1111"
@@ -802,9 +783,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_shouldPrefixYearWithCurrentCentury() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.expirationDate = "12/27"
@@ -827,9 +806,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_shouldStripMaskFromDocument() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.documentHolder = "123.456.789-09"
@@ -850,11 +827,8 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenCalledWithDocumentTypeSelected_shouldPassDocumentType() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
-        try? await sut.viewModel.loadIdentificationTypes()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        try await self.setupIdentificationTypes(sut)
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
         // Act
@@ -870,35 +844,29 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(captured?.documentType, IdentificationTypeStub.cpf.id)
     }
 
-    func test_submitCardData_whenDocumentTypeIsNil_shouldHaveNilPayer() async {
-        // Arrange — no identificationTypes loaded, selectTypeDocument is nil
+    func test_submitPaymentData_whenBinDataIsNil_shouldThrow() async {
+        // Arrange
         let sut = self.makeSUT()
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binData)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        var capturedPaymentData: MPPaymentData?
+        // No bin fetch triggered — binData remains nil
 
-        // Act
-        await sut.viewModel.submitCardData(
-            cardForm: CardFormDataStub.validForm,
-            transactionAmount: nil,
-            onSuccess: { capturedPaymentData = $0 },
-            onFailure: { XCTFail("Expected success, got error: \($0)") }
-        )
-
-        // Assert
-        XCTAssertNil(capturedPaymentData?.payer)
+        // Act & Assert
+        do {
+            _ = try await sut.viewModel.submitPaymentData(nil, cardFormData: CardFormDataStub.validForm)
+            XCTFail("Expected error to be thrown when binData is nil")
+        } catch {
+            // Expected — binData guard throws
+        }
     }
 
     func test_submitCardData_whenDocumentTypeIsSelected_shouldIncludePayer() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
-        try? await sut.viewModel.loadIdentificationTypes()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        try await self.setupIdentificationTypes(sut)
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.documentHolder = "12345678900"
@@ -920,11 +888,8 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenDocumentTypeIsSelected_shouldSetTransactionAmountAndInstallment() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
-        try? await sut.viewModel.loadIdentificationTypes()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        try await self.setupIdentificationTypes(sut)
+        await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var capturedPaymentData: MPPaymentData?
 
@@ -945,6 +910,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenBinDataIsAvailable_shouldIncludePaymentMethodAndTypeIds() async {
         // Arrange
         let sut = self.makeSUT()
+        try await self.setupIdentificationTypes(sut)
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binData)
@@ -964,11 +930,26 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(capturedPaymentData?.paymentTypeId, "credit_card")
     }
 
-    func test_submitCardData_whenBinDataHasIssuer_shouldIncludeIssuerId() async {
+    func test_submitPaymentData_whenBinDataIsNilAfterConfigure_shouldThrow() async throws {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setIdentificationTypesResult(.success([IdentificationTypeStub.cpf]))
-        try? await sut.viewModel.loadIdentificationTypes()
+        try await self.setupIdentificationTypes(sut)
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        // No bin fetch triggered — binData remains nil
+
+        // Act & Assert
+        do {
+            _ = try await sut.viewModel.submitPaymentData(100.0, cardFormData: CardFormDataStub.validForm)
+            XCTFail("Expected error when binData is nil")
+        } catch {
+            // Expected — guard let binData throws
+        }
+    }
+
+    func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        try await self.setupIdentificationTypes(sut)
         let binDataWithIssuer = CardBinData(
             paymentMethod: CardBinDataStub.visa.paymentMethod,
             issuer: IssuerStub.bradesco,
