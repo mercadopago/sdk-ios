@@ -5,7 +5,6 @@
 //  Created by Danielle Nozaki Ogawa on 26/02/26.
 //
 import CoreMethods
-import MPCore
 
 struct FetchBinDataUseCase {
     private let service: CheckoutServiceProtocol
@@ -43,13 +42,7 @@ struct FetchBinDataUseCase {
     }
 
     private func getPaymentMethods(from bin: String) async throws -> [PaymentMethod] {
-        do {
-            return try await self.service.paymentMethod(bin: bin)
-        } catch let error as APIClientError {
-            throw BinFetchError(from: error)
-        } catch {
-            throw BinFetchError.serviceError
-        }
+        try await self.service.paymentMethod(bin: bin)
     }
 
     private func filterPaymentMethod(
@@ -66,11 +59,11 @@ struct FetchBinDataUseCase {
                 acceptedPaymentTypeIds.contains($0.paymentTypeId) &&
                     !acceptedPaymentMethodIds.contains($0.id)
             }) {
-                throw BinFetchError.paymentMethodNotAllowed(typeMatchedMethod.id)
+                throw CardAcceptanceError.paymentMethodNotAllowed(typeMatchedMethod.id)
             } else {
                 let detectedMethod = methods.first(where: { !acceptedPaymentTypeIds.contains($0.paymentTypeId) })
                 let detectedCardType = MercadoPagoCheckout.CardType(paymentTypeId: detectedMethod?.paymentTypeId)
-                throw BinFetchError.paymentTypeNotAllowed(detectedCardType)
+                throw CardAcceptanceError.paymentTypeNotAllowed(detectedCardType)
             }
         }
         return method
@@ -81,24 +74,12 @@ struct FetchBinDataUseCase {
         bin: String
     ) async throws -> Issuer? {
         guard method.additionalInfoNeeded?.contains("issuer_id") == true else { return nil }
-        do {
-            return try await self.service.issuers(bin: bin, paymentMethodID: method.id).first
-        } catch let error as APIClientError {
-            throw BinFetchError(from: error)
-        } catch {
-            throw BinFetchError.serviceError
-        }
+        return try await self.service.issuers(bin: bin, paymentMethodID: method.id).first
     }
 
     private func filterInstallmentsRaw(amount: Double?, bin: String) async throws -> [Installment] {
         guard let amount else { return [] }
-        do {
-            return try await self.service.installments(amount: amount, bin: bin)
-        } catch let error as APIClientError {
-            throw BinFetchError(from: error)
-        } catch {
-            throw BinFetchError.serviceError
-        }
+        return try await self.service.installments(amount: amount, bin: bin)
     }
 
     private func pickInstallment(from installments: [Installment], issuer: Issuer?) -> Installment? {
@@ -106,28 +87,5 @@ struct FetchBinDataUseCase {
             return installments.first(where: { $0.issuer.id == issuer.id })
         }
         return installments.first
-    }
-}
-
-// MARK: - Private
-
-package enum BinFetchError: Error, Equatable {
-    case paymentMethodNotFound
-    case paymentMethodNotAllowed(String)
-    case paymentTypeNotAllowed(MercadoPagoCheckout.CardType?)
-    case networkError
-    case serviceError
-}
-
-private extension BinFetchError {
-    init(from error: APIClientError) {
-        switch error {
-        case .networkError:
-            self = .networkError
-        case let .apiError(response) where response.code == "not_found":
-            self = .paymentMethodNotFound
-        default:
-            self = .serviceError
-        }
     }
 }

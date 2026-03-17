@@ -20,6 +20,7 @@ struct CardFormBrick: View {
     private let themeDark: MPTheme
     private let themeLight: MPTheme
     private let transactionAmount: Double?
+    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
 
     private let onResult: (MercadoPagoCheckoutResult) -> Void
 
@@ -34,6 +35,7 @@ struct CardFormBrick: View {
         self.themeDark = appearance.dark
         self.themeLight = appearance.light
         self.transactionAmount = configuration.type.configuration.amount
+        self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
         self._cardFormViewModel = State(initialValue: CardFormViewModel(configuration: configuration))
     }
@@ -57,7 +59,7 @@ struct CardFormBrick: View {
         CardFormScreen(
             transactionAmount: self.transactionAmount,
             viewModel: self.cardFormViewModel,
-            onBack: { self.cancelCheckout() },
+            onBack: { context in self.cancelCheckout(context: context) },
             onSuccess: { paymentData in
                 self.paymentData = paymentData
                 self.completeCheckout()
@@ -95,9 +97,9 @@ struct CardFormBrick: View {
         }
     }
 
-    private func cancelCheckout() {
+    private func cancelCheckout(context: MPCancelledFormContext) {
         self.route = nil
-        self.onResult(.userCancelled)
+        self.onResult(.userCancelled(context))
         self.presentationMode.wrappedValue.dismiss()
     }
 
@@ -108,6 +110,13 @@ struct CardFormBrick: View {
     }
 
     private func fail(_ error: MercadoPagoCheckoutError) {
+        self.route = nil
         self.onResult(.error(error))
+        self.presentationMode.wrappedValue.dismiss()
+        SnackbarWindowPresenter.show(
+            message: MPStrings.Errors.generic,
+            lightTheme: self.themeLight,
+            darkTheme: self.themeDark
+        )
     }
 }

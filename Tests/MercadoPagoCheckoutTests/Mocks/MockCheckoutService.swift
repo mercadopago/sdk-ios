@@ -49,27 +49,59 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
         self.createCardTokenResult = result
     }
 
-    func identificationTypes() async throws -> [IdentificationType] {
-        guard !self.identificationTypesResults.isEmpty else { throw MockError.resultNotSet }
+    func identificationTypes() async throws(MercadoPagoCheckoutError) -> [IdentificationType] {
+        guard !self.identificationTypesResults.isEmpty else {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "resultNotSet", location: .identification)
+        }
         let result = self.identificationTypesResults.count > 1
             ? self.identificationTypesResults.removeFirst()
             : self.identificationTypesResults[0]
-        return try result.get()
+        do {
+            return try result.get()
+        } catch let error as MercadoPagoCheckoutError {
+            throw error
+        } catch {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .identification)
+        }
     }
 
-    func paymentMethod(bin _: String) async throws -> [PaymentMethod] {
-        guard let result = paymentMethodResult else { throw MockError.resultNotSet }
-        return try result.get()
+    func paymentMethod(bin _: String) async throws(MercadoPagoCheckoutError) -> [PaymentMethod] {
+        guard let result = paymentMethodResult else {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "resultNotSet", location: .paymentMethods)
+        }
+        do {
+            return try result.get()
+        } catch let error as MercadoPagoCheckoutError {
+            throw error
+        } catch {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .paymentMethods)
+        }
     }
 
-    func issuers(bin _: String, paymentMethodID _: String) async throws -> [Issuer] {
-        guard let result = issuersResult else { throw MockError.resultNotSet }
-        return try result.get()
+    func issuers(bin _: String, paymentMethodID _: String) async throws(MercadoPagoCheckoutError) -> [Issuer] {
+        guard let result = issuersResult else {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "resultNotSet", location: .paymentMethods)
+        }
+        do {
+            return try result.get()
+        } catch let error as MercadoPagoCheckoutError {
+            throw error
+        } catch {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .paymentMethods)
+        }
     }
 
-    func installments(amount _: Double, bin _: String) async throws -> [Installment] {
-        guard let result = installmentsResult else { throw MockError.resultNotSet }
-        return try result.get()
+    func installments(amount _: Double, bin _: String) async throws(MercadoPagoCheckoutError) -> [Installment] {
+        guard let result = installmentsResult else {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "resultNotSet", location: .installments)
+        }
+        do {
+            return try result.get()
+        } catch let error as MercadoPagoCheckoutError {
+            throw error
+        } catch {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .installments)
+        }
     }
 
     func fetchBinData(
@@ -82,9 +114,17 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
         return try result.get()
     }
 
-    func createCardToken(cardParams: CardParams) async throws -> CardToken {
+    func createCardToken(cardParams: CardParams) async throws(MercadoPagoCheckoutError) -> CardToken {
         self.capturedCardParams = cardParams
-        guard let result = createCardTokenResult else { throw MockError.resultNotSet }
-        return try result.get()
+        guard let result = createCardTokenResult else {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "resultNotSet", location: .tokenization)
+        }
+        do {
+            return try result.get()
+        } catch let error as MercadoPagoCheckoutError {
+            throw error
+        } catch {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .tokenization)
+        }
     }
 }

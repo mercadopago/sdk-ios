@@ -40,7 +40,8 @@ final class CardFormViewModel: ObservableObject {
         didSet { self.updateFormatters(for: self.binData) }
     }
 
-    @Published private(set) var binFetchError: BinFetchError?
+    @Published private(set) var cardAcceptanceError: CardAcceptanceError?
+    @Published private(set) var binNetworkError: MercadoPagoCheckoutError?
     @Published private(set) var showSnackbar = false
     @Published private(set) var isTokenizing = false
 
@@ -65,7 +66,9 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private var isRetriableBinError: Bool {
-        self.binFetchError == .networkError || self.binFetchError == .serviceError
+        return self.binNetworkError?.code == .networkConnectionFailed
+            || self.binNetworkError?.code == .networkTimeout
+            || self.binNetworkError?.code == .serviceError
     }
 
     // MARK: - Constants
@@ -89,16 +92,11 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Identification Types
 
-    func loadIdentificationTypes() async {
-        do {
-            let types = try await withRetry { try await self.service.identificationTypes() }
-            self.identificationTypes = types
-            self.selectTypeDocument = types.first
-            self.screenState = .ready
-        } catch {
-            self.screenState = .ready
-            self.showSnackbar = true
-        }
+    func loadIdentificationTypes() async throws {
+        let types = try await withRetry { try await self.service.identificationTypes() }
+        self.identificationTypes = types
+        self.selectTypeDocument = types.first
+        self.screenState = .ready
     }
 
     // MARK: - Formatter Updates
@@ -133,7 +131,7 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Card Token
 
-    private func createCardToken(cardForm: CardFormData) async throws -> CardToken {
+    private func createCardToken(cardForm: CardFormData) async throws(MercadoPagoCheckoutError) -> CardToken {
         let params = self.buildCardParams(from: cardForm)
         return try await self.service.createCardToken(cardParams: params)
     }
@@ -169,7 +167,8 @@ final class CardFormViewModel: ObservableObject {
 
         self.paymentMethodTask?.cancel()
         self.binData = nil
-        self.binFetchError = nil
+        self.cardAcceptanceError = nil
+        self.binNetworkError = nil
 
         guard let bin else { return }
 
@@ -180,7 +179,8 @@ final class CardFormViewModel: ObservableObject {
 
     func retryBinFetch() {
         guard self.binData == nil, let lastFetchedBIN, isRetriableBinError else { return }
-        self.binFetchError = nil
+        self.cardAcceptanceError = nil
+        self.binNetworkError = nil
         self.showSnackbar = false
         self.paymentMethodTask?.cancel()
         self.paymentMethodTask = Task { [weak self] in
@@ -203,10 +203,14 @@ final class CardFormViewModel: ObservableObject {
             )
             guard !Task.isCancelled else { return }
             self.binData = data
-        } catch let error as BinFetchError {
+        } catch let error as CardAcceptanceError {
             guard !Task.isCancelled else { return }
-            binData = nil
-            self.binFetchError = error
+            self.binData = nil
+            self.cardAcceptanceError = error
+        } catch let error as MercadoPagoCheckoutError {
+            guard !Task.isCancelled else { return }
+            self.binData = nil
+            self.binNetworkError = error
         } catch {
             guard !Task.isCancelled else { return }
             self.binData = nil
@@ -215,21 +219,25 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Payment Data
 
-    func submitPaymentData(_ amount: Double?, cardFormData: CardFormData) async throws -> MPPaymentData {
-        self.isTokenizing = true
-        let cardToken = try await self.createCardToken(cardForm: cardFormData)
-
+    private func createPaymentData(
+        _ amount: Double?,
+        cardToken: CardToken,
+        cardFormData: CardFormData
+    ) throws(MercadoPagoCheckoutError) -> MPPaymentData {
         var payer: MPPaymentData.Payer? {
             guard let selectTypeDocument else { return nil }
             return .init(
                 type: selectTypeDocument.type,
-                number: cardFormData.documentHolder
+                number: cardFormData.documentHolder.filter(\.isNumber)
             )
         }
 
         guard let binData else {
-            // TODO: - Map correct error
-            throw NSError()
+            throw MercadoPagoCheckoutError(
+                code: .unknown,
+                localizedDescription: "Couldn't create payment data: bin data is missing",
+                location: .paymentMethods
+            )
         }
 
         return .init(
@@ -241,5 +249,23 @@ final class CardFormViewModel: ObservableObject {
             issuerId: self.binData?.issuer?.id,
             payer: payer
         )
+    }
+
+    func submitCardData(
+        cardForm: CardFormData,
+        transactionAmount: Double?,
+        onSuccess: (MPPaymentData) -> Void,
+        onFailure: (MercadoPagoCheckoutError) -> Void
+    ) async {
+        self.isTokenizing = true
+        defer { self.isTokenizing = false }
+        do {
+            let cardToken = try await self.createCardToken(cardForm: cardForm)
+            let paymentData = try self.createPaymentData(transactionAmount, cardToken: cardToken, cardFormData: cardForm)
+            onSuccess(paymentData)
+        } catch {
+            guard !Task.isCancelled else { return }
+            onFailure(error)
+        }
     }
 }

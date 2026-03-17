@@ -35,6 +35,10 @@ package struct MPFooter: View {
     @Environment(\.mpFooterStyle) private var style: any MPFooterStyle
     @Environment(\.checkoutTheme) var theme: MPTheme
 
+    // MARK: - Tasks
+
+    @State private var submitTask: Task<Void, Never>?
+
     // MARK: - Initialization
 
     /// Creates a new footer with the specified configuration.
@@ -122,11 +126,16 @@ package struct MPFooter: View {
     private var button: some View {
         if let buttonData {
             Button {
-                buttonData.onClick()
+                Task {
+                    await buttonData.onClick()
+                }
             } label: {
                 Text(buttonData.text)
             }
             .mpButtonStyle(variant: buttonData.style)
+            .onDisappear {
+                self.submitTask?.cancel()
+            }
         }
     }
 

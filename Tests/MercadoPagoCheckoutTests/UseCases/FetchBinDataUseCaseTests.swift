@@ -5,12 +5,11 @@
 //  Created by Danielle Nozaki Ogawa on 26/02/26.
 //
 
-import XCTest
-@testable import MercadoPagoCheckout
 @testable import CoreMethods
+@testable import MercadoPagoCheckout
+import XCTest
 
 final class FetchBinDataUseCaseTests: XCTestCase {
-
     // MARK: - Types
 
     typealias SUT = (
@@ -107,49 +106,49 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenPaymentMethodsIsEmpty_shouldThrow() async {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([]))
 
         // Act / Assert
-        await XCTAssertThrowsErrorAsync(try await execute(sut.useCase))
+        await XCTAssertThrowsErrorAsync(try await self.execute(sut.useCase))
     }
 
     func test_execute_whenNoMatchingPaymentType_shouldThrow() async {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.debitVisa]))
 
         // Act / Assert
         await XCTAssertThrowsErrorAsync(
-            try await execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"])
+            try await self.execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"])
         )
     }
 
     func test_execute_whenNoMatchingPaymentMethodId_shouldThrow() async {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
 
         // Act / Assert
         await XCTAssertThrowsErrorAsync(
-            try await execute(sut.useCase, acceptedPaymentMethodIds: ["master"])
+            try await self.execute(sut.useCase, acceptedPaymentMethodIds: ["master"])
         )
     }
 
     func test_execute_whenPaymentMethodFails_shouldPropagateError() async {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.failure(MockCheckoutService.MockError.resultNotSet))
 
         // Act / Assert
-        await XCTAssertThrowsErrorAsync(try await execute(sut.useCase))
+        await XCTAssertThrowsErrorAsync(try await self.execute(sut.useCase))
     }
 
     // MARK: - Payment Method Filtering
 
     func test_execute_whenEmptyAcceptedMethodIds_shouldMatchAnyBrand() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
 
         // Act
@@ -161,7 +160,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenAcceptedMethodIdsMatches_shouldReturnMatchingMethod() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa, PaymentMethodStub.master]))
 
         // Act
@@ -175,7 +174,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenAdditionalInfoNeededHasNoIssuerId_shouldNotFetchIssuer() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
 
         // Act
@@ -187,7 +186,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenAdditionalInfoNeededHasIssuerId_shouldFetchIssuer() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visaWithIssuer]))
         await sut.service.setIssuersResult(.success([IssuerStub.santander]))
 
@@ -200,7 +199,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenIssuersReturnsEmpty_shouldHaveNilIssuer() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visaWithIssuer]))
         await sut.service.setIssuersResult(.success([]))
 
@@ -213,19 +212,19 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenIssuersFails_shouldPropagateError() async {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visaWithIssuer]))
         await sut.service.setIssuersResult(.failure(MockCheckoutService.MockError.resultNotSet))
 
         // Act / Assert
-        await XCTAssertThrowsErrorAsync(try await execute(sut.useCase))
+        await XCTAssertThrowsErrorAsync(try await self.execute(sut.useCase))
     }
 
     // MARK: - Installments Fetching
 
     func test_execute_whenAmountIsNil_shouldNotFetchInstallments() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
 
         // Act
@@ -237,7 +236,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenAmountProvided_shouldFetchInstallments() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
         await sut.service.setInstallmentsResult(.success([InstallmentStub.withSantander]))
 
@@ -250,7 +249,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenAmountProvidedAndNoIssuer_shouldReturnFirstInstallment() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
         await sut.service.setInstallmentsResult(.success([InstallmentStub.withSantander, InstallmentStub.withBradesco]))
 
@@ -263,7 +262,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenAmountProvidedWithIssuer_shouldMatchInstallmentByIssuer() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visaWithIssuer]))
         await sut.service.setIssuersResult(.success([IssuerStub.bradesco]))
         await sut.service.setInstallmentsResult(.success([InstallmentStub.withSantander, InstallmentStub.withBradesco]))
@@ -277,7 +276,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenAmountProvidedWithIssuerButNoMatchingInstallment_shouldHaveNilInstallment() async throws {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visaWithIssuer]))
         await sut.service.setIssuersResult(.success([IssuerStub.santander]))
         await sut.service.setInstallmentsResult(.success([InstallmentStub.withBradesco]))
@@ -291,26 +290,26 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenInstallmentsFails_shouldPropagateError() async {
         // Arrange
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
         await sut.service.setInstallmentsResult(.failure(MockCheckoutService.MockError.resultNotSet))
 
         // Act / Assert
-        await XCTAssertThrowsErrorAsync(try await execute(sut.useCase, amount: 100.0))
+        await XCTAssertThrowsErrorAsync(try await self.execute(sut.useCase, amount: 100.0))
     }
 
-    // MARK: - BinFetchError Detection
+    // MARK: - CardAcceptanceError Detection
 
     func test_execute_whenTypeMatchesButBrandExcluded_shouldThrowPaymentMethodNotAllowed() async {
         // Arrange — visa is credit_card (accepted type) but excluded from accepted brands
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa]))
 
         // Act / Assert
         do {
-            _ = try await execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: ["master"])
+            _ = try await self.execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: ["master"])
             XCTFail("Expected paymentMethodNotAllowed error")
-        } catch BinFetchError.paymentMethodNotAllowed(let method) {
+        } catch let CardAcceptanceError.paymentMethodNotAllowed(method) {
             XCTAssertEqual(method, PaymentMethodStub.visa.id)
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -319,14 +318,14 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenTypeDoesNotMatch_shouldThrowPaymentTypeNotAllowed() async {
         // Arrange — debitVisa is debit_card, only credit_card accepted
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.debitVisa]))
 
         // Act / Assert
         do {
-            _ = try await execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: [])
+            _ = try await self.execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: [])
             XCTFail("Expected paymentTypeNotAllowed error")
-        } catch BinFetchError.paymentTypeNotAllowed(let cardType) {
+        } catch let CardAcceptanceError.paymentTypeNotAllowed(cardType) {
             XCTAssertEqual(cardType, .debit)
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -335,14 +334,14 @@ final class FetchBinDataUseCaseTests: XCTestCase {
 
     func test_execute_whenMultipleMethodsAndBothBrandExcluded_shouldThrowWithFirstDetectedBrand() async {
         // Arrange — visa and master are both credit_card, neither is in accepted brands
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.service.setPaymentMethodResult(.success([PaymentMethodStub.visa, PaymentMethodStub.master]))
 
         // Act / Assert
         do {
-            _ = try await execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: ["amex"])
+            _ = try await self.execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: ["amex"])
             XCTFail("Expected paymentMethodNotAllowed error")
-        } catch BinFetchError.paymentMethodNotAllowed(let method) {
+        } catch let CardAcceptanceError.paymentMethodNotAllowed(method) {
             XCTAssertEqual(method, PaymentMethodStub.visa.id)
         } catch {
             XCTFail("Unexpected error: \(error)")

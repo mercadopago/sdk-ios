@@ -15,6 +15,13 @@ struct MainListView: View {
     @State private var showDebug = false
     @State private var showBuilderShow = false
     @State private var showBuilderPresent = false
+    @State private var alertItem: AlertItem?
+
+    struct AlertItem: Identifiable {
+        let id = UUID()
+        let title: String
+        let message: String
+    }
 
     var body: some View {
         NavigationView {
@@ -32,14 +39,17 @@ struct MainListView: View {
                     Button("show(onResult:) - SwiftUI") {
                         self.showBuilderShow = true
                     }
+                    .accessibilityIdentifier("show(onResult:) - SwiftUI")
 
                     Button("present(from:onResult:)") {
                         self.presentCheckout()
                     }
+                    .accessibilityIdentifier("present(from:onResult:)")
 
                     Button("push(to:onResult:)") {
                         self.showBuilderPresent = true
                     }
+                    .accessibilityIdentifier("push(to:onResult:)")
                 }
 
                 Section("Settings") {
@@ -69,6 +79,9 @@ struct MainListView: View {
         .sheet(isPresented: self.$showDebug) {
             DebugView()
         }
+        .alert(item: self.$alertItem) { item in
+            Alert(title: Text(item.title), message: Text(item.message))
+        }
     }
 
     private func buildCheckout() -> MercadoPagoCheckout {
@@ -84,13 +97,25 @@ struct MainListView: View {
     }
 
     private func handleResult(_ result: MercadoPagoCheckoutResult) {
-        switch result {
-        case let .success(paymentData):
-            print(paymentData)
-        case .error:
-            print("Error")
-        case .userCancelled:
-            print("User cancelled")
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(0.6))
+            switch result {
+            case let .success(paymentData):
+                self.alertItem = AlertItem(
+                    title: "Sucess",
+                    message: "Method: \(paymentData.paymentMethodId)\nToken: \(paymentData.token)"
+                )
+            case let .error(error):
+                self.alertItem = AlertItem(
+                    title: "Error",
+                    message: error.localizedDescription
+                )
+            case .userCancelled:
+                self.alertItem = AlertItem(
+                    title: "Cancelled",
+                    message: "User has cancelled."
+                )
+            }
         }
     }
 
