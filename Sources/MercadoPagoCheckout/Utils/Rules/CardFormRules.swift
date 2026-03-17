@@ -45,8 +45,13 @@ package struct RequiredRule: CardFormRuleType {
 // MARK: Card Number Rule
 
 package struct CardNumberRule: CardFormRuleType {
+    private let validation: CardFormTexts.CardNumberField.Validation
     private var min = 13, max = 19
     private var externalError: CardAcceptanceError?
+
+    init(validation: CardFormTexts.CardNumberField.Validation) {
+        self.validation = validation
+    }
 
     package mutating func apply(_ requirement: CardValidationRequirement) {
         if case let .cardNumberRange(newMin, newMax) = requirement {
@@ -59,11 +64,11 @@ package struct CardNumberRule: CardFormRuleType {
 
     package func validate(_ value: String) -> String? {
         let digits = value.filter(\.isNumber)
-        if digits.isEmpty { return MPStrings.CardForm.CardNumber.errorEmpty }
+        if digits.isEmpty { return self.validation.errorEmpty }
         if let externalError { return self.validateExternalError(externalError) }
-        if digits.count < self.min { return MPStrings.CardForm.CardNumber.errorIncomplete }
-        if self.isAllRepeatedDigits(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
-        if !self.luhnCheck(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
+        if digits.count < self.min { return self.validation.errorIncomplete }
+        if self.isAllRepeatedDigits(digits) { return self.validation.errorInvalid }
+        if !self.luhnCheck(digits) { return self.validation.errorInvalid }
         return nil
     }
 
@@ -72,7 +77,7 @@ package struct CardNumberRule: CardFormRuleType {
         guard !digits.isEmpty else { return nil }
         if let externalError { return self.validateExternalError(externalError) }
         guard digits.count >= self.min else { return nil }
-        if self.isAllRepeatedDigits(digits) { return MPStrings.CardForm.CardNumber.errorInvalid }
+        if self.isAllRepeatedDigits(digits) { return self.validation.errorInvalid }
         return nil
     }
 
@@ -84,12 +89,16 @@ package struct CardNumberRule: CardFormRuleType {
     private func validateExternalError(_ error: CardAcceptanceError) -> String? {
         switch error {
         case let .paymentMethodNotAllowed(method):
-            return MPStrings.CardForm.CardNumber.errorSellerExclusion(brand: method)
+            return String(format: self.validation.errorSellerExclusion, method)
         case let .paymentTypeNotAllowed(cardType):
             guard let cardType else {
-                return MPStrings.CardForm.CardNumber.errorInvalid
+                return self.validation.errorInvalid
             }
-            return MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: self.cardTypeDisplayName(cardType))
+            return String(format: self.validation.errorTypeNotAllowed, self.cardTypeDisplayName(cardType))
+        case .paymentMethodNotFound:
+            return self.validation.errorInvalid
+        case .networkError, .serviceError:
+            return nil
         }
     }
 
@@ -111,11 +120,45 @@ package struct CardNumberRule: CardFormRuleType {
     }
 }
 
+// MARK: - Card Holder Rule
+
+package struct CardHolderRule: CardFormRuleType {
+    private let validation: CardFormTexts.CardHolderField.Validation
+
+    init(validation: CardFormTexts.CardHolderField.Validation) {
+        self.validation = validation
+    }
+
+    package func validate(_ value: String) -> String? {
+        let clearValue = value.trimmingCharacters(in: .whitespaces)
+        guard !clearValue.isEmpty else { return self.validation.errorEmpty }
+
+        let allowed = CharacterSet.letters.union(.whitespaces).union(.decimalDigits)
+        if clearValue.unicodeScalars.contains(where: { !allowed.contains($0) }) {
+            return self.validation.errorInvalidFormat
+        }
+
+        if clearValue.count < 2 {
+            return self.validation.errorIncomplete
+        }
+
+        return nil
+    }
+}
+
+// MARK: - Expiration Date Rule
+
 package struct ExpirationDateRule: CardFormRuleType {
+    private let validation: CardFormTexts.ExpirationField.Validation
+
+    init(validation: CardFormTexts.ExpirationField.Validation) {
+        self.validation = validation
+    }
+
     package func validate(_ value: String) -> String? {
         let digits = value.filter(\.isNumber)
-        if digits.isEmpty { return MPStrings.CardForm.Expiration.errorEmpty }
-        guard digits.count == 4 else { return MPStrings.CardForm.Expiration.errorIncomplete }
+        if digits.isEmpty { return self.validation.errorEmpty }
+        guard digits.count == 4 else { return self.validation.errorIncomplete }
 
         let month = Int(digits.prefix(2)) ?? 0
         let year = (Int(digits.suffix(2)) ?? 0) + 2000
@@ -127,30 +170,41 @@ package struct ExpirationDateRule: CardFormRuleType {
         let isInvalidMonth = !(1 ... 12).contains(month)
         let isExpired = year < currentYear || (year == currentYear && month < currentMonth)
 
-        return (isInvalidMonth || isExpired) ? MPStrings.CardForm.Expiration.errorInvalid : nil
+        return (isInvalidMonth || isExpired) ? self.validation.errorInvalid : nil
     }
 }
 
 // MARK: - Security Code Rule
 
 package struct SecurityCodeRule: CardFormRuleType {
+    private let validation: CardFormTexts.CVVField.Validation
     private var length = 3
+
+    init(validation: CardFormTexts.CVVField.Validation) {
+        self.validation = validation
+    }
+
     package mutating func apply(_ requirement: CardValidationRequirement) {
         if case let .securityCodeLength(newLen) = requirement { self.length = newLen }
     }
 
     package func validate(_ value: String) -> String? {
         let digits = value.filter(\.isNumber)
-        if digits.isEmpty { return MPStrings.CardForm.CVV.errorEmpty }
-        return digits.count < self.length ? MPStrings.CardForm.CVV.errorIncomplete : nil
+        if digits.isEmpty { return self.validation.errorEmpty }
+        return digits.count < self.length ? self.validation.errorIncomplete : nil
     }
 }
 
 // MARK: - Document Rule
 
 package struct DocumentRule: CardFormRuleType {
+    private let validation: CardFormTexts.DocumentField.Validation
     private var maxLength = 20
     private var minLength = 1
+
+    init(validation: CardFormTexts.DocumentField.Validation) {
+        self.validation = validation
+    }
 
     package mutating func apply(_ requirement: CardValidationRequirement) {
         if case let .documentLength(minLen, maxLen) = requirement {
@@ -161,29 +215,9 @@ package struct DocumentRule: CardFormRuleType {
 
     package func validate(_ value: String) -> String? {
         let digits = value.filter(\.isNumber)
-        if digits.isEmpty { return MPStrings.CardForm.Document.errorEmpty }
-        if !(self.minLength ... self.maxLength).contains(digits.count) { return MPStrings.CardForm.Document.errorIncomplete }
-        if digits.allSatisfy({ $0 == "0" }) { return MPStrings.CardForm.Document.errorInvalid }
-        return nil
-    }
-}
-
-// MARK: - Card Holder Rule
-
-package struct CardHolderRule: CardFormRuleType {
-    package func validate(_ value: String) -> String? {
-        let clearValue = value.trimmingCharacters(in: .whitespaces)
-        guard !clearValue.isEmpty else { return MPStrings.CardForm.CardHolder.errorEmpty }
-
-        let allowed = CharacterSet.letters.union(.whitespaces).union(.decimalDigits)
-        if clearValue.unicodeScalars.contains(where: { !allowed.contains($0) }) {
-            return MPStrings.CardForm.CardHolder.errorInvalidFormat
-        }
-
-        if clearValue.count < 2 {
-            return MPStrings.CardForm.CardHolder.errorIncomplete
-        }
-
+        if digits.isEmpty { return self.validation.errorEmpty }
+        if !(self.minLength ... self.maxLength).contains(digits.count) { return self.validation.errorIncomplete }
+        if digits.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
         return nil
     }
 }

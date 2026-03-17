@@ -10,11 +10,54 @@
 import XCTest
 
 final class CardFormRulesTests: XCTestCase {
+    // MARK: - Default Validation Data Helpers
+
+    private static func defaultCardNumberValidation() -> CardFormTexts.CardNumberField.Validation {
+        .init(
+            errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
+            errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
+            errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
+            errorSellerExclusion: MPStrings.CardForm.CardNumber.errorSellerExclusion(brand: "%@"),
+            errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
+        )
+    }
+
+    private static func defaultCardHolderValidation() -> CardFormTexts.CardHolderField.Validation {
+        .init(
+            errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
+            errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
+            errorInvalidFormat: MPStrings.CardForm.CardHolder.errorInvalidFormat
+        )
+    }
+
+    private static func defaultExpirationValidation() -> CardFormTexts.ExpirationField.Validation {
+        .init(
+            errorEmpty: MPStrings.CardForm.Expiration.errorEmpty,
+            errorIncomplete: MPStrings.CardForm.Expiration.errorIncomplete,
+            errorInvalid: MPStrings.CardForm.Expiration.errorInvalid
+        )
+    }
+
+    private static func defaultCVVValidation() -> CardFormTexts.CVVField.Validation {
+        .init(
+            errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
+            errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
+        )
+    }
+
+    private static func defaultDocumentValidation() -> CardFormTexts.DocumentField.Validation {
+        .init(
+            errorEmpty: MPStrings.CardForm.Document.errorEmpty,
+            errorIncomplete: MPStrings.CardForm.Document.errorIncomplete,
+            errorInvalid: MPStrings.CardForm.Document.errorInvalid
+        )
+    }
+
     // MARK: - CardNumberRule
 
     func test_cardNumberRule_whenEmpty_shouldReturnEmptyError() {
         // Arrange
-        let rule = CardNumberRule()
+        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
         // Act
         let result = rule.validate("")
@@ -25,7 +68,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenBelowMinLength_shouldReturnIncompleteError() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberRange(min: 16, max: 16))
 
         // Act
@@ -37,9 +80,9 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenValidLuhn_shouldReturnNil() {
         // Arrange
-        let rule = CardNumberRule()
+        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
-        // Act — 4111111111111111 is a valid Luhn number
+        // Act -- 4111111111111111 is a valid Luhn number
         let result = rule.validate("4111 1111 1111 1111")
 
         // Assert
@@ -48,9 +91,9 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenInvalidLuhn_shouldReturnInvalidError() {
         // Arrange
-        let rule = CardNumberRule()
+        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
-        // Act — invalid Luhn
+        // Act -- invalid Luhn
         let result = rule.validate("4111 1111 1111 1112")
 
         // Assert
@@ -59,9 +102,9 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenAllDigitsSame_shouldReturnInvalidError() {
         // Arrange
-        let rule = CardNumberRule()
+        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
-        // Act — all digits repeated (1111111111111111)
+        // Act -- all digits repeated (1111111111111111)
         let result = rule.validate("1111 1111 1111 1111")
 
         // Assert
@@ -70,9 +113,9 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenAllDigitsSameDifferentDigit_shouldReturnInvalidError() {
         // Arrange
-        let rule = CardNumberRule()
+        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
-        // Act — all digits repeated (4444444444444444)
+        // Act -- all digits repeated (4444444444444444)
         let result = rule.validate("4444 4444 4444 4444")
 
         // Assert
@@ -81,7 +124,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenPaymentMethodNotAllowed_shouldReturnSellerExclusionError() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentMethodNotAllowed("visa")))
 
         // Act
@@ -94,7 +137,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenPaymentTypeNotAllowedCredit_shouldReturnTypeNotAllowedError() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.credit)))
 
         // Act
@@ -106,7 +149,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenPaymentTypeNotAllowedDebit_shouldReturnTypeNotAllowedError() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.debit)))
 
         // Act
@@ -118,7 +161,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenPaymentTypeNotAllowedPrepaid_shouldReturnTypeNotAllowedError() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.prepaid)))
 
         // Act
@@ -130,23 +173,23 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_whenPaymentTypeNotAllowedNil_shouldReturnInvalidError() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(nil)))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
 
-        // Assert — nil card type should use generic invalid error (not a broken sentence)
+        // Assert -- nil card type should use generic invalid error (not a broken sentence)
         XCTAssertNotNil(result)
     }
 
     func test_cardNumberRule_whenExternalErrorCleared_shouldValidateNormally() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentMethodNotAllowed("visa")))
         rule.apply(.cardNumberExternalError(nil))
 
-        // Act — valid Luhn, no external error
+        // Act -- valid Luhn, no external error
         let result = rule.validate("4111 1111 1111 1111")
 
         // Assert
@@ -157,7 +200,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_validateLive_whenEmpty_shouldReturnNil() {
         // Arrange
-        let rule = CardNumberRule()
+        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
         // Act
         let result = rule.validateLive("")
@@ -167,8 +210,8 @@ final class CardFormRulesTests: XCTestCase {
     }
 
     func test_cardNumberRule_validateLive_whenBelowMinLength_shouldReturnNil() {
-        // Arrange — number with fewer than 13 digits should not trigger live errors
-        var rule = CardNumberRule()
+        // Arrange -- number with fewer than 13 digits should not trigger live errors
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberRange(min: 16, max: 16))
 
         // Act
@@ -180,7 +223,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_validateLive_whenAllDigitsSameAndComplete_shouldReturnInvalidError() {
         // Arrange
-        let rule = CardNumberRule()
+        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
         // Act
         let result = rule.validateLive("1111 1111 1111 1111")
@@ -191,9 +234,9 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_validateLive_whenValidNumber_shouldReturnNil() {
         // Arrange
-        let rule = CardNumberRule()
+        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
-        // Act — 4111111111111111 is a valid non-repeated number
+        // Act -- 4111111111111111 is a valid non-repeated number
         let result = rule.validateLive("4111 1111 1111 1111")
 
         // Assert
@@ -202,7 +245,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_validateLive_whenExternalError_shouldReturnError() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentMethodNotAllowed("visa")))
 
         // Act
@@ -214,7 +257,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_validateLive_whenExternalErrorCleared_shouldReturnNil() {
         // Arrange
-        var rule = CardNumberRule()
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentMethodNotAllowed("visa")))
         rule.apply(.cardNumberExternalError(nil))
 
@@ -226,8 +269,8 @@ final class CardFormRulesTests: XCTestCase {
     }
 
     func test_cardNumberRule_validateLive_whenEmptyWithExternalError_shouldReturnNil() {
-        // Arrange — external error set but field is empty: should not show error
-        var rule = CardNumberRule()
+        // Arrange -- external error set but field is empty: should not show error
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
         rule.apply(.cardNumberExternalError(.paymentMethodNotAllowed("visa")))
 
         // Act
@@ -241,7 +284,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_whenEmpty_shouldReturnEmptyError() {
         // Arrange
-        let rule = CardHolderRule()
+        let rule = CardHolderRule(validation: Self.defaultCardHolderValidation())
 
         // Act
         let result = rule.validate("")
@@ -252,7 +295,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_whenOnlyWhitespace_shouldReturnEmptyError() {
         // Arrange
-        let rule = CardHolderRule()
+        let rule = CardHolderRule(validation: Self.defaultCardHolderValidation())
 
         // Act
         let result = rule.validate("   ")
@@ -263,7 +306,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_whenSingleChar_shouldReturnIncompleteError() {
         // Arrange
-        let rule = CardHolderRule()
+        let rule = CardHolderRule(validation: Self.defaultCardHolderValidation())
 
         // Act
         let result = rule.validate("A")
@@ -274,7 +317,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_whenLettersOnly_shouldReturnNil() {
         // Arrange
-        let rule = CardHolderRule()
+        let rule = CardHolderRule(validation: Self.defaultCardHolderValidation())
 
         // Act
         let result = rule.validate("Maria Lopez")
@@ -285,7 +328,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_whenLettersAndNumbers_shouldReturnNil() {
         // Arrange
-        let rule = CardHolderRule()
+        let rule = CardHolderRule(validation: Self.defaultCardHolderValidation())
 
         // Act
         let result = rule.validate("John 2nd")
@@ -296,7 +339,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_whenSpecialCharacters_shouldReturnInvalidFormatError() {
         // Arrange
-        let rule = CardHolderRule()
+        let rule = CardHolderRule(validation: Self.defaultCardHolderValidation())
 
         // Act
         let result = rule.validate("Maria @Lopez")
@@ -307,7 +350,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_whenHashCharacter_shouldReturnInvalidFormatError() {
         // Arrange
-        let rule = CardHolderRule()
+        let rule = CardHolderRule(validation: Self.defaultCardHolderValidation())
 
         // Act
         let result = rule.validate("Jo#hn")
@@ -318,7 +361,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_whenAccentedLetters_shouldReturnNil() {
         // Arrange
-        let rule = CardHolderRule()
+        let rule = CardHolderRule(validation: Self.defaultCardHolderValidation())
 
         // Act
         let result = rule.validate("María López")
@@ -381,7 +424,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_securityCodeRule_whenEmpty_shouldReturnEmptyError() {
         // Arrange
-        let rule = SecurityCodeRule()
+        let rule = SecurityCodeRule(validation: Self.defaultCVVValidation())
 
         // Act
         let result = rule.validate("")
@@ -391,8 +434,8 @@ final class CardFormRulesTests: XCTestCase {
     }
 
     func test_securityCodeRule_whenIncomplete_shouldReturnIncompleteError() {
-        // Arrange — default length is 3
-        let rule = SecurityCodeRule()
+        // Arrange -- default length is 3
+        let rule = SecurityCodeRule(validation: Self.defaultCVVValidation())
 
         // Act
         let result = rule.validate("12")
@@ -403,7 +446,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_securityCodeRule_whenCompleteWithDefaultLength_shouldReturnNil() {
         // Arrange
-        let rule = SecurityCodeRule()
+        let rule = SecurityCodeRule(validation: Self.defaultCVVValidation())
 
         // Act
         let result = rule.validate("123")
@@ -414,7 +457,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_securityCodeRule_whenAmexLengthApplied_withFourDigits_shouldReturnNil() {
         // Arrange
-        var rule = SecurityCodeRule()
+        var rule = SecurityCodeRule(validation: Self.defaultCVVValidation())
         rule.apply(.securityCodeLength(4))
 
         // Act
@@ -426,7 +469,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_securityCodeRule_whenAmexLengthApplied_withThreeDigits_shouldReturnIncompleteError() {
         // Arrange
-        var rule = SecurityCodeRule()
+        var rule = SecurityCodeRule(validation: Self.defaultCVVValidation())
         rule.apply(.securityCodeLength(4))
 
         // Act
@@ -434,5 +477,101 @@ final class CardFormRulesTests: XCTestCase {
 
         // Assert
         XCTAssertNotNil(result)
+    }
+
+    // MARK: - Custom Validation Texts
+
+    func test_cardNumberRule_usesCustomValidationTexts() {
+        // Arrange
+        let customValidation = CardFormTexts.CardNumberField.Validation(
+            errorEmpty: "CUSTOM_EMPTY",
+            errorIncomplete: "CUSTOM_INCOMPLETE",
+            errorInvalid: "CUSTOM_INVALID",
+            errorSellerExclusion: "CUSTOM_EXCLUSION %@",
+            errorTypeNotAllowed: "CUSTOM_TYPE %@"
+        )
+        let rule = CardNumberRule(validation: customValidation)
+
+        // Act / Assert -- empty
+        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+
+        // Act / Assert -- invalid (all same digits)
+        XCTAssertEqual(rule.validate("1111 1111 1111 1111"), "CUSTOM_INVALID")
+
+        // Act / Assert -- incomplete
+        var ruleWithRange = CardNumberRule(validation: customValidation)
+        ruleWithRange.apply(.cardNumberRange(min: 16, max: 16))
+        XCTAssertEqual(ruleWithRange.validate("4111 1111"), "CUSTOM_INCOMPLETE")
+    }
+
+    func test_cardHolderRule_usesCustomValidationTexts() {
+        // Arrange
+        let customValidation = CardFormTexts.CardHolderField.Validation(
+            errorEmpty: "CUSTOM_EMPTY",
+            errorIncomplete: "CUSTOM_INCOMPLETE",
+            errorInvalidFormat: "CUSTOM_FORMAT"
+        )
+        let rule = CardHolderRule(validation: customValidation)
+
+        // Act / Assert -- empty
+        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+
+        // Act / Assert -- incomplete (single char)
+        XCTAssertEqual(rule.validate("A"), "CUSTOM_INCOMPLETE")
+
+        // Act / Assert -- invalid format
+        XCTAssertEqual(rule.validate("Jo@hn"), "CUSTOM_FORMAT")
+    }
+
+    func test_expirationDateRule_usesCustomValidationTexts() {
+        // Arrange
+        let customValidation = CardFormTexts.ExpirationField.Validation(
+            errorEmpty: "CUSTOM_EMPTY",
+            errorIncomplete: "CUSTOM_INCOMPLETE",
+            errorInvalid: "CUSTOM_INVALID"
+        )
+        let rule = ExpirationDateRule(validation: customValidation)
+
+        // Act / Assert -- empty
+        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+
+        // Act / Assert -- incomplete (only 2 digits)
+        XCTAssertEqual(rule.validate("12"), "CUSTOM_INCOMPLETE")
+
+        // Act / Assert -- invalid (month 13)
+        XCTAssertEqual(rule.validate("1399"), "CUSTOM_INVALID")
+    }
+
+    func test_securityCodeRule_usesCustomValidationTexts() {
+        // Arrange
+        let customValidation = CardFormTexts.CVVField.Validation(
+            errorEmpty: "CUSTOM_EMPTY",
+            errorIncomplete: "CUSTOM_INCOMPLETE"
+        )
+        let rule = SecurityCodeRule(validation: customValidation)
+
+        // Act / Assert -- empty
+        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+
+        // Act / Assert -- incomplete
+        XCTAssertEqual(rule.validate("12"), "CUSTOM_INCOMPLETE")
+    }
+
+    func test_documentRule_usesCustomValidationTexts() {
+        // Arrange
+        let customValidation = CardFormTexts.DocumentField.Validation(
+            errorEmpty: "CUSTOM_EMPTY",
+            errorIncomplete: "CUSTOM_INCOMPLETE",
+            errorInvalid: "CUSTOM_INVALID"
+        )
+        let rule = DocumentRule(validation: customValidation)
+
+        // Act / Assert -- empty
+        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+
+        // Act / Assert -- invalid (all zeros)
+        var ruleWithLen = DocumentRule(validation: customValidation)
+        ruleWithLen.apply(.documentLength(min: 3, max: 3))
+        XCTAssertEqual(ruleWithLen.validate("000"), "CUSTOM_INVALID")
     }
 }
