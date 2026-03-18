@@ -18,9 +18,15 @@ struct InitializeCardFormUseCase: Sendable {
 
     /// Fetches initialization data from the repository,
     /// then applies business rules (button selection, custom text overrides).
-    func execute(config: MercadoPagoCheckout.CardFormConfiguration) async throws -> CardFormInitializationOutput {
-        let data = try await repository.fetchInitialization()
-        return self.mapToResult(data: data, config: config)
+    func execute(config: MercadoPagoCheckout.CardFormConfiguration) async throws(MercadoPagoCheckoutError) -> CardFormInitializationOutput {
+        do {
+            let data = try await repository.fetchInitialization()
+            return self.mapToResult(data: data, config: config)
+        } catch let error as APIClientError {
+            throw .init(from: error, location: .initialization)
+        } catch {
+            throw .init(code: .unknown, localizedDescription: error.localizedDescription, location: .identification)
+        }
     }
 
     // MARK: - Business Rules
@@ -42,7 +48,7 @@ struct InitializeCardFormUseCase: Sendable {
                         errorEmpty: fields.cardNumber.validation.errorEmpty,
                         errorIncomplete: fields.cardNumber.validation.errorIncomplete,
                         errorInvalid: fields.cardNumber.validation.errorInvalid,
-                        errorSellerExclusion: fields.cardNumber.validation.errorSellerExclusion,
+                        errorMethodNotAllowed: fields.cardNumber.validation.errorMethodNotAllowed,
                         errorTypeNotAllowed: fields.cardNumber.validation.errorTypeNotAllowed
                     )
                 ),
@@ -53,7 +59,7 @@ struct InitializeCardFormUseCase: Sendable {
                     validation: .init(
                         errorEmpty: fields.cardHolder.validation.errorEmpty,
                         errorIncomplete: fields.cardHolder.validation.errorIncomplete,
-                        errorInvalidFormat: fields.cardHolder.validation.errorInvalidFormat
+                        errorInvalid: fields.cardHolder.validation.errorInvalid
                     )
                 ),
                 expiration: .init(

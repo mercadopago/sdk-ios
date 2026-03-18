@@ -15,12 +15,12 @@ struct CardFormBrick: View {
 
     @State private var route: Route?
     @State private var paymentData: MPPaymentData
-    @State private var cardFormViewModel: CardFormViewModel
+    @ObservedObject private var brickViewModel: CardFormBrickViewModel
 
+    private var configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let themeDark: MPTheme
     private let themeLight: MPTheme
     private let transactionAmount: Double?
-    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
 
     private let onResult: (MercadoPagoCheckoutResult) -> Void
 
@@ -31,13 +31,14 @@ struct CardFormBrick: View {
         appearance: MercadoPagoCheckout.CheckoutAppearance,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
+        self.configuration = configuration
         self.onResult = onResult
         self.themeDark = appearance.dark
         self.themeLight = appearance.light
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
-        self._cardFormViewModel = State(initialValue: CardFormViewModel(configuration: configuration))
+        self.brickViewModel = CardFormBrickViewModel(configuration: configuration)
     }
 
     var body: some View {
@@ -47,18 +48,40 @@ struct CardFormBrick: View {
         ) {
             NavigationView {
                 ZStack {
-                    self.cardFormScreen()
+                    switch self.brickViewModel.screenState {
+                    case .loading:
+                        MPProgressIndicator()
+                            .size(.xlarge)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    case let .ready(initResult):
+                        self.cardFormScreen(initResult: initResult)
+                    }
                     self.navigationLinks()
                 }
             }
             .navigationViewStyle(StackNavigationViewStyle())
         }
+        .mpTask {
+            do {
+                try await self.brickViewModel.load()
+            } catch let error as MercadoPagoCheckoutError {
+                self.onResult(.error(error))
+            } catch {
+                let checkoutError = MercadoPagoCheckoutError(
+                    code: .unknown,
+                    localizedDescription: error.localizedDescription,
+                    location: .initialization
+                )
+                self.onResult(.error(checkoutError))
+            }
+        }
     }
 
-    private func cardFormScreen() -> some View {
+    private func cardFormScreen(initResult: CardFormInitializationOutput) -> some View {
         CardFormScreen(
+            initResult: initResult,
             transactionAmount: self.transactionAmount,
-            viewModel: self.cardFormViewModel,
+            viewModel: CardFormViewModel(configuration: self.configuration, initResult: initResult),
             onBack: { context in self.cancelCheckout(context: context) },
             onSuccess: { paymentData in
                 self.paymentData = paymentData

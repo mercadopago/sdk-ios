@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 16/03/26.
 //
 
+@testable import CoreMethods
 @testable import MercadoPagoCheckout
 
 // MARK: - Input (CardFormInitializationInput - Repository → UseCase)
@@ -19,7 +20,7 @@ enum CardFormInitializationInputStub {
                     errorEmpty: "Enter a card number",
                     errorIncomplete: "Card number is incomplete",
                     errorInvalid: "Card number is invalid",
-                    errorSellerExclusion: "%@ is not accepted",
+                    errorMethodNotAllowed: "%@ is not accepted",
                     errorTypeNotAllowed: "%@ cards are not accepted"
                 )
             ),
@@ -30,7 +31,7 @@ enum CardFormInitializationInputStub {
                 validation: .init(
                     errorEmpty: "Enter a name",
                     errorIncomplete: "Name is too short",
-                    errorInvalidFormat: "Invalid characters"
+                    errorInvalid: "Invalid characters"
                 )
             ),
             expiration: .init(
@@ -71,6 +72,15 @@ enum CardFormInitializationInputStub {
 // MARK: - Output (CardFormInitializationOutput - UseCase output)
 
 enum CardFormInitializationOutputStub {
+    static func make(identificationTypes: [IdentificationType] = []) -> CardFormInitializationOutput {
+        CardFormInitializationOutput(
+            title: "Default Header",
+            button: "Save",
+            fields: Self.makeDefaultFields(),
+            identificationTypes: identificationTypes
+        )
+    }
+
     static func makeDefaultFields() -> CardFormTexts.Fields {
         .init(
             cardNumber: .init(
@@ -80,7 +90,7 @@ enum CardFormInitializationOutputStub {
                     errorEmpty: "Enter a card number",
                     errorIncomplete: "Card number is incomplete",
                     errorInvalid: "Card number is invalid",
-                    errorSellerExclusion: "%@ is not accepted",
+                    errorMethodNotAllowed: "%@ is not accepted",
                     errorTypeNotAllowed: "%@ cards are not accepted"
                 )
             ),
@@ -91,7 +101,7 @@ enum CardFormInitializationOutputStub {
                 validation: .init(
                     errorEmpty: "Enter a name",
                     errorIncomplete: "Name is too short",
-                    errorInvalidFormat: "Invalid characters"
+                    errorInvalid: "Invalid characters"
                 )
             ),
             expiration: .init(

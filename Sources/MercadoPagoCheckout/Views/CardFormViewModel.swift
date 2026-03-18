@@ -8,11 +8,6 @@ import CoreMethods
 import MPComponents
 import SwiftUI
 
-enum CardFormScreenState {
-    case loading
-    case ready
-}
-
 @MainActor
 final class CardFormViewModel: ObservableObject {
     // MARK: - Dependencies
@@ -29,7 +24,6 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Published State
 
-    @Published private(set) var screenState: CardFormScreenState = .loading
     @Published var selectTypeDocument: IdentificationType? {
         didSet { self.updateIdentificationType() }
     }
@@ -84,19 +78,13 @@ final class CardFormViewModel: ObservableObject {
 
     init(
         configuration: MercadoPagoCheckout.CheckoutConfiguration,
+        initResult: CardFormInitializationOutput,
         service: CheckoutServiceProtocol = CheckoutService()
     ) {
         self.configuration = configuration
         self.service = service
-    }
-
-    // MARK: - Identification Types
-
-    func loadIdentificationTypes() async throws {
-        let types = try await withRetry { try await self.service.identificationTypes() }
-        self.identificationTypes = types
-        self.selectTypeDocument = types.first
-        self.screenState = .ready
+        self.identificationTypes = initResult.identificationTypes
+        self.selectTypeDocument = initResult.identificationTypes.first
     }
 
     // MARK: - Formatter Updates

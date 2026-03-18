@@ -92,7 +92,7 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
 
     // MARK: - Button Resolution
 
-    func testExecute_withoutAmount_usesSaveButton() async throws {
+    func testExecute_usesSaveButton() async throws {
         let sut = self.makeSUT()
         sut.repository.mockData = CardFormInitializationInput(
             title: "Header",
@@ -101,23 +101,9 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
             identificationTypes: []
         )
 
-        let result = try await sut.useCase.execute(config: self.makeConfig(amount: nil))
+        let result = try await sut.useCase.execute(config: self.makeConfig())
 
         XCTAssertEqual(result.button, "Guardar")
-    }
-
-    func testExecute_withAmount_usesPayButton() async throws {
-        let sut = self.makeSUT()
-        sut.repository.mockData = CardFormInitializationInput(
-            title: "Header",
-            buttonVariants: .init(save: "Guardar", pay: "Pagar"),
-            fields: CardFormInitializationInputStub.makeDefaultFields(),
-            identificationTypes: []
-        )
-
-        let result = try await sut.useCase.execute(config: self.makeConfig(amount: 100.0))
-
-        XCTAssertEqual(result.button, "Pagar")
     }
 
     // MARK: - Error Cases
@@ -129,8 +115,10 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
         do {
             _ = try await sut.useCase.execute(config: self.makeConfig())
             XCTFail("Expected repository error to propagate")
+        } catch let error as MercadoPagoCheckoutError {
+            XCTAssertEqual(error.code, .unknown)
         } catch {
-            XCTAssertEqual((error as NSError).domain, "test")
+            XCTFail("Expected MercadoPagoCheckoutError, got \(error)")
         }
     }
 }

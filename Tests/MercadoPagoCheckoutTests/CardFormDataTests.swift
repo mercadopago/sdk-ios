@@ -13,7 +13,7 @@ final class CardFormDataTests: XCTestCase {
 
     func test_isFormValid_whenAllFieldsValid_shouldReturnTrue() {
         // Arrange
-        var form = CardFormData()
+        var form = CardFormData(fields: CardFormInitializationOutputStub.makeDefaultFields())
         form.cardNumber = "4111111111111111"
         form.cardHolder = "John Doe"
         form.expirationDate = "0130"
@@ -26,7 +26,7 @@ final class CardFormDataTests: XCTestCase {
 
     func test_isFormValid_whenSecurityCodeEmptyAndMandatory_shouldReturnFalse() {
         // Arrange
-        var form = CardFormData()
+        var form = CardFormData(fields: CardFormInitializationOutputStub.makeDefaultFields())
         form.cardNumber = "4111111111111111"
         form.cardHolder = "John Doe"
         form.expirationDate = "0130"
@@ -39,7 +39,7 @@ final class CardFormDataTests: XCTestCase {
 
     func test_isFormValid_whenSecurityCodeNotMandatory_withEmptyCode_shouldReturnTrue() {
         // Arrange
-        var form = CardFormData()
+        var form = CardFormData(fields: CardFormInitializationOutputStub.makeDefaultFields())
         form.cardNumber = "4111111111111111"
         form.cardHolder = "John Doe"
         form.expirationDate = "0130"
@@ -52,7 +52,7 @@ final class CardFormDataTests: XCTestCase {
 
     func test_isFormValid_whenSecurityCodeMandatory_withEmptyCode_shouldReturnFalse() {
         // Arrange
-        var form = CardFormData()
+        var form = CardFormData(fields: CardFormInitializationOutputStub.makeDefaultFields())
         form.cardNumber = "4111111111111111"
         form.cardHolder = "John Doe"
         form.expirationDate = "0130"
