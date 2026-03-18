@@ -15,8 +15,9 @@ struct CardFormBrick: View {
 
     @State private var route: Route?
     @State private var paymentData: MPPaymentData
-    @ObservedObject private var cardFormViewModel: CardFormViewModel
+    @ObservedObject private var brickViewModel: CardFormBrickViewModel
 
+    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let themeDark: MPTheme
     private let themeLight: MPTheme
     private let transactionAmount: Double?
@@ -31,13 +32,14 @@ struct CardFormBrick: View {
         appearance: MercadoPagoCheckout.CheckoutAppearance,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
+        self.configuration = configuration
         self.onResult = onResult
         self.themeDark = appearance.dark
         self.themeLight = appearance.light
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
-        self._cardFormViewModel = ObservedObject(wrappedValue: CardFormViewModel(configuration: configuration))
+        self._brickViewModel = ObservedObject(wrappedValue: CardFormBrickViewModel(configuration: configuration))
     }
 
     var body: some View {
@@ -47,7 +49,7 @@ struct CardFormBrick: View {
         ) {
             NavigationView {
                 ZStack {
-                    switch self.cardFormViewModel.screenState {
+                    switch self.brickViewModel.screenState {
                     case .loading:
                         MPProgressIndicator()
                             .size(.xlarge)
@@ -62,7 +64,7 @@ struct CardFormBrick: View {
         }
         .mpTask {
             do {
-                try await self.cardFormViewModel.loadInitData()
+                try await self.brickViewModel.loadInitData()
             } catch {
                 self.onResult(.error(.serviceError(error.localizedDescription)))
             }
@@ -73,8 +75,8 @@ struct CardFormBrick: View {
         CardFormScreen(
             initResult: initResult,
             transactionAmount: self.transactionAmount,
-            viewModel: self.cardFormViewModel,
             onBack: { context in self.cancelCheckout(context: context) },
+            viewModel: CardFormViewModel(configuration: self.configuration, initResult: initResult),
             onSuccess: { paymentData in
                 self.paymentData = paymentData
                 self.completeCheckout()

@@ -71,6 +71,15 @@ enum CardFormInitializationInputStub {
 // MARK: - Output (CardFormInitializationOutput - UseCase output)
 
 enum CardFormInitializationOutputStub {
+    static func make(identificationTypes: [IdentificationType] = []) -> CardFormInitializationOutput {
+        CardFormInitializationOutput(
+            title: "Default Header",
+            button: "Save",
+            fields: Self.makeDefaultFields(),
+            identificationTypes: identificationTypes
+        )
+    }
+
     static func makeDefaultFields() -> CardFormTexts.Fields {
         .init(
             cardNumber: .init(

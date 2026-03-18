@@ -10,16 +10,10 @@ import SwiftUI
 
 @MainActor
 final class CardFormViewModel: ObservableObject {
-    enum ScreenState {
-        case loading
-        case ready(CardFormInitializationOutput)
-    }
-
     // MARK: - Dependencies
 
     private let configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let service: CheckoutServiceProtocol
-    private let initializeUseCase: InitializeCardFormUseCase
 
     // MARK: - Formatters
 
@@ -44,7 +38,6 @@ final class CardFormViewModel: ObservableObject {
     @Published private(set) var binNetworkError: MercadoPagoCheckoutError?
     @Published private(set) var showSnackbar = false
     @Published private(set) var isTokenizing = false
-    @Published private(set) var screenState: ScreenState = .loading
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
@@ -85,29 +78,13 @@ final class CardFormViewModel: ObservableObject {
 
     init(
         configuration: MercadoPagoCheckout.CheckoutConfiguration,
-        service: CheckoutServiceProtocol = CheckoutService(),
-        initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase()
+        initResult: CardFormInitializationOutput,
+        service: CheckoutServiceProtocol = CheckoutService()
     ) {
         self.configuration = configuration
         self.service = service
-        self.initializeUseCase = initializeUseCase
-    }
-
-    // MARK: - Initialization
-
-    func loadInitData() async throws {
-        let config = self.extractCardFormConfig()
-        let result = try await self.initializeUseCase.execute(config: config)
-        self.identificationTypes = result.identificationTypes
-        self.selectTypeDocument = result.identificationTypes.first
-        self.screenState = .ready(result)
-    }
-
-    private func extractCardFormConfig() -> MercadoPagoCheckout.CardFormConfiguration {
-        if case let .cardForm(config) = configuration.type {
-            return config
-        }
-        return MercadoPagoCheckout.CardFormConfiguration()
+        self.identificationTypes = initResult.identificationTypes
+        self.selectTypeDocument = initResult.identificationTypes.first
     }
 
     // MARK: - Formatter Updates
