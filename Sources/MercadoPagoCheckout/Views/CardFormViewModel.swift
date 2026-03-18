@@ -92,7 +92,15 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Identification Types
 
+    var requiresIdentificationTypes: Bool {
+        MercadoPagoSDK.shared.configuration?.country != .MEX
+    }
+
     func loadIdentificationTypes() async throws {
+        guard self.requiresIdentificationTypes else {
+            self.screenState = .ready
+            return
+        }
         let types = try await withRetry { try await self.service.identificationTypes() }
         self.identificationTypes = types
         self.selectTypeDocument = types.first

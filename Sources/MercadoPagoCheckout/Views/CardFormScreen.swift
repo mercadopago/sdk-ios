@@ -68,7 +68,12 @@ struct CardFormScreen: View {
                             )
                         )
                         .isLoading(self.viewModel.isTokenizing)
-                        .disabled(!self.cardForm.isFormValid(isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory))
+                        .disabled(
+                            !self.cardForm.isFormValid(
+                                isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory,
+                                isDocumentRequired: self.viewModel.requiresIdentificationTypes
+                            )
+                        )
                         .background(
                             GeometryReader { geo in
                                 Color.clear.onAppear { self.footerHeight = geo.size.height }
@@ -119,17 +124,19 @@ struct CardFormScreen: View {
                                 )
                             }
 
-                            MPTextField(
-                                text: self.$cardForm.documentHolder,
-                                label: MPStrings.CardForm.Document.label,
-                                placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
-                                errorMessage: self.cardForm.$documentHolder,
-                                keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
-                                formatter: self.viewModel.documentFormatter,
-                                prefix: {
-                                    self.dropdownDocument()
-                                }
-                            )
+                            if self.viewModel.requiresIdentificationTypes {
+                                MPTextField(
+                                    text: self.$cardForm.documentHolder,
+                                    label: MPStrings.CardForm.Document.label,
+                                    placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
+                                    errorMessage: self.cardForm.$documentHolder,
+                                    keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
+                                    formatter: self.viewModel.documentFormatter,
+                                    prefix: {
+                                        self.dropdownDocument()
+                                    }
+                                )
+                            }
                         }
                         .padding(.horizontal, self.theme.spacings.micro)
                     }
