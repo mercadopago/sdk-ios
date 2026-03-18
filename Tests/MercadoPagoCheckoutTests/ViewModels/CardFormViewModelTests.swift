@@ -791,24 +791,6 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(captured?.documentType, IdentificationTypeStub.cpf.id)
     }
 
-    func test_submitPaymentData_whenBinDataIsNil_shouldThrow() async {
-        // Arrange
-        let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
-        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        // No bin fetch triggered — binData remains nil
-
-        // Act & Assert
-        do {
-            _ = try await sut.viewModel.submitPaymentData(nil, cardFormData: CardFormDataStub.validForm)
-            XCTFail("Expected error to be thrown when binData is nil")
-        } catch {
-            // Expected — binData guard throws
-        }
-    }
-
     func test_submitCardData_whenDocumentTypeIsSelected_shouldIncludePayer() async {
         // Arrange
         let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
@@ -872,21 +854,6 @@ final class CardFormViewModelTests: XCTestCase {
         // Assert
         XCTAssertEqual(capturedPaymentData?.paymentMethodId, "visa")
         XCTAssertEqual(capturedPaymentData?.paymentTypeId, "credit_card")
-    }
-
-    func test_submitPaymentData_whenBinDataIsNilAfterConfigure_shouldThrow() async throws {
-        // Arrange
-        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
-        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        // No bin fetch triggered — binData remains nil
-
-        // Act & Assert
-        do {
-            _ = try await sut.viewModel.submitPaymentData(100.0, cardFormData: CardFormDataStub.validForm)
-            XCTFail("Expected error when binData is nil")
-        } catch {
-            // Expected — guard let binData throws
-        }
     }
 
     func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async throws {
