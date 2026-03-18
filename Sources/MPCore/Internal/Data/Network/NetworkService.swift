@@ -1,6 +1,6 @@
 import Foundation
 
-protocol URLSessionProtocol: Sendable {
+package protocol URLSessionProtocol: Sendable {
     func data(for request: URLRequest) async throws -> (Data, URLResponse)
 }
 
@@ -10,9 +10,10 @@ package final class NetworkService: NetworkServiceProtocol {
     // MARK: - Properties
 
     private let session: URLSessionProtocol
+
     // MARK: - Initialization
 
-    init(session: URLSessionProtocol = URLSession.shared) {
+    package init(session: URLSessionProtocol = URLSession.shared) {
         let urlSessionConfiguration: URLSessionConfiguration = .default
         if let cachesURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
             let diskCacheURL = cachesURL.appendingPathComponent("MPCache")
@@ -25,7 +26,7 @@ package final class NetworkService: NetworkServiceProtocol {
             )
             urlSessionConfiguration.urlCache = cache
         }
-        
+
         self.session = session
     }
 

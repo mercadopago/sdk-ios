@@ -6,15 +6,15 @@
 //
 import Foundation
 
-public struct IdentificationType: Sendable, Equatable, Hashable {
+public struct IdentificationType: Sendable, Equatable, Hashable, Codable {
     public let id: String
     public let name: String
     public let type: String
     public let minLenght: Int
     public let maxLenght: Int
-    
+
     package let placeholder: String
-    
+
     public init(id: String, name: String, type: String, minLenght: Int, maxLenght: Int) {
         self.id = id
         self.name = name
@@ -23,7 +23,7 @@ public struct IdentificationType: Sendable, Equatable, Hashable {
         self.maxLenght = maxLenght
         self.placeholder = ""
     }
-    
+
     public init(name: String) {
         self.id = ""
         self.name = name

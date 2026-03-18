@@ -4,8 +4,10 @@
 //
 //  Created by Guilherme Prata Costa on 18/03/26.
 //
+import Foundation
 
 #if SWIFT_PACKAGE
+    import CoreMethods
     import MPCore
 #endif
 
@@ -16,7 +18,7 @@ enum CardFormInitializationEndpoint {
 extension CardFormInitializationEndpoint: RequestEndpoint {
     var apiVersion: APIVersion { .v1 }
 
-    var baseURL: String { ConstantsCoreMethods.baseURLBricks }
+    var baseURL: String { ConstantsEndpoint.baseURLBricks }
 
     var method: HTTPMethod { .get }
 

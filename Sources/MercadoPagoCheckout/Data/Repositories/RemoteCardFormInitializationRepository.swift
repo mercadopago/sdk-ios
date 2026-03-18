@@ -17,11 +17,8 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
     }
 
     func fetchInitialization() async throws -> CardFormInitializationInput {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         let response: CardFormInitializationResponse = try await networkService.request(
-            CardFormInitializationEndpoint.getInitialization,
-            decoder: decoder
+            CardFormInitializationEndpoint.getInitialization
         )
         return self.map(response)
     }
@@ -78,7 +75,7 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     placeholder: MPStrings.CardForm.Issuer.placeholder
                 ),
                 document: .init(
-                    label: t.documentLabel,
+                    label: translations.documentLabel,
                     placeholder: MPStrings.CardForm.Document.placeholder,
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.Document.errorEmpty,

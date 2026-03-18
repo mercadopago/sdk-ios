@@ -7,7 +7,7 @@
 
 import CoreMethods
 
-struct CardFormInitializationResponse: Decodable, Sendable {
+struct CardFormInitializationResponse: Codable, Sendable {
     let identificationTypes: [IdentificationType]
     let translations: Translations
     let cardNumber: CardNumberConfig
@@ -20,7 +20,7 @@ struct CardFormInitializationResponse: Decodable, Sendable {
         case securityCode = "security_code"
     }
 
-    struct Translations: Decodable, Sendable {
+    struct Translations: Codable, Sendable {
         let cardFormTitle: String
         let cardNumberLabel: String
         let cardNumberPlaceholder: String
@@ -50,12 +50,12 @@ struct CardFormInitializationResponse: Decodable, Sendable {
         }
     }
 
-    struct CardNumberConfig: Decodable, Sendable {
+    struct CardNumberConfig: Codable, Sendable {
         let length: Int
         let mask: String
     }
 
-    struct SecurityCodeConfig: Decodable, Sendable {
+    struct SecurityCodeConfig: Codable, Sendable {
         let length: Int
     }
 }
