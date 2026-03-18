@@ -213,10 +213,6 @@ final class CardFormViewModelTests: XCTestCase {
         }
     }
 
-    private func setupIdentificationTypes() -> SUT {
-        self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
-    }
-
     private func setupBinData(_ sut: SUT) async {
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
@@ -778,7 +774,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_submitCardData_whenCalledWithDocumentTypeSelected_shouldPassDocumentType() async {
         // Arrange
-        let sut = self.setupIdentificationTypes()
+        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
         await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
@@ -815,7 +811,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_submitCardData_whenDocumentTypeIsSelected_shouldIncludePayer() async {
         // Arrange
-        let sut = self.setupIdentificationTypes()
+        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
         await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
@@ -837,7 +833,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_submitCardData_whenDocumentTypeIsSelected_shouldSetTransactionAmountAndInstallment() async {
         // Arrange
-        let sut = self.setupIdentificationTypes()
+        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
         await self.setupBinData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var capturedPaymentData: MPPaymentData?
@@ -858,7 +854,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_submitCardData_whenBinDataIsAvailable_shouldIncludePaymentMethodAndTypeIds() async {
         // Arrange
-        let sut = self.setupIdentificationTypes()
+        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
         await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binData)
@@ -880,7 +876,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_submitPaymentData_whenBinDataIsNilAfterConfigure_shouldThrow() async throws {
         // Arrange
-        let sut = self.setupIdentificationTypes()
+        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         // No bin fetch triggered — binData remains nil
 
@@ -895,7 +891,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async throws {
         // Arrange
-        let sut = self.setupIdentificationTypes()
+        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
         let binDataWithIssuer = CardBinData(
             paymentMethod: CardBinDataStub.visa.paymentMethod,
             issuer: IssuerStub.bradesco,
