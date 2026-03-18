@@ -4,6 +4,7 @@
 //
 //  Created by Guilherme Prata Costa on 18/03/26.
 //
+import Foundation
 
 @MainActor
 final class CardFormBrickViewModel: ObservableObject {

@@ -39,7 +39,7 @@ struct CardFormBrick: View {
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
-        self._brickViewModel = ObservedObject(wrappedValue: CardFormBrickViewModel(configuration: configuration))
+        self.brickViewModel = CardFormBrickViewModel(configuration: configuration)
     }
 
     var body: some View {

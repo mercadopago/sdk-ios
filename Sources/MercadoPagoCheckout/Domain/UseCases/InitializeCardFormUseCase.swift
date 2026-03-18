@@ -42,7 +42,7 @@ struct InitializeCardFormUseCase: Sendable {
                         errorEmpty: fields.cardNumber.validation.errorEmpty,
                         errorIncomplete: fields.cardNumber.validation.errorIncomplete,
                         errorInvalid: fields.cardNumber.validation.errorInvalid,
-                        errorMethodNotAllowed: fields.cardNumber.validation.errorSellerExclusion,
+                        errorMethodNotAllowed: fields.cardNumber.validation.errorMethodNotAllowed,
                         errorTypeNotAllowed: fields.cardNumber.validation.errorTypeNotAllowed
                     )
                 ),
@@ -53,7 +53,7 @@ struct InitializeCardFormUseCase: Sendable {
                     validation: .init(
                         errorEmpty: fields.cardHolder.validation.errorEmpty,
                         errorIncomplete: fields.cardHolder.validation.errorIncomplete,
-                        errorInvalidFormat: fields.cardHolder.validation.errorInvalidFormat
+                        errorInvalid: fields.cardHolder.validation.errorInvalid
                     )
                 ),
                 expiration: .init(

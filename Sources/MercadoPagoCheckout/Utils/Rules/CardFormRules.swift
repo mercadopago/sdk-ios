@@ -89,7 +89,7 @@ package struct CardNumberRule: CardFormRuleType {
     private func validateExternalError(_ error: CardAcceptanceError) -> String? {
         switch error {
         case let .paymentMethodNotAllowed(method):
-            return String(format: self.validation.errorSellerExclusion, method)
+            return String(format: self.validation.errorMethodNotAllowed, method)
         case let .paymentTypeNotAllowed(cardType):
             guard let cardType else {
                 return self.validation.errorInvalid
@@ -135,7 +135,7 @@ package struct CardHolderRule: CardFormRuleType {
 
         let allowed = CharacterSet.letters.union(.whitespaces).union(.decimalDigits)
         if clearValue.unicodeScalars.contains(where: { !allowed.contains($0) }) {
-            return self.validation.errorInvalidFormat
+            return self.validation.errorInvalid
         }
 
         if clearValue.count < 2 {
