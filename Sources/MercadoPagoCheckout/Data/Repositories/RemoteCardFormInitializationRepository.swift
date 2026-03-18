@@ -29,14 +29,14 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
     // MARK: - Mapping
 
     private func map(_ response: CardFormInitializationResponse) -> CardFormInitializationInput {
-        let t = response.translations
+        let translations = response.translations
         return CardFormInitializationInput(
-            title: t.cardFormTitle,
-            buttonVariants: .init(save: t.payButtonLabel, pay: t.payButtonLabel),
+            title: translations.cardFormTitle,
+            buttonVariants: .init(save: translations.payButtonLabel, pay: translations.payButtonLabel),
             fields: .init(
                 cardNumber: .init(
-                    label: t.cardNumberLabel,
-                    placeholder: t.cardNumberPlaceholder,
+                    label: translations.cardNumberLabel,
+                    placeholder: translations.cardNumberPlaceholder,
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
@@ -46,9 +46,9 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     )
                 ),
                 cardHolder: .init(
-                    label: t.cardholderNameLabel,
-                    placeholder: t.cardholderNamePlaceholder,
-                    helperText: t.cardholderNameHelper,
+                    label: translations.cardholderNameLabel,
+                    placeholder: translations.cardholderNamePlaceholder,
+                    helperText: translations.cardholderNameHelper,
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
@@ -56,8 +56,8 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     )
                 ),
                 expiration: .init(
-                    label: t.expirationDateLabel,
-                    placeholder: t.expirationDatePlaceholder,
+                    label: translations.expirationDateLabel,
+                    placeholder: translations.expirationDatePlaceholder,
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.Expiration.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.Expiration.errorIncomplete,
@@ -65,9 +65,9 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     )
                 ),
                 cvv: .init(
-                    label: t.securityCodeLabel,
-                    placeholderDefault: t.securityCodePlaceholder,
-                    placeholderAmex: t.securityCodePlaceholder,
+                    label: translations.securityCodeLabel,
+                    placeholderDefault: translations.securityCodePlaceholder,
+                    placeholderAmex: translations.securityCodePlaceholder,
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
