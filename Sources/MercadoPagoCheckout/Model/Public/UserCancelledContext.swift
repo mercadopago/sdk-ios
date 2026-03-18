@@ -3,8 +3,11 @@
 //  MercadoPagoSDK
 //
 
-/// Represents the context provided when a user cancels a checkout flow.
+/// The context provided when a user cancels a checkout flow.
 ///
-/// Conform to this protocol to provide flow-specific cancellation data.
-/// For card form cancellations, see ``CardFormUserCancelledContext``.
-public protocol UserCancelledContext: Sendable {}
+/// Each case corresponds to a specific checkout flow and carries
+/// the field states captured at the moment of cancellation.
+public enum UserCancelledContext: Sendable, Equatable {
+    /// The user cancelled during the card form flow.
+    case cardForm(CardFormUserCancelledContext)
+}

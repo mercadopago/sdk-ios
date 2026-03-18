@@ -82,7 +82,7 @@ struct CardFormBrick: View {
             initResult: initResult,
             transactionAmount: self.transactionAmount,
             viewModel: CardFormViewModel(configuration: self.configuration, initResult: initResult),
-            onBack: { context in self.cancelCheckout(context: context) },
+            onBack: { context in self.cancelCheckout(context: .cardForm(context)) },
             onSuccess: { paymentData in
                 self.paymentData = paymentData
                 self.completeCheckout()

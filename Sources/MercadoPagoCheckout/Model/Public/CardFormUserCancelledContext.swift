@@ -4,7 +4,7 @@
 //
 
 /// Contains the state of all card form fields at the time the user cancelled the checkout.
-public struct CardFormUserCancelledContext: UserCancelledContext, Equatable {
+public struct CardFormUserCancelledContext: Sendable, Equatable {
     /// The state of each field at the time of cancellation.
     public let fields: [FieldState]
 
