@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 16/03/26.
 //
 
+@testable import CoreMethods
 @testable import MercadoPagoCheckout
 
 // MARK: - Input (CardFormInitializationInput - Repository → UseCase)
