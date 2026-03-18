@@ -67,7 +67,12 @@ struct CardFormBrick: View {
             } catch let error as MercadoPagoCheckoutError {
                 self.onResult(.error(error))
             } catch {
-                self.onResult(.error(MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .initialization)))
+                let checkoutError = MercadoPagoCheckoutError(
+                    code: .unknown,
+                    localizedDescription: error.localizedDescription,
+                    location: .initialization
+                )
+                self.onResult(.error(checkoutError))
             }
         }
     }
