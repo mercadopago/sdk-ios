@@ -10,5 +10,5 @@ import Foundation
 public enum MercadoPagoCheckoutResult: Sendable {
     case success(MPPaymentData)
     case error(MercadoPagoCheckoutError)
-    case userCancelled(any UserCancelledContext)
+    case userCancelled(UserCancelledContext)
 }
