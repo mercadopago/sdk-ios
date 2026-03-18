@@ -1,10 +1,10 @@
 //
-//  MPCancelledFormContext.swift
+//  CardFormUserCancelledContext.swift
 //  MercadoPagoSDK
 //
 
-/// Contains the state of all form fields at the time the user cancelled the checkout.
-public struct MPCancelledFormContext: Sendable, Equatable {
+/// Contains the state of all card form fields at the time the user cancelled the checkout.
+public struct CardFormUserCancelledContext: UserCancelledContext, Equatable {
     /// The state of each field at the time of cancellation.
     public let fields: [FieldState]
 
@@ -13,7 +13,7 @@ public struct MPCancelledFormContext: Sendable, Equatable {
     }
 }
 
-extension MPCancelledFormContext {
+extension CardFormUserCancelledContext {
     /// The state of a specific form field at cancellation time.
     public struct FieldState: Sendable, Equatable {
         /// The form field.
@@ -28,7 +28,7 @@ extension MPCancelledFormContext {
     }
 }
 
-extension MPCancelledFormContext.FieldState {
+extension CardFormUserCancelledContext.FieldState {
     /// The form field identifiers.
     public enum Field: Sendable, Equatable {
         case cardNumber

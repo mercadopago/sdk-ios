@@ -120,7 +120,7 @@ struct CardFormBrick: View {
         }
     }
 
-    private func cancelCheckout(context: MPCancelledFormContext) {
+    private func cancelCheckout(context: any UserCancelledContext) {
         self.route = nil
         self.onResult(.userCancelled(context))
         self.presentationMode.wrappedValue.dismiss()
