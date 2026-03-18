@@ -33,14 +33,13 @@ struct InitializeCardFormUseCase: Sendable {
 
     private func mapToResult(
         data: CardFormInitializationInput,
-        config: MercadoPagoCheckout.CardFormConfiguration
+        config _: MercadoPagoCheckout.CardFormConfiguration
     ) -> CardFormInitializationOutput {
         let fields = data.fields
-        let button = config.amount != nil ? data.buttonVariants.pay : data.buttonVariants.save
 
         return CardFormInitializationOutput(
             title: data.title,
-            button: button,
+            button: data.buttonVariants.save,
             fields: .init(
                 cardNumber: .init(
                     label: fields.cardNumber.label,
