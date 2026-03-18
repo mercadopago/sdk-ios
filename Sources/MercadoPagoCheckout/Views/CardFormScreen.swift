@@ -10,13 +10,12 @@ import SwiftUI
 
 struct CardFormScreen: View {
     private let onBack: (MPCancelledFormContext) -> Void
-    private let initResult: CardFormInitializationOutput
-    private let onBack: () -> Void
     private let onSuccess: (MPPaymentData) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double?
 
     @ObservedObject private var viewModel: CardFormViewModel
+    private let initResult: CardFormInitializationOutput
 
     // MARK: States View
 
@@ -48,27 +47,20 @@ struct CardFormScreen: View {
     var body: some View {
         MPHeader(
             title: self.initResult.title,
-            onBack: { self.onBack() },
+            onBack: { self.onBack(self.cardForm.cancelledFormContext) },
             footer: {
                 MPFooter(
                     title: MPStrings.Common.total,
                     amount: self.viewModel.footerAmount(),
                     buttonData: .init(
-                        text: self.initResult.button,
+                        text: MPStrings.CardForm.button,
                         onClick: {
-                            Task {
-                                do {
-                                    let paymentData = try await self.viewModel.submitPaymentData(
-                                        self.transactionAmount,
-                                        cardFormData: self.cardForm
-                                    )
-                                    self.onSuccess(paymentData)
-                                } catch let error as MercadoPagoCheckoutError {
-                                    self.onFailure(error)
-                                } catch {
-                                    self.onFailure(.serviceError(error.localizedDescription))
-                                }
-                            }
+                            await self.viewModel.submitCardData(
+                                cardForm: self.cardForm,
+                                transactionAmount: self.transactionAmount,
+                                onSuccess: { self.onSuccess($0) },
+                                onFailure: { self.onFailure($0) }
+                            )
                         }
                     )
                 )

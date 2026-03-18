@@ -34,7 +34,7 @@ final class CardFormBrickViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    func loadInitData() async throws {
+    func load() async throws(MercadoPagoCheckoutError) {
         let config = self.extractCardFormConfig()
         let result = try await self.initializeUseCase.execute(config: config)
         self.screenState = .ready(result)

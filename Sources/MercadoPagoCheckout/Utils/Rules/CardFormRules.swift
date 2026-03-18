@@ -95,10 +95,6 @@ package struct CardNumberRule: CardFormRuleType {
                 return self.validation.errorInvalid
             }
             return String(format: self.validation.errorTypeNotAllowed, self.cardTypeDisplayName(cardType))
-        case .paymentMethodNotFound:
-            return self.validation.errorInvalid
-        case .networkError, .serviceError:
-            return nil
         }
     }
 

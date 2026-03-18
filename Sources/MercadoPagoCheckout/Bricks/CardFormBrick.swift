@@ -17,11 +17,10 @@ struct CardFormBrick: View {
     @State private var paymentData: MPPaymentData
     @ObservedObject private var brickViewModel: CardFormBrickViewModel
 
-    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
+    private var configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let themeDark: MPTheme
     private let themeLight: MPTheme
     private let transactionAmount: Double?
-    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
 
     private let onResult: (MercadoPagoCheckoutResult) -> Void
 
@@ -64,9 +63,11 @@ struct CardFormBrick: View {
         }
         .mpTask {
             do {
-                try await self.brickViewModel.loadInitData()
+                try await self.brickViewModel.load()
+            } catch let error as MercadoPagoCheckoutError {
+                self.onResult(.error(error))
             } catch {
-                self.onResult(.error(.serviceError(error.localizedDescription)))
+                self.onResult(.error(MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .initialization)))
             }
         }
     }
@@ -75,8 +76,8 @@ struct CardFormBrick: View {
         CardFormScreen(
             initResult: initResult,
             transactionAmount: self.transactionAmount,
-            onBack: { context in self.cancelCheckout(context: context) },
             viewModel: CardFormViewModel(configuration: self.configuration, initResult: initResult),
+            onBack: { context in self.cancelCheckout(context: context) },
             onSuccess: { paymentData in
                 self.paymentData = paymentData
                 self.completeCheckout()
