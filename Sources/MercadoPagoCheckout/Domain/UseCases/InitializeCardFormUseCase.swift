@@ -12,7 +12,7 @@ import CoreMethods
 struct InitializeCardFormUseCase: Sendable {
     private let repository: CardFormInitializationRepository
 
-    init(repository: CardFormInitializationRepository = LocalCardFormInitializationRepository()) {
+    init(repository: CardFormInitializationRepository = RemoteCardFormInitializationRepository()) {
         self.repository = repository
     }
 
