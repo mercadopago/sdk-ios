@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 18/03/26.
 //
 
+import CommonTests
 @testable import CoreMethods
 @testable import MercadoPagoCheckout
 @testable import MPCore
