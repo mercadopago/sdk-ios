@@ -19,7 +19,7 @@ enum CardFormInitializationInputStub {
                     errorEmpty: "Enter a card number",
                     errorIncomplete: "Card number is incomplete",
                     errorInvalid: "Card number is invalid",
-                    errorSellerExclusion: "%@ is not accepted",
+                    errorMethodNotAllowed: "%@ is not accepted",
                     errorTypeNotAllowed: "%@ cards are not accepted"
                 )
             ),
@@ -30,7 +30,7 @@ enum CardFormInitializationInputStub {
                 validation: .init(
                     errorEmpty: "Enter a name",
                     errorIncomplete: "Name is too short",
-                    errorInvalidFormat: "Invalid characters"
+                    errorInvalid: "Invalid characters"
                 )
             ),
             expiration: .init(
@@ -89,7 +89,7 @@ enum CardFormInitializationOutputStub {
                     errorEmpty: "Enter a card number",
                     errorIncomplete: "Card number is incomplete",
                     errorInvalid: "Card number is invalid",
-                    errorSellerExclusion: "%@ is not accepted",
+                    errorMethodNotAllowed: "%@ is not accepted",
                     errorTypeNotAllowed: "%@ cards are not accepted"
                 )
             ),
@@ -100,7 +100,7 @@ enum CardFormInitializationOutputStub {
                 validation: .init(
                     errorEmpty: "Enter a name",
                     errorIncomplete: "Name is too short",
-                    errorInvalidFormat: "Invalid characters"
+                    errorInvalid: "Invalid characters"
                 )
             ),
             expiration: .init(

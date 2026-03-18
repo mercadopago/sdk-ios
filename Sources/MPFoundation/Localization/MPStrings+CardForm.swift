@@ -61,9 +61,9 @@ extension MPStrings {
                 localized("card_number.error.debit_balance")
             }
 
-            /// Seller exclusion error (card brand not accepted)
+            /// Method not allowed error (card brand not accepted)
             /// - Parameter brand: The card brand name
-            package static func errorSellerExclusion(brand: String) -> String {
+            package static func errorMethodNotAllowed(brand: String) -> String {
                 localized("card_number.error.seller_exclusion", brand)
             }
 
@@ -109,7 +109,7 @@ extension MPStrings {
             }
 
             /// Invalid format error
-            package static var errorInvalidFormat: String {
+            package static var errorInvalid: String {
                 localized("card_holder.error.invalid_format")
             }
 
