@@ -90,7 +90,7 @@ struct MainListView: View {
             checkoutAppearance: .init()
         )
 
-        builder.setPaymentMethod([
+        builder.setPaymentMethods([
             .card(allowedTypes: [.credit, .debit])
         ])
         return builder.build()
