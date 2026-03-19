@@ -68,23 +68,23 @@ struct CardFormData {
         _cardNumber.liveErrorMessages
     }
 
-    func isFormValid(isSecurityCodeMandatory: Bool) -> Bool {
+    func isFormValid(isSecurityCodeMandatory: Bool, isDocumentRequired: Bool = true) -> Bool {
         return _cardNumber.errorMessages.isEmpty
             && _cardHolder.errorMessages.isEmpty
             && _expirationDate.errorMessages.isEmpty
             && (isSecurityCodeMandatory ? _securityCode.errorMessages.isEmpty : true)
-            && _documentHolder.errorMessages.isEmpty
+            && (isDocumentRequired ? _documentHolder.errorMessages.isEmpty : true)
     }
 
     // MARK: - Cancelled Form Context
 
     var cancelledFormContext: MPCancelledFormContext {
         MPCancelledFormContext(fields: [
-            .init(field: .cardNumber, state: cardNumberState()),
-            .init(field: .cardHolder, state: cardHolderState()),
-            .init(field: .expirationDate, state: expirationDateState()),
-            .init(field: .securityCode, state: securityCodeState()),
-            .init(field: .document, state: documentHolderState())
+            .init(field: .cardNumber, state: self.cardNumberState()),
+            .init(field: .cardHolder, state: self.cardHolderState()),
+            .init(field: .expirationDate, state: self.expirationDateState()),
+            .init(field: .securityCode, state: self.securityCodeState()),
+            .init(field: .document, state: self.documentHolderState())
         ])
     }
 

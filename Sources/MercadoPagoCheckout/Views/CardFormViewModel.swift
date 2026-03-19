@@ -34,6 +34,10 @@ final class CardFormViewModel: ObservableObject {
         didSet { self.updateFormatters(for: self.binData) }
     }
 
+    var requiresIdentificationTypes: Bool {
+        MercadoPagoSDK.shared.configuration?.country != .MEX
+    }
+
     @Published private(set) var cardAcceptanceError: CardAcceptanceError?
     @Published private(set) var binNetworkError: MercadoPagoCheckoutError?
     @Published private(set) var showSnackbar = false
