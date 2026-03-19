@@ -856,7 +856,7 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(capturedPaymentData?.paymentTypeId, "credit_card")
     }
 
-    func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async throws {
+    func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async {
         // Arrange
         let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
         let binDataWithIssuer = CardBinData(

@@ -9,7 +9,7 @@ import CoreMethods
 
 /// Orchestrates fetching all initialization data for the CardForm screen.
 /// Applies business rules: resolves button variant and custom texts over defaults.
-struct InitializeCardFormUseCase: Sendable {
+struct InitializeCardFormUseCase {
     private let repository: CardFormInitializationRepository
 
     init(repository: CardFormInitializationRepository = LocalCardFormInitializationRepository()) {
