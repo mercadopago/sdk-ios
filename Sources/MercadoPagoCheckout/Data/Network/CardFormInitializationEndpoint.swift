@@ -28,7 +28,12 @@ extension CardFormInitializationEndpoint: RequestEndpoint {
         ["Content-Type": "application/json"]
     }
 
-    var urlParams: [String: any CustomStringConvertible] { [:] }
+    var urlParams: [String: any CustomStringConvertible] {
+        [
+            "product_id": MPSDKProduct.id,
+            "locale": MercadoPagoSDK.shared.configuration?.locale ?? Locale.current.identifier
+        ]
+    }
 
     var body: Data? { nil }
 }
