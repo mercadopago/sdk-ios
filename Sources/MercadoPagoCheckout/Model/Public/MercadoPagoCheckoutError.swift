@@ -18,7 +18,7 @@ public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugString
         public static let networkTimeout = Code(rawValue: -1001)
         public static let serviceError = Code(rawValue: 2000)
         public static let unknown = Code(rawValue: 999)
-        public static let invalidConfiguration = Code(rawValue: 10010)
+        public static let integrationError = Code(rawValue: 3000)
     }
 
     public enum LocationDescription: String, CaseIterable, Equatable {

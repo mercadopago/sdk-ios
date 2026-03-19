@@ -78,8 +78,8 @@ struct CardFormData {
 
     // MARK: - Cancelled Form Context
 
-    var cancelledFormContext: MPCancelledFormContext {
-        MPCancelledFormContext(fields: [
+    var cancelledFormContext: CardFormUserCancelledContext {
+        CardFormUserCancelledContext(fields: [
             .init(field: .cardNumber, state: self.cardNumberState()),
             .init(field: .cardHolder, state: self.cardHolderState()),
             .init(field: .expirationDate, state: self.expirationDateState()),
@@ -88,7 +88,7 @@ struct CardFormData {
         ])
     }
 
-    private func cardNumberState() -> MPCancelledFormContext.FieldState.State {
+    private func cardNumberState() -> CardFormUserCancelledContext.FieldState.State {
         guard !_cardNumber.errorMessages.isEmpty else { return .valid }
         let digits = self.cardNumber.filter(\.isNumber)
         if digits.isEmpty { return .empty }
@@ -101,27 +101,27 @@ struct CardFormData {
         return _cardNumber.errorMessages.contains(MPStrings.CardForm.CardNumber.errorIncomplete) ? .incomplete : .invalid
     }
 
-    private func cardHolderState() -> MPCancelledFormContext.FieldState.State {
+    private func cardHolderState() -> CardFormUserCancelledContext.FieldState.State {
         guard !_cardHolder.errorMessages.isEmpty else { return .valid }
         if self.cardHolder.trimmingCharacters(in: .whitespaces).isEmpty { return .empty }
         if _cardHolder.errorMessages.contains(MPStrings.CardForm.CardHolder.errorIncomplete) { return .incomplete }
         return .invalid
     }
 
-    private func expirationDateState() -> MPCancelledFormContext.FieldState.State {
+    private func expirationDateState() -> CardFormUserCancelledContext.FieldState.State {
         guard !_expirationDate.errorMessages.isEmpty else { return .valid }
         if self.expirationDate.filter(\.isNumber).isEmpty { return .empty }
         if _expirationDate.errorMessages.contains(MPStrings.CardForm.Expiration.errorIncomplete) { return .incomplete }
         return .invalid
     }
 
-    private func securityCodeState() -> MPCancelledFormContext.FieldState.State {
+    private func securityCodeState() -> CardFormUserCancelledContext.FieldState.State {
         guard !_securityCode.errorMessages.isEmpty else { return .valid }
         if self.securityCode.filter(\.isNumber).isEmpty { return .empty }
         return .incomplete
     }
 
-    private func documentHolderState() -> MPCancelledFormContext.FieldState.State {
+    private func documentHolderState() -> CardFormUserCancelledContext.FieldState.State {
         guard !_documentHolder.errorMessages.isEmpty else { return .valid }
         if self.documentHolder.filter(\.isNumber).isEmpty { return .empty }
         if _documentHolder.errorMessages.contains(MPStrings.CardForm.Document.errorIncomplete) { return .incomplete }

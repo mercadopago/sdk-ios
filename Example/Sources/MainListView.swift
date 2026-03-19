@@ -90,7 +90,7 @@ struct MainListView: View {
             checkoutAppearance: .init()
         )
 
-        builder.setPaymentMethod([
+        builder.setPaymentMethods([
             .card(allowedTypes: [.credit, .debit])
         ])
         return builder.build()
@@ -101,16 +101,19 @@ struct MainListView: View {
             try? await Task.sleep(for: .seconds(0.6))
             switch result {
             case let .success(paymentData):
+                print("Success: \(paymentData)")
                 self.alertItem = AlertItem(
                     title: "Sucess",
                     message: "Method: \(paymentData.paymentMethodId)\nToken: \(paymentData.token)"
                 )
             case let .error(error):
+                print("Error: \(error)")
                 self.alertItem = AlertItem(
                     title: "Error",
                     message: error.localizedDescription
                 )
-            case .userCancelled:
+            case let .userCancelled(context):
+                print("UserCancelled: \(context)")
                 self.alertItem = AlertItem(
                     title: "Cancelled",
                     message: "User has cancelled."
