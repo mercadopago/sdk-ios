@@ -7,35 +7,39 @@
 import MPComponents
 
 struct CardFormData {
-    @CardFormValidate(
-        RequiredRule(MPStrings.CardForm.CardNumber.errorEmpty),
-        CardNumberRule()
-    )
-    var cardNumber = ""
+    @CardFormValidate var cardNumber: String
+    @CardFormValidate var cardHolder: String
+    @CardFormValidate var expirationDate: String
+    @CardFormValidate var securityCode: String
+    @CardFormValidate var documentHolder: String
 
-    @CardFormValidate(
-        RequiredRule(MPStrings.CardForm.CardHolder.errorEmpty),
-        CardHolderRule()
-    )
-    var cardHolder = ""
-
-    @CardFormValidate(
-        RequiredRule(MPStrings.CardForm.Expiration.errorEmpty),
-        ExpirationDateRule()
-    )
-    var expirationDate = ""
-
-    @CardFormValidate(
-        RequiredRule(MPStrings.CardForm.CVV.errorEmpty),
-        SecurityCodeRule()
-    )
-    var securityCode = ""
-
-    @CardFormValidate(
-        RequiredRule(MPStrings.CardForm.Document.errorEmpty),
-        DocumentRule()
-    )
-    var documentHolder = ""
+    init(fields: CardFormTexts.Fields) {
+        _cardNumber = CardFormValidate(
+            wrappedValue: "",
+            RequiredRule(fields.cardNumber.validation.errorEmpty),
+            CardNumberRule(validation: fields.cardNumber.validation)
+        )
+        _cardHolder = CardFormValidate(
+            wrappedValue: "",
+            RequiredRule(fields.cardHolder.validation.errorEmpty),
+            CardHolderRule(validation: fields.cardHolder.validation)
+        )
+        _expirationDate = CardFormValidate(
+            wrappedValue: "",
+            RequiredRule(fields.expiration.validation.errorEmpty),
+            ExpirationDateRule(validation: fields.expiration.validation)
+        )
+        _securityCode = CardFormValidate(
+            wrappedValue: "",
+            RequiredRule(fields.cvv.validation.errorEmpty),
+            SecurityCodeRule(validation: fields.cvv.validation)
+        )
+        _documentHolder = CardFormValidate(
+            wrappedValue: "",
+            RequiredRule(fields.document.validation.errorEmpty),
+            DocumentRule(validation: fields.document.validation)
+        )
+    }
 
     private var cardAcceptanceError: CardAcceptanceError?
 
