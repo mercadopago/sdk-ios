@@ -22,6 +22,7 @@ struct CardFormScreen: View {
     @State private var cardForm: CardFormData
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
+    @State private var isCardNumberFocused = false
 
     // MARK: Enviroments
 
@@ -91,6 +92,7 @@ struct CardFormScreen: View {
                         },
                         formatter: self.viewModel.cardNumberFormatter
                     )
+                    .mpFocused(self.$isCardNumberFocused)
 
                     MPTextField(
                         text: self.$cardForm.cardHolder,
@@ -145,6 +147,9 @@ struct CardFormScreen: View {
             bottomPadding: self.footerHeight
         )
         .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
+        .onAppear {
+            self.isCardNumberFocused = true
+        }
         .mpOnChange(of: self.cardForm.cardNumber) { newValue in
             self.viewModel.onCardNumberChange(newValue)
         }
