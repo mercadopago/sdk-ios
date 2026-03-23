@@ -35,13 +35,19 @@ struct CardFormScreen: View {
         onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
-        self.initResult = initResult
-        self._cardForm = State(initialValue: CardFormData(fields: initResult.fields))
-        self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.onBack = onBack
         self.onSuccess = onSuccess
         self.onFailure = onFailure
         self.transactionAmount = transactionAmount
+        self.initResult = initResult
+
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+
+        var formData = CardFormData(fields: initResult.fields)
+        if let firstType = viewModel.selectTypeDocument {
+            formData.setDocumentLength(firstType.minLenght, firstType.maxLenght)
+        }
+        self._cardForm = State(initialValue: formData)
     }
 
     var body: some View {
