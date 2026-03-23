@@ -158,9 +158,9 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                         .frame(height: self.headerInset())
                         .padding(.bottom, self.theme.spacings.xsmall)
                     self.content
-                    // Reserves footer height so last field is always
-                    // scrollable above the footer overlay.
-                    Color.clear.frame(height: self.footerMeasuredHeight).id("footerPadding")
+                    // Reserves footer height + bottom spacing so last field is always
+                    // scrollable above the footer overlay with breathing room.
+                    Color.clear.frame(height: self.footerMeasuredHeight + self.theme.spacings.xsmall).id("footerPadding")
                 }
             }
             .background(
@@ -197,7 +197,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                     .frame(height: self.headerInset())
                     .padding(.bottom, self.theme.spacings.xsmall)
                 self.content
-                Color.clear.frame(height: self.footerMeasuredHeight)
+                Color.clear.frame(height: self.footerMeasuredHeight + self.theme.spacings.xsmall)
             }
         }
         .background(
@@ -368,7 +368,7 @@ private struct FooterMeasurementKey: PreferenceKey {
 private struct ScrollViewHeightKey: PreferenceKey {
     static let defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        value = max(value, nextValue())
     }
 }
 
