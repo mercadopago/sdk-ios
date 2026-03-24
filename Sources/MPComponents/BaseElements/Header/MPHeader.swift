@@ -125,11 +125,13 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
 
     // MARK: - Scroll View Content
 
+    @ViewBuilder
     private var scrollViewContent: some View {
         if #available(iOS 14.0, *) {
-            return AnyView(self.scrollViewContentWithAutoScroll)
+            self.scrollViewContentWithAutoScroll
+        } else {
+            self.scrollViewContentBase
         }
-        return AnyView(self.scrollViewContentBase)
     }
 
     @available(iOS 14.0, *)

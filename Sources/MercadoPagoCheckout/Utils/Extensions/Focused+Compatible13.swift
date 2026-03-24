@@ -39,10 +39,17 @@ private struct FocusedWrappedView<Content: View>: View {
     let content: Content
 
     var body: some View {
-        self.content
-            .focused(self.$internalFocus)
-            .onChange(of: self.isFocused) { newValue in self.internalFocus = newValue }
-            .onChange(of: self.internalFocus) { newValue in self.isFocused = newValue }
+        if #available(iOS 17.0, *) {
+            self.content
+                .focused(self.$internalFocus)
+                .onChange(of: self.isFocused) { _, newValue in self.internalFocus = newValue }
+                .onChange(of: self.internalFocus) { _, newValue in self.isFocused = newValue }
+        } else {
+            self.content
+                .focused(self.$internalFocus)
+                .onChange(of: self.isFocused) { newValue in self.internalFocus = newValue }
+                .onChange(of: self.internalFocus) { newValue in self.isFocused = newValue }
+        }
     }
 }
 
@@ -58,10 +65,16 @@ private struct FocusHelperRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UIView, context _: Context) {
-        guard self.isFocused else { return }
-        DispatchQueue.main.async {
+        let shouldFocus = self.isFocused
+        Task { @MainActor in
             guard let parent = uiView.superview else { return }
-            Self.findTextField(in: parent)?.becomeFirstResponder()
+            if let textField = Self.findTextField(in: parent) {
+                if shouldFocus {
+                    textField.becomeFirstResponder()
+                } else {
+                    textField.resignFirstResponder()
+                }
+            }
         }
     }
 
