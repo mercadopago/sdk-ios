@@ -5,7 +5,6 @@
 //  A collapsible header component with navigation and scroll animations.
 //
 
-import Combine
 import MPFoundation
 import SwiftUI
 import UIKit
@@ -58,7 +57,6 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     @State private var subHeaderHeight: CGFloat = 20
     @State private var contentHeight: CGFloat = 0
     @State private var scrollViewHeight: CGFloat = 0
-    @State private var keyboardHeight: CGFloat = 0
     /// Natural footer height — always measured via invisible overlay regardless of enabled state.
     @State private var footerMeasuredHeight: CGFloat = 0
     /// Actual rendered footer height — 0 when footer is disabled.
@@ -117,24 +115,12 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                 ),
             alignment: .bottom
         )
-        .padding(.bottom, self.keyboardHeight)
         .onPreferenceChange(MainHeaderHeightKey.self) { self.headerHeight = $0 }
         .onPreferenceChange(SubHeaderHeightKey.self) { self.subHeaderHeight = $0 }
         .onPreferenceChange(ScrollViewHeightKey.self) { self.scrollViewHeight = $0 }
         .onPreferenceChange(FooterMeasurementKey.self) { self.footerMeasuredHeight = $0 }
         .onPreferenceChange(FooterHeightKey.self) { self.actualFooterHeight = $0 }
         .navigationBarHidden(true)
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-            if #available(iOS 15.0, *) { return }
-            let height = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect)?.height ?? 0
-            let duration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
-            withAnimation(.easeOut(duration: duration)) { self.keyboardHeight = height }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
-            if #available(iOS 15.0, *) { return }
-            let duration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
-            withAnimation(.easeOut(duration: duration)) { self.keyboardHeight = 0 }
-        }
     }
 
     // MARK: - Scroll View Content
