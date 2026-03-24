@@ -8,9 +8,6 @@
 import SwiftUI
 
 extension View {
-    /// Backwards-compatible version of `.focused(_:)`.
-    /// - iOS 15+: bridges to SwiftUI's native `@FocusState` / `.focused()`.
-    /// - iOS 13–14: finds the nearest `UITextField` in the UIKit hierarchy and calls `becomeFirstResponder()`.
     func mpFocused(_ isFocused: Binding<Bool>) -> some View {
         modifier(FocusedModifier(isFocused: isFocused))
     }
