@@ -45,6 +45,7 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
                     }
                 }
                 .padding(.horizontal, self.theme.spacings.xtiny)
+                .padding(.bottom, self.theme.spacings.xtiny)
                 .background(self.theme.colors.background.primary)
                 .background(
                     self.theme.colors.background.primary
