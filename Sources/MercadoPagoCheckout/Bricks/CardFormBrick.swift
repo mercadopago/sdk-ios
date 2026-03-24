@@ -57,8 +57,8 @@ struct CardFormBrick: View {
                             MPProgressIndicator()
                                 .size(.xlarge)
                         }
-                    case let .ready(initResult):
-                        self.cardFormScreen(initResult: initResult)
+                    case let .ready(initResult, cardFormViewModel):
+                        self.cardFormScreen(initResult: initResult, viewModel: cardFormViewModel)
                     }
                     self.navigationLinks()
                 }
@@ -81,11 +81,11 @@ struct CardFormBrick: View {
         }
     }
 
-    private func cardFormScreen(initResult: CardFormInitializationOutput) -> some View {
+    private func cardFormScreen(initResult: CardFormInitializationOutput, viewModel: CardFormViewModel) -> some View {
         CardFormScreen(
             initResult: initResult,
             transactionAmount: self.transactionAmount,
-            viewModel: CardFormViewModel(configuration: self.configuration, initResult: initResult),
+            viewModel: viewModel,
             onBack: { context in self.cancelCheckout(context: .cardForm(context)) },
             onSuccess: { paymentData in
                 self.paymentData = paymentData
