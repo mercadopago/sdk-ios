@@ -25,6 +25,7 @@ struct CardFormBrick: View {
     private let onResult: (MercadoPagoCheckoutResult) -> Void
 
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.checkoutTheme) private var theme: MPTheme
 
     init(
         configuration: MercadoPagoCheckout.CheckoutConfiguration,
@@ -50,9 +51,12 @@ struct CardFormBrick: View {
                 ZStack {
                     switch self.brickViewModel.screenState {
                     case .loading:
-                        MPProgressIndicator()
-                            .size(.xlarge)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        ZStack {
+                            self.theme.colors.background.primary
+                                .edgesIgnoringSafeArea(.all)
+                            MPProgressIndicator()
+                                .size(.xlarge)
+                        }
                     case let .ready(initResult):
                         self.cardFormScreen(initResult: initResult)
                     }
