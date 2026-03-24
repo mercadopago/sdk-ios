@@ -6,15 +6,15 @@
 */
 
 /* MARK: - Form Title & Buttons */
-"form.title" = "Ingresá tu tarjeta";
+"form.title" = "Ingresa tu tarjeta";
 "form.button" = "Guardar tarjeta";
 
 /* MARK: - Card Number */
 "card_number.label" = "Número de tarjeta";
 "card_number.placeholder" = "1234 1234 1234 1234";
 "card_number.error.empty" = "Completa este campo.";
-"card_number.error.incomplete" = "Ingresa el código completo.";
-"card_number.error.invalid" = "Ingresalo como aparece en la tarjeta.";
+"card_number.error.incomplete" = "Ingresa el número completo.";
+"card_number.error.invalid" = "Ingresa el número tal como aparece en la tarjeta.";
 "card_number.error.credit_limit" = "Ingresa una tarjeta con límite suficiente para pagar el monto.";
 "card_number.error.debit_balance" = "Ingresa una tarjeta con saldo suficiente para pagar el monto.";
 "card_number.error.seller_exclusion" = "La tienda no acepta tarjetas %@.";

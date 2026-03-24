@@ -14,7 +14,7 @@
 "card_number.placeholder" = "1234 1234 1234 1234";
 "card_number.error.empty" = "Completá este campo.";
 "card_number.error.incomplete" = "Ingresá el número completo.";
-"card_number.error.invalid" = "Ingresalo como aparece en la tarjeta.";
+"card_number.error.invalid" = "Ingresá el número tal como aparece en la tarjeta.";
 "card_number.error.credit_limit" = "Ingresá una tarjeta con límite suficiente para pagar el monto.";
 "card_number.error.debit_balance" = "Ingresá una tarjeta con saldo suficiente para pagar el monto.";
 "card_number.error.seller_exclusion" = "La tienda no acepta tarjetas %@.";
