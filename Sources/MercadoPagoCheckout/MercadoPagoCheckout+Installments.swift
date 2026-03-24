@@ -7,7 +7,7 @@
 
 public extension MercadoPagoCheckout {
     /// Installment constraints for a payment method.
-    struct Installment: Sendable {
+    public struct Installment: Sendable {
         /// The minimum number of installments allowed.
         public var minInstallments: Int
         /// The maximum number of installments allowed.
