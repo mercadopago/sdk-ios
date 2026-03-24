@@ -28,14 +28,10 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
                 VStack(spacing: self.theme.spacings.xmicro) {
                     // Summary line
                     configuration.summaryLine
-                        .padding(.top, self.theme.spacings.xtiny)
 
                     // Description line (if present)
                     if configuration.hasDescription {
                         configuration.descriptionLine
-                    } else {
-                        Color.clear
-                            .frame(height: self.theme.spacings.xtiny)
                     }
 
                     if let button = configuration.button {
@@ -46,6 +42,7 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
                     }
                 }
                 .padding(.horizontal, self.theme.spacings.xtiny)
+                .padding(.top, self.theme.spacings.xtiny)
                 .background(self.theme.colors.background.primary)
                 .background(
                     self.theme.colors.background.primary
