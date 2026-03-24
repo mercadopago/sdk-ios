@@ -18,7 +18,7 @@ public extension MercadoPagoCheckout {
             allowedBrands: [CardBrand] = CardBrand.defaults,
             installment: Installment? = Installment()
         )
-        
+
         /// The default set of payment methods: card (credit, debit, prepaid), Pix, and Boleto.
         public static var defaults: [PaymentMethod] {
             [
@@ -31,14 +31,14 @@ public extension MercadoPagoCheckout {
 extension [MercadoPagoCheckout.PaymentMethod] {
     var acceptedPaymentTypeIds: [String] {
         flatMap { method -> [String] in
-            guard case .card(let cardTypes, _, _) = method else { return [] }
+            guard case let .card(cardTypes, _, _) = method else { return [] }
             return cardTypes.map(\.paymentTypeId)
         }
     }
 
     var acceptedPaymentMethodIds: [String] {
         flatMap { method -> [String] in
-            guard case .card(_, let cardBrands, _) = method else { return [] }
+            guard case let .card(_, cardBrands, _) = method else { return [] }
             return cardBrands.map(\.paymentMethodId)
         }
     }

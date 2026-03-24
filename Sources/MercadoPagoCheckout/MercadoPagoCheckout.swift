@@ -5,40 +5,40 @@
 //  Created by Guilherme Prata Costa on 09/06/25.
 //
 import MPFoundation
-import UIKit
 import SwiftUI
+import UIKit
 
-/// The main entry point for the MercadoPago checkout experience.
-///
-/// `MercadoPagoCheckout` encapsulates the full configuration needed to launch a
-/// payment flow, including appearance theming and the checkout behavior. Use the
-/// ``Builder`` to assemble an instance fluently, then present it via SwiftUI,
-/// UIKit modal, or a `UINavigationController` push.
-///
-/// ## Usage
-///
-/// ```swift
-/// let checkout = MercadoPagoCheckout.Builder(
-///     checkoutType: .cardForm(cardFormConfiguration: .init(amount: 99.90)),
-///     checkoutAppearance: .init()
-/// )
-/// .setPaymentMethod([.card(cardTypes: [.credit, .debit]), .pix])
-/// .build()
-///
-/// // SwiftUI
-/// checkout.show { result in
-///     print(result)
-/// }
-///
-/// // UIKit – modal
-/// checkout.present(from: self) { result in
-///     print(result)
-/// }
-/// ```
+// The main entry point for the MercadoPago checkout experience.
+//
+// `MercadoPagoCheckout` encapsulates the full configuration needed to launch a
+// payment flow, including appearance theming and the checkout behavior. Use the
+// ``Builder`` to assemble an instance fluently, then present it via SwiftUI,
+// UIKit modal, or a `UINavigationController` push.
+//
+// ## Usage
+//
+// ```swift
+// let checkout = MercadoPagoCheckout.Builder(
+//     checkoutType: .cardForm(cardFormConfiguration: .init(amount: 99.90)),
+//     checkoutAppearance: .init()
+// )
+// .setPaymentMethod([.card(cardTypes: [.credit, .debit]), .pix])
+// .build()
+//
+// // SwiftUI
+// checkout.show { result in
+//     print(result)
+// }
+//
+// // UIKit – modal
+// checkout.present(from: self) { result in
+//     print(result)
+// }
+// ```
 
 public struct MercadoPagoCheckout: Sendable, Identifiable {
     /// A unique identifier for this checkout instance.
-    public let id: UUID = UUID()
+    public let id = UUID()
 
     /// The visual appearance applied to the checkout flow.
     var theme: CheckoutAppearance
@@ -65,13 +65,12 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     /// - Parameter onResult: A closure called with the checkout result when the flow finishes.
     /// - Returns: A SwiftUI view representing the checkout flow.
     @MainActor
-    @ViewBuilder
     public func show(
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) -> some View {
         CardFormBrick(
-            configuration: configuration,
-            appearance: theme,
+            configuration: self.configuration,
+            appearance: self.theme,
             onResult: onResult
         )
     }
@@ -145,12 +144,12 @@ public extension MercadoPagoCheckout {
             self.paymentMethod = paymentMethod
         }
     }
-    
+
     /// Visual appearance settings for the checkout flow.
     ///
     /// Controls which color scheme is applied and provides separate ``MPTheme``
     /// values for light and dark modes.
-    public struct CheckoutAppearance: Sendable {
+    struct CheckoutAppearance: Sendable {
         /// The preferred user interface style for the checkout flow.
         ///
         /// Defaults to `.automatic`, which follows the device setting.

@@ -10,7 +10,7 @@ public extension MercadoPagoCheckout {
     ///
     /// Use predefined brands like `.visa` or `.mastercard`, or create a custom one
     /// with `.custom("brand_id")` for card networks not explicitly listed.
-    public enum CardBrand: Sendable {
+    enum CardBrand: Sendable {
         /// Visa card network.
         case visa
         /// Mastercard network.
@@ -43,17 +43,17 @@ public extension MercadoPagoCheckout {
         /// All predefined card brands.
         public static var defaults: [CardBrand] {
             [
-                .visa, 
+                .visa,
                 .master,
                 .amex,
-                .elo, 
-                .hipercard, 
+                .elo,
+                .hipercard,
                 .diners,
-                .discover, 
-                .jcb, 
-                .maestro, 
-                .unionPay, 
-                .cabal, 
+                .discover,
+                .jcb,
+                .maestro,
+                .unionPay,
+                .cabal,
                 .naranja
             ]
         }
@@ -63,19 +63,19 @@ public extension MercadoPagoCheckout {
 extension MercadoPagoCheckout.CardBrand {
     var paymentMethodId: String {
         switch self {
-        case .visa:              return "visa"
-        case .master:           return "master"
-        case .amex:              return "amex"
-        case .elo:               return "elo"
-        case .hipercard:         return "hipercard"
-        case .diners:            return "diners"
-        case .discover:          return "discover"
-        case .jcb:               return "jcb"
-        case .maestro:           return "maestro"
-        case .unionPay:          return "unionpay"
-        case .cabal:             return "cabal"
-        case .naranja:           return "naranja"
-        case .custom(let id):    return id
+        case .visa: return "visa"
+        case .master: return "master"
+        case .amex: return "amex"
+        case .elo: return "elo"
+        case .hipercard: return "hipercard"
+        case .diners: return "diners"
+        case .discover: return "discover"
+        case .jcb: return "jcb"
+        case .maestro: return "maestro"
+        case .unionPay: return "unionpay"
+        case .cabal: return "cabal"
+        case .naranja: return "naranja"
+        case let .custom(id): return id
         }
     }
 }
