@@ -24,8 +24,6 @@ private struct FocusedModifier: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 15.0, *) {
             FocusedWrappedView(isFocused: self.$isFocused, content: content)
-        } else {
-            content.background(FocusHelperRepresentable(isFocused: self.$isFocused))
         }
     }
 }
@@ -50,40 +48,5 @@ private struct FocusedWrappedView<Content: View>: View {
                 .onChange(of: self.isFocused) { newValue in self.internalFocus = newValue }
                 .onChange(of: self.internalFocus) { newValue in self.isFocused = newValue }
         }
-    }
-}
-
-// MARK: - iOS 13/14 UIKit fallback
-
-private struct FocusHelperRepresentable: UIViewRepresentable {
-    @Binding var isFocused: Bool
-
-    func makeUIView(context _: Context) -> UIView {
-        let view = UIView()
-        view.isHidden = true
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context _: Context) {
-        let shouldFocus = self.isFocused
-        Task { @MainActor in
-            guard let parent = uiView.superview else { return }
-            if let textField = Self.findTextField(in: parent) {
-                if shouldFocus {
-                    textField.becomeFirstResponder()
-                } else {
-                    textField.resignFirstResponder()
-                }
-            }
-        }
-    }
-
-    /// Depth-first search for the first `UITextField` within the given view's subtree.
-    private static func findTextField(in view: UIView) -> UITextField? {
-        if let textField = view as? UITextField { return textField }
-        for subview in view.subviews {
-            if let found = findTextField(in: subview) { return found }
-        }
-        return nil
     }
 }
