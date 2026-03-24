@@ -42,10 +42,10 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
                         button
                             .mpButtonStyle(variant: .loud)
                             .padding(.top, configuration.hasDescription ? self.theme.spacings.micro : 0)
+                            .padding(.bottom, self.theme.spacings.xtiny)
                     }
                 }
                 .padding(.horizontal, self.theme.spacings.xtiny)
-                .padding(.bottom, self.theme.spacings.xtiny)
                 .background(self.theme.colors.background.primary)
                 .background(
                     self.theme.colors.background.primary
