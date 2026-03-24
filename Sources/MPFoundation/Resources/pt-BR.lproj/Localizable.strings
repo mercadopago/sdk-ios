@@ -5,11 +5,11 @@
   Extraído de: MLB.tokens.json
 */
 
-// MARK: - Form Title & Buttons
+/* MARK: - Form Title & Buttons */
 "form.title" = "Preencha os dados do cartão";
 "form.button" = "Salvar cartão";
 
-// MARK: - Card Number
+/* MARK: - Card Number */
 "card_number.label" = "Número do cartão";
 "card_number.placeholder" = "1234 1234 1234 1234";
 "card_number.error.empty" = "Preencha este campo.";
@@ -22,7 +22,7 @@
 "card_number.error.debit_only" = "A loja só aceita cartões de débito.";
 "card_number.error.type_not_allowed" = "A loja não aceita %@.";
 
-// MARK: - Card Holder
+/* MARK: - Card Holder */
 "card_holder.label" = "Nome do titular";
 "card_holder.placeholder" = "Ex.: Maria dos Santos";
 "card_holder.error.empty" = "Preencha este campo.";
@@ -30,14 +30,14 @@
 "card_holder.error.invalid_format" = "Digite apenas letras e números.";
 "card_holder.helper.text" = "Conforme aparece no cartão.";
 
-// MARK: - Expiration Date
+/* MARK: - Expiration Date */
 "expiration.label" = "Vencimento";
 "expiration.placeholder" = "MM/AA";
 "expiration.error.empty" = "Preencha este campo.";
 "expiration.error.incomplete" = "Insira a data completa.";
 "expiration.error.invalid" = "Insira uma data válida.";
 
-// MARK: - Security Code (CVV)
+/* MARK: - Security Code (CVV) */
 "cvv.label" = "Código de segurança";
 "cvv.placeholder.default" = "Ex.: 123";
 "cvv.placeholder.amex" = "Ex.: 1234";
@@ -52,12 +52,12 @@
 "cvv.tooltip.unknown.default" = "É um número de 3 dígitos que está atrás do seu cartão.";
 "cvv.tooltip.unknown.amex" = "É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão ou no app do seu banco ou carteira digital.";
 
-// MARK: - Issuer (Multiple Issuers)
+/* MARK: - Issuer (Multiple Issuers) */
 "issuer.label" = "Instituição emissora";
 "issuer.placeholder" = "Selecione uma opção.";
 "issuer.error.empty" = "Selecione uma opção.";
 
-// MARK: - Document
+/* MARK: - Document */
 "document.label" = "Documento do titular";
 "document.type" = "CPF";
 "document.placeholder" = "999.999.999-99";
@@ -66,13 +66,13 @@
 "document.error.invalid" = "Insira um documento válido.";
 "document.error.funding" = "Você só poderá depositar dinheiro com cartões no seu nome.";
 
-// MARK: - Installments
+/* MARK: - Installments */
 "installments.title" = "Escolha o parcelamento";
 "installments.show_more" = "Mostrar mais opções";
 "installments.show_less" = "Mostrar menos opções";
 "installments.interest_free" = "Sem acréscimo";
 
-// MARK: - Common
+/* MARK: - Common */
 "common.cancel" = "Cancelar";
 "common.confirm" = "Confirmar";
 "common.continue" = "Continuar";
@@ -88,6 +88,6 @@
 "common.debit" = "Débito";
 "common.prepaid" = "Pré-pago";
 
-// MARK: - Errors
+/* MARK: - Errors */
 "error.generic" = "Algo deu errado. Por favor, tente novamente.";
 "error.network" = "Erro de conexão. Verifique sua conexão com a internet.";
