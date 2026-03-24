@@ -5,8 +5,8 @@
 //  Style protocol for MPHeader.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 /// A style protocol for `MPHeader` enabling custom skins.
 package protocol MPHeaderStyle: StyleProtocol, Identifiable where Configuration == MPHeaderStyleConfiguration {}
@@ -14,46 +14,45 @@ package protocol MPHeaderStyle: StyleProtocol, Identifiable where Configuration 
 /// Default visual style for `MPHeader` using theme tokens.
 package struct MPDefaultHeaderStyle: MPHeaderStyle {
     package var id: UUID = .init()
-    
+
     @Environment(\.checkoutTheme) var theme: MPTheme
-    
+
     package init() {}
-    
+
     @MainActor
     package func makeBody(configuration: MPHeaderStyleConfiguration) -> some View {
         VStack(spacing: 0) {
-            mainHeader(configuration)
-            subHeader(configuration)
+            self.mainHeader(configuration)
+            self.subHeader(configuration)
         }
-        .background(theme.colors.background.primary.edgesIgnoringSafeArea(.top))
+        .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.top))
     }
-    
-    @ViewBuilder
+
     @MainActor
     private func mainHeader(_ configuration: MPHeaderStyleConfiguration) -> some View {
-        HStack(spacing: theme.spacings.xmicro) {
+        HStack(spacing: self.theme.spacings.xmicro) {
             Button(action: configuration.onBack) {
                 Image(systemName: Logos.chevronLeft)
             }
             .buttonStyle(MPBackButtonStyle())
             .frame(width: 44, height: 44)
             .accessibility(label: Text(MPStrings.Common.back))
-            
+
             Text(configuration.title)
                 .textStyle(.headingMedium())
                 .lineLimit(1)
                 .opacity(configuration.collapseProgress)
                 .frame(maxWidth: .infinity)
-            
+
             if let trailing = configuration.trailingActions {
                 trailing
             } else {
                 Color.clear.frame(width: 44, height: 44)
             }
         }
-        .padding(.horizontal, theme.spacings.xtiny)
-        .padding(.vertical, theme.spacings.micro)
-        .background(headerBackgroundView(configuration))
+        .padding(.horizontal, self.theme.spacings.xtiny)
+        .padding(.vertical, self.theme.spacings.micro)
+        .background(self.headerBackgroundView(configuration))
         .overlay(
             GeometryReader { geo in
                 Color.clear.preference(
@@ -66,19 +65,18 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
             .easeInOut(duration: 0.2), value: configuration.collapseProgress
         )
     }
-    
-    @ViewBuilder
+
     @MainActor
     private func subHeader(_ configuration: MPHeaderStyleConfiguration) -> some View {
         Text(configuration.title)
             .textStyle(.headingHuge())
             .lineLimit(2)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, theme.spacings.xtiny)
+            .padding(.horizontal, self.theme.spacings.xtiny)
             .padding(
                 .vertical,
                 configuration.subHeaderVisibleHeight > 24 ?
-                    theme.spacings.xmicro : 0
+                    self.theme.spacings.xmicro : 0
             )
             .background(
                 GeometryReader { geo in
@@ -93,18 +91,18 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
             .offset(y: -(configuration.subHeaderHeight - configuration.subHeaderVisibleHeight))
             .clipped()
     }
-    
+
     // MARK: - Background with Blur
-    
+
     @ViewBuilder
     private func headerBackgroundView(
         _ configuration: MPHeaderStyleConfiguration
     ) -> some View {
         let epsilon: CGFloat = 0.00001
-        
+
         ZStack {
             if configuration.scrollOffset < -epsilon {
-                theme.colors.background.primary.opacity(0.98)
+                self.theme.colors.background.primary.opacity(0.98)
             } else {
                 Color.clear
             }
@@ -116,14 +114,13 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
 
 private struct VisualEffectBlur: UIViewRepresentable {
     var blurStyle: UIBlurEffect.Style
-    
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        let view = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
-        return view
+
+    func makeUIView(context _: Context) -> UIVisualEffectView {
+        return UIVisualEffectView(effect: UIBlurEffect(style: self.blurStyle))
     }
-    
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = UIBlurEffect(style: blurStyle)
+
+    func updateUIView(_ uiView: UIVisualEffectView, context _: Context) {
+        uiView.effect = UIBlurEffect(style: self.blurStyle)
     }
 }
 
@@ -132,18 +129,19 @@ private struct VisualEffectBlur: UIViewRepresentable {
 package struct MainHeaderHeightKey: PreferenceKey {
     package static let defaultValue: CGFloat = 0
     package static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        value = max(value, nextValue())
     }
 }
 
 package struct SubHeaderHeightKey: PreferenceKey {
     package static let defaultValue: CGFloat = 0
     package static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        value = max(value, nextValue())
     }
 }
 
 // MARK: - Style Resolution
+
 package extension MPHeaderStyle {
     @MainActor
     func resolve(configuration: Configuration) -> some View {
@@ -154,13 +152,14 @@ package extension MPHeaderStyle {
 private struct ResolvedMPHeaderStyle<Style: MPHeaderStyle>: View {
     let style: Style
     let configuration: Style.Configuration
-    
+
     var body: some View {
-        style.makeBody(configuration: configuration)
+        self.style.makeBody(configuration: self.configuration)
     }
 }
 
 // MARK: - Environment
+
 private struct MPHeaderStyleKey: @preconcurrency EnvironmentKey {
     @MainActor static var defaultValue: any MPHeaderStyle = MPDefaultHeaderStyle()
 }
@@ -176,7 +175,7 @@ package extension View {
     /// Sets the style for `MPHeader` within this view hierarchy.
     ///
     /// - Parameter style: The `MPHeaderStyle` to apply.
-    func mpHeaderStyle<S: MPHeaderStyle>(_ style: S) -> some View {
+    func mpHeaderStyle(_ style: some MPHeaderStyle) -> some View {
         environment(\.mpHeaderStyle, style)
     }
 }
@@ -184,58 +183,56 @@ package extension View {
 // MARK: - Preview
 
 #if DEBUG
-struct MPHeader_Previews: PreviewProvider {
-    struct ExampleUsage: View {
-        @Environment(\.presentationMode) var presentationMode
-        
-        var body: some View {
-            MPHeader(
-                title: "Product Details",
-                onBack: {
-                    self.presentationMode.wrappedValue.dismiss()
-                }
-            ) {
-                VStack(spacing: 0) {
-                    ForEach(0..<30) { line in
-                        Text("Line \(line)")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.red))
-                            .cornerRadius(8)
-                        
+    struct MPHeader_Previews: PreviewProvider {
+        struct ExampleUsage: View {
+            @Environment(\.presentationMode) var presentationMode
+
+            var body: some View {
+                MPHeader(
+                    title: "Product Details",
+                    onBack: {
+                        self.presentationMode.wrappedValue.dismiss()
                     }
-                }
-                .padding()
-            }
-        }
-    }
-    
-    static var previews: some View {
-        NavigationView {
-            MPHeader(
-                title: "Product",
-                onBack: {
-                    print("Back tapped")
-                }
-            ) {
-                VStack(spacing: 20) {
-                    ForEach(0..<30) { line in
-                        Text("Line \(line)")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.red))
-                            .cornerRadius(8)
-                        
-                        NavigationLink(destination: ExampleUsage()) {
-                            Text("Ir para o destino")
+                ) {
+                    VStack(spacing: 0) {
+                        ForEach(0 ..< 30) { line in
+                            Text("Line \(line)")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color(.red))
+                                .cornerRadius(8)
                         }
-                        
                     }
+                    .padding()
                 }
-                .padding()
             }
         }
-        .loadMPFonts()
+
+        static var previews: some View {
+            NavigationView {
+                MPHeader(
+                    title: "Product",
+                    onBack: {
+                        print("Back tapped")
+                    }
+                ) {
+                    VStack(spacing: 20) {
+                        ForEach(0 ..< 30) { line in
+                            Text("Line \(line)")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color(.red))
+                                .cornerRadius(8)
+
+                            NavigationLink(destination: ExampleUsage()) {
+                                Text("Ir para o destino")
+                            }
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .loadMPFonts()
+        }
     }
-}
 #endif
