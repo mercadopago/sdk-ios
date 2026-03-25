@@ -134,7 +134,7 @@ package struct CardHolderRule: CardFormRuleType {
             return self.validation.errorInvalid
         }
 
-        if clearValue.count < 2 {
+        if clearValue.count < 3 {
             return self.validation.errorIncomplete
         }
 
