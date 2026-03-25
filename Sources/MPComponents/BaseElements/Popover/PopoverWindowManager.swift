@@ -8,6 +8,16 @@
 import MPFoundation
 import SwiftUI
 
+// MARK: - Non-Key Popover Window
+
+/// A UIWindow that never becomes the key window, preventing the keyboard from dismissing
+/// when the popover is shown.
+private final class PopoverWindow: UIWindow {
+    override var canBecomeKey: Bool {
+        false
+    }
+}
+
 // MARK: - Global Popover Window Manager
 
 /// Singleton that manages a UIWindow for displaying popovers globally.
@@ -48,20 +58,21 @@ final class PopoverWindowManager {
         hostingController.view.backgroundColor = .clear
         self.hostingController = hostingController
 
-        // Create window
-        let window: UIWindow
+        // Create window — uses PopoverWindow (canBecomeKey = false) so the keyboard
+        // is never dismissed when the popover appears.
+        let window: PopoverWindow
         if let windowScene = UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
             .first {
-            window = UIWindow(windowScene: windowScene)
+            window = PopoverWindow(windowScene: windowScene)
         } else {
-            window = UIWindow(frame: UIScreen.main.bounds)
+            window = PopoverWindow(frame: UIScreen.main.bounds)
         }
 
         window.rootViewController = hostingController
         window.windowLevel = .alert + 1
         window.backgroundColor = .clear
-        window.makeKeyAndVisible()
+        window.isHidden = false
         self.popoverWindow = window
     }
 
