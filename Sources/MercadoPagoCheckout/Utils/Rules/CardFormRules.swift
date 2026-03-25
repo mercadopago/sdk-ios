@@ -67,7 +67,6 @@ package struct CardNumberRule: CardFormRuleType {
         if digits.isEmpty { return self.validation.errorEmpty }
         if let externalError { return self.validateExternalError(externalError) }
         if digits.count < self.min { return self.validation.errorIncomplete }
-        if self.isAllRepeatedDigits(digits) { return self.validation.errorInvalid }
         if !self.luhnCheck(digits) { return self.validation.errorInvalid }
         return nil
     }

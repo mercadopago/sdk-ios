@@ -39,9 +39,9 @@ extension MercadoPagoCheckoutError {
             }
         case let .apiError(error):
             self.init(
-                code: .serviceError,
+                code: error.code == "not_found" ? .notFound : .serviceError,
                 localizedDescription: "An error occurred. Check the error_code for more details.",
-                userInfo: ["error_code": error.code],
+                userInfo: ["error_code": error.code, "message": error.message],
                 location: location
             )
         case let .statusCode(status):

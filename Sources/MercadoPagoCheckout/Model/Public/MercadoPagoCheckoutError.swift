@@ -17,6 +17,7 @@ public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugString
         public static let networkConnectionFailed = Code(rawValue: -1009)
         public static let networkTimeout = Code(rawValue: -1001)
         public static let serviceError = Code(rawValue: 2000)
+        public static let notFound = Code(rawValue: 2001)
         public static let unknown = Code(rawValue: 999)
         public static let integrationError = Code(rawValue: 3000)
     }
