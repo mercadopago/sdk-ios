@@ -24,24 +24,26 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Published State
 
-    @Published var selectTypeDocument: IdentificationType? {
-        didSet { self.updateIdentificationType() }
-    }
-
-    var identificationTypes: [IdentificationType] = []
-
     @Published private(set) var binData: CardBinData? {
         didSet { self.updateFormatters(for: self.binData) }
-    }
-
-    var requiresIdentificationTypes: Bool {
-        MercadoPagoSDK.shared.configuration?.country != .MEX
     }
 
     @Published private(set) var cardAcceptanceError: CardAcceptanceError?
     @Published private(set) var binNetworkError: MercadoPagoCheckoutError?
     @Published private(set) var showSnackbar = false
     @Published private(set) var isTokenizing = false
+
+    @Published var selectTypeDocument: IdentificationType? {
+        didSet { self.updateIdentificationType() }
+    }
+
+    var identificationTypes: [IdentificationType] = []
+
+    // MARK: Computed Properties
+
+    var requiresIdentificationTypes: Bool {
+        MercadoPagoSDK.shared.configuration?.country != .MEX
+    }
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
@@ -66,7 +68,11 @@ final class CardFormViewModel: ObservableObject {
     private var isRetriableBinError: Bool {
         return self.binNetworkError?.code == .networkConnectionFailed
             || self.binNetworkError?.code == .networkTimeout
-            || self.binNetworkError?.code == .serviceError
+            || self.binNetworkError?.code == .serviceError && !self.isPaymentMethodNotFound
+    }
+
+    private var isPaymentMethodNotFound: Bool {
+        self.binNetworkError?.errorUserInfo["message"] as? String == "Payment methods not found"
     }
 
     // MARK: - Constants
