@@ -100,7 +100,9 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
     @ViewBuilder
     @MainActor
     private func popoverButton(textPopover: String) -> some View {
-        Button(action: {}) {
+        Button(action: {
+            isPopoverPresented = true
+        }) {
             MPIcon(
                 systemName: Logos.questionMark,
                 size: .small,
@@ -110,7 +112,7 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
         }
         .accessibility(label: Text(MPStrings.Common.Accessibility.TextField.moreInfo))
         .buttonStyle(.plain)
-        .popover() {
+        .popover(isPresented: $isPopoverPresented) {
             Text(textPopover)
                 .textStyle(.bodyMedium(colorType: .secondary))
         }
