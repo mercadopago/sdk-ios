@@ -62,7 +62,7 @@
 "document.type" = "DNI";
 "document.placeholder" = "99.999.999";
 "document.error.empty" = "Completá este campo.";
-"document.error.incomplete" = "Ingresá el documento completo.";
+"document.error.incomplete" = "Ingresá un documento completo.";
 "document.error.invalid" = "Ingresá un documento válido.";
 "document.error.funding" = "Solo podrás ingresar dinero con tarjetas a tu nombre.";
 
