@@ -17,6 +17,6 @@ package enum Logos: Equatable {
 
     package static let errorFilled = "Error-Filled"
     package static let close = "Close"
-    package static let chevronLeft = "chevron.left"
+    package static let arrowLeft = "arrow.left"
     package static let questionMark = "questionmark.circle"
 }
