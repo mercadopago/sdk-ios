@@ -917,20 +917,20 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(capturedValues, [false, true])
     }
 
-    // MARK: - documentKeyboardType
+    // MARK: - keyboard type (derived from selectTypeDocument)
 
-    func test_init_withNumericIdentificationType_shouldSetNumberPadKeyboard() {
+    func test_init_withNumericIdentificationType_shouldSelectNumericType() {
         // Arrange
         let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
 
         // Act
         let sut = self.makeSUT(identificationTypes: [numericType])
 
-        // Assert
-        XCTAssertEqual(sut.viewModel.documentKeyboardType, .numberPad)
+        // Assert — keyboard type is derived by the View via getKeyboardType()
+        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .numberPad)
     }
 
-    func test_init_withStringIdentificationType_shouldSetDefaultKeyboard() {
+    func test_init_withStringIdentificationType_shouldSelectStringType() {
         // Arrange
         let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
 
@@ -938,43 +938,41 @@ final class CardFormViewModelTests: XCTestCase {
         let sut = self.makeSUT(identificationTypes: [stringType])
 
         // Assert
-        XCTAssertEqual(sut.viewModel.documentKeyboardType, .default)
+        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .default)
     }
 
-    func test_init_withNoIdentificationTypes_shouldSetDefaultKeyboard() {
+    func test_init_withNoIdentificationTypes_shouldHaveNilSelectTypeDocument() {
         // Arrange / Act
         let sut = self.makeSUT()
 
-        // Assert
-        XCTAssertEqual(sut.viewModel.documentKeyboardType, .default)
+        // Assert — nil selectTypeDocument → View falls back to .default
+        XCTAssertNil(sut.viewModel.selectTypeDocument)
     }
 
-    func test_selectTypeDocument_whenChangedToStringType_shouldUpdateKeyboardToDefault() {
+    func test_selectTypeDocument_whenChangedToStringType_shouldReflectDefaultKeyboard() {
         // Arrange
         let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
         let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
         let sut = self.makeSUT(identificationTypes: [numericType, stringType])
-        XCTAssertEqual(sut.viewModel.documentKeyboardType, .numberPad)
 
         // Act
         sut.viewModel.selectTypeDocument = stringType
 
         // Assert
-        XCTAssertEqual(sut.viewModel.documentKeyboardType, .default)
+        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .default)
     }
 
-    func test_selectTypeDocument_whenChangedToNumericType_shouldUpdateKeyboardToNumberPad() {
+    func test_selectTypeDocument_whenChangedToNumericType_shouldReflectNumberPadKeyboard() {
         // Arrange
         let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
         let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
         let sut = self.makeSUT(identificationTypes: [stringType, numericType])
-        XCTAssertEqual(sut.viewModel.documentKeyboardType, .default)
 
         // Act
         sut.viewModel.selectTypeDocument = numericType
 
         // Assert
-        XCTAssertEqual(sut.viewModel.documentKeyboardType, .numberPad)
+        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .numberPad)
     }
 
     // MARK: - documentFormatter

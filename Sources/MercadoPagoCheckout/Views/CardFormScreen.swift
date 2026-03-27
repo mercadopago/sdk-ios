@@ -136,13 +136,13 @@ struct CardFormScreen: View {
                             label: self.initResult.fields.document.label,
                             placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
                             errorMessage: self.cardForm.$documentHolder,
-                            keyboard: self.viewModel.documentKeyboardType,
+                            keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
                             formatter: self.viewModel.documentFormatter,
                             prefix: {
                                 self.dropdownDocument()
                             }
                         )
-                        .id(self.viewModel.documentKeyboardType)
+                        .id(self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default)
                     }
                 }
                 .padding(.horizontal, self.theme.spacings.micro)

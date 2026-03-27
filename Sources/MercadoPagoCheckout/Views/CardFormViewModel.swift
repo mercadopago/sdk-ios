@@ -21,7 +21,6 @@ final class CardFormViewModel: ObservableObject {
     let expirationDateFormatter = ExpirationDateFormatter()
     @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
     @Published private(set) var documentFormatter = DocumentFormatter()
-    @Published private(set) var documentKeyboardType: UIKeyboardType = .default
 
     // MARK: - Published State
 
@@ -97,7 +96,6 @@ final class CardFormViewModel: ObservableObject {
             maxLength: firstType?.maxLenght ?? 20,
             isNumericType: firstType?.type != "string"
         )
-        self.documentKeyboardType = firstType?.getKeyboardType() ?? .default
     }
 
     // MARK: - Formatter Updates
@@ -108,7 +106,6 @@ final class CardFormViewModel: ObservableObject {
             maxLength: self.selectTypeDocument?.maxLenght ?? 20,
             isNumericType: self.selectTypeDocument?.type != "string"
         )
-        self.documentKeyboardType = self.selectTypeDocument?.getKeyboardType() ?? .default
     }
 
     private func updateFormatters(for binData: CardBinData?) {
