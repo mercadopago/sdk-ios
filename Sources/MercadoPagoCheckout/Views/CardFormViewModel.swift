@@ -204,7 +204,7 @@ final class CardFormViewModel: ObservableObject {
         } catch let error as MercadoPagoCheckoutError {
             guard !Task.isCancelled else { return }
             self.binData = nil
-            if error.errorUserInfo["message"] as? String == "Payment methods not found" {
+            if error.isPaymentMethodNotFound {
                 self.cardAcceptanceError = .paymentMethodNotFound
             } else {
                 self.binNetworkError = error
