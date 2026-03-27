@@ -77,13 +77,7 @@ package struct CardNumberRule: CardFormRuleType {
         guard !digits.isEmpty else { return nil }
         if let externalError { return self.validateExternalError(externalError) }
         guard digits.count >= self.min else { return nil }
-        if self.isAllRepeatedDigits(digits) { return self.validation.errorInvalid }
         return nil
-    }
-
-    private func isAllRepeatedDigits(_ digits: String) -> Bool {
-        guard let first = digits.first else { return false }
-        return digits.dropFirst().allSatisfy { $0 == first }
     }
 
     private func validateExternalError(_ error: CardAcceptanceError) -> String? {
@@ -95,6 +89,8 @@ package struct CardNumberRule: CardFormRuleType {
                 return self.validation.errorInvalid
             }
             return String(format: self.validation.errorTypeNotAllowed, self.cardTypeDisplayName(cardType))
+        case .paymentMethodNotFound:
+            return self.validation.errorInvalid
         }
     }
 

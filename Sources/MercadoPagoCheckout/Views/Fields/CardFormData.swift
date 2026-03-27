@@ -100,6 +100,7 @@ struct CardFormData {
             switch acceptanceError {
             case let .paymentMethodNotAllowed(brand): return .cardBrandNotAccepted(brand: brand)
             case let .paymentTypeNotAllowed(cardType): return .cardTypeNotAccepted(cardType: cardType)
+            case .paymentMethodNotFound: return .invalid
             }
         }
         return _cardNumber.errorMessages.contains(MPStrings.CardForm.CardNumber.errorIncomplete) ? .incomplete : .invalid
