@@ -68,11 +68,7 @@ final class CardFormViewModel: ObservableObject {
     private var isRetriableBinError: Bool {
         return self.binNetworkError?.code == .networkConnectionFailed
             || self.binNetworkError?.code == .networkTimeout
-            || self.binNetworkError?.code == .serviceError && !self.isPaymentMethodNotFound
-    }
-
-    private var isPaymentMethodNotFound: Bool {
-        self.binNetworkError?.errorUserInfo["message"] as? String == "Payment methods not found"
+            || self.binNetworkError?.code == .serviceError && !(self.binNetworkError?.isPaymentMethodNotFound ?? false)
     }
 
     // MARK: - Constants
@@ -208,7 +204,11 @@ final class CardFormViewModel: ObservableObject {
         } catch let error as MercadoPagoCheckoutError {
             guard !Task.isCancelled else { return }
             self.binData = nil
-            self.binNetworkError = error
+            if error.errorUserInfo["message"] as? String == "Payment methods not found" {
+                self.cardAcceptanceError = .paymentMethodNotFound
+            } else {
+                self.binNetworkError = error
+            }
         } catch {
             guard !Task.isCancelled else { return }
             self.binData = nil

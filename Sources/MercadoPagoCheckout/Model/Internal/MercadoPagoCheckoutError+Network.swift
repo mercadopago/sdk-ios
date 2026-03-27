@@ -91,3 +91,12 @@ extension MercadoPagoCheckoutError {
         }
     }
 }
+
+// MARK: - MercadoPagoCheckoutError + PaymentMethodNotFound
+
+extension MercadoPagoCheckoutError {
+    var isPaymentMethodNotFound: Bool {
+        errorUserInfo["error_code"] as? String == "not_found"
+            || errorUserInfo["message"] as? String == "Payment methods not found"
+    }
+}
