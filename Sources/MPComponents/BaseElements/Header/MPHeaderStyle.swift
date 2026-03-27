@@ -32,7 +32,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
     private func mainHeader(_ configuration: MPHeaderStyleConfiguration) -> some View {
         HStack(spacing: self.theme.spacings.xmicro) {
             Button(action: configuration.onBack) {
-                Image(systemName: Logos.chevronLeft)
+                Image(systemName: Logos.arrowLeft)
             }
             .buttonStyle(MPBackButtonStyle())
             .frame(width: 44, height: 44)

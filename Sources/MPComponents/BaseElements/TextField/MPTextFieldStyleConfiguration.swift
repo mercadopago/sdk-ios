@@ -4,8 +4,8 @@
 //
 //  Created by Guilherme Prata Costa on 21/08/25.
 //
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 /// Configuration for `MPTextFieldStyle`.
 public struct MPTextFieldStyleConfiguration: Sendable {

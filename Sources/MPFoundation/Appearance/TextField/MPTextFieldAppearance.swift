@@ -15,7 +15,7 @@ public struct MPTextFieldStateAppearance: Sendable {
     public var helperColor: Color
     public var borderColor: Color
     public var borderWidth: CGFloat
-    
+
     public init(
         backgroundColor: Color,
         textColor: Color,
@@ -48,7 +48,7 @@ public struct MPTextFieldAppearance: Sendable {
     public var textFont: UIFont
     public var helperFont: UIFont
     public var padding: EdgeInsets
-    
+
     public init(
         idle: MPTextFieldStateAppearance,
         focused: MPTextFieldStateAppearance,
@@ -81,11 +81,11 @@ public struct MPTextFieldAppearance: Sendable {
 /// Container for TextField appearances in the theme.
 public struct MPTextFields: Sendable {
     public var standard: MPTextFieldAppearance
-    
+
     public init(standard: MPTextFieldAppearance) {
         self.standard = standard
     }
-    
+
     /// Convenience initializer that derives appearance from theme tokens.
     public init(
         colors: MPColors,
@@ -96,7 +96,7 @@ public struct MPTextFields: Sendable {
     ) {
         let defaultBorderWidth = borderWidth.small
         let focusedBorderWidth = borderWidth.medium
-        
+
         self.standard = MPTextFieldAppearance(
             idle: MPTextFieldStateAppearance(
                 backgroundColor: colors.fill.primary,
@@ -152,9 +152,9 @@ public struct MPTextFields: Sendable {
             textFont: typography.body.medium.default,
             helperFont: typography.body.small.default,
             padding: EdgeInsets(
-                top: spacings.micro,
+                top: spacings.xmicro,
                 leading: spacings.micro,
-                bottom: spacings.micro,
+                bottom: spacings.xmicro,
                 trailing: spacings.micro
             )
         )

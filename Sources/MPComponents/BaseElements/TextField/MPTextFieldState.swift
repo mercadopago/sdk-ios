@@ -15,7 +15,7 @@ public enum MPTextFieldState: Equatable, Sendable {
     case focusError(String)
     case readOnly
     case disabled
-    
+
     /// Extracts an error message if the state represents an error.
     public var errorMessage: String? {
         switch self {
@@ -25,19 +25,19 @@ public enum MPTextFieldState: Equatable, Sendable {
             return nil
         }
     }
-    
+
     /// Returns whether the field should be treated as read-only.
     public var isReadOnly: Bool {
         if case .readOnly = self { return true }
         return false
     }
-    
+
     /// Returns whether the field should be treated as disabled.
     public var isDisabled: Bool {
         if case .disabled = self { return true }
         return false
     }
-    
+
     /// Returns whether field has Error
     public var hasError: Bool {
         switch self {
@@ -48,5 +48,3 @@ public enum MPTextFieldState: Equatable, Sendable {
         }
     }
 }
-
-
