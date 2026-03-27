@@ -13,6 +13,7 @@ package enum CardValidationRequirement {
     case cardNumberExternalError(CardAcceptanceError?)
     case securityCodeLength(Int)
     case documentLength(min: Int, max: Int)
+    case documentType(isNumeric: Bool)
 }
 
 package protocol CardFormRuleType {
@@ -197,23 +198,31 @@ package struct DocumentRule: CardFormRuleType {
     private let validation: CardFormTexts.DocumentField.Validation
     private var maxLength = 20
     private var minLength = 1
+    private var isNumericType = true
 
     init(validation: CardFormTexts.DocumentField.Validation) {
         self.validation = validation
     }
 
     package mutating func apply(_ requirement: CardValidationRequirement) {
-        if case let .documentLength(minLen, maxLen) = requirement {
+        switch requirement {
+        case let .documentLength(minLen, maxLen):
             self.minLength = minLen
             self.maxLength = maxLen
+        case let .documentType(isNumeric):
+            self.isNumericType = isNumeric
+        default:
+            break
         }
     }
 
     package func validate(_ value: String) -> String? {
-        let digits = value.filter(\.isNumber)
-        if digits.isEmpty { return self.validation.errorEmpty }
-        if !(self.minLength ... self.maxLength).contains(digits.count) { return self.validation.errorIncomplete }
-        if digits.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
+        let chars = self.isNumericType
+            ? value.filter(\.isNumber)
+            : value.filter { $0.isLetter || $0.isNumber }
+        if chars.isEmpty { return self.validation.errorEmpty }
+        if !(self.minLength ... self.maxLength).contains(chars.count) { return self.validation.errorIncomplete }
+        if self.isNumericType, chars.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
         return nil
     }
 }

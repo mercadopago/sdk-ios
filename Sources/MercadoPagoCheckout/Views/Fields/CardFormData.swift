@@ -51,6 +51,10 @@ struct CardFormData {
         _documentHolder.update(.documentLength(min: min, max: max))
     }
 
+    mutating func setDocumentType(isNumeric: Bool) {
+        _documentHolder.update(.documentType(isNumeric: isNumeric))
+    }
+
     mutating func setCardNumberLength(_ minLength: Int = 13, _ maxLength: Int = 16) {
         _cardNumber.update(.cardNumberRange(min: minLength, max: maxLength))
     }
@@ -123,7 +127,7 @@ struct CardFormData {
 
     private func documentHolderState() -> CardFormUserCancelledContext.FieldState.State {
         guard !_documentHolder.errorMessages.isEmpty else { return .valid }
-        if self.documentHolder.filter(\.isNumber).isEmpty { return .empty }
+        if self.documentHolder.filter({ $0.isLetter || $0.isNumber }).isEmpty { return .empty }
         if _documentHolder.errorMessages.contains(MPStrings.CardForm.Document.errorIncomplete) { return .incomplete }
         return .invalid
     }

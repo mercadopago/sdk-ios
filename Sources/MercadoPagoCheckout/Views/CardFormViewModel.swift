@@ -96,7 +96,8 @@ final class CardFormViewModel: ObservableObject {
     private func updateIdentificationType() {
         self.documentFormatter = DocumentFormatter(
             mask: self.selectTypeDocument?.getFormat() ?? String(),
-            maxLength: self.selectTypeDocument?.maxLenght ?? 20
+            maxLength: self.selectTypeDocument?.maxLenght ?? 20,
+            isNumericType: self.selectTypeDocument?.type != "string"
         )
     }
 
@@ -135,7 +136,7 @@ final class CardFormViewModel: ObservableObject {
         let shortYear = String(expirationParts.dropFirst().first ?? "")
         let century = Calendar.current.component(.year, from: Date()) / 100
         let year = "\(century)\(shortYear)"
-        let rawDocument = cardForm.documentHolder.filter(\.isNumber)
+        let rawDocument = cardForm.documentHolder.filter { $0.isLetter || $0.isNumber }
 
         return CardParams(
             cardNumber: rawCardNumber,
@@ -220,7 +221,7 @@ final class CardFormViewModel: ObservableObject {
             guard let selectTypeDocument else { return nil }
             return .init(
                 type: selectTypeDocument.type,
-                number: cardFormData.documentHolder.filter(\.isNumber)
+                number: cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
             )
         }
 
