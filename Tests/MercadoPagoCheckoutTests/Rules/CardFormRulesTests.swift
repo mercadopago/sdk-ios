@@ -574,4 +574,84 @@ final class CardFormRulesTests: XCTestCase {
         ruleWithLen.apply(.documentLength(min: 3, max: 3))
         XCTAssertEqual(ruleWithLen.validate("000"), "CUSTOM_INVALID")
     }
+
+    // MARK: - DocumentRule (string/alphanumeric type)
+
+    func test_documentRule_stringType_whenEmpty_shouldReturnEmptyError() {
+        // Arrange
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentType(isNumeric: false))
+
+        // Act
+        let result = rule.validate("")
+
+        // Assert
+        XCTAssertEqual(result, MPStrings.CardForm.Document.errorEmpty)
+    }
+
+    func test_documentRule_stringType_whenValidAlphanumeric_shouldReturnNil() {
+        // Arrange
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentType(isNumeric: false))
+        rule.apply(.documentLength(min: 5, max: 14))
+
+        // Act — "AB123" has 5 alphanumeric chars, within range
+        let result = rule.validate("AB.123")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_documentRule_stringType_whenAllZeros_shouldReturnNil() {
+        // Arrange — all-zeros is only invalid for numeric type, not string type
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentType(isNumeric: false))
+        rule.apply(.documentLength(min: 3, max: 3))
+
+        // Act
+        let result = rule.validate("000")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_documentRule_stringType_whenIncomplete_shouldReturnIncompleteError() {
+        // Arrange
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentType(isNumeric: false))
+        rule.apply(.documentLength(min: 5, max: 14))
+
+        // Act — "AB" has only 2 alphanumeric chars, below min
+        let result = rule.validate("AB")
+
+        // Assert
+        XCTAssertEqual(result, MPStrings.CardForm.Document.errorIncomplete)
+    }
+
+    func test_documentRule_stringType_whenOnlySpecialChars_shouldReturnEmptyError() {
+        // Arrange — special chars are stripped, leaving nothing — must return errorEmpty not errorIncomplete
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentType(isNumeric: false))
+
+        // Act
+        let result = rule.validate("!@#$%")
+
+        // Assert
+        XCTAssertEqual(result, MPStrings.CardForm.Document.errorEmpty)
+    }
+
+    func test_documentRule_whenTypeToggledFromNumericToString_allZerosShouldBecomeValid() {
+        // Arrange
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentLength(min: 3, max: 3))
+
+        // Act / Assert — numeric type: all zeros invalid
+        XCTAssertEqual(rule.validate("000"), MPStrings.CardForm.Document.errorInvalid)
+
+        // Act — switch to string type
+        rule.apply(.documentType(isNumeric: false))
+
+        // Assert — string type: all zeros valid
+        XCTAssertNil(rule.validate("000"))
+    }
 }

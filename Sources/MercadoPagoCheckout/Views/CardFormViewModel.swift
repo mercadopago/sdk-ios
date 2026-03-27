@@ -20,7 +20,7 @@ final class CardFormViewModel: ObservableObject {
     @Published private(set) var cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
     @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
-    private(set) var documentFormatter = DocumentFormatter()
+    @Published private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
 
@@ -95,6 +95,13 @@ final class CardFormViewModel: ObservableObject {
         self.service = service
         self.identificationTypes = initResult.identificationTypes
         self.selectTypeDocument = initResult.identificationTypes.first
+
+        let firstType = initResult.identificationTypes.first
+        self.documentFormatter = DocumentFormatter(
+            mask: firstType?.getFormat() ?? String(),
+            maxLength: firstType?.maxLenght ?? 20,
+            isNumericType: firstType?.type != "string"
+        )
     }
 
     // MARK: - Formatter Updates
@@ -102,7 +109,8 @@ final class CardFormViewModel: ObservableObject {
     private func updateIdentificationType() {
         self.documentFormatter = DocumentFormatter(
             mask: self.selectTypeDocument?.getFormat() ?? String(),
-            maxLength: self.selectTypeDocument?.maxLenght ?? 20
+            maxLength: self.selectTypeDocument?.maxLenght ?? 20,
+            isNumericType: self.selectTypeDocument?.type != "string"
         )
     }
 
@@ -141,7 +149,7 @@ final class CardFormViewModel: ObservableObject {
         let shortYear = String(expirationParts.dropFirst().first ?? "")
         let century = Calendar.current.component(.year, from: Date()) / 100
         let year = "\(century)\(shortYear)"
-        let rawDocument = cardForm.documentHolder.filter(\.isNumber)
+        let rawDocument = cardForm.documentHolder.filter { $0.isLetter || $0.isNumber }
 
         return CardParams(
             cardNumber: rawCardNumber,
@@ -226,7 +234,7 @@ final class CardFormViewModel: ObservableObject {
             guard let selectTypeDocument else { return nil }
             return .init(
                 type: selectTypeDocument.type,
-                number: cardFormData.documentHolder.filter(\.isNumber)
+                number: cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
             )
         }
 

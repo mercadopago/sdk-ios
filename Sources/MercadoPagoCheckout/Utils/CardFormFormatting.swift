@@ -94,33 +94,54 @@ package struct ExpirationDateFormatter: TextFormatting {
 // MARK: - Document Formatter
 
 /// A formatter that applies a mask pattern to document numbers.
-/// Uses '#' for digit positions and any other character as a literal.
-/// When the format is empty, the input is returned unchanged.
+/// Mask placeholders:
+///   - `#` — digit-only position
+///   - `A` — alphanumeric position (letters and digits)
+///   - Any other character — literal separator
+/// When the format is empty, the input is returned unchanged (filtered by type).
 package struct DocumentFormatter: TextFormatting {
     private let maskFormat: String
     private let maxLength: Int
+    private let isNumericType: Bool
 
-    package init(mask: String = "", maxLength: Int = 20) {
+    package init(mask: String = "", maxLength: Int = 20, isNumericType: Bool = true) {
         self.maskFormat = mask
         self.maxLength = maxLength
+        self.isNumericType = isNumericType
     }
 
     package func formatOnChange(_ text: String) -> String {
-        guard !self.maskFormat.isEmpty else {
-            return String(text.prefix(self.maxLength))
+        let cleaned: String
+        if self.isNumericType {
+            cleaned = String(text.filter(\.isNumber).prefix(self.maxLength))
+        } else {
+            cleaned = String(text.filter { $0.isLetter || $0.isNumber }.prefix(self.maxLength))
         }
-        let digits = String(
-            text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined().prefix(self.maxLength)
-        )
-        var result = ""
-        var index = digits.startIndex
 
-        for char in self.maskFormat where index < digits.endIndex {
-            if char == "#" {
-                result.append(digits[index])
-                index = digits.index(after: index)
-            } else {
-                result.append(char)
+        guard !self.maskFormat.isEmpty else {
+            return cleaned
+        }
+
+        var result = ""
+        var index = cleaned.startIndex
+
+        for maskChar in self.maskFormat where index < cleaned.endIndex {
+            switch maskChar {
+            case "#":
+                // Digit-only position: skip any non-digit chars in the cleaned input
+                while index < cleaned.endIndex, !cleaned[index].isNumber {
+                    index = cleaned.index(after: index)
+                }
+                if index < cleaned.endIndex {
+                    result.append(cleaned[index])
+                    index = cleaned.index(after: index)
+                }
+            case "A":
+                // Alphanumeric position: accept any letter or digit
+                result.append(cleaned[index])
+                index = cleaned.index(after: index)
+            default:
+                result.append(maskChar)
             }
         }
 
