@@ -916,4 +916,118 @@ final class CardFormViewModelTests: XCTestCase {
         // Assert — snackbar was reset then re-triggered
         XCTAssertEqual(capturedValues, [false, true])
     }
+
+    // MARK: - documentKeyboardType
+
+    func test_init_withNumericIdentificationType_shouldSetNumberPadKeyboard() {
+        // Arrange
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+
+        // Act
+        let sut = self.makeSUT(identificationTypes: [numericType])
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.documentKeyboardType, .numberPad)
+    }
+
+    func test_init_withStringIdentificationType_shouldSetDefaultKeyboard() {
+        // Arrange
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+
+        // Act
+        let sut = self.makeSUT(identificationTypes: [stringType])
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.documentKeyboardType, .default)
+    }
+
+    func test_init_withNoIdentificationTypes_shouldSetDefaultKeyboard() {
+        // Arrange / Act
+        let sut = self.makeSUT()
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.documentKeyboardType, .default)
+    }
+
+    func test_selectTypeDocument_whenChangedToStringType_shouldUpdateKeyboardToDefault() {
+        // Arrange
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let sut = self.makeSUT(identificationTypes: [numericType, stringType])
+        XCTAssertEqual(sut.viewModel.documentKeyboardType, .numberPad)
+
+        // Act
+        sut.viewModel.selectTypeDocument = stringType
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.documentKeyboardType, .default)
+    }
+
+    func test_selectTypeDocument_whenChangedToNumericType_shouldUpdateKeyboardToNumberPad() {
+        // Arrange
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let sut = self.makeSUT(identificationTypes: [stringType, numericType])
+        XCTAssertEqual(sut.viewModel.documentKeyboardType, .default)
+
+        // Act
+        sut.viewModel.selectTypeDocument = numericType
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.documentKeyboardType, .numberPad)
+    }
+
+    // MARK: - documentFormatter
+
+    func test_init_withNumericIdentificationType_shouldInitializeFormatterWithNumericMask() {
+        // Arrange
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+
+        // Act
+        let sut = self.makeSUT(identificationTypes: [numericType])
+
+        // Assert — numeric formatter strips letters, applies CPF mask
+        let formatted = sut.viewModel.documentFormatter.formatOnChange("12345678901")
+        XCTAssertEqual(formatted, "123.456.789-01")
+    }
+
+    func test_init_withStringIdentificationType_shouldInitializeFormatterWithAlphanumericMask() {
+        // Arrange — CNPJ string type uses alphanumeric mask
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+
+        // Act
+        let sut = self.makeSUT(identificationTypes: [stringType])
+
+        // Assert — string formatter accepts letters, applies CNPJ alphanumeric mask
+        let formatted = sut.viewModel.documentFormatter.formatOnChange("AB123456CDEF12")
+        XCTAssertEqual(formatted, "AB.123.456/CDEF-12")
+    }
+
+    func test_selectTypeDocument_whenChangedToStringType_shouldUpdateFormatterToAlphanumeric() {
+        // Arrange — start with CPF (numeric)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let sut = self.makeSUT(identificationTypes: [numericType, stringType])
+
+        // Act
+        sut.viewModel.selectTypeDocument = stringType
+
+        // Assert — formatter now accepts letters
+        let formatted = sut.viewModel.documentFormatter.formatOnChange("AB123456CDEF12")
+        XCTAssertEqual(formatted, "AB.123.456/CDEF-12")
+    }
+
+    func test_selectTypeDocument_whenChangedToNumericType_shouldUpdateFormatterToDigitsOnly() {
+        // Arrange — start with CNPJ string type
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let sut = self.makeSUT(identificationTypes: [stringType, numericType])
+
+        // Act
+        sut.viewModel.selectTypeDocument = numericType
+
+        // Assert — formatter now strips letters, applies CPF numeric mask
+        let formatted = sut.viewModel.documentFormatter.formatOnChange("12345678901")
+        XCTAssertEqual(formatted, "123.456.789-01")
+    }
 }
