@@ -18,11 +18,12 @@ func withRetry<T>(
     isolation _: isolated (any Actor)? = #isolation,
     operation: () async throws -> T
 ) async throws -> T {
-    try Task.checkCancellation()
     var lastError: Error?
     for _ in 0 ..< maxAttempts {
         do {
             return try await operation()
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             lastError = error
         }

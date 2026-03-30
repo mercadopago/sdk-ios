@@ -37,9 +37,15 @@ final class CardFormBrickViewModel: ObservableObject {
     func load() async throws(MercadoPagoCheckoutError) {
         guard case .loading = self.screenState else { return }
         let config = self.extractCardFormConfig()
-        let result = try await self.initializeUseCase.execute(config: config)
-        let viewModel = CardFormViewModel(configuration: self.configuration, initResult: result)
-        self.screenState = .ready(result, viewModel)
+        do {
+            let result = try await withRetry { try await self.initializeUseCase.execute(config: config) }
+            let viewModel = CardFormViewModel(configuration: self.configuration, initResult: result)
+            self.screenState = .ready(result, viewModel)
+        } catch let error as MercadoPagoCheckoutError {
+            throw error
+        } catch {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .initialization)
+        }
     }
 
     // MARK: - Private

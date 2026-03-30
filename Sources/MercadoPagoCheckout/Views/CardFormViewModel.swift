@@ -197,12 +197,14 @@ final class CardFormViewModel: ObservableObject {
         let acceptedPaymentTypeIds = self.configuration.paymentMethod.acceptedPaymentTypeIds
         let acceptedPaymentMethodIds = self.configuration.paymentMethod.acceptedPaymentMethodIds
         do {
-            let data = try await service.fetchBinData(
-                bin: bin,
-                amount: amount,
-                acceptedPaymentTypeIds: acceptedPaymentTypeIds,
-                acceptedPaymentMethodIds: acceptedPaymentMethodIds
-            )
+            let data = try await withRetry {
+                try await self.service.fetchBinData(
+                    bin: bin,
+                    amount: amount,
+                    acceptedPaymentTypeIds: acceptedPaymentTypeIds,
+                    acceptedPaymentMethodIds: acceptedPaymentMethodIds
+                )
+            }
             guard !Task.isCancelled else { return }
             self.binData = data
         } catch let error as CardAcceptanceError {
