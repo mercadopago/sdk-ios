@@ -62,7 +62,7 @@
 "document.type" = "CI";
 "document.placeholder" = "9.999.999-9";
 "document.error.empty" = "Completá este campo.";
-"document.error.incomplete" = "Ingresá el documento completo.";
+"document.error.incomplete" = "Ingresa un documento válido.";
 "document.error.invalid" = "Ingresá un documento válido.";
 "document.error.funding" = "Solo podrás ingresar dinero con tarjetas a tu nombre.";
 
