@@ -18,6 +18,8 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
     private var issuersResult: Result<[Issuer], Error>?
     private var installmentsResult: Result<[Installment], Error>?
     private var fetchBinDataResult: Result<CardBinData, Error>?
+    private var fetchBinDataResults: [Result<CardBinData, Error>] = []
+    private(set) var fetchBinDataCallCount = 0
     private var createCardTokenResult: Result<CardToken, Error>?
     private(set) var capturedCardParams: CardParams?
 
@@ -43,6 +45,10 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
 
     func setFetchBinDataResult(_ result: Result<CardBinData, Error>) {
         self.fetchBinDataResult = result
+    }
+
+    func setSequentialFetchBinDataResults(_ results: Result<CardBinData, Error>...) {
+        self.fetchBinDataResults = Array(results)
     }
 
     func setCreateCardTokenResult(_ result: Result<CardToken, Error>) {
@@ -110,6 +116,13 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
         acceptedPaymentTypeIds _: [String],
         acceptedPaymentMethodIds _: [String]
     ) async throws -> CardBinData {
+        self.fetchBinDataCallCount += 1
+        if !self.fetchBinDataResults.isEmpty {
+            let result = self.fetchBinDataResults.count > 1
+                ? self.fetchBinDataResults.removeFirst()
+                : self.fetchBinDataResults[0]
+            return try result.get()
+        }
         guard let result = fetchBinDataResult else { throw MockError.resultNotSet }
         return try result.get()
     }

@@ -372,6 +372,79 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
     }
 
+    // MARK: - fetchBinData retry
+
+    func test_onCardNumberChange_whenFirstBinFetchSucceeds_shouldCallServiceOnce() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        let callCount = await sut.service.fetchBinDataCallCount
+        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func test_onCardNumberChange_whenFirstBinFetchFails_shouldRetryAndSetBinData() async {
+        // Arrange
+        let sut = self.makeSUT()
+        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "timeout", location: .paymentMethods)
+        await sut.service.setSequentialFetchBinDataResults(
+            .failure(networkError),
+            .success(CardBinDataStub.visa)
+        )
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        let callCount = await sut.service.fetchBinDataCallCount
+        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
+        XCTAssertEqual(callCount, 2)
+    }
+
+    func test_onCardNumberChange_whenAllBinFetchesFail_shouldSetBinNetworkErrorAfter2Calls() async {
+        // Arrange
+        let sut = self.makeSUT()
+        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "timeout", location: .paymentMethods)
+        await sut.service.setSequentialFetchBinDataResults(
+            .failure(networkError),
+            .failure(networkError)
+        )
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binNetworkError)
+
+        // Assert
+        let callCount = await sut.service.fetchBinDataCallCount
+        XCTAssertNotNil(sut.viewModel.binNetworkError)
+        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertEqual(callCount, 2)
+    }
+
+    func test_onCardNumberChange_whenCardAcceptanceError_shouldNotRetry() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setSequentialFetchBinDataResults(
+            .failure(CardAcceptanceError.paymentMethodNotAllowed("visa"))
+        )
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardAcceptanceError)
+
+        // Assert
+        let callCount = await sut.service.fetchBinDataCallCount
+        XCTAssertNotNil(sut.viewModel.cardAcceptanceError)
+        XCTAssertEqual(callCount, 1)
+    }
+
     // MARK: - retryBinFetch
 
     func test_init_showSnackbarShouldBeFalse() {
