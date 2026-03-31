@@ -84,9 +84,9 @@
 "common.accessibility.textfield.moreInfo" = "Mais informações";
 "common.total" = "Total";
 "common.currency" = "R$";
-"common.credit" = "Crédito";
-"common.debit" = "Débito";
-"common.prepaid" = "Pré-pago";
+"common.credit" = "Cartão de Crédito";
+"common.debit" = "Cartão de Débito";
+"common.prepaid" = "Cartão Pré-pago";
 
 /* MARK: - Errors */
 "error.generic" = "Algo deu errado. Por favor, tente novamente.";
