@@ -88,7 +88,7 @@ package struct CardNumberRule: CardFormRuleType {
             guard let cardType else {
                 return self.validation.errorInvalid
             }
-            return String(format: self.validation.errorTypeNotAllowed, self.cardTypeDisplayName(cardType))
+            return String(format: self.validation.errorTypeNotAllowed, self.cardTypeDisplayName(cardType).lowercased())
         case .paymentMethodNotFound:
             return self.validation.errorInvalid
         }
