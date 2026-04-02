@@ -7,13 +7,14 @@
 import SwiftUI
 
 // MARK: - MPLightTheme Implementation
+
 public struct MPLightTheme: MPTheme {
     public var colors: MPColors
     public var spacings: MPSpacings
     public var borderRadius: MPBorderRadius
     public var borderWidth: MPBorderWidth
     public var typography: MPTypography
-    
+
     // Component Appearances
     public var buttons: MPButtons
     public var textFields: MPTextFields
@@ -35,7 +36,7 @@ public struct MPLightTheme: MPTheme {
         self.buttons = buttons
         self.textFields = textFields
     }
-    
+
     @MainActor
     public init() {
         self.colors = LightColors()
@@ -43,19 +44,19 @@ public struct MPLightTheme: MPTheme {
         self.borderRadius = LightBorderRadius()
         self.borderWidth = LightBorderWidth()
         self.typography = LightTypography()
-        
+
         self.buttons = MPButtons(
-            colors: colors,
-            radios: borderRadius,
-            spacings: spacings,
-            typography: typography
+            colors: self.colors,
+            radios: self.borderRadius,
+            spacings: self.spacings,
+            typography: self.typography
         )
         self.textFields = MPTextFields(
-            colors: colors,
-            borderRadius: borderRadius,
-            borderWidth: borderWidth,
-            spacings: spacings,
-            typography: typography
+            colors: self.colors,
+            borderRadius: self.borderRadius,
+            borderWidth: self.borderWidth,
+            spacings: self.spacings,
+            typography: self.typography
         )
     }
 }
@@ -74,6 +75,18 @@ public struct LightFillColors: MPFillColors {
     public var disabled = Color(hex: 0xD0D4E6)
     public var accentLoud = Color(hex: 0x434CE4)
     public var accentQuiet = Color(hex: 0xE9F1FF)
+    public var defaultOnScroll = Color(hex: 0xFFFFFF, alpha: 0.6)
+}
+
+public struct LightTransparentColors: MPTransparentColors {
+    public var transparent = Color(hex: 0xFFFFFF, alpha: 0)
+}
+
+public struct LightBrandColors: MPBrandColors {
+    public var fillLoud = Color(hex: 0xFFE600)
+    public var fillQuiet = Color(hex: 0xFFF394)
+    public var gradientStart = Color(hex: 0xF9C200)
+    public var gradientEnd = Color(hex: 0xFFE600)
 }
 
 public struct LightTextColorTokens: MPTextColorTokens {
@@ -82,7 +95,7 @@ public struct LightTextColorTokens: MPTextColorTokens {
     public var accent = Color(hex: 0x434CE4)
     public var inverse = Color(hex: 0xFFFFFF)
     public var disabled = Color(hex: 0x9C9EBF)
-    public var linkIdle = Color(hex: 0x9C9EBF)
+    public var linkIdle = Color(hex: 0x434CE4)
     public var linkActive = Color(hex: 0x272C96)
 }
 
@@ -97,11 +110,11 @@ public struct LightInteractiveColors: MPInteractiveColors {
     public var fillMuteIdle = Color(hex: 0xFFFFFF, alpha: 0)
     public var fillMuteHover = Color(hex: 0xE9F1FF)
     public var fillMuteActive = Color(hex: 0xDEE9FF)
-    
+
     // Border
     public var borderIdle = Color(hex: 0x8788AB)
     public var borderActive = Color(hex: 0x434CE4)
-    
+
     // Icon
     public var iconIdle = Color(hex: 0x646587)
     public var iconActive = Color(hex: 0x282834)
@@ -113,27 +126,33 @@ public struct LightFeedbackColorTokens: MPFeedbackColorTokens {
     // Fill
     public var fillPositiveLoud = Color(hex: 0x1F8923)
     public var fillPositiveQuiet = Color(hex: 0xDEFADE)
-    
+
     public var fillNegativeLoud = Color(hex: 0xC4031D)
     public var fillNegativeQuiet = Color(hex: 0xFFE5E9)
-    
+
     public var fillCautionLoud = Color(hex: 0xD74009)
     public var fillCautionQuiet = Color(hex: 0xFFEDC7)
-    
+
     public var fillInformativeLoud = Color(hex: 0x434CE4)
     public var fillInformativeQuiet = Color(hex: 0xE9F1FF)
-    
+
     // Text
     public var textPositiveLoud = Color(hex: 0x1F8923)
     public var textNegativeLoud = Color(hex: 0xC4031D)
     public var textCautionLoud = Color(hex: 0xD74009)
     public var textInformativeLoud = Color(hex: 0x434CE4)
-    
+
     // Border
     public var borderPositiveLoud = Color(hex: 0x14A919)
     public var borderNegativeLoud = Color(hex: 0xED314A)
-    public var borderCautionLoud = Color(hex: 0xF5A623)
+    public var borderCautionLoud = Color(hex: 0xF05705)
     public var borderInformativeLoud = Color(hex: 0x5C70FA)
+
+    // Icon
+    public var iconPositiveLoud = Color(hex: 0x1F8923)
+    public var iconNegativeLoud = Color(hex: 0xC4031D)
+    public var iconCautionLoud = Color(hex: 0xD74009)
+    public var iconInformativeLoud = Color(hex: 0x434CE4)
 }
 
 public struct LightBorderColorTokens: MPBorderColorTokens {
@@ -160,13 +179,15 @@ public struct LightIconColors: MPIconColors {
 public struct LightColors: MPColors {
     public var background: MPBackgroundColors = LightBackgroundColors()
     public var fill: MPFillColors = LightFillColors()
+    public var transparent: MPTransparentColors = LightTransparentColors()
+    public var brand: MPBrandColors = LightBrandColors()
     public var text: MPTextColorTokens = LightTextColorTokens()
     public var border: MPBorderColorTokens = LightBorderColorTokens()
     public var surface: MPSurfaceColors = LightSurfaceColors()
     public var icon: MPIconColors = LightIconColors()
     public var interactive: MPInteractiveColors = LightInteractiveColors()
     public var feedback: MPFeedbackColorTokens = LightFeedbackColorTokens()
-    
+
     public init() {}
 }
 
@@ -187,7 +208,10 @@ public struct LightSpacings: MPSpacings {
     public var large: CGFloat = 48
     public var xlarge: CGFloat = 56
     public var huge: CGFloat = 64
-    
+    public var xhuge: CGFloat = 72
+    public var mega: CGFloat = 80
+    public var xmega: CGFloat = 84
+
     public init() {}
 }
 
@@ -202,7 +226,7 @@ public struct LightBorderRadius: MPBorderRadius {
     public var large: CGFloat = 16
     public var xlarge: CGFloat = 20
     public var full: CGFloat = 9999
-    
+
     public init() {}
 }
 
@@ -214,11 +238,12 @@ public struct LightBorderWidth: MPBorderWidth {
     public var medium: CGFloat = 2
     public var large: CGFloat = 3
     public var xlarge: CGFloat = 4
-    
+
     public init() {}
 }
 
 // MARK: - Font Registration
+
 package enum FontName: String {
     case bold = "Inter-Bold"
     case semiBold = "Inter-SemiBold"
@@ -229,7 +254,7 @@ package enum FontName: String {
 
     @MainActor
     public static func registerCustomFonts() {
-        guard !hasRegistered else { return }
+        guard !self.hasRegistered else { return }
 
         let fontFileNames = [
             "\(FontName.bold.rawValue).ttf",
@@ -244,7 +269,7 @@ package enum FontName: String {
             CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
         }
 
-        hasRegistered = true
+        self.hasRegistered = true
     }
 }
 
@@ -259,28 +284,26 @@ extension UIFont {
     static func custom(_ name: FontName, size: CGFloat) -> UIFont {
         UIFont(name: name.rawValue, size: size)!
     }
-    
+
     package func toFont() -> Font {
         return Font(self)
     }
 }
 
-
 public struct LightTypography: MPTypography {
-    
     public var heading: MPHeadingStyle
-    
+
     public var body: MPBodyStyle
 
     @MainActor
     public init() {
         FontName.registerCustomFonts()
-        
+
         self.heading = .init(
             huge: .custom(.bold, size: 24),
             medium: .custom(.bold, size: 16)
         )
-        
+
         self.body = .init(
             large: .init(
                 default: .custom(.regular, size: 16),
