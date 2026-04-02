@@ -75,18 +75,6 @@ public struct LightFillColors: MPFillColors {
     public var disabled = Color(hex: 0xD0D4E6)
     public var accentLoud = Color(hex: 0x434CE4)
     public var accentQuiet = Color(hex: 0xE9F1FF)
-    public var defaultOnScroll = Color(hex: 0xFFFFFF, alpha: 0.6)
-}
-
-public struct LightTransparentColors: MPTransparentColors {
-    public var transparent = Color(hex: 0xFFFFFF, alpha: 0)
-}
-
-public struct LightBrandColors: MPBrandColors {
-    public var fillLoud = Color(hex: 0xFFE600)
-    public var fillQuiet = Color(hex: 0xFFF394)
-    public var gradientStart = Color(hex: 0xF9C200)
-    public var gradientEnd = Color(hex: 0xFFE600)
 }
 
 public struct LightTextColorTokens: MPTextColorTokens {
@@ -147,12 +135,6 @@ public struct LightFeedbackColorTokens: MPFeedbackColorTokens {
     public var borderNegativeLoud = Color(hex: 0xED314A)
     public var borderCautionLoud = Color(hex: 0xF05705)
     public var borderInformativeLoud = Color(hex: 0x5C70FA)
-
-    // Icon
-    public var iconPositiveLoud = Color(hex: 0x1F8923)
-    public var iconNegativeLoud = Color(hex: 0xC4031D)
-    public var iconCautionLoud = Color(hex: 0xD74009)
-    public var iconInformativeLoud = Color(hex: 0x434CE4)
 }
 
 public struct LightBorderColorTokens: MPBorderColorTokens {
@@ -179,8 +161,6 @@ public struct LightIconColors: MPIconColors {
 public struct LightColors: MPColors {
     public var background: MPBackgroundColors = LightBackgroundColors()
     public var fill: MPFillColors = LightFillColors()
-    public var transparent: MPTransparentColors = LightTransparentColors()
-    public var brand: MPBrandColors = LightBrandColors()
     public var text: MPTextColorTokens = LightTextColorTokens()
     public var border: MPBorderColorTokens = LightBorderColorTokens()
     public var surface: MPSurfaceColors = LightSurfaceColors()
@@ -208,9 +188,6 @@ public struct LightSpacings: MPSpacings {
     public var large: CGFloat = 48
     public var xlarge: CGFloat = 56
     public var huge: CGFloat = 64
-    public var xhuge: CGFloat = 72
-    public var mega: CGFloat = 80
-    public var xmega: CGFloat = 84
 
     public init() {}
 }

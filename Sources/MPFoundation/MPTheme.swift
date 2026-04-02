@@ -41,18 +41,6 @@ public protocol MPFillColors: Sendable {
     var disabled: Color { get }
     var accentLoud: Color { get }
     var accentQuiet: Color { get }
-    var defaultOnScroll: Color { get }
-}
-
-public protocol MPTransparentColors: Sendable {
-    var transparent: Color { get }
-}
-
-public protocol MPBrandColors: Sendable {
-    var fillLoud: Color { get }
-    var fillQuiet: Color { get }
-    var gradientStart: Color { get }
-    var gradientEnd: Color { get }
 }
 
 public protocol MPTextColorTokens: Sendable {
@@ -110,12 +98,6 @@ public protocol MPFeedbackColorTokens: Sendable {
     var borderNegativeLoud: Color { get }
     var borderCautionLoud: Color { get }
     var borderInformativeLoud: Color { get }
-
-    // Icon
-    var iconPositiveLoud: Color { get }
-    var iconNegativeLoud: Color { get }
-    var iconCautionLoud: Color { get }
-    var iconInformativeLoud: Color { get }
 }
 
 public protocol MPBorderColorTokens: Sendable {
@@ -144,8 +126,6 @@ public protocol MPIconColors: Sendable {
 public protocol MPColors: Sendable {
     var background: MPBackgroundColors { get }
     var fill: MPFillColors { get }
-    var transparent: MPTransparentColors { get }
-    var brand: MPBrandColors { get }
     var text: MPTextColorTokens { get }
     var border: MPBorderColorTokens { get }
     var surface: MPSurfaceColors { get }
@@ -171,9 +151,6 @@ public protocol MPSpacings: Sendable {
     var large: CGFloat { get }
     var xlarge: CGFloat { get }
     var huge: CGFloat { get }
-    var xhuge: CGFloat { get }
-    var mega: CGFloat { get }
-    var xmega: CGFloat { get }
 }
 
 // MARK: - Border Radius Definitions
