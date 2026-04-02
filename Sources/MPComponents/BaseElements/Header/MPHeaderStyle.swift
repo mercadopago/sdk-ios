@@ -12,6 +12,8 @@ import SwiftUI
 package protocol MPHeaderStyle: StyleProtocol, Identifiable where Configuration == MPHeaderStyleConfiguration {}
 
 /// Default visual style for `MPHeader` using theme tokens.
+/// Renders only the main header bar (back button + trailing actions).
+/// The animated title is handled by `MPHeader` directly.
 package struct MPDefaultHeaderStyle: MPHeaderStyle {
     package var id: UUID = .init()
 
@@ -21,15 +23,6 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
 
     @MainActor
     package func makeBody(configuration: MPHeaderStyleConfiguration) -> some View {
-        VStack(spacing: 0) {
-            self.mainHeader(configuration)
-            self.subHeader(configuration)
-        }
-        .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.top))
-    }
-
-    @MainActor
-    private func mainHeader(_ configuration: MPHeaderStyleConfiguration) -> some View {
         HStack(spacing: self.theme.spacings.xmicro) {
             Button(action: configuration.onBack) {
                 Image(systemName: Logos.arrowLeft)
@@ -41,7 +34,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
             Text(configuration.title)
                 .textStyle(.headingMedium())
                 .lineLimit(1)
-                .opacity(configuration.collapseProgress)
+                .opacity(Double(configuration.inlineTitleOpacity))
                 .frame(maxWidth: .infinity)
 
             if let trailing = configuration.trailingActions {
@@ -61,38 +54,9 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
                 )
             }
         )
-        .animation(
-            .easeInOut(duration: 0.2), value: configuration.collapseProgress
-        )
     }
 
-    @MainActor
-    private func subHeader(_ configuration: MPHeaderStyleConfiguration) -> some View {
-        Text(configuration.title)
-            .textStyle(.headingHuge())
-            .lineLimit(2)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, self.theme.spacings.xtiny)
-            .padding(
-                .vertical,
-                configuration.subHeaderVisibleHeight > 24 ?
-                    self.theme.spacings.xmicro : 0
-            )
-            .background(
-                GeometryReader { geo in
-                    Color.clear.preference(
-                        key: SubHeaderHeightKey.self,
-                        value: geo.size.height
-                    )
-                }
-            )
-            .frame(height: configuration.subHeaderVisibleHeight, alignment: .top)
-            .opacity(1 - configuration.collapseProgress)
-            .offset(y: -(configuration.subHeaderHeight - configuration.subHeaderVisibleHeight))
-            .clipped()
-    }
-
-    // MARK: - Background with Blur
+    // MARK: - Background
 
     @ViewBuilder
     private func headerBackgroundView(
@@ -100,40 +64,17 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
     ) -> some View {
         let epsilon: CGFloat = 0.00001
 
-        ZStack {
-            if configuration.scrollOffset < -epsilon {
-                self.theme.colors.background.primary.opacity(0.98)
-            } else {
-                Color.clear
-            }
+        if configuration.scrollOffset < -epsilon {
+            self.theme.colors.background.primary.opacity(0.98)
+        } else {
+            Color.clear
         }
     }
 }
 
-// MARK: - Visual Effect Blur
-
-private struct VisualEffectBlur: UIViewRepresentable {
-    var blurStyle: UIBlurEffect.Style
-
-    func makeUIView(context _: Context) -> UIVisualEffectView {
-        return UIVisualEffectView(effect: UIBlurEffect(style: self.blurStyle))
-    }
-
-    func updateUIView(_ uiView: UIVisualEffectView, context _: Context) {
-        uiView.effect = UIBlurEffect(style: self.blurStyle)
-    }
-}
-
-// MARK: - PreferenceKeys for Header Measurements
+// MARK: - PreferenceKey for Header Height
 
 package struct MainHeaderHeightKey: PreferenceKey {
-    package static let defaultValue: CGFloat = 0
-    package static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
-
-package struct SubHeaderHeightKey: PreferenceKey {
     package static let defaultValue: CGFloat = 0
     package static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = max(value, nextValue())
