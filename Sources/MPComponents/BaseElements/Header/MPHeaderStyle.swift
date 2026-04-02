@@ -23,7 +23,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
 
     @MainActor
     package func makeBody(configuration: MPHeaderStyleConfiguration) -> some View {
-        HStack(spacing: self.theme.spacings.gap.xmicro) {
+        HStack(spacing: self.theme.spacings.xmicro) {
             Button(action: configuration.onBack) {
                 Image(systemName: Logos.arrowLeft)
             }
@@ -43,8 +43,8 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
                 Color.clear.frame(width: 44, height: 44)
             }
         }
-        .padding(.horizontal, self.theme.spacings.paddings.xtiny)
-        .padding(.vertical, self.theme.spacings.paddings.micro)
+        .padding(.horizontal, self.theme.spacings.xtiny)
+        .padding(.vertical, self.theme.spacings.micro)
         .background(self.headerBackgroundView(configuration))
         .overlay(
             GeometryReader { geo in

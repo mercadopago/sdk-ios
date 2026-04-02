@@ -17,7 +17,7 @@ package struct MPRadioButtonToggleStyle: ToggleStyle {
 
     package func makeBody(configuration: Configuration) -> some View {
         HStack {
-            self.radioCircle(isOn: configuration.isOn)
+            radioCircle(isOn: configuration.isOn)
                 .onTapGesture {
                     configuration.isOn.toggle()
                 }
@@ -30,21 +30,21 @@ package struct MPRadioButtonToggleStyle: ToggleStyle {
         if isOn {
             ZStack {
                 Circle()
-                    .fill(self.theme.colors.fill.accentLoud)
+                    .fill(theme.colors.fill.accentLoud)
                 Circle()
-                    .fill(self.theme.colors.fill.primary)
-                    .padding(self.innerPadding)
+                    .fill(theme.colors.fill.primary)
+                    .padding(innerPadding)
             }
-            .frame(width: self.buttonSize, height: self.buttonSize)
+            .frame(width: buttonSize, height: buttonSize)
             .background(
                 Circle()
-                    .fill(self.theme.colors.fill.accentQuiet)
-                    .frame(width: self.buttonSize + self.outerBorderGap, height: self.buttonSize + self.outerBorderGap)
+                    .fill(theme.colors.fill.accentQuiet)
+                    .frame(width: buttonSize + outerBorderGap, height: buttonSize + outerBorderGap)
             )
         } else {
             Circle()
-                .strokeBorder(self.theme.colors.interactive.borderIdle, lineWidth: self.borderWidth)
-                .frame(width: self.buttonSize, height: self.buttonSize)
+                .strokeBorder(theme.colors.interactive.borderIdle, lineWidth: borderWidth)
+                .frame(width: buttonSize, height: buttonSize)
         }
     }
 }

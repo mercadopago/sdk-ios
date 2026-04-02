@@ -118,16 +118,16 @@ public struct MPTextFields: Sendable {
                 backgroundColor: colors.fill.primary,
                 textColor: colors.text.primary,
                 labelColor: colors.text.primary,
-                helperColor: colors.feedback.negative.fillLoud,
-                borderColor: colors.feedback.negative.borderLoud,
+                helperColor: colors.feedback.fillNegativeLoud,
+                borderColor: colors.feedback.borderNegativeLoud,
                 borderWidth: defaultBorderWidth
             ),
             focusError: MPTextFieldStateAppearance(
                 backgroundColor: colors.fill.primary,
                 textColor: colors.text.primary,
                 labelColor: colors.text.primary,
-                helperColor: colors.feedback.negative.fillLoud,
-                borderColor: colors.feedback.negative.borderLoud,
+                helperColor: colors.feedback.fillNegativeLoud,
+                borderColor: colors.feedback.borderNegativeLoud,
                 borderWidth: focusedBorderWidth
             ),
             readOnly: MPTextFieldStateAppearance(
@@ -152,10 +152,10 @@ public struct MPTextFields: Sendable {
             textFont: typography.body.medium.default,
             helperFont: typography.body.small.default,
             padding: EdgeInsets(
-                top: spacings.paddings.xmicro,
-                leading: spacings.paddings.micro,
-                bottom: spacings.paddings.xmicro,
-                trailing: spacings.paddings.micro
+                top: spacings.xmicro,
+                leading: spacings.micro,
+                bottom: spacings.xmicro,
+                trailing: spacings.micro
             )
         )
     }

@@ -69,12 +69,13 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             if let helper = configuration.helper {
                 Helper(helper, self.helperTone(for: configuration))
                     .helperStyle(self.helperStyle(for: configuration))
-                    .padding(.top, self.theme.spacings.paddings.xnano)
+                    .padding(.top, self.theme.spacings.xnano)
             }
         }
         .animation(.easeInOut(duration: 0.15))
     }
 
+    @ViewBuilder
     @MainActor
     private func labelContent(
         label: MPTextFieldStyleConfiguration.Label,
@@ -94,10 +95,11 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
         }
     }
 
+    @ViewBuilder
     @MainActor
     private func popoverButton(textPopover: String) -> some View {
         Button(action: {
-            self.isPopoverPresented = true
+            isPopoverPresented = true
         }) {
             MPIcon(
                 systemName: Logos.questionMark,
@@ -108,7 +110,7 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
         }
         .accessibility(label: Text(MPStrings.Common.Accessibility.TextField.moreInfo))
         .buttonStyle(.plain)
-        .popover(isPresented: self.$isPopoverPresented) {
+        .popover(isPresented: $isPopoverPresented) {
             Text(textPopover)
                 .textStyle(.bodyMedium(colorType: .secondary))
         }

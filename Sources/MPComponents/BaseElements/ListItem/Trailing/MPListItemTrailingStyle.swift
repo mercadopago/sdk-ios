@@ -5,8 +5,8 @@
 //  Created by Guilherme Prata Costa on 24/02/26.
 //
 
-import MPFoundation
 import SwiftUI
+import MPFoundation
 
 // MARK: - Protocol
 
@@ -51,13 +51,13 @@ package struct MPTrailingTextIconStyle: MPListItemTrailingStyle {
 
     @MainActor
     package func makeBody(configuration: MPListItemTrailingStyleConfiguration) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: self.theme.spacings.gap.xmicro) {
+        HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xmicro) {
             if let text = configuration.text {
                 Text(text)
                     .textStyle(.bodyMedium(colorType: configuration.textColor ?? .primary))
             }
-            self.icon
-                .foregroundColor(self.theme.colors.icon.accent)
+            icon
+                .foregroundColor(theme.colors.icon.accent)
         }
     }
 }
@@ -66,9 +66,7 @@ package struct MPTrailingTextIconStyle: MPListItemTrailingStyle {
 
 extension MPListItemTrailingStyle where Self == MPTrailingTextStyle {
     /// Text-only trailing: `.listItemTrailingStyle(.text)`
-    package static var text: MPTrailingTextStyle {
-        MPTrailingTextStyle()
-    }
+    package static var text: MPTrailingTextStyle { MPTrailingTextStyle() }
 }
 
 extension MPListItemTrailingStyle where Self == MPTrailingTextIconStyle {
@@ -105,7 +103,7 @@ private struct ResolvedListItemTrailingStyle<Style: MPListItemTrailingStyle>: Vi
     let configuration: Style.Configuration
 
     var body: some View {
-        self.style.makeBody(configuration: self.configuration)
+        style.makeBody(configuration: configuration)
     }
 }
 
@@ -114,7 +112,7 @@ private struct ResolvedListItemTrailingStyle<Style: MPListItemTrailingStyle>: Vi
 package extension View {
     /// Sets the trailing style for `MPListItem` views within this view.
     /// Outermost caller wins — inner modifiers are ignored if an ancestor already set a style.
-    func listItemTrailingStyle(_ style: some MPListItemTrailingStyle) -> some View {
+    func listItemTrailingStyle<S: MPListItemTrailingStyle>(_ style: S) -> some View {
         transformEnvironment(\.listItemTrailingStyle) { current in
             if current == nil {
                 current = style

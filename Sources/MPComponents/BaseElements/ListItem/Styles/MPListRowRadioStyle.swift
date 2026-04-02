@@ -5,8 +5,8 @@
 //  Created by Guilherme Prata Costa on 24/02/26.
 //
 
-import MPFoundation
 import SwiftUI
+import MPFoundation
 
 package struct MPListRowRadioStyle: MPListItemStyle {
     package var id: UUID = .init()
@@ -18,10 +18,10 @@ package struct MPListRowRadioStyle: MPListItemStyle {
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let hasDescription = configuration.description != nil
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.gap.xtiny) {
-            self.radioToggle(isSelected: configuration.isSelected)
+        HStack(alignment: hasDescription ? .top : .center, spacing: theme.spacings.xtiny) {
+            radioToggle(isSelected: configuration.isSelected)
 
-            VStack(alignment: .leading, spacing: self.theme.spacings.gap.xnano) {
+            VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 if let header = configuration.header { header }
                 if let title = configuration.title {
                     title
@@ -36,10 +36,10 @@ package struct MPListRowRadioStyle: MPListItemStyle {
                 trailing
             }
         }
-        .padding(.horizontal, self.theme.spacings.paddings.micro)
-        .padding(.vertical, self.theme.spacings.paddings.xtiny)
-        .background(configuration.isPressed ? self.theme.colors.surface.primaryActive : Color.clear)
-        .cornerRadius(self.theme.borderRadius.small)
+        .padding(.horizontal, theme.spacings.micro)
+        .padding(.vertical, theme.spacings.xtiny)
+        .background(configuration.isPressed ? theme.colors.surface.active : Color.clear)
+        .cornerRadius(theme.borderRadius.small)
     }
 
     private func radioToggle(isSelected: Bool) -> some View {
@@ -49,4 +49,5 @@ package struct MPListRowRadioStyle: MPListItemStyle {
             .fixedSize()
             .allowsHitTesting(false)
     }
+    
 }

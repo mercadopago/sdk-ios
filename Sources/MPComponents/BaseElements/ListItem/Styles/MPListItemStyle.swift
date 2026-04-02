@@ -1,12 +1,12 @@
 //
-//  MPListItemStyle.swift
+//  ListItemStyle.swift
 //  MPComponents
 //
 //  Created by [Your Name] on [Date].
 //
 
-import MPFoundation
 import SwiftUI
+import MPFoundation
 
 package protocol MPListItemStyle: StyleProtocol, Identifiable where Configuration == MPListItemStyleConfiguration {}
 
@@ -14,23 +14,17 @@ package protocol MPListItemStyle: StyleProtocol, Identifiable where Configuratio
 
 extension MPListItemStyle where Self == MPDefaultListItemStyle {
     /// Default plain style: `.listItemStyle(.default)`
-    package static var `default`: MPDefaultListItemStyle {
-        MPDefaultListItemStyle()
-    }
+    package static var `default`: MPDefaultListItemStyle { MPDefaultListItemStyle() }
 }
 
 extension MPListItemStyle where Self == MPListRowRadioStyle {
     /// Radio button style: `.listItemStyle(.radioButton)`
-    package static var radioButton: MPListRowRadioStyle {
-        MPListRowRadioStyle()
-    }
+    package static var radioButton: MPListRowRadioStyle { MPListRowRadioStyle() }
 }
 
 extension MPListItemStyle where Self == MPListRowPickStyle {
     /// Pick/selection style: `.listItemStyle(.pick)`
-    package static var pick: MPListRowPickStyle {
-        MPListRowPickStyle()
-    }
+    package static var pick: MPListRowPickStyle { MPListRowPickStyle() }
 }
 
 package struct MPDefaultListItemStyle: MPListItemStyle {
@@ -42,12 +36,12 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let hasDescription = configuration.description != nil
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.gap.xtiny) {
+        HStack(alignment: hasDescription ? .top : .center, spacing: theme.spacings.xtiny) {
             if let leftImage = configuration.leftImage {
                 leftImage
             }
 
-            VStack(alignment: .leading, spacing: self.theme.spacings.gap.xnano) {
+            VStack(alignment: .leading, spacing: theme.spacings.xnano) {
                 if let header = configuration.header {
                     header
                 }
@@ -66,8 +60,8 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
                 trailing
             }
         }
-        .padding(.horizontal, self.theme.spacings.paddings.micro)
-        .padding(.vertical, self.theme.spacings.paddings.xtiny)
-        .cornerRadius(self.theme.borderRadius.small)
+        .padding(.horizontal, theme.spacings.micro)
+        .padding(.vertical, theme.spacings.xtiny)
+        .cornerRadius(theme.borderRadius.small)
     }
 }

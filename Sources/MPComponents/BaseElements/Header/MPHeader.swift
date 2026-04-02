@@ -123,8 +123,8 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                         .textStyle(.headingHuge())
                         .lineLimit(2)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, self.theme.spacings.paddings.xtiny)
-                        .padding(.vertical, self.theme.spacings.paddings.xmicro)
+                        .padding(.horizontal, self.theme.spacings.xtiny)
+                        .padding(.vertical, self.theme.spacings.xmicro)
                         .fixedSize(horizontal: false, vertical: true)
                         .background(
                             GeometryReader { geo in
@@ -202,11 +202,11 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                     Color.clear.frame(height: self.headerHeight)
                     // Invisible spacer that measures sub-header height for animation math
                     self.subHeaderSpacer
-                    Color.clear.frame(height: self.theme.spacings.paddings.xsmall)
+                    Color.clear.frame(height: self.theme.spacings.xsmall)
                     self.content
                     // Reserves space so last item scrolls above the footer with breathing room
                     Color.clear
-                        .frame(height: self.footerMeasuredHeight + self.theme.spacings.paddings.xsmall)
+                        .frame(height: self.footerMeasuredHeight + self.theme.spacings.xsmall)
                         .id("footerPadding")
                 }
             }
@@ -242,9 +242,9 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
             VStack(spacing: 0) {
                 Color.clear.frame(height: self.headerHeight)
                 self.subHeaderSpacer
-                Color.clear.frame(height: self.theme.spacings.paddings.xsmall)
+                Color.clear.frame(height: self.theme.spacings.xsmall)
                 self.content
-                Color.clear.frame(height: self.footerMeasuredHeight + self.theme.spacings.paddings.xsmall)
+                Color.clear.frame(height: self.footerMeasuredHeight + self.theme.spacings.xsmall)
             }
         }
         .background(
@@ -267,8 +267,8 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
             .textStyle(.headingHuge())
             .lineLimit(2)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, self.theme.spacings.paddings.xtiny)
-            .padding(.vertical, self.theme.spacings.paddings.xmicro)
+            .padding(.horizontal, self.theme.spacings.xtiny)
+            .padding(.vertical, self.theme.spacings.xmicro)
     }
 
     // MARK: - Computed Properties
