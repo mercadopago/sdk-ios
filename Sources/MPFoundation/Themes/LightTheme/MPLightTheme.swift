@@ -123,36 +123,34 @@ public struct LightInteractiveColors: MPInteractiveColors {
 }
 
 public struct LightFeedbackColorTokens: MPFeedbackColorTokens {
-    // Fill
-    public var fillPositiveLoud = Color(hex: 0x1F8923)
-    public var fillPositiveQuiet = Color(hex: 0xDEFADE)
-
-    public var fillNegativeLoud = Color(hex: 0xC4031D)
-    public var fillNegativeQuiet = Color(hex: 0xFFE5E9)
-
-    public var fillCautionLoud = Color(hex: 0xD74009)
-    public var fillCautionQuiet = Color(hex: 0xFFEDC7)
-
-    public var fillInformativeLoud = Color(hex: 0x434CE4)
-    public var fillInformativeQuiet = Color(hex: 0xE9F1FF)
-
-    // Text
-    public var textPositiveLoud = Color(hex: 0x1F8923)
-    public var textNegativeLoud = Color(hex: 0xC4031D)
-    public var textCautionLoud = Color(hex: 0xD74009)
-    public var textInformativeLoud = Color(hex: 0x434CE4)
-
-    // Border
-    public var borderPositiveLoud = Color(hex: 0x14A919)
-    public var borderNegativeLoud = Color(hex: 0xED314A)
-    public var borderCautionLoud = Color(hex: 0xF05705)
-    public var borderInformativeLoud = Color(hex: 0x5C70FA)
-
-    // Icon
-    public var iconPositiveLoud = Color(hex: 0x1F8923)
-    public var iconNegativeLoud = Color(hex: 0xC4031D)
-    public var iconCautionLoud = Color(hex: 0xD74009)
-    public var iconInformativeLoud = Color(hex: 0x434CE4)
+    public var positive = MPFeedbackVariant(
+        fillLoud: Color(hex: 0x1F8923),
+        fillQuiet: Color(hex: 0xDEFADE),
+        textLoud: Color(hex: 0x1F8923),
+        borderLoud: Color(hex: 0x14A919),
+        iconLoud: Color(hex: 0x1F8923)
+    )
+    public var negative = MPFeedbackVariant(
+        fillLoud: Color(hex: 0xC4031D),
+        fillQuiet: Color(hex: 0xFFE5E9),
+        textLoud: Color(hex: 0xC4031D),
+        borderLoud: Color(hex: 0xED314A),
+        iconLoud: Color(hex: 0xC4031D)
+    )
+    public var caution = MPFeedbackVariant(
+        fillLoud: Color(hex: 0xD74009),
+        fillQuiet: Color(hex: 0xFFEDC7),
+        textLoud: Color(hex: 0xD74009),
+        borderLoud: Color(hex: 0xF05705),
+        iconLoud: Color(hex: 0xD74009)
+    )
+    public var informative = MPFeedbackVariant(
+        fillLoud: Color(hex: 0x434CE4),
+        fillQuiet: Color(hex: 0xE9F1FF),
+        textLoud: Color(hex: 0x434CE4),
+        borderLoud: Color(hex: 0x5C70FA),
+        iconLoud: Color(hex: 0x434CE4)
+    )
 }
 
 public struct LightBorderColorTokens: MPBorderColorTokens {
@@ -163,9 +161,9 @@ public struct LightBorderColorTokens: MPBorderColorTokens {
 }
 
 public struct LightSurfaceColors: MPSurfaceColors {
-    public var idle = Color(hex: 0xFFFFFF)
-    public var active = Color(hex: 0xE7E9F3)
-    public var disabled = Color(hex: 0xFFFFFF).opacity(0)
+    public var primaryIdle = Color(hex: 0xFFFFFF)
+    public var primaryActive = Color(hex: 0xE7E9F3)
+    public var primaryDisabled = Color(hex: 0xFFFFFF).opacity(0)
 }
 
 public struct LightIconColors: MPIconColors {
@@ -193,7 +191,7 @@ public struct LightColors: MPColors {
 
 // MARK: - Spacing Implementation
 
-public struct LightSpacings: MPSpacings {
+public struct LightPaddingSpacings: MPPaddingSpacings {
     public var none: CGFloat = 0
     public var pico: CGFloat = 2
     public var xnano: CGFloat = 4
@@ -211,6 +209,35 @@ public struct LightSpacings: MPSpacings {
     public var xhuge: CGFloat = 72
     public var mega: CGFloat = 80
     public var xmega: CGFloat = 84
+
+    public init() {}
+}
+
+public struct LightGapSpacings: MPGapSpacings {
+    public var none: CGFloat = 0
+    public var pico: CGFloat = 2
+    public var xnano: CGFloat = 4
+    public var nano: CGFloat = 6
+    public var xmicro: CGFloat = 8
+    public var micro: CGFloat = 12
+    public var xtiny: CGFloat = 16
+    public var tiny: CGFloat = 20
+    public var xsmall: CGFloat = 24
+    public var small: CGFloat = 32
+    public var medium: CGFloat = 40
+    public var large: CGFloat = 48
+    public var xlarge: CGFloat = 56
+    public var huge: CGFloat = 64
+    public var xhuge: CGFloat = 72
+    public var mega: CGFloat = 80
+    public var xmega: CGFloat = 84
+
+    public init() {}
+}
+
+public struct LightSpacings: MPSpacings {
+    public var paddings: MPPaddingSpacings = LightPaddingSpacings()
+    public var gap: MPGapSpacings = LightGapSpacings()
 
     public init() {}
 }

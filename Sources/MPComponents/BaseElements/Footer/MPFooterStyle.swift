@@ -25,7 +25,7 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
         if self.isEnabled {
             VStack(spacing: 0) {
                 // Content area
-                VStack(spacing: self.theme.spacings.xmicro) {
+                VStack(spacing: self.theme.spacings.gap.xmicro) {
                     // Summary line
                     configuration.summaryLine
 
@@ -37,12 +37,12 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
                     if let button = configuration.button {
                         button
                             .mpButtonStyle(variant: .loud)
-                            .padding(.top, configuration.hasDescription ? self.theme.spacings.micro : 0)
-                            .padding(.bottom, self.theme.spacings.xtiny)
+                            .padding(.top, configuration.hasDescription ? self.theme.spacings.paddings.micro : 0)
+                            .padding(.bottom, self.theme.spacings.paddings.xtiny)
                     }
                 }
-                .padding(.horizontal, self.theme.spacings.xtiny)
-                .padding(.top, self.theme.spacings.xtiny)
+                .padding(.horizontal, self.theme.spacings.paddings.xtiny)
+                .padding(.top, self.theme.spacings.paddings.xtiny)
                 .background(self.theme.colors.background.primary)
                 .background(
                     self.theme.colors.background.primary

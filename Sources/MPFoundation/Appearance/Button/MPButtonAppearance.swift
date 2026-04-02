@@ -12,15 +12,15 @@ public struct MPButtonAppearance: Sendable {
     public var borderColor: Color
     public var borderWidth: CGFloat
     public var cornerRadius: CGFloat
-    
+
     public var pressedBackgroundColor: Color
     public var pressedForegroundColor: Color
-        
+
     public var disabledBackgroundColor: Color
     public var disabledForegroundColor: Color
-    
+
     public var loadingColor: Color
-    
+
     public init(
         backgroundColor: Color,
         foregroundColor: Color,
@@ -48,18 +48,18 @@ public struct MPButtonAppearance: Sendable {
 
 public struct MPButtons: Sendable {
     public var sizes: ButtonSizes
-    
+
     public var loud: MPButtonAppearance
     public var quiet: MPButtonAppearance
     public var transparent: MPButtonAppearance
-    
+
     public init(sizes: ButtonSizes, loud: MPButtonAppearance, quiet: MPButtonAppearance, transparent: MPButtonAppearance) {
         self.sizes = sizes
         self.loud = loud
         self.quiet = quiet
         self.transparent = transparent
     }
-    
+
     public init(
         colors: MPColors,
         radios: MPBorderRadius,
@@ -79,7 +79,7 @@ public struct MPButtons: Sendable {
             borderWidth: 0,
             cornerRadius: radios.medium
         )
-        
+
         // Quiet - Secondary action button
         self.quiet = MPButtonAppearance(
             backgroundColor: colors.interactive.fillQuietIdle,
@@ -93,7 +93,7 @@ public struct MPButtons: Sendable {
             borderWidth: 0,
             cornerRadius: radios.medium
         )
-        
+
         // Transparent - Tertiary action button
         self.transparent = MPButtonAppearance(
             backgroundColor: colors.interactive.fillMuteIdle,
@@ -111,10 +111,10 @@ public struct MPButtons: Sendable {
             large: MPButtonSize(
                 font: typography.body.small.emphasis,
                 padding: EdgeInsets(
-                    top: spacings.micro,
-                    leading: spacings.xsmall,
-                    bottom: spacings.micro,
-                    trailing: spacings.xsmall
+                    top: spacings.paddings.micro,
+                    leading: spacings.paddings.xsmall,
+                    bottom: spacings.paddings.micro,
+                    trailing: spacings.paddings.xsmall
                 )
             )
         )

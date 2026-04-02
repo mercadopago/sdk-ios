@@ -4,16 +4,16 @@
 //
 //  Created by Danielle Nozaki Ogawa on 15/01/26.
 //
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 package protocol MPMessageStyle: StyleProtocol, Identifiable where Configuration == MPMessageConfiguration {}
 
 package struct MPDefaultMessageStyle: MPMessageStyle {
     package var id: UUID = .init()
-    
+
     @Environment(\.checkoutTheme) var theme: MPTheme
-    
+
     @MainActor
     package func makeBody(configuration: MPMessageConfiguration) -> some View {
         Spacer()
@@ -29,39 +29,38 @@ package struct MPDefaultMessageStyle: MPMessageStyle {
                 case .caution:
                     MPBadgeIcon(.caution, .large)
                 }
-                
+
                 configuration.message
-                
+
                 Spacer()
                 configuration.closeButton
-                    .foregroundColor(theme.colors.icon.secondary)
+                    .foregroundColor(self.theme.colors.icon.secondary)
             }
-            .padding(theme.spacings.xtiny)
-            
+            .padding(self.theme.spacings.paddings.xtiny)
         }
         .background(
-            RoundedRectangle(cornerRadius: theme.borderRadius.xlarge)
-                .fill(backgroundColor(for: configuration.state))
+            RoundedRectangle(cornerRadius: self.theme.borderRadius.xlarge)
+                .fill(self.backgroundColor(for: configuration.state))
         )
-        .padding(theme.spacings.xtiny)
+        .padding(self.theme.spacings.paddings.xtiny)
     }
-    
+
     private func backgroundColor(for state: MPMessageState) -> Color {
         switch state {
         case .informative:
-            return theme.colors.feedback.fillInformativeQuiet
+            return self.theme.colors.feedback.informative.fillQuiet
         case .positive:
-            return theme.colors.feedback.fillPositiveQuiet
+            return self.theme.colors.feedback.positive.fillQuiet
         case .negative:
-            return theme.colors.feedback.fillNegativeQuiet
+            return self.theme.colors.feedback.negative.fillQuiet
         case .caution:
-            return theme.colors.feedback.fillCautionQuiet
+            return self.theme.colors.feedback.caution.fillQuiet
         }
     }
 }
 
-
 // MARK: - Environment
+
 struct MPMessageStyleKey: EnvironmentKey {
     static let defaultValue: any MPMessageStyle = MPDefaultMessageStyle()
 }
@@ -74,12 +73,13 @@ extension EnvironmentValues {
 }
 
 extension View {
-    func messageStyle<S: MPMessageStyle>(_ style: S) -> some View {
+    func messageStyle(_ style: some MPMessageStyle) -> some View {
         environment(\.mpMessageStyle, style)
     }
 }
 
 // MARK: - Style Resolution
+
 package extension MPMessageStyle {
     @MainActor
     func resolve(configuration: Configuration) -> some View {
@@ -90,8 +90,8 @@ package extension MPMessageStyle {
 private struct ResolvedMPMessageStyle<Style: MPMessageStyle>: View {
     let style: Style
     let configuration: Style.Configuration
-    
+
     var body: some View {
-        style.makeBody(configuration: configuration)
+        self.style.makeBody(configuration: self.configuration)
     }
 }

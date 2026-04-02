@@ -86,7 +86,7 @@ struct CardFormScreen: View {
                 )
             },
             content: {
-                VStack(spacing: self.theme.spacings.xsmall) {
+                VStack(spacing: self.theme.spacings.gap.xsmall) {
                     MPTextField(
                         text: self.$cardForm.cardNumber,
                         label: self.initResult.fields.cardNumber.label,
@@ -145,7 +145,7 @@ struct CardFormScreen: View {
                         .id(self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default)
                     }
                 }
-                .padding(.horizontal, self.theme.spacings.micro)
+                .padding(.horizontal, self.theme.spacings.paddings.micro)
             }
         )
         .messageSnackbar(
@@ -230,9 +230,9 @@ struct CardFormScreen: View {
             Image(systemName: "chevron.down")
                 .renderingMode(.template)
                 .foregroundColor(self.theme.textFields.standard.idle.borderColor)
-                .padding(.horizontal, self.theme.spacings.xmicro)
+                .padding(.horizontal, self.theme.spacings.paddings.xmicro)
         }
-        .padding(.leading, self.theme.spacings.micro)
+        .padding(.leading, self.theme.spacings.paddings.micro)
         .animation(nil)
     }
 

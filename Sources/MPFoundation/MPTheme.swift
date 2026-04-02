@@ -88,34 +88,33 @@ public protocol MPInteractiveColors: Sendable {
     var iconActiveAccent: Color { get }
 }
 
+public struct MPFeedbackVariant: Sendable {
+    public var fillLoud: Color
+    public var fillQuiet: Color
+    public var textLoud: Color
+    public var borderLoud: Color
+    public var iconLoud: Color
+
+    public init(
+        fillLoud: Color,
+        fillQuiet: Color,
+        textLoud: Color,
+        borderLoud: Color,
+        iconLoud: Color
+    ) {
+        self.fillLoud = fillLoud
+        self.fillQuiet = fillQuiet
+        self.textLoud = textLoud
+        self.borderLoud = borderLoud
+        self.iconLoud = iconLoud
+    }
+}
+
 public protocol MPFeedbackColorTokens: Sendable {
-    // Fill
-    var fillPositiveLoud: Color { get }
-    var fillPositiveQuiet: Color { get }
-    var fillNegativeLoud: Color { get }
-    var fillNegativeQuiet: Color { get }
-    var fillCautionLoud: Color { get }
-    var fillCautionQuiet: Color { get }
-    var fillInformativeLoud: Color { get }
-    var fillInformativeQuiet: Color { get }
-
-    // Text
-    var textPositiveLoud: Color { get }
-    var textNegativeLoud: Color { get }
-    var textCautionLoud: Color { get }
-    var textInformativeLoud: Color { get }
-
-    // Border
-    var borderPositiveLoud: Color { get }
-    var borderNegativeLoud: Color { get }
-    var borderCautionLoud: Color { get }
-    var borderInformativeLoud: Color { get }
-
-    // Icon
-    var iconPositiveLoud: Color { get }
-    var iconNegativeLoud: Color { get }
-    var iconCautionLoud: Color { get }
-    var iconInformativeLoud: Color { get }
+    var positive: MPFeedbackVariant { get }
+    var negative: MPFeedbackVariant { get }
+    var caution: MPFeedbackVariant { get }
+    var informative: MPFeedbackVariant { get }
 }
 
 public protocol MPBorderColorTokens: Sendable {
@@ -126,9 +125,9 @@ public protocol MPBorderColorTokens: Sendable {
 }
 
 public protocol MPSurfaceColors: Sendable {
-    var idle: Color { get }
-    var active: Color { get }
-    var disabled: Color { get }
+    var primaryIdle: Color { get }
+    var primaryActive: Color { get }
+    var primaryDisabled: Color { get }
 }
 
 public protocol MPIconColors: Sendable {
@@ -156,7 +155,7 @@ public protocol MPColors: Sendable {
 
 // MARK: - Spacing Definitions
 
-public protocol MPSpacings: Sendable {
+public protocol MPSpacingScale: Sendable {
     var none: CGFloat { get }
     var pico: CGFloat { get }
     var xnano: CGFloat { get }
@@ -174,6 +173,15 @@ public protocol MPSpacings: Sendable {
     var xhuge: CGFloat { get }
     var mega: CGFloat { get }
     var xmega: CGFloat { get }
+}
+
+public protocol MPPaddingSpacings: MPSpacingScale {}
+
+public protocol MPGapSpacings: MPSpacingScale {}
+
+public protocol MPSpacings: Sendable {
+    var paddings: MPPaddingSpacings { get }
+    var gap: MPGapSpacings { get }
 }
 
 // MARK: - Border Radius Definitions

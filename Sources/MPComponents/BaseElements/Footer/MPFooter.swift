@@ -91,7 +91,7 @@ package struct MPFooter: View {
     @ViewBuilder
     private var summaryLineView: some View {
         if !self.title.isEmpty, self.amount != nil {
-            HStack(alignment: .center, spacing: self.theme.spacings.xtiny) {
+            HStack(alignment: .center, spacing: self.theme.spacings.gap.xtiny) {
                 // Label
                 Text(self.title)
                     .textStyle(.largeEmphasis())
@@ -142,7 +142,7 @@ package struct MPFooter: View {
     @ViewBuilder
     private var amountView: some View {
         if let amount {
-            HStack(alignment: .top, spacing: self.theme.spacings.xnano) {
+            HStack(alignment: .top, spacing: self.theme.spacings.gap.xnano) {
                 Text(amount.currencySymbol)
                     .textStyle(.largeEmphasis())
                     .foregroundColor(self.theme.colors.text.primary)
