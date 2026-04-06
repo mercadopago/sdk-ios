@@ -220,4 +220,13 @@ package struct DocumentRule: CardFormRuleType {
         if self.isNumericType, chars.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
         return nil
     }
+
+    package func validateLive(_ value: String) -> String? {
+        let chars = self.isNumericType
+            ? value.filter(\.isNumber)
+            : value.filter { $0.isLetter || $0.isNumber }
+        guard chars.count >= self.maxLength else { return nil }
+        if self.isNumericType, chars.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
+        return nil
+    }
 }

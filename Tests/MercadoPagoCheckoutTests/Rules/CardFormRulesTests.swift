@@ -646,4 +646,55 @@ final class CardFormRulesTests: XCTestCase {
         // Assert — string type: all zeros valid
         XCTAssertNil(rule.validate("000"))
     }
+
+    // MARK: - DocumentRule (validateLive)
+
+    func test_documentRule_validateLive_whenBelowMaxLength_shouldReturnNil() {
+        // Arrange
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentLength(min: 11, max: 11))
+
+        // Act
+        let result = rule.validateLive("1234567890")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_documentRule_validateLive_whenAtMaxLength_andValid_shouldReturnNil() {
+        // Arrange
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentLength(min: 11, max: 11))
+
+        // Act
+        let result = rule.validateLive("12345678901")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_documentRule_validateLive_whenAtMaxLength_andAllZeros_shouldReturnInvalidError() {
+        // Arrange
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentLength(min: 11, max: 11))
+
+        // Act
+        let result = rule.validateLive("00000000000")
+
+        // Assert
+        XCTAssertEqual(result, MPStrings.CardForm.Document.errorInvalid)
+    }
+
+    func test_documentRule_validateLive_whenStringType_atMaxLength_andAllZeros_shouldReturnNil() {
+        // Arrange -- all zeros is valid for string type
+        var rule = DocumentRule(validation: Self.defaultDocumentValidation())
+        rule.apply(.documentLength(min: 3, max: 3))
+        rule.apply(.documentType(isNumeric: false))
+
+        // Act
+        let result = rule.validateLive("000")
+
+        // Assert
+        XCTAssertNil(result)
+    }
 }

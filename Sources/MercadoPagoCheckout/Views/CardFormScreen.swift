@@ -136,6 +136,7 @@ struct CardFormScreen: View {
                             label: self.initResult.fields.document.label,
                             placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
                             errorMessage: self.cardForm.$documentHolder,
+                            liveErrorMessage: self.cardForm.documentHolderLiveErrors,
                             keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
                             formatter: self.viewModel.documentFormatter,
                             prefix: {

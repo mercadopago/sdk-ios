@@ -72,6 +72,10 @@ struct CardFormData {
         _cardNumber.liveErrorMessages
     }
 
+    var documentHolderLiveErrors: [String] {
+        _documentHolder.liveErrorMessages
+    }
+
     func isFormValid(isSecurityCodeMandatory: Bool, isDocumentRequired: Bool = true) -> Bool {
         return _cardNumber.errorMessages.isEmpty
             && _cardNumber.liveErrorMessages.isEmpty
