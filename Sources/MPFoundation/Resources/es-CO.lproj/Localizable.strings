@@ -88,5 +88,5 @@
 "common.prepaid" = "Tarjeta Prepago";
 
 /* MARK: - Errors */
-"error.generic" = "Ocurrió un error. Por favor, intentá de nuevo.";
+"error.generic" = "Ocurrió un error. Por favor, intenta de nuevo.";
 "error.network" = "Error de conexión. Verifica tu conexión a internet.";
