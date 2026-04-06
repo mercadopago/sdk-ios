@@ -15,7 +15,7 @@
 "card_number.error.empty" = "Completa este campo.";
 "card_number.error.incomplete" = "Ingresa el número completo.";
 "card_number.error.invalid" = "Ingresa el número tal como aparece en la tarjeta.";
-"card_number.error.credit_limit" = "Ingresa una tarjeta con límite suficiente para pagar el monto.";
+"card_number.error.credit_limit" = "Verifica que la tarjeta tenga límite suficiente.";
 "card_number.error.debit_balance" = "Ingresa una tarjeta con saldo suficiente para pagar el monto.";
 "card_number.error.seller_exclusion" = "La tienda no acepta tarjetas %@.";
 "card_number.error.credit_only" = "La tienda solo acepta tarjetas de crédito.";
@@ -44,9 +44,8 @@
 "cvv.error.empty" = "Completa este campo.";
 "cvv.error.incomplete" = "Ingresa el código completo.";
 "cvv.optional" = "Dato opcional.";
-"cvv.tooltip.static" = "Es un número de %ld dígitos que está %@ de tu tarjeta.";
-"cvv.tooltip.location.back" = "en el dorso";
-"cvv.tooltip.location.front" = "en el frente";
+"cvv.tooltip.static.back" = "Es un número de %ld dígitos que está en el dorso de tu tarjeta o en la app de tu banco.";
+"cvv.tooltip.static.front" = "Es un número de %ld dígitos que está en el frente de tu tarjeta o en la app de tu banco.";
 "cvv.tooltip.dynamic.default" = "Es un número de 3 dígitos que encuentras en la app de tu banco o billetera.";
 "cvv.tooltip.dynamic.amex" = "Es un número de 4 dígitos que encuentras en la app de tu banco o billetera.";
 "cvv.tooltip.unknown.default" = "Es un número de 3 dígitos que está en el dorso de tu tarjeta.";
@@ -89,5 +88,5 @@
 "common.prepaid" = "Tarjeta Prepago";
 
 /* MARK: - Errors */
-"error.generic" = "Algo salió mal. Por favor, intenta de nuevo.";
+"error.generic" = "Ocurrió un error. Por favor, intentá de nuevo.";
 "error.network" = "Error de conexión. Verifica tu conexión a internet.";

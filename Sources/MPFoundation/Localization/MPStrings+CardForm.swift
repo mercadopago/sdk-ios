@@ -188,8 +188,8 @@ extension MPStrings {
             ///   - length: Number of digits in the security code.
             ///   - location: Location on the card (`"front"` or `"back"`).
             package static func tooltipStatic(length: Int, location: String) -> String {
-                let locationKey = location == "front" ? "cvv.tooltip.location.front" : "cvv.tooltip.location.back"
-                return localized("cvv.tooltip.static", length, localized(locationKey))
+                let key = location == "front" ? "cvv.tooltip.static.front" : "cvv.tooltip.static.back"
+                return localized(key, length)
             }
 
             /// Tooltip for dynamic CVV (default cards)
