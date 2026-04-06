@@ -4,17 +4,18 @@
 //
 //  Created by Guilherme Prata Costa on 09/06/25.
 //
-import SwiftUI
 import Foundation
+import SwiftUI
 
 // MARK: - Theme Protocol Definition
+
 public protocol MPTheme: Sendable {
     var colors: MPColors { get set }
     var spacings: MPSpacings { get set }
     var borderRadius: MPBorderRadius { get set }
     var borderWidth: MPBorderWidth { get set }
     var typography: MPTypography { get set }
-    
+
     // Component Appearances
     var buttons: MPButtons { get set }
     var textFields: MPTextFields { get set }
@@ -63,11 +64,11 @@ public protocol MPInteractiveColors: Sendable {
     var fillMuteIdle: Color { get }
     var fillMuteHover: Color { get }
     var fillMuteActive: Color { get }
-    
+
     // Border
     var borderIdle: Color { get }
     var borderActive: Color { get }
-    
+
     // Icon
     var iconIdle: Color { get }
     var iconActive: Color { get }
@@ -85,13 +86,13 @@ public protocol MPFeedbackColorTokens: Sendable {
     var fillCautionQuiet: Color { get }
     var fillInformativeLoud: Color { get }
     var fillInformativeQuiet: Color { get }
-    
+
     // Text
     var textPositiveLoud: Color { get }
     var textNegativeLoud: Color { get }
     var textCautionLoud: Color { get }
     var textInformativeLoud: Color { get }
-    
+
     // Border
     var borderPositiveLoud: Color { get }
     var borderNegativeLoud: Color { get }
@@ -121,6 +122,7 @@ public protocol MPIconColors: Sendable {
 }
 
 // MARK: - Color Definitions
+
 public protocol MPColors: Sendable {
     var background: MPBackgroundColors { get }
     var fill: MPFillColors { get }
@@ -133,6 +135,7 @@ public protocol MPColors: Sendable {
 }
 
 // MARK: - Spacing Definitions
+
 public protocol MPSpacings: Sendable {
     var none: CGFloat { get }
     var pico: CGFloat { get }
@@ -151,6 +154,7 @@ public protocol MPSpacings: Sendable {
 }
 
 // MARK: - Border Radius Definitions
+
 public protocol MPBorderRadius: Sendable {
     var none: CGFloat { get }
     var tiny: CGFloat { get }
@@ -163,6 +167,7 @@ public protocol MPBorderRadius: Sendable {
 }
 
 // MARK: - Border Width Definitions
+
 public protocol MPBorderWidth: Sendable {
     var none: CGFloat { get }
     var small: CGFloat { get }
@@ -174,7 +179,7 @@ public protocol MPBorderWidth: Sendable {
 public struct MPHeadingStyle: Sendable {
     public var huge: UIFont
     public var medium: UIFont
-    
+
     public init(huge: UIFont, medium: UIFont) {
         self.huge = huge
         self.medium = medium
@@ -184,7 +189,7 @@ public struct MPHeadingStyle: Sendable {
 public struct MPLargeStyle: Sendable {
     public var `default`: UIFont
     public var emphasis: UIFont
-    
+
     public init(default: UIFont, emphasis: UIFont) {
         self.default = `default`
         self.emphasis = emphasis
@@ -195,7 +200,7 @@ public struct MPMediumStyle: Sendable {
     public var `default`: UIFont
     public var emphasis: UIFont
     public var title: UIFont
-    
+
     public init(default: UIFont, emphasis: UIFont, title: UIFont) {
         self.default = `default`
         self.emphasis = emphasis
@@ -206,7 +211,7 @@ public struct MPMediumStyle: Sendable {
 public struct MPSmallStyle: Sendable {
     public var `default`: UIFont
     public var emphasis: UIFont
-    
+
     public init(default: UIFont, emphasis: UIFont) {
         self.default = `default`
         self.emphasis = emphasis
@@ -217,7 +222,7 @@ public struct MPBodyStyle: Sendable {
     public var large: MPLargeStyle
     public var medium: MPMediumStyle
     public var small: MPSmallStyle
-    
+
     public init(large: MPLargeStyle, medium: MPMediumStyle, small: MPSmallStyle) {
         self.large = large
         self.medium = medium
