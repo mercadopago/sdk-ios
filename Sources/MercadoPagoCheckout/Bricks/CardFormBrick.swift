@@ -69,14 +69,14 @@ struct CardFormBrick: View {
             do {
                 try await self.brickViewModel.load()
             } catch let error as MercadoPagoCheckoutError {
-                self.onResult(.error(error))
+                self.fail(error)
             } catch {
                 let checkoutError = MercadoPagoCheckoutError(
                     code: .unknown,
                     localizedDescription: error.localizedDescription,
                     location: .initialization
                 )
-                self.onResult(.error(checkoutError))
+                self.fail(checkoutError)
             }
         }
     }
