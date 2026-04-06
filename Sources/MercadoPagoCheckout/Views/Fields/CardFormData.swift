@@ -74,6 +74,7 @@ struct CardFormData {
 
     func isFormValid(isSecurityCodeMandatory: Bool, isDocumentRequired: Bool = true) -> Bool {
         return _cardNumber.errorMessages.isEmpty
+            && _cardNumber.liveErrorMessages.isEmpty
             && _cardHolder.errorMessages.isEmpty
             && _expirationDate.errorMessages.isEmpty
             && (isSecurityCodeMandatory ? _securityCode.errorMessages.isEmpty : true)

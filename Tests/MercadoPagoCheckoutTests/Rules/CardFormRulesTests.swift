@@ -78,48 +78,15 @@ final class CardFormRulesTests: XCTestCase {
         XCTAssertNotNil(result)
     }
 
-    func test_cardNumberRule_whenValidLuhn_shouldReturnNil() {
+    func test_cardNumberRule_whenAboveMinLength_shouldReturnNil() {
         // Arrange
         let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
 
-        // Act -- 4111111111111111 is a valid Luhn number
+        // Act
         let result = rule.validate("4111 1111 1111 1111")
 
         // Assert
         XCTAssertNil(result)
-    }
-
-    func test_cardNumberRule_whenInvalidLuhn_shouldReturnInvalidError() {
-        // Arrange
-        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-
-        // Act -- invalid Luhn
-        let result = rule.validate("4111 1111 1111 1112")
-
-        // Assert
-        XCTAssertNotNil(result)
-    }
-
-    func test_cardNumberRule_whenAllDigitsSame_shouldReturnInvalidError() {
-        // Arrange
-        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-
-        // Act -- all digits repeated (1111111111111111)
-        let result = rule.validate("1111 1111 1111 1111")
-
-        // Assert
-        XCTAssertNotNil(result)
-    }
-
-    func test_cardNumberRule_whenAllDigitsSameDifferentDigit_shouldReturnInvalidError() {
-        // Arrange
-        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-
-        // Act -- all digits repeated (4444444444444444)
-        let result = rule.validate("4444 4444 4444 4444")
-
-        // Assert
-        XCTAssertNotNil(result)
     }
 
     func test_cardNumberRule_whenPaymentMethodNotAllowed_shouldReturnSellerExclusionError() {
@@ -223,7 +190,8 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_validateLive_whenAllDigitsSameAndComplete_shouldReturnInvalidError() {
         // Arrange
-        let rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
+        rule.apply(.cardNumberRange(min: 16, max: 16))
 
         // Act
         let result = rule.validateLive("1111 1111 1111 1111")
@@ -250,6 +218,30 @@ final class CardFormRulesTests: XCTestCase {
 
         // Act
         let result = rule.validateLive("4111 1111 1111 1111")
+
+        // Assert
+        XCTAssertNotNil(result)
+    }
+
+    func test_cardNumberRule_validateLive_whenInvalidLuhnButBelowMaxLength_shouldReturnNil() {
+        // Arrange
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
+        rule.apply(.cardNumberRange(min: 13, max: 16))
+
+        // Act
+        let result = rule.validateLive("4111 1111 1111 2")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
+    func test_cardNumberRule_validateLive_whenInvalidLuhnAtMaxLength_shouldReturnInvalidError() {
+        // Arrange
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
+        rule.apply(.cardNumberRange(min: 16, max: 16))
+
+        // Act
+        let result = rule.validateLive("4111 1111 1111 1112")
 
         // Assert
         XCTAssertNotNil(result)
@@ -495,8 +487,8 @@ final class CardFormRulesTests: XCTestCase {
         // Act / Assert -- empty
         XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
 
-        // Act / Assert -- invalid (all same digits)
-        XCTAssertEqual(rule.validate("1111 1111 1111 1111"), "CUSTOM_INVALID")
+        // Act / Assert -- above min length, no Luhn check in validate
+        XCTAssertNil(rule.validate("1111 1111 1111 1111"))
 
         // Act / Assert -- incomplete
         var ruleWithRange = CardNumberRule(validation: customValidation)

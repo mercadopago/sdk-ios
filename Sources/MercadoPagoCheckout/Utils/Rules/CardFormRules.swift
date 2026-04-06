@@ -68,7 +68,6 @@ package struct CardNumberRule: CardFormRuleType {
         if digits.isEmpty { return self.validation.errorEmpty }
         if let externalError { return self.validateExternalError(externalError) }
         if digits.count < self.min { return self.validation.errorIncomplete }
-        if !self.luhnCheck(digits) { return self.validation.errorInvalid }
         return nil
     }
 
@@ -76,7 +75,8 @@ package struct CardNumberRule: CardFormRuleType {
         let digits = value.filter(\.isNumber)
         guard !digits.isEmpty else { return nil }
         if let externalError { return self.validateExternalError(externalError) }
-        guard digits.count >= self.min else { return nil }
+        guard digits.count >= self.max else { return nil }
+        if !self.luhnCheck(digits) { return self.validation.errorInvalid }
         return nil
     }
 
