@@ -235,6 +235,18 @@ final class CardFormRulesTests: XCTestCase {
         XCTAssertNil(result)
     }
 
+    func test_cardNumberRule_validateLive_whenInvalidLuhnAboveMaxLength_shouldReturnNil() {
+        // Arrange - simulates transitional state when formatter hasn't truncated yet
+        var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
+        rule.apply(.cardNumberRange(min: 16, max: 16))
+
+        // Act
+        let result = rule.validateLive("4111 1111 1111 11123")
+
+        // Assert
+        XCTAssertNil(result)
+    }
+
     func test_cardNumberRule_validateLive_whenInvalidLuhnAtMaxLength_shouldReturnInvalidError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
