@@ -68,7 +68,6 @@ package struct CardNumberRule: CardFormRuleType {
         if digits.isEmpty { return self.validation.errorEmpty }
         if let externalError { return self.validateExternalError(externalError) }
         if digits.count < self.min { return self.validation.errorIncomplete }
-        if !self.luhnCheck(digits) { return self.validation.errorInvalid }
         return nil
     }
 
@@ -76,7 +75,8 @@ package struct CardNumberRule: CardFormRuleType {
         let digits = value.filter(\.isNumber)
         guard !digits.isEmpty else { return nil }
         if let externalError { return self.validateExternalError(externalError) }
-        guard digits.count >= self.min else { return nil }
+        guard digits.count >= self.max else { return nil }
+        if !self.luhnCheck(digits) { return self.validation.errorInvalid }
         return nil
     }
 
@@ -217,6 +217,15 @@ package struct DocumentRule: CardFormRuleType {
             : value.filter { $0.isLetter || $0.isNumber }
         if chars.isEmpty { return self.validation.errorEmpty }
         if !(self.minLength ... self.maxLength).contains(chars.count) { return self.validation.errorIncomplete }
+        if self.isNumericType, chars.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
+        return nil
+    }
+
+    package func validateLive(_ value: String) -> String? {
+        let chars = self.isNumericType
+            ? value.filter(\.isNumber)
+            : value.filter { $0.isLetter || $0.isNumber }
+        guard chars.count >= self.maxLength else { return nil }
         if self.isNumericType, chars.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
         return nil
     }
