@@ -32,7 +32,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
             .accessibility(label: Text(MPStrings.Common.back))
 
             Text(configuration.title)
-                .textStyle(.headingMedium())
+                .textStyle(.headingSmall())
                 .lineLimit(1)
                 .opacity(Double(configuration.inlineTitleOpacity))
                 .frame(maxWidth: .infinity)

@@ -75,6 +75,7 @@ public struct LightFillColors: MPFillColors {
     public var disabled = Color(hex: 0xD0D4E6)
     public var accentLoud = Color(hex: 0x434CE4)
     public var accentQuiet = Color(hex: 0xE9F1FF)
+    public var defaultOnScroll = Color(hex: 0xFFFFFF, alpha: 0.60)
 }
 
 public struct LightTextColorTokens: MPTextColorTokens {
@@ -285,7 +286,9 @@ public struct LightTypography: MPTypography {
 
         self.heading = .init(
             huge: .custom(.bold, size: 24),
-            medium: .custom(.bold, size: 16)
+            large: .custom(.bold, size: 18),
+            medium: .custom(.bold, size: 20),
+            small: .custom(.bold, size: 16)
         )
 
         self.body = .init(

@@ -41,6 +41,7 @@ public protocol MPFillColors: Sendable {
     var disabled: Color { get }
     var accentLoud: Color { get }
     var accentQuiet: Color { get }
+    var defaultOnScroll: Color { get }
 }
 
 public protocol MPTextColorTokens: Sendable {
@@ -185,11 +186,15 @@ public protocol MPBorderWidth: Sendable {
 
 public struct MPHeadingStyle: Sendable {
     public var huge: UIFont
+    public var large: UIFont
     public var medium: UIFont
+    public var small: UIFont
 
-    public init(huge: UIFont, medium: UIFont) {
+    public init(huge: UIFont, large: UIFont, medium: UIFont, small: UIFont) {
         self.huge = huge
+        self.large = large
         self.medium = medium
+        self.small = small
     }
 }
 
