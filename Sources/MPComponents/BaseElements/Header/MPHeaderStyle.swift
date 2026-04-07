@@ -65,7 +65,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
         let epsilon: CGFloat = 0.00001
 
         if configuration.scrollOffset < -epsilon {
-            self.theme.colors.background.primary.opacity(0.98)
+            self.theme.colors.fill.defaultOnScroll
         } else {
             Color.clear
         }
