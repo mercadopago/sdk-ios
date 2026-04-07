@@ -121,6 +121,12 @@ public protocol MPIconColors: Sendable {
     var disabled: Color { get }
 }
 
+public protocol MPSelectedColors: Sendable {
+    var fillIdle: Color { get }
+    var fillActive: Color { get }
+    var fillDisabled: Color { get }
+}
+
 // MARK: - Color Definitions
 
 public protocol MPColors: Sendable {
@@ -132,6 +138,7 @@ public protocol MPColors: Sendable {
     var icon: MPIconColors { get }
     var interactive: MPInteractiveColors { get }
     var feedback: MPFeedbackColorTokens { get }
+    var selected: MPSelectedColors { get }
 }
 
 // MARK: - Spacing Definitions

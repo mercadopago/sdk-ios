@@ -158,6 +158,12 @@ public struct LightIconColors: MPIconColors {
     public var disabled = Color(hex: 0x9C9EBF)
 }
 
+public struct LightSelectedColors: MPSelectedColors {
+    public var fillIdle = Color(hex: 0x434CE4)
+    public var fillActive = Color(hex: 0x272C96)
+    public var fillDisabled = Color(hex: 0xD0D4E6)
+}
+
 public struct LightColors: MPColors {
     public var background: MPBackgroundColors = LightBackgroundColors()
     public var fill: MPFillColors = LightFillColors()
@@ -167,6 +173,7 @@ public struct LightColors: MPColors {
     public var icon: MPIconColors = LightIconColors()
     public var interactive: MPInteractiveColors = LightInteractiveColors()
     public var feedback: MPFeedbackColorTokens = LightFeedbackColorTokens()
+    public var selected: MPSelectedColors = LightSelectedColors()
 
     public init() {}
 }
