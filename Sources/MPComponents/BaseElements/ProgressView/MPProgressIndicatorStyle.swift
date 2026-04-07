@@ -4,12 +4,12 @@
 //
 //  Created by Danielle Nozaki Ogawa on 04/03/26.
 //
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 // MARK: - Size
 
-package enum MPProgressIndicatorSize: Sendable {
+package enum MPProgressIndicatorSize {
     case xsmall
     case small
     case medium
@@ -20,9 +20,9 @@ package enum MPProgressIndicatorSize: Sendable {
         switch self {
         case .xsmall: return 16
         case .small: return 24
-        case .medium: return 32
-        case .large: return 48
-        case .xlarge: return 64
+        case .medium: return 40
+        case .large: return 56
+        case .xlarge: return 72
         }
     }
 
@@ -67,7 +67,7 @@ package struct MPIndeterminateProgressViewStyle: MPProgressIndicatorStyle {
 
     @Environment(\.checkoutTheme) var theme: MPTheme
     @State private var pathStart: Double = 0
-    @State private var pathEnd: Double = 0.01
+    @State private var pathEnd = 0.01
     @State private var spinRotation: Double = 0
     @State private var rotationTask: Task<Void, Never>?
     @State private var pathTask: Task<Void, Never>?
@@ -77,29 +77,29 @@ package struct MPIndeterminateProgressViewStyle: MPProgressIndicatorStyle {
     @MainActor
     package func makeBody(configuration: MPProgressIndicatorStyleConfiguration) -> some View {
         Circle()
-            .trim(from: pathStart, to: pathEnd)
+            .trim(from: self.pathStart, to: self.pathEnd)
             .stroke(
-                theme.colors.border.accent,
+                self.theme.colors.interactive.fillLoudIdle,
                 style: StrokeStyle(lineWidth: configuration.size.lineWidth, lineCap: .round)
             )
-            .rotationEffect(.degrees(spinRotation - 90))
+            .rotationEffect(.degrees(self.spinRotation - 90))
             .frame(width: configuration.size.diameter, height: configuration.size.diameter)
-        .onAppear {
-            rotationTask = Task { await runRotationLoop() }
-            pathTask = Task { await runPathLoop() }
-        }
-        .onDisappear {
-            rotationTask?.cancel()
-            pathTask?.cancel()
-        }
+            .onAppear {
+                self.rotationTask = Task { await self.runRotationLoop() }
+                self.pathTask = Task { await self.runPathLoop() }
+            }
+            .onDisappear {
+                self.rotationTask?.cancel()
+                self.pathTask?.cancel()
+            }
     }
 
     @MainActor
     private func runRotationLoop() async {
         while !Task.isCancelled {
-            spinRotation = 0
+            self.spinRotation = 0
             withAnimation(.linear(duration: 2)) {
-                spinRotation = 360
+                self.spinRotation = 360
             }
             try? await Task.sleep(nanoseconds: 2_000_000_000)
         }
@@ -108,15 +108,15 @@ package struct MPIndeterminateProgressViewStyle: MPProgressIndicatorStyle {
     @MainActor
     private func runPathLoop() async {
         while !Task.isCancelled {
-            pathStart = 0
-            pathEnd = 0.01
+            self.pathStart = 0
+            self.pathEnd = 0.01
             withAnimation(.easeInOut(duration: 0.75)) {
-                pathStart = 0.25
-                pathEnd = 1.0
+                self.pathStart = 0.25
+                self.pathEnd = 1.0
             }
             try? await Task.sleep(nanoseconds: 750_000_000)
             withAnimation(.easeInOut(duration: 0.75)) {
-                pathStart = 1.0
+                self.pathStart = 1.0
             }
             try? await Task.sleep(nanoseconds: 750_000_000)
         }
@@ -137,7 +137,7 @@ private struct ResolvedMPProgressViewStyle<Style: MPProgressIndicatorStyle>: Vie
     let configuration: Style.Configuration
 
     var body: some View {
-        style.makeBody(configuration: configuration)
+        self.style.makeBody(configuration: self.configuration)
     }
 }
 
@@ -156,7 +156,7 @@ extension EnvironmentValues {
 }
 
 package extension View {
-    func mpProgressViewStyle<S: MPProgressIndicatorStyle>(_ style: S) -> some View {
+    func mpProgressViewStyle(_ style: some MPProgressIndicatorStyle) -> some View {
         environment(\.mpProgressViewStyle, style)
     }
 }
