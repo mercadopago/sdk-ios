@@ -81,7 +81,7 @@ package struct DefaultPopoverConfig: PopoverConfig {
 
     /// Returns the standard border radius from the design system.
     package func borderRadius(from theme: MPTheme) -> CGFloat {
-        return theme.borderRadius.large
+        return theme.borderRadius.xlarge
     }
 
     /// Returns a minimal border width from the design system.
