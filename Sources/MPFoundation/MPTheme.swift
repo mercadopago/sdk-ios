@@ -41,6 +41,7 @@ public protocol MPFillColors: Sendable {
     var disabled: Color { get }
     var accentLoud: Color { get }
     var accentQuiet: Color { get }
+    var defaultOnScroll: Color { get }
 }
 
 public protocol MPTextColorTokens: Sendable {
@@ -121,6 +122,12 @@ public protocol MPIconColors: Sendable {
     var disabled: Color { get }
 }
 
+public protocol MPSelectedColors: Sendable {
+    var fillIdle: Color { get }
+    var fillActive: Color { get }
+    var fillDisabled: Color { get }
+}
+
 // MARK: - Color Definitions
 
 public protocol MPColors: Sendable {
@@ -132,6 +139,7 @@ public protocol MPColors: Sendable {
     var icon: MPIconColors { get }
     var interactive: MPInteractiveColors { get }
     var feedback: MPFeedbackColorTokens { get }
+    var selected: MPSelectedColors { get }
 }
 
 // MARK: - Spacing Definitions
@@ -178,11 +186,15 @@ public protocol MPBorderWidth: Sendable {
 
 public struct MPHeadingStyle: Sendable {
     public var huge: UIFont
+    public var large: UIFont
     public var medium: UIFont
+    public var small: UIFont
 
-    public init(huge: UIFont, medium: UIFont) {
+    public init(huge: UIFont, large: UIFont, medium: UIFont, small: UIFont) {
         self.huge = huge
+        self.large = large
         self.medium = medium
+        self.small = small
     }
 }
 

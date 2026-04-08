@@ -48,7 +48,7 @@ package struct MPDefaultFooterStyle: MPFooterStyle {
                     self.theme.colors.background.primary
                         .shadow(
                             color: self.isScrollable ? Color.black.opacity(0.1) : .clear,
-                            radius: 8, x: 0, y: -4
+                            radius: 4, x: 0, y: -2
                         )
                         .mask(
                             Rectangle()

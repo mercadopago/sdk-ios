@@ -75,6 +75,7 @@ public struct LightFillColors: MPFillColors {
     public var disabled = Color(hex: 0xD0D4E6)
     public var accentLoud = Color(hex: 0x434CE4)
     public var accentQuiet = Color(hex: 0xE9F1FF)
+    public var defaultOnScroll = Color(hex: 0xFFFFFF, alpha: 0.60)
 }
 
 public struct LightTextColorTokens: MPTextColorTokens {
@@ -158,6 +159,12 @@ public struct LightIconColors: MPIconColors {
     public var disabled = Color(hex: 0x9C9EBF)
 }
 
+public struct LightSelectedColors: MPSelectedColors {
+    public var fillIdle = Color(hex: 0x434CE4)
+    public var fillActive = Color(hex: 0x272C96)
+    public var fillDisabled = Color(hex: 0xD0D4E6)
+}
+
 public struct LightColors: MPColors {
     public var background: MPBackgroundColors = LightBackgroundColors()
     public var fill: MPFillColors = LightFillColors()
@@ -167,6 +174,7 @@ public struct LightColors: MPColors {
     public var icon: MPIconColors = LightIconColors()
     public var interactive: MPInteractiveColors = LightInteractiveColors()
     public var feedback: MPFeedbackColorTokens = LightFeedbackColorTokens()
+    public var selected: MPSelectedColors = LightSelectedColors()
 
     public init() {}
 }
@@ -278,7 +286,9 @@ public struct LightTypography: MPTypography {
 
         self.heading = .init(
             huge: .custom(.bold, size: 24),
-            medium: .custom(.bold, size: 16)
+            large: .custom(.bold, size: 18),
+            medium: .custom(.bold, size: 20),
+            small: .custom(.bold, size: 16)
         )
 
         self.body = .init(

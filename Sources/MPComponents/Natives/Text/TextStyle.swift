@@ -5,11 +5,10 @@
 //  Created by Guilherme Prata Costa on 17/06/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 package extension View {
-
     /// Applies a custom text style to the current view.
     ///
     /// This modifier resolves the given style and sets it in the view's environment,
@@ -38,13 +37,13 @@ package struct BaseTextStyle: TextStyle {
     @Environment(\.checkoutTheme) var theme: MPTheme
 
     package let id: String
-    
+
     /// The semantic style case, which determines the font.
     ///
     /// Storing the case instead of the `Font` itself decouples the style definition
     /// from the theme at creation time, allowing it to adapt to theme changes.
     private let styleCase: TextStyleCase
-    
+
     /// The semantic color type for the text.
     public let colorType: TextStyleColorType
 
@@ -69,8 +68,8 @@ package struct BaseTextStyle: TextStyle {
     public func makeBody(configuration: Configuration) -> some View {
         configuration
             .content
-            .font(styleCase.font(from: theme))
-            .foregroundColor(colorType.color(from: theme.colors))
+            .font(self.styleCase.font(from: self.theme))
+            .foregroundColor(self.colorType.color(from: self.theme.colors))
     }
 }
 
@@ -81,16 +80,15 @@ public enum TextStyleColorType: CaseIterable, Identifiable, Sendable {
     case accent
     case disabled
     case inverted
-    
+
     case feedbackPositive
     case feedbackNegative
     case feedbackCaution
     case feedbackInformative
-    
-    
-    
 
-    public var id: Self { self }
+    public var id: Self {
+        self
+    }
 
     /// Returns the corresponding `Color` from the theme's color tokens.
     /// - Parameter colorTokens: The set of color tokens from the current theme.
@@ -124,19 +122,23 @@ public enum TextStyleColorType: CaseIterable, Identifiable, Sendable {
 /// These cases map to specific fonts within the `MPTheme`'s typography.
 package enum TextStyleCase: String, CaseIterable, Identifiable {
     case headingHuge
+    case headingLarge
     case headingMedium
-    
+    case headingSmall
+
     case large
     case largeEmphasis
-    
+
     case bodyMediumTitle
     case bodyMedium
     case bodyMediumEmphasis
-    
+
     case smallMedium
     case smallMediumEmphasis
-    
-    package var id: Self { self }
+
+    package var id: Self {
+        self
+    }
 
     /// A helper method to retrieve the appropriate font from the theme.
     ///
@@ -147,8 +149,12 @@ package enum TextStyleCase: String, CaseIterable, Identifiable {
         switch self {
         case .headingHuge:
             theme.typography.heading.huge.toFont()
+        case .headingLarge:
+            theme.typography.heading.large.toFont()
         case .headingMedium:
             theme.typography.heading.medium.toFont()
+        case .headingSmall:
+            theme.typography.heading.small.toFont()
         case .large:
             theme.typography.body.large.default.toFont()
         case .largeEmphasis:
@@ -173,15 +179,23 @@ package enum TextStyleCase: String, CaseIterable, Identifiable {
 /// without needing to reference the theme directly.
 package extension TextStyle where Self == BaseTextStyle {
     // MARK: - Heading
-    
+
     static func headingHuge(colorType: TextStyleColorType = .primary) -> Self {
         Self(styleCase: .headingHuge, colorType: colorType)
     }
-    
+
+    static func headingLarge(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .headingLarge, colorType: colorType)
+    }
+
     static func headingMedium(colorType: TextStyleColorType = .primary) -> Self {
         Self(styleCase: .headingMedium, colorType: colorType)
     }
-    
+
+    static func headingSmall(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .headingSmall, colorType: colorType)
+    }
+
     // MARK: - Body Text
 
     /// A medium-sized, regular body text style.
@@ -189,7 +203,7 @@ package extension TextStyle where Self == BaseTextStyle {
     static func large(colorType: TextStyleColorType = .primary) -> Self {
         Self(styleCase: .large, colorType: colorType)
     }
-    
+
     static func largeEmphasis(colorType: TextStyleColorType = .primary) -> Self {
         Self(styleCase: .largeEmphasis, colorType: colorType)
     }
@@ -208,86 +222,85 @@ package extension TextStyle where Self == BaseTextStyle {
     static func bodyMediumTitle(colorType: TextStyleColorType = .primary) -> Self {
         Self(styleCase: .bodyMediumTitle, colorType: colorType)
     }
-    
+
     /// An extra-small, semibold body text style.
     static func smallMedium(colorType: TextStyleColorType = .primary) -> Self {
         Self(styleCase: .smallMedium, colorType: colorType)
     }
-    
+
     static func smallMediumEmphasis(colorType: TextStyleColorType = .primary) -> Self {
         Self(styleCase: .smallMediumEmphasis, colorType: colorType)
     }
 }
 
-
 // MARK: - Previews
+
 #if DEBUG
-private struct TextStyleList: View {
-    @Environment(\.checkoutTheme) var theme: MPTheme
+    private struct TextStyleList: View {
+        @Environment(\.checkoutTheme) var theme: MPTheme
 
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Preview of Text Styles")
-                    .textStyle(.headingHuge())
-                    .padding(.bottom)
-
-                // Titles
-                Group {
-                    Text("Title Small Semibold (Primary)")
+        var body: some View {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Preview of Text Styles")
                         .textStyle(.headingHuge())
-                    Text("Title Small Semibold (Accent)")
-                        .textStyle(.headingMedium(colorType: .accent))
-                }
-                
-                Divider()
-                
-                // Body Medium
-                Group {
-                    Text("Body Medium Regular")
-                        .textStyle(.bodyMedium())
-                    Text("Body Medium Semibold")
-                        .textStyle(.bodyMediumEmphasis())
-                    Text("Body Medium Regular (Secondary)")
-                        .textStyle(.bodyMediumTitle(colorType: .secondary))
-                }
-                
-                Divider()
+                        .padding(.bottom)
 
-                // Small Body
-                Group {
-                    Text("Body Small Regular")
-                        .textStyle(.smallMedium())
-                    Text("Body Small Semibold")
-                        .textStyle(.smallMediumEmphasis())
+                    // Titles
+                    Group {
+                        Text("Title Small Semibold (Primary)")
+                            .textStyle(.headingHuge())
+                        Text("Title Small Semibold (Accent)")
+                            .textStyle(.headingSmall(colorType: .accent))
+                    }
+
+                    Divider()
+
+                    // Body Medium
+                    Group {
+                        Text("Body Medium Regular")
+                            .textStyle(.bodyMedium())
+                        Text("Body Medium Semibold")
+                            .textStyle(.bodyMediumEmphasis())
+                        Text("Body Medium Regular (Secondary)")
+                            .textStyle(.bodyMediumTitle(colorType: .secondary))
+                    }
+
+                    Divider()
+
+                    // Small Body
+                    Group {
+                        Text("Body Small Regular")
+                            .textStyle(.smallMedium())
+                        Text("Body Small Semibold")
+                            .textStyle(.smallMediumEmphasis())
+                    }
+
+                    Divider()
                 }
-                
-                Divider()
+                .padding()
             }
-            .padding()
         }
     }
-}
 
-private struct ThemedPreviewWrapper: View {
-    
-    public var body: some View {
-        ThemeProvider(
-            light: MPLightTheme(),
-            dark: MPLightTheme()
-        ) {
-            TextStyleList()
+    private struct ThemedPreviewWrapper: View {
+        var body: some View {
+            ThemeProvider(
+                light: MPLightTheme(),
+                dark: MPLightTheme()
+            ) {
+                TextStyleList()
+            }
         }
     }
-}
 
-#Preview("Light Theme") {
-    ThemedPreviewWrapper()
-        .preferredColorScheme(.light)
-}
+    #Preview("Light Theme") {
+        ThemedPreviewWrapper()
+            .preferredColorScheme(.light)
+    }
 
-#Preview("Dark Theme") {
-    ThemedPreviewWrapper()
-        .preferredColorScheme(.dark)
-}
+    #Preview("Dark Theme") {
+        ThemedPreviewWrapper()
+            .preferredColorScheme(.dark)
+    }
 #endif

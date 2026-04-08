@@ -32,7 +32,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
             .accessibility(label: Text(MPStrings.Common.back))
 
             Text(configuration.title)
-                .textStyle(.headingMedium())
+                .textStyle(.headingSmall())
                 .lineLimit(1)
                 .opacity(Double(configuration.inlineTitleOpacity))
                 .frame(maxWidth: .infinity)
@@ -65,7 +65,7 @@ package struct MPDefaultHeaderStyle: MPHeaderStyle {
         let epsilon: CGFloat = 0.00001
 
         if configuration.scrollOffset < -epsilon {
-            self.theme.colors.background.primary.opacity(0.98)
+            self.theme.colors.fill.defaultOnScroll
         } else {
             Color.clear
         }
