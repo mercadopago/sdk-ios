@@ -55,7 +55,11 @@ struct CardFormScreen: View {
     var body: some View {
         MPHeader(
             title: self.initResult.title,
-            onBack: { self.onBack(self.cardForm.cancelledFormContext) },
+            onBack: {
+                let context = self.cardForm.cancelledFormContext
+                self.viewModel.trackUserCanceled(context: context)
+                self.onBack(context)
+            },
             footer: {
                 MPFooter(
                     title: MPStrings.Common.total,
@@ -95,7 +99,13 @@ struct CardFormScreen: View {
                         liveErrorMessage: self.cardForm.cardNumberLiveErrors,
                         keyboard: .numberPad,
                         onEditingChanged: { isEditing in
-                            if !isEditing { self.viewModel.retryBinFetch() }
+                            if !isEditing {
+                                self.viewModel.retryBinFetch()
+                                self.viewModel.trackInputValidation(
+                                    field: .cardNumber,
+                                    isValid: self.cardForm.$cardNumber.isEmpty
+                                )
+                            }
                         },
                         formatter: self.viewModel.cardNumberFormatter
                     )
@@ -106,7 +116,15 @@ struct CardFormScreen: View {
                         label: self.initResult.fields.cardHolder.label,
                         placeholder: self.initResult.fields.cardHolder.placeholder,
                         helperText: self.initResult.fields.cardHolder.helperText,
-                        errorMessage: self.cardForm.$cardHolder
+                        errorMessage: self.cardForm.$cardHolder,
+                        onEditingChanged: { isEditing in
+                            if !isEditing {
+                                self.viewModel.trackInputValidation(
+                                    field: .cardHolder,
+                                    isValid: self.cardForm.$cardHolder.isEmpty
+                                )
+                            }
+                        }
                     )
 
                     MPTextField(
@@ -115,6 +133,14 @@ struct CardFormScreen: View {
                         placeholder: self.initResult.fields.expiration.placeholder,
                         errorMessage: self.cardForm.$expirationDate,
                         keyboard: .numberPad,
+                        onEditingChanged: { isEditing in
+                            if !isEditing {
+                                self.viewModel.trackInputValidation(
+                                    field: .expirationDate,
+                                    isValid: self.cardForm.$expirationDate.isEmpty
+                                )
+                            }
+                        },
                         formatter: self.viewModel.expirationDateFormatter
                     )
 
@@ -125,6 +151,14 @@ struct CardFormScreen: View {
                             placeholder: self.viewModel.cvvPlaceholder,
                             errorMessage: self.cardForm.$securityCode,
                             keyboard: .numberPad,
+                            onEditingChanged: { isEditing in
+                                if !isEditing {
+                                    self.viewModel.trackInputValidation(
+                                        field: .securityCode,
+                                        isValid: self.cardForm.$securityCode.isEmpty
+                                    )
+                                }
+                            },
                             formatter: self.viewModel.securityCodeFormatter,
                             popoverText: self.viewModel.cvvTooltipText
                         )
@@ -138,6 +172,14 @@ struct CardFormScreen: View {
                             errorMessage: self.cardForm.$documentHolder,
                             liveErrorMessage: self.cardForm.documentHolderLiveErrors,
                             keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
+                            onEditingChanged: { isEditing in
+                                if !isEditing {
+                                    self.viewModel.trackInputValidation(
+                                        field: .document,
+                                        isValid: self.cardForm.$documentHolder.isEmpty
+                                    )
+                                }
+                            },
                             formatter: self.viewModel.documentFormatter,
                             prefix: {
                                 self.dropdownDocument()

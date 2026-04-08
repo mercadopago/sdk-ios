@@ -5,7 +5,9 @@
 //  Created by Guilherme Prata Costa on 28/01/26.
 //
 import CoreMethods
+import MPAnalytics
 import MPComponents
+import MPCore
 import SwiftUI
 
 @MainActor
@@ -14,6 +16,7 @@ final class CardFormViewModel: ObservableObject {
 
     private let configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let service: CheckoutServiceProtocol
+    private let analytics: AnalyticsInterface
 
     // MARK: - Formatters
 
@@ -34,7 +37,10 @@ final class CardFormViewModel: ObservableObject {
     @Published private(set) var isTokenizing = false
 
     @Published var selectTypeDocument: IdentificationType? {
-        didSet { self.updateIdentificationType() }
+        didSet {
+            self.updateIdentificationType()
+            self.trackDropdownSelection(type: .documentType)
+        }
     }
 
     var identificationTypes: [IdentificationType] = []
@@ -85,12 +91,14 @@ final class CardFormViewModel: ObservableObject {
     init(
         configuration: MercadoPagoCheckout.CheckoutConfiguration,
         initResult: CardFormInitializationOutput,
-        service: CheckoutServiceProtocol = CheckoutService()
+        service: CheckoutServiceProtocol = CheckoutService(),
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.configuration = configuration
         self.service = service
+        self.analytics = analytics
         self.identificationTypes = initResult.identificationTypes
-        self.selectTypeDocument = initResult.identificationTypes.first
+        _selectTypeDocument = Published(wrappedValue: initResult.identificationTypes.first)
 
         let firstType = initResult.identificationTypes.first
         self.documentFormatter = DocumentFormatter(
@@ -267,13 +275,96 @@ final class CardFormViewModel: ObservableObject {
     ) async {
         self.isTokenizing = true
         defer { self.isTokenizing = false }
+
+        self.trackSubmit(transactionAmount: transactionAmount)
+
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
             let paymentData = try self.createPaymentData(transactionAmount, cardToken: cardToken, cardFormData: cardForm)
+            self.trackSubmitSuccess(paymentData: paymentData, transactionAmount: transactionAmount)
             onSuccess(paymentData)
         } catch {
             guard !Task.isCancelled else { return }
+            self.trackSubmitError(error)
             onFailure(error)
+        }
+    }
+
+    // MARK: - Analytics
+
+    func trackInputValidation(field: CardFormField, isValid: Bool) {
+        let eventData = CardFormInputValidationEventData(field: field.analyticsValue, isInputValid: isValid)
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(CardFormAnalyticsPath.inputValidation)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    func trackUserCanceled(context _: CardFormUserCancelledContext) {
+        let eventData = CardFormErrorEventData(errorType: "")
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(CardFormAnalyticsPath.userCanceledError)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackDropdownSelection(type: CardFormDropdownType) {
+        let eventData = CardFormDropdownSelectionEventData(dropdownSelectionType: type.analyticsValue)
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(CardFormAnalyticsPath.dropdownSelection)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackSubmit(transactionAmount: Double?) {
+        let cardBrand = self.binData?.paymentMethod.id ?? ""
+        let issuer = self.binData?.issuer?.name ?? ""
+
+        let eventData = CardFormSubmitEventData(
+            cardBrand: cardBrand,
+            transactionAmount: transactionAmount,
+            issuer: issuer,
+            paymentType: self.binData?.paymentMethod.paymentTypeId
+        )
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(CardFormAnalyticsPath.submit)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackSubmitSuccess(paymentData: MPPaymentData, transactionAmount: Double?) {
+        let cardBrand = paymentData.paymentMethodId ?? ""
+        let issuer = self.binData?.issuer?.name ?? ""
+
+        let eventData = CardFormSubmitEventData(
+            cardBrand: cardBrand,
+            transactionAmount: transactionAmount,
+            issuer: issuer,
+            paymentType: paymentData.paymentTypeId
+        )
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(CardFormAnalyticsPath.submit)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackSubmitError(_ error: MercadoPagoCheckoutError) {
+        let eventData = CardFormErrorEventData(errorType: error.analyticsErrorType)
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(CardFormAnalyticsPath.submitError)
+                .setEventData(eventData)
+                .send()
         }
     }
 }

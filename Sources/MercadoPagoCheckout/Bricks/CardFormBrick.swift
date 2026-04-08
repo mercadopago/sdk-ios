@@ -32,14 +32,13 @@ struct CardFormBrick: View {
         appearance: MercadoPagoCheckout.CheckoutAppearance,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
-        self.configuration = configuration
         self.onResult = onResult
         self.themeDark = appearance.themeConfiguration.dark
         self.themeLight = appearance.themeConfiguration.light
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
-        self.brickViewModel = CardFormBrickViewModel(configuration: configuration)
+        self.brickViewModel = CardFormBrickViewModel(configuration: configuration, appearance: appearance)
     }
 
     var body: some View {

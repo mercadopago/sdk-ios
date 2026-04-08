@@ -5,6 +5,9 @@
 //  Created by Guilherme Prata Costa on 18/03/26.
 //
 import Foundation
+import MPAnalytics
+import MPCore
+import MPFoundation
 
 @MainActor
 final class CardFormBrickViewModel: ObservableObject {
@@ -20,16 +23,22 @@ final class CardFormBrickViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let configuration: MercadoPagoCheckout.CheckoutConfiguration
+    private let appearance: MercadoPagoCheckout.CheckoutAppearance
     private let initializeUseCase: InitializeCardFormUseCase
+    private let analytics: AnalyticsInterface
 
     // MARK: - Init
 
     init(
         configuration: MercadoPagoCheckout.CheckoutConfiguration,
-        initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase()
+        appearance: MercadoPagoCheckout.CheckoutAppearance = MercadoPagoCheckout.CheckoutAppearance(),
+        initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase(),
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.configuration = configuration
+        self.appearance = appearance
         self.initializeUseCase = initializeUseCase
+        self.analytics = analytics
     }
 
     // MARK: - Initialization
@@ -39,12 +48,24 @@ final class CardFormBrickViewModel: ObservableObject {
         let config = self.extractCardFormConfig()
         do {
             let result = try await withRetry { try await self.initializeUseCase.execute(config: config) }
-            let viewModel = CardFormViewModel(configuration: self.configuration, initResult: result)
+            let viewModel = CardFormViewModel(
+                configuration: self.configuration,
+                initResult: result,
+                analytics: self.analytics
+            )
             self.screenState = .ready(result, viewModel)
+            self.trackInitialize()
         } catch let error as MercadoPagoCheckoutError {
+            self.trackInitializeError(error)
             throw error
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .initialization)
+            let checkoutError = MercadoPagoCheckoutError(
+                code: .unknown,
+                localizedDescription: error.localizedDescription,
+                location: .initialization
+            )
+            self.trackInitializeError(checkoutError)
+            throw checkoutError
         }
     }
 
@@ -55,5 +76,34 @@ final class CardFormBrickViewModel: ObservableObject {
             return config
         }
         return MercadoPagoCheckout.CardFormConfiguration()
+    }
+
+    // MARK: - Analytics
+
+    private func trackInitialize() {
+        let eventData = CardFormInitializeEventData(
+            checkoutType: self.configuration.type.analyticsValue,
+            appearance: self.appearance.style.analyticsValue,
+            sellerCustomization: self.appearance.sellerCustomization,
+            allowedPaymentTypes: self.configuration.paymentMethod.acceptedPaymentTypeIds,
+            allowedPaymentMethods: self.configuration.paymentMethod.acceptedPaymentMethodIds
+        )
+
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(CardFormAnalyticsPath.initialize)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackInitializeError(_ error: MercadoPagoCheckoutError) {
+        let eventData = CardFormErrorEventData(errorType: error.analyticsErrorType)
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(CardFormAnalyticsPath.initializeError)
+                .setEventData(eventData)
+                .send()
+        }
     }
 }

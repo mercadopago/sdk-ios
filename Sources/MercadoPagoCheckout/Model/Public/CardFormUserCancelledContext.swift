@@ -17,11 +17,11 @@ extension CardFormUserCancelledContext {
     /// The state of a specific form field at cancellation time.
     public struct FieldState: Sendable, Equatable {
         /// The form field.
-        public let field: Field
+        public let field: CardFormField
         /// The state of the field.
         public let state: State
 
-        public init(field: Field, state: State) {
+        public init(field: CardFormField, state: State) {
             self.field = field
             self.state = state
         }
@@ -29,15 +29,6 @@ extension CardFormUserCancelledContext {
 }
 
 extension CardFormUserCancelledContext.FieldState {
-    /// The form field identifiers.
-    public enum Field: Sendable, Equatable {
-        case cardNumber
-        case cardHolder
-        case expirationDate
-        case securityCode
-        case document
-    }
-
     /// The state of a field at cancellation time.
     public enum State: Sendable, Equatable {
         /// The field was filled with a valid value.
