@@ -34,8 +34,8 @@ struct CardFormBrick: View {
     ) {
         self.configuration = configuration
         self.onResult = onResult
-        self.themeDark = appearance.dark
-        self.themeLight = appearance.light
+        self.themeDark = appearance.themeConfiguration.dark
+        self.themeLight = appearance.themeConfiguration.light
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))

@@ -21,7 +21,7 @@ public protocol MPTheme: Sendable {
     var textFields: MPTextFields { get set }
 }
 
-public enum UserInterfaceStyle: Sendable {
+public enum MercadoPagoUserInterfaceStyle: Sendable {
     case automatic
     case lightMode
     case darkMode
