@@ -103,7 +103,7 @@ struct CardFormData {
         if digits.isEmpty { return .empty }
         if let acceptanceError = cardAcceptanceError {
             switch acceptanceError {
-            case let .paymentMethodNotAllowed(brand): return .cardBrandNotAccepted(brand: brand)
+            case let .paymentMethodNotAllowed(brand): return .cardBrandNotAccepted(brand: .init(paymentMethodId: brand))
             case let .paymentTypeNotAllowed(cardType): return .cardTypeNotAccepted(cardType: cardType)
             case .paymentMethodNotFound: return .invalid
             }

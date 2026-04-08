@@ -16,8 +16,8 @@ public struct MPPaymentData: Equatable, Codable, Sendable {
     public var payer: Payer?
 
     public struct Payer: Equatable, Codable, Sendable {
-        public var type: String
-        public var number: String
+        public var documentType: String
+        public var documentNumber: String
     }
 }
 
