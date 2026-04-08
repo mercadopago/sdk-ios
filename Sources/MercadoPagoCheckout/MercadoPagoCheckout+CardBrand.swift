@@ -10,7 +10,7 @@ public extension MercadoPagoCheckout {
     ///
     /// Use predefined brands like `.visa` or `.mastercard`, or create a custom one
     /// with `.custom("brand_id")` for card networks not explicitly listed.
-    public enum CardBrand: Sendable {
+    public enum CardBrand: Sendable, Equatable {
         /// Visa card network.
         case visa
         /// Mastercard network.
@@ -61,6 +61,24 @@ public extension MercadoPagoCheckout {
 }
 
 extension MercadoPagoCheckout.CardBrand {
+    init(paymentMethodId: String) {
+        switch paymentMethodId {
+        case "visa":        self = .visa
+        case "master":      self = .master
+        case "amex":        self = .amex
+        case "elo":         self = .elo
+        case "hipercard":   self = .hipercard
+        case "diners":      self = .diners
+        case "discover":    self = .discover
+        case "jcb":         self = .jcb
+        case "maestro":     self = .maestro
+        case "unionpay":    self = .unionPay
+        case "cabal":       self = .cabal
+        case "naranja":     self = .naranja
+        default:            self = .custom(paymentMethodId)
+        }
+    }
+
     var paymentMethodId: String {
         switch self {
         case .visa:              return "visa"
