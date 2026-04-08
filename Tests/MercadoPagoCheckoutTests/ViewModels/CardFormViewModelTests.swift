@@ -882,8 +882,8 @@ final class CardFormViewModelTests: XCTestCase {
         )
 
         // Assert
-        XCTAssertEqual(capturedPaymentData?.payer?.type, IdentificationTypeStub.cpf.type)
-        XCTAssertEqual(capturedPaymentData?.payer?.number, "12345678900")
+        XCTAssertEqual(capturedPaymentData?.payer?.documentType, IdentificationTypeStub.cpf.type)
+        XCTAssertEqual(capturedPaymentData?.payer?.documentNumber, "12345678900")
     }
 
     func test_submitCardData_whenDocumentTypeIsSelected_shouldSetTransactionAmountAndInstallment() async {
