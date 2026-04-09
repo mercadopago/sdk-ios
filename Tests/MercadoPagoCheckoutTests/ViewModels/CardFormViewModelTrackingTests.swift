@@ -110,12 +110,12 @@ final class CardFormViewModelTrackingTests: XCTestCase {
 
     // MARK: - cancel
 
-    func test_cancel_shouldTrackUserCanceledErrorEvent() async {
+    func test_cancel_backButton_shouldTrackUserCanceledErrorEvent() async {
         // Arrange
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []))
+        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []), reason: .backButton)
         await sut.analytics.mock.waitForSend()
 
         // Assert
@@ -124,17 +124,30 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         XCTAssertTrue(messages.contains(.send))
     }
 
-    func test_cancel_shouldSendEmptyErrorType() async {
+    func test_cancel_backButton_shouldSendBackButtonErrorType() async {
         // Arrange
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []))
+        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []), reason: .backButton)
         await sut.analytics.mock.waitForSend()
 
         // Assert
         let messages = await sut.analytics.mock.getMessages()
-        XCTAssertTrue(messages.contains(.setEventData(["error_type": ""])))
+        XCTAssertTrue(messages.contains(.setEventData(["error_type": "user_tapped_back_button"])))
+    }
+
+    func test_cancel_dismissedScreen_shouldSendDismissedScreenErrorType() async {
+        // Arrange
+        let sut = self.makeSUT()
+
+        // Act
+        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []), reason: .dismissedScreen)
+        await sut.analytics.mock.waitForSend()
+
+        // Assert
+        let messages = await sut.analytics.mock.getMessages()
+        XCTAssertTrue(messages.contains(.setEventData(["error_type": "user_dismissed_screen"])))
     }
 
     // MARK: - trackDropdownSelection (via selectTypeDocument didSet)
@@ -164,7 +177,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         // Assert
         let messages = await sut.analytics.mock.getMessages()
         XCTAssertTrue(messages.contains(.track(path: CardFormAnalyticsPath.dropdownSelection)))
-        XCTAssertTrue(messages.contains(.setEventData(["dropdown_selection_type": "document_type"])))
+        XCTAssertTrue(messages.contains(.setEventData(["dropdown_selection_type": "CNPJ"])))
         XCTAssertTrue(messages.contains(.send))
     }
 }

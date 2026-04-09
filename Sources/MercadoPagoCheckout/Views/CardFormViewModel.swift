@@ -39,7 +39,7 @@ final class CardFormViewModel: ObservableObject {
     @Published var selectTypeDocument: IdentificationType? {
         didSet {
             self.updateIdentificationType()
-            self.trackDropdownSelection(type: .documentType)
+            self.trackDropdownSelection(type: .documentType, selectedValue: self.selectTypeDocument?.id ?? "")
         }
     }
 
@@ -296,9 +296,9 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Analytics
 
-    func cancel(context _: CardFormUserCancelledContext) {
+    func cancel(context _: CardFormUserCancelledContext, reason: CardFormCancelReason) {
         self.isCancelling = true
-        let eventData = CardFormErrorEventData(errorType: "")
+        let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)
         let analytics = self.analytics
         Task(priority: .userInitiated) {
             await analytics.trackEvent(CardFormAnalyticsPath.userCanceledError)
@@ -318,8 +318,8 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
-    private func trackDropdownSelection(type: CardFormDropdownType) {
-        let eventData = CardFormDropdownSelectionEventData(dropdownSelectionType: type.analyticsValue)
+    private func trackDropdownSelection(type _: CardFormDropdownType, selectedValue: String) {
+        let eventData = CardFormDropdownSelectionEventData(dropdownSelectionType: selectedValue)
         let analytics = self.analytics
         Task(priority: .low) {
             await analytics.trackEvent(CardFormAnalyticsPath.dropdownSelection)

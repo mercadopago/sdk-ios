@@ -10,6 +10,7 @@ import SwiftUI
 
 struct CardFormScreen: View {
     private let onBack: (CardFormUserCancelledContext) -> Void
+    private let onDismiss: (CardFormUserCancelledContext) -> Void
     private let onSuccess: (MPPaymentData) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double?
@@ -23,6 +24,8 @@ struct CardFormScreen: View {
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
     @State private var isCardNumberFocused = false
+    @State private var didTapBack = false
+    @State private var didComplete = false
 
     // MARK: Enviroments
 
@@ -33,10 +36,12 @@ struct CardFormScreen: View {
         transactionAmount: Double?,
         viewModel: CardFormViewModel,
         onBack: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
+        onDismiss: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
         onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self.onBack = onBack
+        self.onDismiss = onDismiss
         self.onSuccess = onSuccess
         self.onFailure = onFailure
         self.transactionAmount = transactionAmount
@@ -56,6 +61,7 @@ struct CardFormScreen: View {
         MPHeader(
             title: self.initResult.title,
             onBack: {
+                self.didTapBack = true
                 self.onBack(self.cardForm.cancelledFormContext)
             },
             footer: {
@@ -68,8 +74,14 @@ struct CardFormScreen: View {
                             await self.viewModel.submitCardData(
                                 cardForm: self.cardForm,
                                 transactionAmount: self.transactionAmount,
-                                onSuccess: { self.onSuccess($0) },
-                                onFailure: { self.onFailure($0) }
+                                onSuccess: {
+                                    self.didComplete = true
+                                    self.onSuccess($0)
+                                },
+                                onFailure: {
+                                    self.didComplete = true
+                                    self.onFailure($0)
+                                }
                             )
                         }
                     )
@@ -209,6 +221,11 @@ struct CardFormScreen: View {
         }
         .mpOnChange(of: self.viewModel.showSnackbar) { show in
             if show { self.isSnackbarPresented = true }
+        }
+        .onDisappear {
+            if !self.didTapBack, !self.didComplete {
+                self.onDismiss(self.cardForm.cancelledFormContext)
+            }
         }
     }
 

@@ -133,15 +133,15 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
 
     // MARK: - CardFormDropdownSelectionEventData
 
-    func test_cardFormDropdownSelectionEventData_toDictionary_shouldContainDropdownType() {
+    func test_cardFormDropdownSelectionEventData_toDictionary_shouldContainSelectedValue() {
         // Arrange
-        let sut = CardFormDropdownSelectionEventData(dropdownSelectionType: "document_type")
+        let sut = CardFormDropdownSelectionEventData(dropdownSelectionType: "CPF")
 
         // Act
         let dict = sut.toDictionary()
 
         // Assert
-        XCTAssertEqual(dict["dropdown_selection_type"] as? String, "document_type")
+        XCTAssertEqual(dict["dropdown_selection_type"] as? String, "CPF")
     }
 
     // MARK: - CardFormDropdownType
