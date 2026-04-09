@@ -372,6 +372,79 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
     }
 
+    // MARK: - fetchBinData retry
+
+    func test_onCardNumberChange_whenFirstBinFetchSucceeds_shouldCallServiceOnce() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        let callCount = await sut.service.fetchBinDataCallCount
+        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func test_onCardNumberChange_whenFirstBinFetchFails_shouldRetryAndSetBinData() async {
+        // Arrange
+        let sut = self.makeSUT()
+        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "timeout", location: .paymentMethods)
+        await sut.service.setSequentialFetchBinDataResults(
+            .failure(networkError),
+            .success(CardBinDataStub.visa)
+        )
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binData)
+
+        // Assert
+        let callCount = await sut.service.fetchBinDataCallCount
+        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
+        XCTAssertEqual(callCount, 2)
+    }
+
+    func test_onCardNumberChange_whenAllBinFetchesFail_shouldSetBinNetworkErrorAfter2Calls() async {
+        // Arrange
+        let sut = self.makeSUT()
+        let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "timeout", location: .paymentMethods)
+        await sut.service.setSequentialFetchBinDataResults(
+            .failure(networkError),
+            .failure(networkError)
+        )
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binNetworkError)
+
+        // Assert
+        let callCount = await sut.service.fetchBinDataCallCount
+        XCTAssertNotNil(sut.viewModel.binNetworkError)
+        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertEqual(callCount, 2)
+    }
+
+    func test_onCardNumberChange_whenCardAcceptanceError_shouldNotRetry() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.service.setSequentialFetchBinDataResults(
+            .failure(CardAcceptanceError.paymentMethodNotAllowed("visa"))
+        )
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardAcceptanceError)
+
+        // Assert
+        let callCount = await sut.service.fetchBinDataCallCount
+        XCTAssertNotNil(sut.viewModel.cardAcceptanceError)
+        XCTAssertEqual(callCount, 1)
+    }
+
     // MARK: - retryBinFetch
 
     func test_init_showSnackbarShouldBeFalse() {
@@ -809,8 +882,8 @@ final class CardFormViewModelTests: XCTestCase {
         )
 
         // Assert
-        XCTAssertEqual(capturedPaymentData?.payer?.type, IdentificationTypeStub.cpf.type)
-        XCTAssertEqual(capturedPaymentData?.payer?.number, "12345678900")
+        XCTAssertEqual(capturedPaymentData?.payer?.documentType, IdentificationTypeStub.cpf.type)
+        XCTAssertEqual(capturedPaymentData?.payer?.documentNumber, "12345678900")
     }
 
     func test_submitCardData_whenDocumentTypeIsSelected_shouldSetTransactionAmountAndInstallment() async {
@@ -856,7 +929,7 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(capturedPaymentData?.paymentTypeId, "credit_card")
     }
 
-    func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async throws {
+    func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async {
         // Arrange
         let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
         let binDataWithIssuer = CardBinData(
@@ -915,5 +988,117 @@ final class CardFormViewModelTests: XCTestCase {
 
         // Assert — snackbar was reset then re-triggered
         XCTAssertEqual(capturedValues, [false, true])
+    }
+
+    // MARK: - keyboard type (derived from selectTypeDocument)
+
+    func test_init_withNumericIdentificationType_shouldSelectNumericType() {
+        // Arrange
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+
+        // Act
+        let sut = self.makeSUT(identificationTypes: [numericType])
+
+        // Assert — keyboard type is derived by the View via getKeyboardType()
+        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .numberPad)
+    }
+
+    func test_init_withStringIdentificationType_shouldSelectStringType() {
+        // Arrange
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+
+        // Act
+        let sut = self.makeSUT(identificationTypes: [stringType])
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .default)
+    }
+
+    func test_init_withNoIdentificationTypes_shouldHaveNilSelectTypeDocument() {
+        // Arrange / Act
+        let sut = self.makeSUT()
+
+        // Assert — nil selectTypeDocument → View falls back to .default
+        XCTAssertNil(sut.viewModel.selectTypeDocument)
+    }
+
+    func test_selectTypeDocument_whenChangedToStringType_shouldReflectDefaultKeyboard() {
+        // Arrange
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let sut = self.makeSUT(identificationTypes: [numericType, stringType])
+
+        // Act
+        sut.viewModel.selectTypeDocument = stringType
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .default)
+    }
+
+    func test_selectTypeDocument_whenChangedToNumericType_shouldReflectNumberPadKeyboard() {
+        // Arrange
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let sut = self.makeSUT(identificationTypes: [stringType, numericType])
+
+        // Act
+        sut.viewModel.selectTypeDocument = numericType
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .numberPad)
+    }
+
+    // MARK: - documentFormatter
+
+    func test_init_withNumericIdentificationType_shouldInitializeFormatterWithNumericMask() {
+        // Arrange
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+
+        // Act
+        let sut = self.makeSUT(identificationTypes: [numericType])
+
+        // Assert — numeric formatter strips letters, applies CPF mask
+        let formatted = sut.viewModel.documentFormatter.formatOnChange("12345678901")
+        XCTAssertEqual(formatted, "123.456.789-01")
+    }
+
+    func test_init_withStringIdentificationType_shouldInitializeFormatterWithAlphanumericMask() {
+        // Arrange — CNPJ string type uses alphanumeric mask
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+
+        // Act
+        let sut = self.makeSUT(identificationTypes: [stringType])
+
+        // Assert — string formatter accepts letters, applies CNPJ alphanumeric mask
+        let formatted = sut.viewModel.documentFormatter.formatOnChange("AB123456CDEF12")
+        XCTAssertEqual(formatted, "AB.123.456/CDEF-12")
+    }
+
+    func test_selectTypeDocument_whenChangedToStringType_shouldUpdateFormatterToAlphanumeric() {
+        // Arrange — start with CPF (numeric)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let sut = self.makeSUT(identificationTypes: [numericType, stringType])
+
+        // Act
+        sut.viewModel.selectTypeDocument = stringType
+
+        // Assert — formatter now accepts letters
+        let formatted = sut.viewModel.documentFormatter.formatOnChange("AB123456CDEF12")
+        XCTAssertEqual(formatted, "AB.123.456/CDEF-12")
+    }
+
+    func test_selectTypeDocument_whenChangedToNumericType_shouldUpdateFormatterToDigitsOnly() {
+        // Arrange — start with CNPJ string type
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let sut = self.makeSUT(identificationTypes: [stringType, numericType])
+
+        // Act
+        sut.viewModel.selectTypeDocument = numericType
+
+        // Assert — formatter now strips letters, applies CPF numeric mask
+        let formatted = sut.viewModel.documentFormatter.formatOnChange("12345678901")
+        XCTAssertEqual(formatted, "123.456.789-01")
     }
 }

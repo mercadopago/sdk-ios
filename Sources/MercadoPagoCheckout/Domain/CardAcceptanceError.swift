@@ -6,4 +6,5 @@
 package enum CardAcceptanceError: Error, Equatable {
     case paymentMethodNotAllowed(String)
     case paymentTypeNotAllowed(MercadoPagoCheckout.CardType?)
+    case paymentMethodNotFound
 }

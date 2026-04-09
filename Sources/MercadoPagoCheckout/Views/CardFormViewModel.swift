@@ -20,15 +20,9 @@ final class CardFormViewModel: ObservableObject {
     @Published private(set) var cardNumberFormatter = CardNumberFormatter()
     let expirationDateFormatter = ExpirationDateFormatter()
     @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
-    private(set) var documentFormatter = DocumentFormatter()
+    @Published private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
-
-    @Published var selectTypeDocument: IdentificationType? {
-        didSet { self.updateIdentificationType() }
-    }
-
-    var identificationTypes: [IdentificationType] = []
 
     @Published private(set) var binData: CardBinData? {
         didSet { self.updateFormatters(for: self.binData) }
@@ -38,6 +32,18 @@ final class CardFormViewModel: ObservableObject {
     @Published private(set) var binNetworkError: MercadoPagoCheckoutError?
     @Published private(set) var showSnackbar = false
     @Published private(set) var isTokenizing = false
+
+    @Published var selectTypeDocument: IdentificationType? {
+        didSet { self.updateIdentificationType() }
+    }
+
+    var identificationTypes: [IdentificationType] = []
+
+    // MARK: Computed Properties
+
+    var requiresIdentificationTypes: Bool {
+        MercadoPagoSDK.shared.configuration?.country != .MEX
+    }
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
@@ -62,7 +68,7 @@ final class CardFormViewModel: ObservableObject {
     private var isRetriableBinError: Bool {
         return self.binNetworkError?.code == .networkConnectionFailed
             || self.binNetworkError?.code == .networkTimeout
-            || self.binNetworkError?.code == .serviceError
+            || self.binNetworkError?.code == .serviceError && !(self.binNetworkError?.isPaymentMethodNotFound ?? false)
     }
 
     // MARK: - Constants
@@ -85,6 +91,13 @@ final class CardFormViewModel: ObservableObject {
         self.service = service
         self.identificationTypes = initResult.identificationTypes
         self.selectTypeDocument = initResult.identificationTypes.first
+
+        let firstType = initResult.identificationTypes.first
+        self.documentFormatter = DocumentFormatter(
+            mask: firstType?.getFormat() ?? String(),
+            maxLength: firstType?.maxLenght ?? 20,
+            isNumericType: firstType?.type != "string"
+        )
     }
 
     // MARK: - Formatter Updates
@@ -92,7 +105,8 @@ final class CardFormViewModel: ObservableObject {
     private func updateIdentificationType() {
         self.documentFormatter = DocumentFormatter(
             mask: self.selectTypeDocument?.getFormat() ?? String(),
-            maxLength: self.selectTypeDocument?.maxLenght ?? 20
+            maxLength: self.selectTypeDocument?.maxLenght ?? 20,
+            isNumericType: self.selectTypeDocument?.type != "string"
         )
     }
 
@@ -131,7 +145,7 @@ final class CardFormViewModel: ObservableObject {
         let shortYear = String(expirationParts.dropFirst().first ?? "")
         let century = Calendar.current.component(.year, from: Date()) / 100
         let year = "\(century)\(shortYear)"
-        let rawDocument = cardForm.documentHolder.filter(\.isNumber)
+        let rawDocument = cardForm.documentHolder.filter { $0.isLetter || $0.isNumber }
 
         return CardParams(
             cardNumber: rawCardNumber,
@@ -183,12 +197,14 @@ final class CardFormViewModel: ObservableObject {
         let acceptedPaymentTypeIds = self.configuration.paymentMethod.acceptedPaymentTypeIds
         let acceptedPaymentMethodIds = self.configuration.paymentMethod.acceptedPaymentMethodIds
         do {
-            let data = try await service.fetchBinData(
-                bin: bin,
-                amount: amount,
-                acceptedPaymentTypeIds: acceptedPaymentTypeIds,
-                acceptedPaymentMethodIds: acceptedPaymentMethodIds
-            )
+            let data = try await withRetry(isRetryable: { !($0 is CardAcceptanceError) }) {
+                try await self.service.fetchBinData(
+                    bin: bin,
+                    amount: amount,
+                    acceptedPaymentTypeIds: acceptedPaymentTypeIds,
+                    acceptedPaymentMethodIds: acceptedPaymentMethodIds
+                )
+            }
             guard !Task.isCancelled else { return }
             self.binData = data
         } catch let error as CardAcceptanceError {
@@ -198,7 +214,11 @@ final class CardFormViewModel: ObservableObject {
         } catch let error as MercadoPagoCheckoutError {
             guard !Task.isCancelled else { return }
             self.binData = nil
-            self.binNetworkError = error
+            if error.isPaymentMethodNotFound {
+                self.cardAcceptanceError = .paymentMethodNotFound
+            } else {
+                self.binNetworkError = error
+            }
         } catch {
             guard !Task.isCancelled else { return }
             self.binData = nil
@@ -215,8 +235,8 @@ final class CardFormViewModel: ObservableObject {
         var payer: MPPaymentData.Payer? {
             guard let selectTypeDocument else { return nil }
             return .init(
-                type: selectTypeDocument.type,
-                number: cardFormData.documentHolder.filter(\.isNumber)
+                documentType: selectTypeDocument.type,
+                documentNumber: cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
             )
         }
 

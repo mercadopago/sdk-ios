@@ -17,7 +17,11 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
     }
 
     func fetchInitialization() async throws -> CardFormInitializationInput {
-        let identificationTypes = try await service.identificationTypes()
+        var identificationTypes: [IdentificationType] = []
+
+        if MercadoPagoSDK.shared.configuration?.country != .MEX {
+            identificationTypes = try await self.service.identificationTypes()
+        }
 
         return CardFormInitializationInput(
             title: MPStrings.CardForm.title,

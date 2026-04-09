@@ -18,7 +18,7 @@ public extension MercadoPagoCheckout {
     /// .setPaymentMethod([.card(cardTypes: [.credit]), .pix])
     /// .build()
     /// ```
-    public class Builder {
+    class Builder {
         private var checkoutType: CheckoutType
         private var checkoutAppearance: CheckoutAppearance
         private var paymentMethods: [PaymentMethod]
@@ -41,7 +41,7 @@ public extension MercadoPagoCheckout {
         /// - Parameter paymentMethods: The payment methods to enable. Defaults to ``PaymentMethod/defaults``.
         /// - Returns: The builder instance for chaining.
         @discardableResult
-        public func setPaymentMethod(_ paymentMethods: [PaymentMethod] = PaymentMethod.defaults) -> Builder {
+        public func setPaymentMethods(_ paymentMethods: [PaymentMethod] = PaymentMethod.defaults) -> Builder {
             self.paymentMethods = paymentMethods
             return self
         }
@@ -52,10 +52,10 @@ public extension MercadoPagoCheckout {
         @MainActor
         public func build() -> MercadoPagoCheckout {
             MercadoPagoCheckout(
-                theme: checkoutAppearance,
+                theme: self.checkoutAppearance,
                 configuration: .init(
-                    type: checkoutType,
-                    paymentMethod: paymentMethods
+                    type: self.checkoutType,
+                    paymentMethod: self.paymentMethods
                 )
             )
         }

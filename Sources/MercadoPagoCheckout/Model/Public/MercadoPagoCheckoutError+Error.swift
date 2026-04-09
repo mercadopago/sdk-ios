@@ -18,8 +18,8 @@ extension MercadoPagoCheckoutError {
         .serviceError
     }
 
-    public static var invalidConfiguration: Code {
-        .invalidConfiguration
+    public static var integrationError: Code {
+        .integrationError
     }
 
     public static var unknown: Code {

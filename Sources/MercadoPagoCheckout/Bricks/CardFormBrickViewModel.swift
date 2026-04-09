@@ -10,7 +10,7 @@ import Foundation
 final class CardFormBrickViewModel: ObservableObject {
     enum ScreenState {
         case loading
-        case ready(CardFormInitializationOutput)
+        case ready(CardFormInitializationOutput, CardFormViewModel)
     }
 
     // MARK: - Published State
@@ -35,9 +35,17 @@ final class CardFormBrickViewModel: ObservableObject {
     // MARK: - Initialization
 
     func load() async throws(MercadoPagoCheckoutError) {
+        guard case .loading = self.screenState else { return }
         let config = self.extractCardFormConfig()
-        let result = try await self.initializeUseCase.execute(config: config)
-        self.screenState = .ready(result)
+        do {
+            let result = try await withRetry { try await self.initializeUseCase.execute(config: config) }
+            let viewModel = CardFormViewModel(configuration: self.configuration, initResult: result)
+            self.screenState = .ready(result, viewModel)
+        } catch let error as MercadoPagoCheckoutError {
+            throw error
+        } catch {
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .initialization)
+        }
     }
 
     // MARK: - Private

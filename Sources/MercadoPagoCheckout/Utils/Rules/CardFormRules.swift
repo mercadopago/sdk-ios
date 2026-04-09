@@ -13,6 +13,7 @@ package enum CardValidationRequirement {
     case cardNumberExternalError(CardAcceptanceError?)
     case securityCodeLength(Int)
     case documentLength(min: Int, max: Int)
+    case documentType(isNumeric: Bool)
 }
 
 package protocol CardFormRuleType {
@@ -67,8 +68,6 @@ package struct CardNumberRule: CardFormRuleType {
         if digits.isEmpty { return self.validation.errorEmpty }
         if let externalError { return self.validateExternalError(externalError) }
         if digits.count < self.min { return self.validation.errorIncomplete }
-        if self.isAllRepeatedDigits(digits) { return self.validation.errorInvalid }
-        if !self.luhnCheck(digits) { return self.validation.errorInvalid }
         return nil
     }
 
@@ -76,14 +75,9 @@ package struct CardNumberRule: CardFormRuleType {
         let digits = value.filter(\.isNumber)
         guard !digits.isEmpty else { return nil }
         if let externalError { return self.validateExternalError(externalError) }
-        guard digits.count >= self.min else { return nil }
-        if self.isAllRepeatedDigits(digits) { return self.validation.errorInvalid }
+        guard digits.count == self.max else { return nil }
+        if !self.luhnCheck(digits) { return self.validation.errorInvalid }
         return nil
-    }
-
-    private func isAllRepeatedDigits(_ digits: String) -> Bool {
-        guard let first = digits.first else { return false }
-        return digits.dropFirst().allSatisfy { $0 == first }
     }
 
     private func validateExternalError(_ error: CardAcceptanceError) -> String? {
@@ -94,7 +88,9 @@ package struct CardNumberRule: CardFormRuleType {
             guard let cardType else {
                 return self.validation.errorInvalid
             }
-            return String(format: self.validation.errorTypeNotAllowed, self.cardTypeDisplayName(cardType))
+            return String(format: self.validation.errorTypeNotAllowed, self.cardTypeDisplayName(cardType).lowercased())
+        case .paymentMethodNotFound:
+            return self.validation.errorInvalid
         }
     }
 
@@ -134,7 +130,7 @@ package struct CardHolderRule: CardFormRuleType {
             return self.validation.errorInvalid
         }
 
-        if clearValue.count < 2 {
+        if clearValue.count < 3 {
             return self.validation.errorIncomplete
         }
 
@@ -197,23 +193,40 @@ package struct DocumentRule: CardFormRuleType {
     private let validation: CardFormTexts.DocumentField.Validation
     private var maxLength = 20
     private var minLength = 1
+    private var isNumericType = true
 
     init(validation: CardFormTexts.DocumentField.Validation) {
         self.validation = validation
     }
 
     package mutating func apply(_ requirement: CardValidationRequirement) {
-        if case let .documentLength(minLen, maxLen) = requirement {
+        switch requirement {
+        case let .documentLength(minLen, maxLen):
             self.minLength = minLen
             self.maxLength = maxLen
+        case let .documentType(isNumeric):
+            self.isNumericType = isNumeric
+        default:
+            break
         }
     }
 
     package func validate(_ value: String) -> String? {
-        let digits = value.filter(\.isNumber)
-        if digits.isEmpty { return self.validation.errorEmpty }
-        if !(self.minLength ... self.maxLength).contains(digits.count) { return self.validation.errorIncomplete }
-        if digits.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
+        let chars = self.isNumericType
+            ? value.filter(\.isNumber)
+            : value.filter { $0.isLetter || $0.isNumber }
+        if chars.isEmpty { return self.validation.errorEmpty }
+        if !(self.minLength ... self.maxLength).contains(chars.count) { return self.validation.errorIncomplete }
+        if self.isNumericType, chars.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
+        return nil
+    }
+
+    package func validateLive(_ value: String) -> String? {
+        let chars = self.isNumericType
+            ? value.filter(\.isNumber)
+            : value.filter { $0.isLetter || $0.isNumber }
+        guard chars.count >= self.maxLength else { return nil }
+        if self.isNumericType, chars.allSatisfy({ $0 == "0" }) { return self.validation.errorInvalid }
         return nil
     }
 }

@@ -12,8 +12,15 @@ import Foundation
 final class MockCardFormInitializationRepository: CardFormInitializationRepository {
     nonisolated(unsafe) var mockData: CardFormInitializationInput?
     nonisolated(unsafe) var shouldThrow = false
+    nonisolated(unsafe) var fetchCallCount = 0
+    nonisolated(unsafe) var sequentialResults: [Result<CardFormInitializationInput, Error>] = []
 
     func fetchInitialization() async throws -> CardFormInitializationInput {
+        self.fetchCallCount += 1
+        if !self.sequentialResults.isEmpty {
+            let result = self.sequentialResults.removeFirst()
+            return try result.get()
+        }
         if self.shouldThrow { throw NSError(domain: "test", code: -1) }
         return self.mockData ?? Self.makeDefault()
     }

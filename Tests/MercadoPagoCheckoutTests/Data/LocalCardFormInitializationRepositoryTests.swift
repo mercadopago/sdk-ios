@@ -121,7 +121,7 @@ final class LocalCardFormInitializationRepositoryTests: XCTestCase {
             _ = try await repository.fetchInitialization()
             XCTFail("Expected error to propagate")
         } catch {
-            XCTAssertTrue(error is MockCheckoutService.MockError)
+            XCTAssertTrue(error is MercadoPagoCheckoutError)
         }
     }
 }

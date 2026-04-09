@@ -9,7 +9,7 @@ import MPComponents
 import SwiftUI
 
 struct CardFormScreen: View {
-    private let onBack: (MPCancelledFormContext) -> Void
+    private let onBack: (CardFormUserCancelledContext) -> Void
     private let onSuccess: (MPPaymentData) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double?
@@ -22,6 +22,7 @@ struct CardFormScreen: View {
     @State private var cardForm: CardFormData
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
+    @State private var isCardNumberFocused = false
 
     // MARK: Enviroments
 
@@ -31,17 +32,24 @@ struct CardFormScreen: View {
         initResult: CardFormInitializationOutput,
         transactionAmount: Double?,
         viewModel: CardFormViewModel,
-        onBack: @escaping (MPCancelledFormContext) -> Void = { _ in },
+        onBack: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
         onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
-        self.initResult = initResult
-        self._cardForm = State(initialValue: CardFormData(fields: initResult.fields))
-        self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.onBack = onBack
         self.onSuccess = onSuccess
         self.onFailure = onFailure
         self.transactionAmount = transactionAmount
+        self.initResult = initResult
+
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+
+        var formData = CardFormData(fields: initResult.fields)
+        if let firstType = viewModel.selectTypeDocument {
+            formData.setDocumentLength(firstType.minLenght, firstType.maxLenght)
+            formData.setDocumentType(isNumeric: firstType.type != "string")
+        }
+        self._cardForm = State(initialValue: formData)
     }
 
     var body: some View {
@@ -51,7 +59,7 @@ struct CardFormScreen: View {
             footer: {
                 MPFooter(
                     title: MPStrings.Common.total,
-                    amount: self.viewModel.footerAmount(),
+                    amount: nil,
                     buttonData: .init(
                         text: MPStrings.CardForm.button,
                         onClick: {
@@ -65,7 +73,12 @@ struct CardFormScreen: View {
                     )
                 )
                 .isLoading(self.viewModel.isTokenizing)
-                .disabled(!self.cardForm.isFormValid(isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory))
+                .disabled(
+                    !self.cardForm.isFormValid(
+                        isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory,
+                        isDocumentRequired: self.viewModel.requiresIdentificationTypes
+                    )
+                )
                 .background(
                     GeometryReader { geo in
                         Color.clear.onAppear { self.footerHeight = geo.size.height }
@@ -86,6 +99,7 @@ struct CardFormScreen: View {
                         },
                         formatter: self.viewModel.cardNumberFormatter
                     )
+                    .mpFocused(self.$isCardNumberFocused)
 
                     MPTextField(
                         text: self.$cardForm.cardHolder,
@@ -116,17 +130,21 @@ struct CardFormScreen: View {
                         )
                     }
 
-                    MPTextField(
-                        text: self.$cardForm.documentHolder,
-                        label: self.initResult.fields.document.label,
-                        placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
-                        errorMessage: self.cardForm.$documentHolder,
-                        keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
-                        formatter: self.viewModel.documentFormatter,
-                        prefix: {
-                            self.dropdownDocument()
-                        }
-                    )
+                    if self.viewModel.requiresIdentificationTypes {
+                        MPTextField(
+                            text: self.$cardForm.documentHolder,
+                            label: self.initResult.fields.document.label,
+                            placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
+                            errorMessage: self.cardForm.$documentHolder,
+                            liveErrorMessage: self.cardForm.documentHolderLiveErrors,
+                            keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
+                            formatter: self.viewModel.documentFormatter,
+                            prefix: {
+                                self.dropdownDocument()
+                            }
+                        )
+                        .id(self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default)
+                    }
                 }
                 .padding(.horizontal, self.theme.spacings.micro)
             }
@@ -138,6 +156,9 @@ struct CardFormScreen: View {
             bottomPadding: self.footerHeight
         )
         .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
+        .onAppear {
+            self.isCardNumberFocused = true
+        }
         .mpOnChange(of: self.cardForm.cardNumber) { newValue in
             self.viewModel.onCardNumberChange(newValue)
         }
@@ -229,5 +250,6 @@ struct CardFormScreen: View {
     private func updateIdentificationTypes(_ identificationType: IdentificationType?) {
         guard let identificationType else { return }
         self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
+        self.cardForm.setDocumentType(isNumeric: identificationType.type != "string")
     }
 }

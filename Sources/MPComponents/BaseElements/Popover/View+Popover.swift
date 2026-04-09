@@ -7,109 +7,56 @@
 
 import SwiftUI
 
-/// Extensions for adding popover functionality to SwiftUI views.
-///
-/// These extensions provide convenient methods for attaching popovers to any SwiftUI view.
-/// The popover system supports various configuration options, positioning, theming, and animations.
 package extension View {
-    // MARK: - Basic Popover Methods
-    
-    /// Adds a popover with default configuration to the view.
-    ///
-    /// This is the simplest way to add a popover. It uses standard defaults for positioning
-    /// (top), theming (blue), and behavior (no animation, with arrow).
-    ///
-    /// - Parameters:
-    ///   - content: A view builder that creates the popover's content.
-    /// - Returns: The modified view with popover functionality.
-    ///
-    /// ## Example Usage
-    ///
-    /// ```swift
-    ///
-    /// Button("Info") {
-    ///
-    /// }
-    /// .popover() {
-    ///     Text("This provides additional information")
-    ///         .foregroundColor(.white)
-    /// }
-    /// ```
-    func popover<PopoverContent: View>(
-        @ViewBuilder content: @escaping () -> PopoverContent
-    ) -> some View {
-        let config: PopoverConfig = DefaultPopoverConfig()
-        return modifier(PopoverModifier(config: config, content: content))
-    }
+    // MARK: - With explicit isPresented binding
 
-    /// Adds a popover with custom configuration to the view.
-    ///
-    /// Use this method when you need full control over popover appearance and behavior.
-    /// You can provide any custom configuration that conforms to `PopoverConfig`.
-    ///
-    /// - Parameters:
-    ///   - config: A custom configuration object defining popover behavior and appearance.
-    ///   - content: A view builder that creates the popover's content.
-    /// - Returns: The modified view with popover functionality.
-    ///
-    /// ## Example Usage
-    ///
-    /// ```swift
-    /// @State private var showPopover = false
-    /// 
-    /// var customConfig = DefaultPopoverConfig()
-    /// customConfig.enableAnimation = true
-    /// customConfig.showArrow = false
-    /// 
-    /// Image(systemName: "info.circle")
-    ///     .popover(config: customConfig) {
-    ///         VStack {
-    ///             Text("Custom Popover")
-    ///                 .font(.headline)
-    ///             Text("With advanced configuration")
-    ///                 .font(.caption)
-    ///         }
-    ///         .foregroundColor(.white)
-    ///     }
-    /// ```
-    func popover<PopoverContent: View>(
+    // The caller controls when the popover opens — the trigger view's action toggles isPresented.
+
+    func popover(
         config: PopoverConfig,
-        @ViewBuilder content: @escaping () -> PopoverContent
+        isPresented: Binding<Bool>,
+        @ViewBuilder content: @escaping () -> some View
     ) -> some View {
-        modifier(PopoverModifier(config: config, content: content))
+        modifier(PopoverModifier(config: config, isPresented: isPresented, content: content))
     }
 
-    /// Adds a popover with specific positioning and theming to the view.
-    ///
-    /// This is a convenient middle-ground method that allows you to specify the most
-    /// common customizations (positioning and theme) without creating a full configuration.
-    ///
-    /// - Parameters:
-    ///   - type: The visual theme type for the popover. Defaults to `.blue`.
-    ///   - content: A view builder that creates the popover's content.
-    /// - Returns: The modified view with popover functionality.
-    ///
-    /// ## Example Usage
-    ///
-    /// ```swift
-    /// @State private var showPopover = false
-    /// 
-    /// Text("Hover target")
-    ///     .popover(type: .dark) {
-    ///         Text("This popover appears below with dark theme")
-    ///             .foregroundColor(.white)
-    ///     }
-    ///     .onTapGesture {
-    ///         showPopover.toggle()
-    ///     }
-    /// ```
-    func popover<PopoverContent: View>(
-        type: PopoverType = .white,
-        @ViewBuilder content: @escaping () -> PopoverContent
+    func popover(
+        isPresented: Binding<Bool>,
+        @ViewBuilder content: @escaping () -> some View
     ) -> some View {
-        var config: PopoverConfig = DefaultPopoverConfig()
-        config.type = type
+        modifier(PopoverModifier(config: DefaultPopoverConfig(), isPresented: isPresented, content: content))
+    }
 
-        return modifier(PopoverModifier(config: config, content: content))
+    // MARK: - Convenience (no binding) — wraps in a tap-aware container
+
+    func popover(
+        @ViewBuilder content: @escaping () -> some View
+    ) -> some View {
+        _MPPopoverTapContainer(trigger: self, config: DefaultPopoverConfig(), popoverContent: content)
+    }
+
+    func popover(
+        config: PopoverConfig,
+        @ViewBuilder content: @escaping () -> some View
+    ) -> some View {
+        _MPPopoverTapContainer(trigger: self, config: config, popoverContent: content)
+    }
+}
+
+// MARK: - _MPPopoverTapContainer
+
+// Owns the @State for isPresented and handles the tap — the trigger's action opens the popover.
+
+private struct _MPPopoverTapContainer<Trigger: View, PopoverContent: View>: View {
+    @State private var isPresented = false
+    let trigger: Trigger
+    let config: PopoverConfig
+    let popoverContent: () -> PopoverContent
+
+    var body: some View {
+        self.trigger
+            .contentShape(Rectangle())
+            .onTapGesture { self.isPresented = true }
+            .modifier(PopoverModifier(config: self.config, isPresented: self.$isPresented, content: self.popoverContent))
     }
 }

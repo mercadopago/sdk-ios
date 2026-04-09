@@ -5,499 +5,500 @@
 //  Created by Guilherme Prata Costa on 08/09/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
-/// A view modifier that adds popover functionality to SwiftUI views.
+/// A view modifier that presents a popover using UIPopoverPresentationController.
 ///
-/// `PopoverModifier` handles the positioning, styling, animation, and interaction
-/// logic for popovers. It automatically calculates optimal positioning based on
-/// the target view's geometry and the configured popover side.
-///
-/// The popover is rendered using a dedicated UIWindow to avoid clipping issues.
-///
+/// Always requires an external `isPresented` binding — the caller controls when the
+/// popover opens.
 struct PopoverModifier<PopoverContent: View>: ViewModifier {
-    
     // MARK: - Environment
-    
+
     @Environment(\.checkoutTheme) var theme: MPTheme
-    
-    // MARK: - Configuration Properties
-    
-    /// Internal state for popover visibility when no external binding is provided.
-    @State private var internalIsVisible: Bool = false
-    
-    /// External binding to control popover visibility. When provided, takes precedence over internal state.
-    private var externalIsPresented: Binding<Bool>?
-    
-    /// The effective visibility binding - uses external if provided, otherwise internal.
-    private var isPopoverVisible: Binding<Bool> {
-        externalIsPresented ?? $internalIsVisible
-    }
-    
-    /// The configuration object defining popover behavior and appearance.
+
+    // MARK: - Configuration
+
+    @Binding var isPresented: Bool
     var popoverConfiguration: PopoverConfig
-    
-    /// The content view displayed inside the popover.
     var popoverContent: PopoverContent
 
-    // MARK: - Initializer
+    // MARK: - Init
 
     init(
         config: PopoverConfig,
-        isPresented: Binding<Bool>? = nil,
+        isPresented: Binding<Bool>,
         @ViewBuilder content: @escaping () -> PopoverContent
     ) {
         self.popoverConfiguration = config
-        self.externalIsPresented = isPresented
+        self._isPresented = isPresented
         self.popoverContent = content()
     }
 
-    // MARK: - State Properties
-
-    /// The calculated width of the popover content.
-    @State private var popoverContentWidth: CGFloat = 0
-    
-    /// The calculated height of the popover content.
-    @State private var popoverContentHeight: CGFloat = 0
-    
-    /// The current animation offset for movement effects.
-    @State private var currentAnimationOffset: CGFloat = 0
-
-    // MARK: - Computed Properties
-
-    /// Determines whether the arrow should be visible based on configuration and positioning.
-    private var shouldDisplayArrow: Bool { 
-        popoverConfiguration.showArrow && popoverConfiguration.side.shouldShowArrow() 
-    }
-    
-    /// The effective arrow height, accounting for visibility settings.
-    private var effectiveArrowHeight: CGFloat { 
-        shouldDisplayArrow ? popoverConfiguration.arrowHeight : 0 
-    }
-
-    /// Calculates the horizontal arrow offset based on popover positioning.
-    private var arrowHorizontalOffset: CGFloat {
-        let borderRadius = popoverConfiguration.borderRadius(from: theme)
-        let borderWidth = popoverConfiguration.borderWidth(from: theme)
-        
-        switch popoverConfiguration.side {
-        case .bottom, .center, .top:
-            return 0
-        case .left:
-            return (popoverContentWidth / 2 + popoverConfiguration.arrowHeight / 2)
-        case .topLeft, .bottomLeft:
-            return (popoverContentWidth / 2
-                + popoverConfiguration.arrowHeight / 2
-                - borderRadius / 2
-                - borderWidth / 2)
-        case .right:
-            return -(popoverContentWidth / 2 + popoverConfiguration.arrowHeight / 2)
-        case .topRight, .bottomRight:
-            return -(popoverContentWidth / 2
-                + popoverConfiguration.arrowHeight / 2
-                - borderRadius / 2
-                - borderWidth / 2)
-        }
-    }
-
-    /// Calculates the vertical arrow offset based on popover positioning.
-    private var arrowVerticalOffset: CGFloat {
-        let borderRadius = popoverConfiguration.borderRadius(from: theme)
-        let borderWidth = popoverConfiguration.borderWidth(from: theme)
-        
-        switch popoverConfiguration.side {
-        case .left, .center, .right:
-            return 0
-        case .top:
-            return (popoverContentHeight / 2 + popoverConfiguration.arrowHeight / 2)
-        case .topRight, .topLeft:
-            return (popoverContentHeight / 2
-                + popoverConfiguration.arrowHeight / 2
-                - borderRadius / 2
-                - borderWidth / 2)
-        case .bottom:
-            return -(popoverContentHeight / 2 + popoverConfiguration.arrowHeight / 2)
-        case .bottomLeft, .bottomRight:
-            return -(popoverContentHeight / 2
-                + popoverConfiguration.arrowHeight / 2
-                - borderRadius / 2
-                - borderWidth / 2)
-        }
-    }
-
-    // MARK: - Positioning Helper Methods
-
-    /// Calculates the horizontal offset for popover positioning.
-    private func calculateHorizontalOffset(for geometry: GeometryProxy) -> CGFloat {
-        switch popoverConfiguration.side {
-        case .left, .topLeft, .bottomLeft:
-            return -(popoverContentWidth + popoverConfiguration.margin + effectiveArrowHeight + currentAnimationOffset)
-        case .right, .topRight, .bottomRight:
-            return geometry.size.width + popoverConfiguration.margin + effectiveArrowHeight + currentAnimationOffset
-        case .top, .center, .bottom:
-            return (geometry.size.width - popoverContentWidth) / 2
-        }
-    }
-
-    /// Calculates the vertical offset for popover positioning.
-    private func calculateVerticalOffset(for geometry: GeometryProxy) -> CGFloat {
-        switch popoverConfiguration.side {
-        case .top, .topRight, .topLeft:
-            return -(popoverContentHeight + popoverConfiguration.margin + effectiveArrowHeight + currentAnimationOffset)
-        case .bottom, .bottomLeft, .bottomRight:
-            return geometry.size.height + popoverConfiguration.margin + effectiveArrowHeight + currentAnimationOffset
-        case .left, .center, .right:
-            return (geometry.size.height - popoverContentHeight) / 2
-        }
-    }
-
-    // MARK: - View Components
-
-    /// A geometry reader that measures and stores the popover content dimensions.
-    private var contentSizeMeasurer: some View {
-        GeometryReader { geometry in
-            Color.clear
-                .onAppear {
-                    // Size is already constrained by frame(maxWidth:) applied to content
-                    self.popoverContentWidth = geometry.size.width
-                    self.popoverContentHeight = geometry.size.height
-                }
-        }
-    }
-
-    /// Creates the arrow view with proper styling and positioning.
-    private var popoverArrowView: some View {
-        guard let arrowAngle = popoverConfiguration.side.getArrowAngleRadians() else {
-            return AnyView(EmptyView())
-        }
-
-        let backgroundColor = popoverConfiguration.backgroundColor(from: theme)
-
-        return AnyView(
-            createArrowShape(angle: arrowAngle)
-                .background(
-                    createArrowShape(angle: arrowAngle)
-                        .frame(width: popoverConfiguration.arrowWidth, height: popoverConfiguration.arrowHeight)
-                        .foregroundColor(backgroundColor)
-                )
-                .frame(width: popoverConfiguration.arrowWidth, height: popoverConfiguration.arrowHeight)
-                .offset(
-                    x: CGFloat(Int(arrowHorizontalOffset)), 
-                    y: CGFloat(Int(arrowVerticalOffset))
-                )
-                .accessibility(hidden: true)
-        )
-    }
-
-    /// Creates an arrow shape with the specified angle and optional border color.
-    private func createArrowShape(angle: Double) -> AnyView {
-        
-        switch popoverConfiguration.arrowType {
-        case .default:
-            let shape = ArrowShape()
-                .rotation(Angle(radians: angle))
-                .foregroundColor(popoverConfiguration.backgroundColor(from: theme))
-            
-            return AnyView(shape)
-        }
-    }
-
-    /// Creates a mask that cuts out the arrow area from the popover border.
-    private var arrowCutoutMask: some View {
-        guard let arrowAngle = popoverConfiguration.side.getArrowAngleRadians() else {
-            return AnyView(EmptyView())
-        }
-        
-        let borderWidth = popoverConfiguration.borderWidth(from: theme)
-        
-        return AnyView(
-            ZStack {
-                Rectangle()
-                    .frame(
-                        width: popoverContentWidth + borderWidth * 2,
-                        height: popoverContentHeight + borderWidth * 2
-                    )
-                    .foregroundColor(.white)
-                
-                Rectangle()
-                    .frame(
-                        width: popoverConfiguration.arrowWidth,
-                        height: popoverConfiguration.arrowHeight + borderWidth
-                    )
-                    .rotationEffect(Angle(radians: arrowAngle))
-                    .offset(x: arrowHorizontalOffset, y: arrowVerticalOffset)
-                    .foregroundColor(.black)
-            }
-        )
-    }
-    
-    var popoverView: some View {
-        let borderRadius = popoverConfiguration.borderRadius(from: theme)
-        let backgroundColor = popoverConfiguration.backgroundColor(from: theme)
-        
-        return ZStack {
-            RoundedRectangle(
-                cornerRadius: borderRadius, style: .circular
-            )
-            .stroke(lineWidth: 0)
-            .frame(
-                width: popoverContentWidth,
-                height: popoverContentHeight
-            )
-            .mask(arrowCutoutMask)
-            .background(
-                RoundedRectangle(cornerRadius: borderRadius)
-                    .foregroundColor(backgroundColor)
-            )
-            
-            popoverArrowView
-        }
-        .compositingGroup()
-        .shadow(color: Color.black.opacity(0.10), radius: 5, x: 0, y: 0)
-    }
-
-    private var mainPopoverView: some View {
-        let contentPadding = popoverConfiguration.contentPadding(from: theme)
-        
-        return GeometryReader { geometry in
-            ZStack {
-                popoverView
-                
-                ZStack {
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            popoverContent
-                                .environment(\.popoverVisibility, isPopoverVisible)
-                        }
-                        .frame(maxWidth: popoverConfiguration.maxWidth, alignment: .leading)
-                        
-                        Button(action: {
-                            isPopoverVisible.wrappedValue.toggle()
-                        }) {
-                            Image(Logos.close, bundle: .bundleMP)
-                                .renderingMode(.template)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 20, height: 20)
-                                .foregroundColor(theme.colors.icon.secondary)
-                        }
-                    }
-                }
-                .fixedSize()
-                .padding(contentPadding)
-                .background(contentSizeMeasurer)
-            }
-            .offset(
-                x: calculateHorizontalOffset(for: geometry),
-                y: calculateVerticalOffset(for: geometry)
-            )
-        }
-    }
-    
     // MARK: - Body
-    
+
+    // The caller's button action (or tap gesture) controls isPresented — no tap here.
+
     func body(content: Content) -> some View {
         content
-            .overlay(
+            .background(
                 GeometryReader { geo in
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if externalIsPresented == nil {
-                                let currentFrame = geo.frame(in: .global)
-                                
-                                PopoverWindowManager.shared.show(
-                                    triggerFrame: currentFrame,
-                                    config: popoverConfiguration,
-                                    theme: theme,
-                                    onDismiss: { isPopoverVisible.wrappedValue = false }
-                                ) {
-                                    popoverContent
-                                        .environment(\.popoverVisibility, isPopoverVisible)
-                                }
-                                isPopoverVisible.wrappedValue = true
-                            }
-                        }
-                }
-            )
-            .overlay(
-                Group {
-                    if let externalIsPresented, externalIsPresented.wrappedValue && isPopoverVisible.wrappedValue {
-                        mainPopoverView
+                    MPPopoverPresenter(isPresented: self.$isPresented) {
+                        MPPopoverFloatingContent(
+                            triggerFrame: geo.frame(in: .global),
+                            config: self.popoverConfiguration,
+                            theme: self.theme,
+                            content: AnyView(
+                                self.popoverContent
+                                    .environment(\.popoverVisibility, self.$isPresented)
+                            ),
+                            onDismiss: { self.isPresented = false }
+                        )
                     }
                 }
             )
     }
 }
 
+// MARK: - MPPopoverFloatingContent
+
+/// Full-screen transparent container — the bubble is positioned absolutely.
+struct MPPopoverFloatingContent: View {
+    let triggerFrame: CGRect
+    let config: PopoverConfig
+    let theme: MPTheme
+    let content: AnyView
+    let onDismiss: () -> Void
+
+    @State private var measuredSize: CGSize = .zero
+    @State private var contentSize: CGSize = .zero
+
+    private var effectiveContentWidth: CGFloat? {
+        guard self.contentSize.width > 0 else { return nil }
+        if let maxWidth = config.maxWidth, contentSize.width > maxWidth { return maxWidth }
+        return self.contentSize.width
+    }
+
+    private var popoverContentWidth: CGFloat {
+        self.measuredSize.width > 0 ? self.measuredSize.width : (self.config.maxWidth ?? 246)
+    }
+
+    private var popoverContentHeight: CGFloat {
+        self.measuredSize.height > 0 ? self.measuredSize.height : 50
+    }
+
+    private var safeAreaInsets: UIEdgeInsets {
+        UIApplication.shared.windows.first?.safeAreaInsets ?? .zero
+    }
+
+    var body: some View {
+        let positionResult = self.calculateAdjustedPosition()
+
+        ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { self.onDismiss() }
+
+            self.bubbleView(positionResult: positionResult)
+                .position(x: positionResult.position.x, y: positionResult.position.y)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .edgesIgnoringSafeArea(.all)
+        .onPreferenceChange(FloatingContentSizeKey.self) { size in
+            guard size.width > 0, size.height > 0 else { return }
+            DispatchQueue.main.async { self.contentSize = size }
+        }
+        .onPreferenceChange(FloatingPopoverSizeKey.self) { size in
+            guard size.width > 0, size.height > 0 else { return }
+            DispatchQueue.main.async { self.measuredSize = size }
+        }
+    }
+
+    // MARK: - Bubble (arrow + balloon as a single composited unit)
+
+    @ViewBuilder
+    private func bubbleView(positionResult: PositionResult) -> some View {
+        let showArrow = self.config.showArrow && self.config.side.shouldShowArrow()
+        let bgColor = self.config.backgroundColor(from: self.theme)
+
+        switch self.config.side {
+        case .top, .topLeft, .topRight:
+            VStack(spacing: 0) {
+                self.balloonView
+                if showArrow {
+                    self.arrowDown(color: bgColor)
+                        .offset(x: positionResult.arrowOffsetX)
+                }
+            }
+            .compositingGroup()
+            .shadow(color: Color.black.opacity(0.1), radius: 12, x: 0, y: 0)
+
+        case .bottom, .bottomLeft, .bottomRight:
+            VStack(spacing: 0) {
+                if showArrow {
+                    self.arrowUp(color: bgColor)
+                        .offset(x: positionResult.arrowOffsetX)
+                }
+                self.balloonView
+            }
+            .compositingGroup()
+            .shadow(color: Color.black.opacity(0.1), radius: 12, x: 0, y: 0)
+
+        case .left:
+            HStack(spacing: 0) {
+                self.balloonView
+                if showArrow {
+                    self.arrowRight(color: bgColor)
+                        .offset(y: positionResult.arrowOffsetY)
+                }
+            }
+            .compositingGroup()
+            .shadow(color: Color.black.opacity(0.1), radius: 12, x: 0, y: 0)
+
+        case .right:
+            HStack(spacing: 0) {
+                if showArrow {
+                    self.arrowLeft(color: bgColor)
+                        .offset(y: positionResult.arrowOffsetY)
+                }
+                self.balloonView
+            }
+            .compositingGroup()
+            .shadow(color: Color.black.opacity(0.1), radius: 12, x: 0, y: 0)
+
+        case .center:
+            self.balloonView
+                .shadow(color: Color.black.opacity(0.1), radius: 12, x: 0, y: 0)
+        }
+    }
+
+    private func arrowUp(color: Color) -> some View {
+        ArrowShape()
+            .foregroundColor(color)
+            .frame(width: self.config.arrowWidth, height: self.config.arrowHeight)
+    }
+
+    private func arrowDown(color: Color) -> some View {
+        ArrowShape()
+            .rotation(Angle(radians: .pi))
+            .foregroundColor(color)
+            .frame(width: self.config.arrowWidth, height: self.config.arrowHeight)
+    }
+
+    private func arrowRight(color: Color) -> some View {
+        Path { path in
+            path.move(to: CGPoint(x: 0, y: 0))
+            path.addLine(to: CGPoint(x: self.config.arrowHeight, y: self.config.arrowWidth / 2))
+            path.addLine(to: CGPoint(x: 0, y: self.config.arrowWidth))
+            path.closeSubpath()
+        }
+        .fill(color)
+        .frame(width: self.config.arrowHeight, height: self.config.arrowWidth)
+    }
+
+    private func arrowLeft(color: Color) -> some View {
+        Path { path in
+            path.move(to: CGPoint(x: self.config.arrowHeight, y: 0))
+            path.addLine(to: CGPoint(x: 0, y: self.config.arrowWidth / 2))
+            path.addLine(to: CGPoint(x: self.config.arrowHeight, y: self.config.arrowWidth))
+            path.closeSubpath()
+        }
+        .fill(color)
+        .frame(width: self.config.arrowHeight, height: self.config.arrowWidth)
+    }
+
+    // MARK: - Balloon
+
+    private var balloonView: some View {
+        HStack(alignment: .top, spacing: self.theme.spacings.micro) {
+            self.content
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(key: FloatingContentSizeKey.self, value: geo.size)
+                    }
+                )
+                .frame(width: self.effectiveContentWidth, alignment: .leading)
+
+            Button(action: self.onDismiss) {
+                Image(Logos.close, bundle: .bundleMP)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(self.theme.colors.icon.secondary)
+            }
+        }
+        .padding(self.config.contentPadding(from: self.theme))
+        .background(
+            RoundedRectangle(cornerRadius: self.config.borderRadius(from: self.theme))
+                .foregroundColor(self.config.backgroundColor(from: self.theme))
+        )
+        .overlay(self.contentSizeMeasurer)
+    }
+
+    private var contentSizeMeasurer: some View {
+        GeometryReader { geo in
+            Color.clear.preference(key: FloatingPopoverSizeKey.self, value: geo.size)
+        }
+    }
+
+    // MARK: - Position Calculation
+
+    private struct PositionResult {
+        let position: CGPoint
+        let arrowOffsetX: CGFloat
+        let arrowOffsetY: CGFloat
+    }
+
+    private func calculateAdjustedPosition() -> PositionResult {
+        let margin = self.config.margin
+        let arrowDepth = self.config.showArrow && self.config.side.shouldShowArrow() ? self.config.arrowHeight : 0
+        let screenPadding: CGFloat = 8
+        let screenBounds = UIScreen.main.bounds
+        let minX = self.safeAreaInsets.left + screenPadding
+        let maxX = screenBounds.width - self.safeAreaInsets.right - screenPadding
+        let minY = self.safeAreaInsets.top + screenPadding
+        let maxY = screenBounds.height - self.safeAreaInsets.bottom - screenPadding
+
+        // Total bubble size = balloon + arrow depth
+        let bubbleW: CGFloat
+        let bubbleH: CGFloat
+        switch self.config.side {
+        case .left, .right:
+            bubbleW = self.popoverContentWidth + arrowDepth
+            bubbleH = self.popoverContentHeight
+        default:
+            bubbleW = self.popoverContentWidth
+            bubbleH = self.popoverContentHeight + arrowDepth
+        }
+
+        var globalX = self.triggerFrame.midX
+        var globalY = self.triggerFrame.midY
+
+        // Arrow tip position (where the arrow touches the trigger area)
+        let arrowTipX: CGFloat
+        let arrowTipY: CGFloat
+        switch self.config.side {
+        case .top, .topLeft, .topRight:
+            arrowTipX = self.triggerFrame.midX
+            arrowTipY = self.triggerFrame.minY - margin
+            globalY = arrowTipY - bubbleH / 2
+        case .bottom, .bottomLeft, .bottomRight:
+            arrowTipX = self.triggerFrame.midX
+            arrowTipY = self.triggerFrame.maxY + margin
+            globalY = arrowTipY + bubbleH / 2
+        case .left:
+            arrowTipX = self.triggerFrame.minX - margin
+            arrowTipY = self.triggerFrame.midY
+            globalX = arrowTipX - bubbleW / 2
+            globalY = arrowTipY
+        case .right:
+            arrowTipX = self.triggerFrame.maxX + margin
+            arrowTipY = self.triggerFrame.midY
+            globalX = arrowTipX + bubbleW / 2
+            globalY = arrowTipY
+        case .center:
+            arrowTipX = self.triggerFrame.midX
+            arrowTipY = self.triggerFrame.maxY + margin
+            globalY = arrowTipY + bubbleH / 2
+        }
+
+        // Horizontal alignment for top/bottom/center (arrow X = trigger midX, with corner adjustments)
+        let arrowInset = self.config.borderRadius(from: self.theme) + self.config.arrowWidth
+        switch self.config.side {
+        case .top, .bottom, .center:
+            globalX = arrowTipX
+        case .topLeft, .bottomLeft:
+            globalX = arrowTipX + self.popoverContentWidth / 2 - arrowInset
+        case .topRight, .bottomRight:
+            globalX = arrowTipX - self.popoverContentWidth / 2 + arrowInset
+        case .left, .right:
+            break
+        }
+
+        globalX = max(minX + bubbleW / 2, min(maxX - bubbleW / 2, globalX))
+        globalY = max(minY + bubbleH / 2, min(maxY - bubbleH / 2, globalY))
+
+        return PositionResult(
+            position: CGPoint(x: globalX, y: globalY),
+            arrowOffsetX: arrowTipX - globalX,
+            arrowOffsetY: arrowTipY - globalY
+        )
+    }
+}
+
+// MARK: - Preference Keys
+
+private struct FloatingPopoverSizeKey: PreferenceKey {
+    static let defaultValue: CGSize = .zero
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
+    }
+}
+
+private struct FloatingContentSizeKey: PreferenceKey {
+    static let defaultValue: CGSize = .zero
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
+    }
+}
 
 // MARK: - Environment support for popover visibility control
+
 private struct PopoverVisibilityKey: EnvironmentKey {
     static let defaultValue: Binding<Bool>? = nil
 }
 
 extension EnvironmentValues {
-    /// Binding that allows popover content to control its own visibility.
     var popoverVisibility: Binding<Bool>? {
         get { self[PopoverVisibilityKey.self] }
         set { self[PopoverVisibilityKey.self] = newValue }
     }
 }
 
+// MARK: - Preview
+
 #if DEBUG
-import SwiftUI
 
-struct PopoverModifier_Previews: PreviewProvider {
-    struct PopoverPreviewHost: View {
-        public init() {}
-        
-        let config: PopoverConfig = DefaultPopoverConfig(side: .bottom, type: .white)
-        
-        let config2: PopoverConfig = DefaultPopoverConfig(side: .right, type: .white, maxWidth: 100)
-        
-        let topConfig: PopoverConfig = DefaultPopoverConfig(side: .top, type: .white)
-        
-        let topLeft: PopoverConfig = DefaultPopoverConfig(side: .topLeft, type: .white)
-        
-        let topRight: PopoverConfig = DefaultPopoverConfig(side: .topRight, type: .white)
-        
-        let bottomConfig: PopoverConfig = DefaultPopoverConfig(side: .bottom, type: .white)
-        
-        let bottomLeft: PopoverConfig = DefaultPopoverConfig(side: .bottomLeft, type: .white)
-        
-        let bottomRight: PopoverConfig = DefaultPopoverConfig(side: .bottomRight, type: .white)
-        
-        let leftConfig: PopoverConfig = DefaultPopoverConfig(side: .left, type: .white, maxWidth: 80)
-        
-        let rightConfig: PopoverConfig = DefaultPopoverConfig(side: .right, type: .white, maxWidth: 80)
-        
-        
-        public var body: some View {
-            ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
-                VStack(spacing: 20) {
-                    VStack {
-                        MPTextField(
-                            text: .constant("Security Code"),
-                            label: MPStrings.CardForm.CVV.label,
-                            placeholder: MPStrings.CardForm.CVV.placeholderDefault,
-                            keyboard: .numberPad,
-                            suffix: {
-                                Image(systemName: "questionmark.circle")
-                                    .renderingMode(.template)
-                                    .foregroundColor(.black)
-                                    .padding(.horizontal)
-                                    .popover(type: .white) {
-                                        Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                                            .textStyle(.bodyMedium(colorType: .secondary))
-                                    }
-                            }
-                        )
-                        Text("First text")
-                            .fontWeight(.semibold)
-                        
-                        Image(systemName: "info.circle")
-                            .font(.title)
-                            .foregroundColor(.blue)
-                            .popover(config: config) {
-                                Text("Test")
-                                    .textStyle(.bodyMedium(colorType: .secondary))
-                            }
-                    }
-                    
-                    VStack {
-                        HStack {
-                            Text("Second text")
-                                .padding()
-                                .cornerRadius(8)
-                                .popover(config: config2) {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Blue Theme")
-                                            .font(.headline)
-                                            .fontWeight(.semibold)
-                                            .textStyle(.bodyMediumTitle(colorType: .secondary))
-                                            .foregroundColor(.white)
-                                        
-                                        Text("This popover uses the Blue theme for better contrast.")
-                                            .textStyle(.bodyMedium(colorType: .secondary))
-                                            .foregroundColor(.primary)
-                                    }
-                                }
-                            Spacer()
-                            Text("Third text")
-                                .padding()
-                                .cornerRadius(8)
-                            Image(systemName: "info.circle")
-                                .font(.title)
-                                .foregroundColor(.blue)
-                                .popover(type: .white) {
-                                    Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                                        .textStyle(.bodyMedium(colorType: .secondary))
-                                }
-                        }
-                    }
-                    Text("Top")
-                        .fontWeight(.semibold)
-                        .popover(config: topConfig) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                        }
-                    
-                    Text("Top Left")
-                        .fontWeight(.semibold)
-                        .popover(config: topLeft) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                        }
-                    
-                    Text("Top Right")
-                        .fontWeight(.semibold)
-                        .popover(config: topRight) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                        }
-                    
-                    Text("Bottom")
-                        .fontWeight(.semibold)
-                        .popover(config: bottomConfig) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                        }
-                    
-                    Text("Bottom Left")
-                        .fontWeight(.semibold)
-                        .popover(config: bottomLeft) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                        }
-                    
-                    Text("Bottom Right")
-                        .fontWeight(.semibold)
-                        .popover(config: bottomRight) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                        }
-                    
-                    Text("Left")
-                        .fontWeight(.semibold)
-                        .popover(config: leftConfig) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                        }
-                    
-                    Text("Right")
-                        .fontWeight(.semibold)
-                        .popover(config: rightConfig) {
-                            Text("É um número de 4 dígitos. Você o encontra na parte da frente do seu cartão.")
-                        }
-                    
-                    
-                    
+    private struct PopoverPreviewTrigger: View {
+        let label: String
+        let config: PopoverConfig
+        let content: String
+        @State private var isPresented = false
+
+        var body: some View {
+            Button(self.label) { self.isPresented = true }
+                .popover(config: self.config, isPresented: self.$isPresented) {
+                    Text(self.content)
                 }
-                .padding(40)
-            }
         }
     }
-    
-    static var previews: some View {
-        Group {
-            PopoverPreviewHost()
-                .previewDisplayName("Popover Examples")
-        }
-    }
-}
 
+    private struct PopoverSidesPreview: View {
+        var body: some View {
+            VStack(spacing: 0) {
+                // Top — botão no centro inferior da metade superior
+                Spacer()
+                HStack {
+                    Spacer()
+                    PopoverPreviewTrigger(
+                        label: "↑ Top",
+                        config: DefaultPopoverConfig(side: .top, type: .white),
+                        content: "Popover acima do gatilho."
+                    )
+                    Spacer()
+                }
+                Spacer()
+
+                // Left — botão ancorado à direita para ter espaço à esquerda
+                HStack {
+                    Spacer()
+                    PopoverPreviewTrigger(
+                        label: "Left ←",
+                        config: DefaultPopoverConfig(side: .left, type: .white),
+                        content: "Popover à esquerda."
+                    )
+                    .padding(.trailing, 32)
+                }
+
+                Spacer()
+
+                // Right — botão ancorado à esquerda para ter espaço à direita
+                HStack {
+                    PopoverPreviewTrigger(
+                        label: "→ Right",
+                        config: DefaultPopoverConfig(side: .right, type: .white),
+                        content: "Popover à direita."
+                    )
+                    .padding(.leading, 32)
+                    Spacer()
+                }
+
+                Spacer()
+
+                // Bottom — botão no centro superior da metade inferior
+                HStack {
+                    Spacer()
+                    PopoverPreviewTrigger(
+                        label: "↓ Bottom",
+                        config: DefaultPopoverConfig(side: .bottom, type: .white),
+                        content: "Popover abaixo do gatilho."
+                    )
+                    Spacer()
+                }
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private struct PopoverCornersPreview: View {
+        var body: some View {
+            VStack(spacing: 40) {
+                HStack(spacing: 40) {
+                    PopoverPreviewTrigger(
+                        label: "Top Left",
+                        config: DefaultPopoverConfig(side: .topLeft, type: .white),
+                        content: "Canto superior esquerdo."
+                    )
+                    PopoverPreviewTrigger(
+                        label: "Top Right",
+                        config: DefaultPopoverConfig(side: .topRight, type: .white),
+                        content: "Canto superior direito."
+                    )
+                }
+                HStack(spacing: 40) {
+                    PopoverPreviewTrigger(
+                        label: "Bottom Left",
+                        config: DefaultPopoverConfig(side: .bottomLeft, type: .white),
+                        content: "Canto inferior esquerdo."
+                    )
+                    PopoverPreviewTrigger(
+                        label: "Bottom Right",
+                        config: DefaultPopoverConfig(side: .bottomRight, type: .white),
+                        content: "Canto inferior direito."
+                    )
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private struct PopoverNoArrowPreview: View {
+        @State private var isPresented = false
+
+        var body: some View {
+            Button("No Arrow (center)") { self.isPresented = true }
+                .popover(
+                    config: {
+                        var config = DefaultPopoverConfig(side: .center, type: .white)
+                        config.showArrow = false
+                        return config
+                    }(),
+                    isPresented: self.$isPresented
+                ) {
+                    Text("Sem seta, posicionado ao centro.")
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private struct PopoverTapTriggerPreview: View {
+        var body: some View {
+            Text("Tap me")
+                .padding()
+                .background(Color.blue.opacity(0.15))
+                .cornerRadius(8)
+                .popover {
+                    Text("Dismisses ao tocar fora.")
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    #Preview("Popover - Lados cardinais") { PopoverSidesPreview() }
+    #Preview("Popover - Cantos") { PopoverCornersPreview() }
+    #Preview("Popover - Sem seta") { PopoverNoArrowPreview() }
+    #Preview("Popover - Tap trigger (sem binding)") { PopoverTapTriggerPreview() }
 #endif
