@@ -15,7 +15,6 @@ struct MainListView: View {
     @State private var showDebug = false
     @State private var showBuilderShow = false
     @State private var showBuilderPresent = false
-    @State private var showBuilderSheet = false
     @State private var alertItem: AlertItem?
 
     struct AlertItem: Identifiable {
@@ -42,11 +41,6 @@ struct MainListView: View {
                     }
                     .accessibilityIdentifier("show(onResult:) - SwiftUI")
 
-                    Button("sheet(onResult:) - Modal") {
-                        self.showBuilderSheet = true
-                    }
-                    .accessibilityIdentifier("sheet(onResult:) - Modal")
-
                     Button("present(from:onResult:)") {
                         self.presentCheckout()
                     }
@@ -71,9 +65,6 @@ struct MainListView: View {
             CardFormViewControllerRepresentable()
         }
         .fullScreenCover(isPresented: self.$showBuilderShow) {
-            self.buildCheckout().show(onResult: self.handleResult)
-        }
-        .sheet(isPresented: self.$showBuilderSheet) {
             self.buildCheckout().show(onResult: self.handleResult)
         }
         .fullScreenCover(isPresented: self.$showBuilderPresent) {
