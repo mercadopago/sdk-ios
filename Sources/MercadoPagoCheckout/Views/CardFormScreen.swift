@@ -100,11 +100,7 @@ struct CardFormScreen: View {
                         keyboard: .numberPad,
                         onEditingChanged: { isEditing in
                             if !isEditing {
-                                self.viewModel.retryBinFetch()
-                                self.viewModel.trackInputValidation(
-                                    field: .cardNumber,
-                                    isValid: self.cardForm.$cardNumber.isEmpty
-                                )
+                                self.viewModel.cardNumberEditingEnded(isValid: self.cardForm.$cardNumber.isEmpty)
                             }
                         },
                         formatter: self.viewModel.cardNumberFormatter

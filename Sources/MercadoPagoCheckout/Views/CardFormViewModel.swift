@@ -233,6 +233,11 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
+    func cardNumberEditingEnded(isValid: Bool) {
+        self.retryBinFetch()
+        self.trackInputValidation(field: .cardNumber, isValid: isValid)
+    }
+
     // MARK: - Payment Data
 
     private func createPaymentData(
@@ -276,12 +281,10 @@ final class CardFormViewModel: ObservableObject {
         self.isTokenizing = true
         defer { self.isTokenizing = false }
 
-        self.trackSubmit(transactionAmount: transactionAmount)
-
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
             let paymentData = try self.createPaymentData(transactionAmount, cardToken: cardToken, cardFormData: cardForm)
-            self.trackSubmitSuccess(paymentData: paymentData, transactionAmount: transactionAmount)
+            self.trackSubmit(paymentData: paymentData, transactionAmount: transactionAmount)
             onSuccess(paymentData)
         } catch {
             guard !Task.isCancelled else { return }
@@ -322,25 +325,7 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
-    private func trackSubmit(transactionAmount: Double?) {
-        let cardBrand = self.binData?.paymentMethod.id ?? ""
-        let issuer = self.binData?.issuer?.name ?? ""
-
-        let eventData = CardFormSubmitEventData(
-            cardBrand: cardBrand,
-            transactionAmount: transactionAmount,
-            issuer: issuer,
-            paymentType: self.binData?.paymentMethod.paymentTypeId
-        )
-        let analytics = self.analytics
-        Task(priority: .low) {
-            await analytics.trackEvent(CardFormAnalyticsPath.submit)
-                .setEventData(eventData)
-                .send()
-        }
-    }
-
-    private func trackSubmitSuccess(paymentData: MPPaymentData, transactionAmount: Double?) {
+    private func trackSubmit(paymentData: MPPaymentData, transactionAmount: Double?) {
         let cardBrand = paymentData.paymentMethodId ?? ""
         let issuer = self.binData?.issuer?.name ?? ""
 

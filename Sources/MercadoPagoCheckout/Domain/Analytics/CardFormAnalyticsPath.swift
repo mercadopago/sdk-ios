@@ -1,5 +1,3 @@
-import Foundation
-
 enum CardFormAnalyticsPath {
     static let initialize = "/checkout_api_native/checkout/card_form/initialize"
     static let inputValidation = "/checkout_api_native/checkout/card_form/input_validation"
