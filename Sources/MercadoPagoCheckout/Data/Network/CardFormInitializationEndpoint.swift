@@ -16,13 +16,21 @@ enum CardFormInitializationEndpoint {
 }
 
 extension CardFormInitializationEndpoint: RequestEndpoint {
-    var apiVersion: APIVersion { .v1 }
+    var apiVersion: APIVersion {
+        .v1
+    }
 
-    var baseURL: String { ConstantsEndpoint.baseURLBricks }
+    var baseURL: String {
+        ConstantsEndpoint.baseURLBricks
+    }
 
-    var method: HTTPMethod { .get }
+    var method: HTTPMethod {
+        .get
+    }
 
-    var path: String { "initialization" }
+    var path: String {
+        "card_payment_brick/initialization"
+    }
 
     var headers: [String: String] {
         ["Content-Type": "application/json"]
@@ -35,5 +43,7 @@ extension CardFormInitializationEndpoint: RequestEndpoint {
         ]
     }
 
-    var body: Data? { nil }
+    var body: Data? {
+        nil
+    }
 }
