@@ -56,9 +56,7 @@ struct CardFormScreen: View {
         MPHeader(
             title: self.initResult.title,
             onBack: {
-                let context = self.cardForm.cancelledFormContext
-                self.viewModel.trackUserCanceled(context: context)
-                self.onBack(context)
+                self.onBack(self.cardForm.cancelledFormContext)
             },
             footer: {
                 MPFooter(

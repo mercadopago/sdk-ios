@@ -83,6 +83,7 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private var isCancelling = false
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
 
@@ -295,21 +296,23 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Analytics
 
-    func trackInputValidation(field: CardFormField, isValid: Bool) {
-        let eventData = CardFormInputValidationEventData(field: field.analyticsValue, isInputValid: isValid)
+    func cancel(context _: CardFormUserCancelledContext) {
+        self.isCancelling = true
+        let eventData = CardFormErrorEventData(errorType: "")
         let analytics = self.analytics
-        Task(priority: .low) {
-            await analytics.trackEvent(CardFormAnalyticsPath.inputValidation)
+        Task(priority: .userInitiated) {
+            await analytics.trackEvent(CardFormAnalyticsPath.userCanceledError)
                 .setEventData(eventData)
                 .send()
         }
     }
 
-    func trackUserCanceled(context _: CardFormUserCancelledContext) {
-        let eventData = CardFormErrorEventData(errorType: "")
+    func trackInputValidation(field: CardFormField, isValid: Bool) {
+        guard !self.isCancelling, !self.isTokenizing else { return }
+        let eventData = CardFormInputValidationEventData(field: field.analyticsValue, isInputValid: isValid)
         let analytics = self.analytics
         Task(priority: .low) {
-            await analytics.trackEvent(CardFormAnalyticsPath.userCanceledError)
+            await analytics.trackEvent(CardFormAnalyticsPath.inputValidation)
                 .setEventData(eventData)
                 .send()
         }
@@ -336,7 +339,7 @@ final class CardFormViewModel: ObservableObject {
             paymentType: paymentData.paymentTypeId
         )
         let analytics = self.analytics
-        Task(priority: .low) {
+        Task(priority: .userInitiated) {
             await analytics.trackEvent(CardFormAnalyticsPath.submit)
                 .setEventData(eventData)
                 .send()
@@ -346,7 +349,7 @@ final class CardFormViewModel: ObservableObject {
     private func trackSubmitError(_ error: MercadoPagoCheckoutError) {
         let eventData = CardFormErrorEventData(errorType: error.analyticsErrorType)
         let analytics = self.analytics
-        Task(priority: .low) {
+        Task(priority: .userInitiated) {
             await analytics.trackEvent(CardFormAnalyticsPath.submitError)
                 .setEventData(eventData)
                 .send()
