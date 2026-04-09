@@ -59,7 +59,7 @@ struct CardFormScreen: View {
             footer: {
                 MPFooter(
                     title: MPStrings.Common.total,
-                    amount: self.viewModel.footerAmount(),
+                    amount: nil,
                     buttonData: .init(
                         text: MPStrings.CardForm.button,
                         onClick: {
