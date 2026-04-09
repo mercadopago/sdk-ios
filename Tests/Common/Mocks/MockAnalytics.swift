@@ -128,6 +128,8 @@ package final class MockAnalytics: AnalyticsInterface {
     package let sellerInfo = MPSellerInfo()
     package let buyerInfo = MPBuyerInfo()
 
+    package init() {}
+
     package func initialize(version: String, siteID: String) async {
         await self.mock.insert(.initialize(version: version, siteID: siteID))
     }
