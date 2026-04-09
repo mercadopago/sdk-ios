@@ -121,6 +121,16 @@ package final class MockAnalytics: AnalyticsInterface {
                 self.sendContinuation = continuation
             }
         }
+
+        package func waitForSend(count: Int) async {
+            var observed = self.messages.filter { $0 == .send }.count
+            while observed < count {
+                await withCheckedContinuation { continuation in
+                    self.sendContinuation = continuation
+                }
+                observed = self.messages.filter { $0 == .send }.count
+            }
+        }
     }
 
     package let mock = Mock()
