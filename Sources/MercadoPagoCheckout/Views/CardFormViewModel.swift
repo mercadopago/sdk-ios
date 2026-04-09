@@ -39,7 +39,6 @@ final class CardFormViewModel: ObservableObject {
     @Published var selectTypeDocument: IdentificationType? {
         didSet {
             self.updateIdentificationType()
-            self.trackDropdownSelection(type: .documentType, selectedValue: self.selectTypeDocument?.id ?? "")
         }
     }
 
@@ -86,6 +85,7 @@ final class CardFormViewModel: ObservableObject {
     private var isCancelling = false
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
+    private var analyticsTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -299,8 +299,7 @@ final class CardFormViewModel: ObservableObject {
     func cancel(context _: CardFormUserCancelledContext, reason: CardFormCancelReason) {
         self.isCancelling = true
         let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)
-        let analytics = self.analytics
-        Task(priority: .userInitiated) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.userCanceledError)
                 .setEventData(eventData)
                 .send()
@@ -310,18 +309,17 @@ final class CardFormViewModel: ObservableObject {
     func trackInputValidation(field: CardFormField, isValid: Bool) {
         guard !self.isCancelling, !self.isTokenizing else { return }
         let eventData = CardFormInputValidationEventData(field: field.analyticsValue, isInputValid: isValid)
-        let analytics = self.analytics
-        Task(priority: .low) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.inputValidation)
                 .setEventData(eventData)
                 .send()
         }
     }
 
-    private func trackDropdownSelection(type _: CardFormDropdownType, selectedValue: String) {
+    func trackDropdownSelection(selectedValue: String) {
+        guard !self.isCancelling, !self.isTokenizing else { return }
         let eventData = CardFormDropdownSelectionEventData(dropdownSelectionType: selectedValue)
-        let analytics = self.analytics
-        Task(priority: .low) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.dropdownSelection)
                 .setEventData(eventData)
                 .send()
@@ -329,17 +327,13 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private func trackSubmit(paymentData: MPPaymentData, transactionAmount: Double?) {
-        let cardBrand = paymentData.paymentMethodId ?? ""
-        let issuer = self.binData?.issuer?.name ?? ""
-
         let eventData = CardFormSubmitEventData(
-            cardBrand: cardBrand,
+            cardBrand: paymentData.paymentMethodId ?? "",
             transactionAmount: transactionAmount,
-            issuer: issuer,
+            issuer: self.binData?.issuer?.name ?? "",
             paymentType: paymentData.paymentTypeId
         )
-        let analytics = self.analytics
-        Task(priority: .userInitiated) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.submit)
                 .setEventData(eventData)
                 .send()
@@ -348,11 +342,18 @@ final class CardFormViewModel: ObservableObject {
 
     private func trackSubmitError(_ error: MercadoPagoCheckoutError) {
         let eventData = CardFormErrorEventData(errorType: error.analyticsErrorType)
-        let analytics = self.analytics
-        Task(priority: .userInitiated) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.submitError)
                 .setEventData(eventData)
                 .send()
+        }
+    }
+
+    private func enqueueAnalytics(_ block: @escaping @Sendable () async -> Void) {
+        let previous = self.analyticsTask
+        self.analyticsTask = Task {
+            await previous?.value
+            await block()
         }
     }
 }

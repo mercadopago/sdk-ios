@@ -26,6 +26,7 @@ struct CardFormScreen: View {
     @State private var isCardNumberFocused = false
     @State private var didTapBack = false
     @State private var didComplete = false
+    @State private var editedFields: Set<CardFormField> = []
 
     // MARK: Enviroments
 
@@ -109,7 +110,7 @@ struct CardFormScreen: View {
                         liveErrorMessage: self.cardForm.cardNumberLiveErrors,
                         keyboard: .numberPad,
                         onEditingChanged: { isEditing in
-                            if !isEditing {
+                            if !isEditing, self.editedFields.contains(.cardNumber) || !self.cardForm.$cardNumber.isEmpty {
                                 self.viewModel.cardNumberEditingEnded(isValid: self.cardForm.$cardNumber.isEmpty)
                             }
                         },
@@ -124,7 +125,7 @@ struct CardFormScreen: View {
                         helperText: self.initResult.fields.cardHolder.helperText,
                         errorMessage: self.cardForm.$cardHolder,
                         onEditingChanged: { isEditing in
-                            if !isEditing {
+                            if !isEditing, self.editedFields.contains(.cardHolder) || !self.cardForm.$cardHolder.isEmpty {
                                 self.viewModel.trackInputValidation(
                                     field: .cardHolder,
                                     isValid: self.cardForm.$cardHolder.isEmpty
@@ -140,7 +141,7 @@ struct CardFormScreen: View {
                         errorMessage: self.cardForm.$expirationDate,
                         keyboard: .numberPad,
                         onEditingChanged: { isEditing in
-                            if !isEditing {
+                            if !isEditing, self.editedFields.contains(.expirationDate) || !self.cardForm.$expirationDate.isEmpty {
                                 self.viewModel.trackInputValidation(
                                     field: .expirationDate,
                                     isValid: self.cardForm.$expirationDate.isEmpty
@@ -158,7 +159,7 @@ struct CardFormScreen: View {
                             errorMessage: self.cardForm.$securityCode,
                             keyboard: .numberPad,
                             onEditingChanged: { isEditing in
-                                if !isEditing {
+                                if !isEditing, self.editedFields.contains(.securityCode) || !self.cardForm.$securityCode.isEmpty {
                                     self.viewModel.trackInputValidation(
                                         field: .securityCode,
                                         isValid: self.cardForm.$securityCode.isEmpty
@@ -179,11 +180,12 @@ struct CardFormScreen: View {
                             liveErrorMessage: self.cardForm.documentHolderLiveErrors,
                             keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
                             onEditingChanged: { isEditing in
-                                if !isEditing {
+                                if !isEditing, self.editedFields.contains(.document) || !self.cardForm.$documentHolder.isEmpty {
                                     self.viewModel.trackInputValidation(
                                         field: .document,
                                         isValid: self.cardForm.$documentHolder.isEmpty
                                     )
+                                    self.viewModel.trackDropdownSelection(selectedValue: self.viewModel.selectTypeDocument?.id ?? "")
                                 }
                             },
                             formatter: self.viewModel.documentFormatter,
@@ -208,6 +210,7 @@ struct CardFormScreen: View {
             self.isCardNumberFocused = true
         }
         .mpOnChange(of: self.cardForm.cardNumber) { newValue in
+            self.editedFields.insert(.cardNumber)
             self.viewModel.onCardNumberChange(newValue)
         }
         .mpOnChange(of: self.viewModel.binData) { binData in
@@ -222,6 +225,10 @@ struct CardFormScreen: View {
         .mpOnChange(of: self.viewModel.showSnackbar) { show in
             if show { self.isSnackbarPresented = true }
         }
+        .mpOnChange(of: self.cardForm.cardHolder) { _ in self.editedFields.insert(.cardHolder) }
+        .mpOnChange(of: self.cardForm.expirationDate) { _ in self.editedFields.insert(.expirationDate) }
+        .mpOnChange(of: self.cardForm.securityCode) { _ in self.editedFields.insert(.securityCode) }
+        .mpOnChange(of: self.cardForm.documentHolder) { _ in self.editedFields.insert(.document) }
         .onDisappear {
             if !self.didTapBack, !self.didComplete {
                 self.onDismiss(self.cardForm.cancelledFormContext)
