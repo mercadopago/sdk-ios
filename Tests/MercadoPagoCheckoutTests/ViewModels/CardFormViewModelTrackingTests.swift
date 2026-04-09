@@ -108,14 +108,14 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         XCTAssertTrue(messages.contains(.setEventData(["field": "document", "is_input_valid": false])))
     }
 
-    // MARK: - trackUserCanceled
+    // MARK: - cancel
 
-    func test_trackUserCanceled_shouldTrackUserCanceledErrorEvent() async {
+    func test_cancel_shouldTrackUserCanceledErrorEvent() async {
         // Arrange
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.trackUserCanceled(context: CardFormUserCancelledContext(fields: []))
+        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []))
         await sut.analytics.mock.waitForSend()
 
         // Assert
@@ -124,12 +124,12 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         XCTAssertTrue(messages.contains(.send))
     }
 
-    func test_trackUserCanceled_shouldSendEmptyErrorType() async {
+    func test_cancel_shouldSendEmptyErrorType() async {
         // Arrange
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.trackUserCanceled(context: CardFormUserCancelledContext(fields: []))
+        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []))
         await sut.analytics.mock.waitForSend()
 
         // Assert
