@@ -26,48 +26,64 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
     // MARK: - Mapping
 
     private func map(_ response: CardFormInitializationResponse) -> CardFormInitializationInput {
-        let translations = response.translations
+        let t = response.translations
         return CardFormInitializationInput(
-            title: translations.cardFormTitle,
-            buttonVariants: .init(save: translations.payButtonLabel, pay: translations.payButtonLabel),
+            title: t.cardFormTitle,
+            buttonVariants: .init(save: t.installments.payButtonLabel, pay: t.installments.payButtonLabel),
             fields: .init(
                 cardNumber: .init(
-                    label: translations.cardNumberLabel,
-                    placeholder: translations.cardNumberPlaceholder,
+                    label: t.cardNumber.label,
+                    placeholder: t.cardNumber.placeholder,
                     validation: .init(
-                        errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
-                        errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
-                        errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
+                        errorEmpty: t.cardNumber.errorEmptyField,
+                        errorIncomplete: t.cardNumber.errorIncompleteField,
+                        errorInvalid: t.cardNumber.errorInvalidField,
                         errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
                         errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
+                    ),
+                    config: .init(
+                        type: response.cardNumber.type,
+                        length: .init(min: response.cardNumber.length.min, max: response.cardNumber.length.max)
                     )
                 ),
                 cardHolder: .init(
-                    label: translations.cardholderNameLabel,
-                    placeholder: translations.cardholderNamePlaceholder,
-                    helperText: translations.cardholderNameHelper,
+                    label: t.holderName.label,
+                    placeholder: t.holderName.placeholder,
+                    helperText: t.holderName.helper,
                     validation: .init(
-                        errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
-                        errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
-                        errorInvalid: MPStrings.CardForm.CardHolder.errorInvalid
+                        errorEmpty: t.holderName.errorEmptyField,
+                        errorIncomplete: t.holderName.errorIncompleteField,
+                        errorInvalid: t.holderName.errorInvalidField
+                    ),
+                    config: .init(
+                        type: response.holderName.type,
+                        length: .init(min: response.holderName.length.min, max: response.holderName.length.max)
                     )
                 ),
                 expiration: .init(
-                    label: translations.expirationDateLabel,
-                    placeholder: translations.expirationDatePlaceholder,
+                    label: t.expirationDate.label,
+                    placeholder: t.expirationDate.placeholder,
                     validation: .init(
-                        errorEmpty: MPStrings.CardForm.Expiration.errorEmpty,
-                        errorIncomplete: MPStrings.CardForm.Expiration.errorIncomplete,
-                        errorInvalid: MPStrings.CardForm.Expiration.errorInvalid
+                        errorEmpty: t.expirationDate.errorEmptyField,
+                        errorIncomplete: t.expirationDate.errorIncompleteField,
+                        errorInvalid: t.expirationDate.errorInvalidField
+                    ),
+                    config: .init(
+                        type: response.expirationDate.type,
+                        length: .init(min: response.expirationDate.length.min, max: response.expirationDate.length.max)
                     )
                 ),
                 cvv: .init(
-                    label: translations.securityCodeLabel,
-                    placeholderDefault: translations.securityCodePlaceholder,
-                    placeholderAmex: translations.securityCodePlaceholder,
+                    label: t.securityCode.label,
+                    placeholderDefault: t.securityCode.placeholder,
+                    placeholderAmex: t.securityCode.placeholder,
                     validation: .init(
-                        errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
-                        errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
+                        errorEmpty: t.securityCode.errorEmptyField,
+                        errorIncomplete: t.securityCode.errorIncompleteField
+                    ),
+                    config: .init(
+                        type: response.securityCode.type,
+                        length: .init(min: response.securityCode.length, max: response.securityCode.length)
                     )
                 ),
                 issuer: .init(
@@ -75,16 +91,26 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     placeholder: MPStrings.CardForm.Issuer.placeholder
                 ),
                 document: .init(
-                    label: translations.documentLabel,
+                    label: t.document.label,
                     placeholder: MPStrings.CardForm.Document.placeholder,
                     validation: .init(
-                        errorEmpty: MPStrings.CardForm.Document.errorEmpty,
-                        errorIncomplete: MPStrings.CardForm.Document.errorIncomplete,
-                        errorInvalid: MPStrings.CardForm.Document.errorInvalid
+                        errorEmpty: t.document.errorEmptyField,
+                        errorIncomplete: t.document.errorIncompleteField,
+                        errorInvalid: t.document.errorInvalidField
                     )
                 )
             ),
-            identificationTypes: response.identificationTypes
+            identificationTypes: response.identificationTypes.map { dto in
+                IdentificationType(
+                    id: dto.id,
+                    name: dto.name,
+                    type: dto.type,
+                    minLenght: dto.minLength,
+                    maxLenght: dto.maxLength,
+                    placeholder: dto.placeholder,
+                    mask: dto.mask
+                )
+            }
         )
     }
 }

@@ -17,9 +17,9 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Formatters
 
-    @Published private(set) var cardNumberFormatter = CardNumberFormatter()
-    let expirationDateFormatter = ExpirationDateFormatter()
-    @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
+    @Published private(set) var cardNumberFormatter: CardNumberFormatter
+    let expirationDateFormatter: ExpirationDateFormatter
+    @Published private(set) var securityCodeFormatter: SecurityCodeFormatter
     @Published private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
@@ -47,8 +47,8 @@ final class CardFormViewModel: ObservableObject {
 
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
-            ? MPStrings.CardForm.CVV.placeholderAmex
-            : MPStrings.CardForm.CVV.placeholderDefault
+            ? self.fields.cvv.placeholderAmex
+            : self.fields.cvv.placeholderDefault
     }
 
     var cvvTooltipText: String {
@@ -79,6 +79,7 @@ final class CardFormViewModel: ObservableObject {
 
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
+    private let fields: CardFormFields.Fields
 
     // MARK: - Init
 
@@ -89,8 +90,13 @@ final class CardFormViewModel: ObservableObject {
     ) {
         self.configuration = configuration
         self.service = service
+        self.fields = initResult.fields
         self.identificationTypes = initResult.identificationTypes
         self.selectTypeDocument = initResult.identificationTypes.first
+
+        self.cardNumberFormatter = CardNumberFormatter(maxLength: initResult.fields.cardNumber.config.length.max)
+        self.expirationDateFormatter = ExpirationDateFormatter(maxLength: initResult.fields.expiration.config.length.max)
+        self.securityCodeFormatter = SecurityCodeFormatter(maxLength: initResult.fields.cvv.config.length.max)
 
         let firstType = initResult.identificationTypes.first
         self.documentFormatter = DocumentFormatter(
@@ -119,8 +125,8 @@ final class CardFormViewModel: ObservableObject {
                 ? SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
                 : SecurityCodeFormatter()
         } else {
-            self.cardNumberFormatter = CardNumberFormatter()
-            self.securityCodeFormatter = SecurityCodeFormatter()
+            self.cardNumberFormatter = CardNumberFormatter(maxLength: self.fields.cardNumber.config.length.max)
+            self.securityCodeFormatter = SecurityCodeFormatter(maxLength: self.fields.cvv.config.length.max)
         }
     }
 

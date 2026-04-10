@@ -13,7 +13,7 @@ import CoreMethods
 struct CardFormInitializationInput {
     let title: String
     let buttonVariants: ButtonVariants
-    let fields: CardFormTexts.Fields
+    let fields: CardFormFields.Fields
     let identificationTypes: [IdentificationType]
 
     struct ButtonVariants {

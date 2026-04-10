@@ -39,7 +39,8 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                         errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
                         errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
                         errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
-                    )
+                    ),
+                    config: .init(type: "number", length: .init(min: 13, max: 19))
                 ),
                 cardHolder: .init(
                     label: MPStrings.CardForm.CardHolder.label,
@@ -49,7 +50,8 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                         errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
                         errorInvalid: MPStrings.CardForm.CardHolder.errorInvalid
-                    )
+                    ),
+                    config: .init(type: "string", length: .init(min: 2, max: 26))
                 ),
                 expiration: .init(
                     label: MPStrings.CardForm.Expiration.label,
@@ -58,7 +60,8 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                         errorEmpty: MPStrings.CardForm.Expiration.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.Expiration.errorIncomplete,
                         errorInvalid: MPStrings.CardForm.Expiration.errorInvalid
-                    )
+                    ),
+                    config: .init(type: "date", length: .init(min: 4, max: 4))
                 ),
                 cvv: .init(
                     label: MPStrings.CardForm.CVV.label,
@@ -67,7 +70,8 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
-                    )
+                    ),
+                    config: .init(type: "number", length: .init(min: 3, max: 4))
                 ),
                 issuer: .init(
                     label: MPStrings.CardForm.Issuer.label,

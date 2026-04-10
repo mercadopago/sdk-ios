@@ -5,57 +5,128 @@
 //  Created by Guilherme Prata Costa on 18/03/26.
 //
 
-import CoreMethods
-
-struct CardFormInitializationResponse: Codable, Sendable {
-    let identificationTypes: [IdentificationType]
-    let translations: Translations
+struct CardFormInitializationResponse: Codable {
+    let identificationTypes: [IdentificationTypeDTO]
     let cardNumber: CardNumberConfig
     let securityCode: SecurityCodeConfig
+    let holderName: HolderNameConfig
+    let expirationDate: ExpirationDateConfig
+    let translations: Translations
 
     enum CodingKeys: String, CodingKey {
         case identificationTypes = "identification_types"
-        case translations
         case cardNumber = "card_number"
         case securityCode = "security_code"
+        case holderName = "holder_name"
+        case expirationDate = "expiration_date"
+        case translations
     }
 
-    struct Translations: Codable, Sendable {
-        let cardFormTitle: String
-        let cardNumberLabel: String
-        let cardNumberPlaceholder: String
-        let cardholderNameLabel: String
-        let cardholderNamePlaceholder: String
-        let cardholderNameHelper: String
-        let expirationDateLabel: String
-        let expirationDatePlaceholder: String
-        let securityCodeLabel: String
-        let securityCodePlaceholder: String
-        let documentLabel: String
-        let payButtonLabel: String
+    // MARK: - Identification Type DTO
+
+    struct IdentificationTypeDTO: Codable {
+        let id: String
+        let name: String
+        let minLength: Int
+        let maxLength: Int
+        let placeholder: String
+        let mask: String
+        let type: String
 
         enum CodingKeys: String, CodingKey {
-            case cardFormTitle = "card_form_title"
-            case cardNumberLabel = "card_number_label"
-            case cardNumberPlaceholder = "card_number_placeholder"
-            case cardholderNameLabel = "cardholder_name_label"
-            case cardholderNamePlaceholder = "cardholder_name_placeholder"
-            case cardholderNameHelper = "cardholder_name_helper"
-            case expirationDateLabel = "expiration_date_label"
-            case expirationDatePlaceholder = "expiration_date_placeholder"
-            case securityCodeLabel = "security_code_label"
-            case securityCodePlaceholder = "security_code_placeholder"
-            case documentLabel = "document_label"
-            case payButtonLabel = "pay_button_label"
+            case id, name, type, placeholder, mask
+            case minLength = "min_length"
+            case maxLength = "max_length"
         }
     }
 
-    struct CardNumberConfig: Codable, Sendable {
-        let length: Int
+    // MARK: - Field Configs
+
+    struct LengthRange: Codable {
+        let min: Int
+        let max: Int
+    }
+
+    struct CardNumberConfig: Codable {
+        let type: String
+        let length: LengthRange
         let mask: String
     }
 
-    struct SecurityCodeConfig: Codable, Sendable {
+    struct SecurityCodeConfig: Codable {
         let length: Int
+        let type: String
+    }
+
+    struct HolderNameConfig: Codable {
+        let type: String
+        let length: LengthRange
+    }
+
+    struct ExpirationDateConfig: Codable {
+        let type: String
+        let mask: String
+        let length: LengthRange
+    }
+
+    // MARK: - Translations
+
+    struct Translations: Codable {
+        let cardFormTitle: String
+        let cardNumber: FieldTranslation
+        let holderName: FieldTranslation
+        let expirationDate: FieldTranslation
+        let securityCode: FieldTranslation
+        let document: DocumentTranslation
+        let installments: InstallmentsTranslation
+
+        enum CodingKeys: String, CodingKey {
+            case cardFormTitle = "card_form_title"
+            case cardNumber = "card_number"
+            case holderName = "holder_name"
+            case expirationDate = "expiration_date"
+            case securityCode = "security_code"
+            case document
+            case installments
+        }
+    }
+
+    struct FieldTranslation: Codable {
+        let label: String
+        let placeholder: String
+        let helper: String
+        let tooltip: String
+        let errorEmptyField: String
+        let errorIncompleteField: String
+        let errorInvalidField: String
+
+        enum CodingKeys: String, CodingKey {
+            case label, placeholder, helper, tooltip
+            case errorEmptyField = "error_empty_field"
+            case errorIncompleteField = "error_incomplete_field"
+            case errorInvalidField = "error_invalid_field"
+        }
+    }
+
+    struct DocumentTranslation: Codable {
+        let label: String
+        let errorEmptyField: String
+        let errorIncompleteField: String
+        let errorInvalidField: String
+
+        enum CodingKeys: String, CodingKey {
+            case label
+            case errorEmptyField = "error_empty_field"
+            case errorIncompleteField = "error_incomplete_field"
+            case errorInvalidField = "error_invalid_field"
+        }
+    }
+
+    struct InstallmentsTranslation: Codable {
+        let payButtonLabel: String
+
+        enum CodingKeys: String, CodingKey {
+            case payButtonLabel = "pay_button_label"
+        }
     }
 }

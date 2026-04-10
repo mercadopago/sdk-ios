@@ -106,7 +106,8 @@ struct CardFormScreen: View {
                         label: self.initResult.fields.cardHolder.label,
                         placeholder: self.initResult.fields.cardHolder.placeholder,
                         helperText: self.initResult.fields.cardHolder.helperText,
-                        errorMessage: self.cardForm.$cardHolder
+                        errorMessage: self.cardForm.$cardHolder,
+                        keyboard: self.initResult.fields.cardHolder.config.getKeyboardType()
                     )
 
                     MPTextField(
@@ -114,7 +115,7 @@ struct CardFormScreen: View {
                         label: self.initResult.fields.expiration.label,
                         placeholder: self.initResult.fields.expiration.placeholder,
                         errorMessage: self.cardForm.$expirationDate,
-                        keyboard: .numberPad,
+                        keyboard: self.initResult.fields.expiration.config.getKeyboardType(),
                         formatter: self.viewModel.expirationDateFormatter
                     )
 
@@ -124,7 +125,7 @@ struct CardFormScreen: View {
                             label: self.initResult.fields.cvv.label,
                             placeholder: self.viewModel.cvvPlaceholder,
                             errorMessage: self.cardForm.$securityCode,
-                            keyboard: .numberPad,
+                            keyboard: self.initResult.fields.expiration.config.getKeyboardType(),
                             formatter: self.viewModel.securityCodeFormatter,
                             popoverText: self.viewModel.cvvTooltipText
                         )

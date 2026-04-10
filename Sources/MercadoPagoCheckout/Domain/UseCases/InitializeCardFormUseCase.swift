@@ -50,7 +50,8 @@ struct InitializeCardFormUseCase {
                         errorInvalid: fields.cardNumber.validation.errorInvalid,
                         errorMethodNotAllowed: fields.cardNumber.validation.errorMethodNotAllowed,
                         errorTypeNotAllowed: fields.cardNumber.validation.errorTypeNotAllowed
-                    )
+                    ),
+                    config: fields.cardNumber.config
                 ),
                 cardHolder: .init(
                     label: fields.cardHolder.label,
@@ -60,7 +61,8 @@ struct InitializeCardFormUseCase {
                         errorEmpty: fields.cardHolder.validation.errorEmpty,
                         errorIncomplete: fields.cardHolder.validation.errorIncomplete,
                         errorInvalid: fields.cardHolder.validation.errorInvalid
-                    )
+                    ),
+                    config: fields.cardHolder.config
                 ),
                 expiration: .init(
                     label: fields.expiration.label,
@@ -69,7 +71,8 @@ struct InitializeCardFormUseCase {
                         errorEmpty: fields.expiration.validation.errorEmpty,
                         errorIncomplete: fields.expiration.validation.errorIncomplete,
                         errorInvalid: fields.expiration.validation.errorInvalid
-                    )
+                    ),
+                    config: fields.expiration.config
                 ),
                 cvv: .init(
                     label: fields.cvv.label,
@@ -78,7 +81,8 @@ struct InitializeCardFormUseCase {
                     validation: .init(
                         errorEmpty: fields.cvv.validation.errorEmpty,
                         errorIncomplete: fields.cvv.validation.errorIncomplete
-                    )
+                    ),
+                    config: fields.cvv.config
                 ),
                 issuer: .init(
                     label: fields.issuer.label,
