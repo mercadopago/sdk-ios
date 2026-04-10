@@ -52,10 +52,7 @@ final class CardFormViewModel: ObservableObject {
     }
 
     var cvvTooltipText: String {
-        guard let securityCode = binData?.paymentMethod.card?.securityCode else {
-            return MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back")
-        }
-        return MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
+        self.fields.cvv.tooltip
     }
 
     var isSecurityCodeMandatory: Bool {

@@ -67,6 +67,7 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                     label: MPStrings.CardForm.CVV.label,
                     placeholderDefault: MPStrings.CardForm.CVV.placeholderDefault,
                     placeholderAmex: MPStrings.CardForm.CVV.placeholderAmex,
+                    tooltip: MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"),
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete

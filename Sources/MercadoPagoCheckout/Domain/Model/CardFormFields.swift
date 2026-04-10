@@ -61,6 +61,7 @@ enum CardFormFields {
         let label: String
         let placeholderDefault: String
         let placeholderAmex: String
+        let tooltip: String
         let validation: Validation
         let config: CardFieldConfig
 

@@ -77,6 +77,7 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     label: t.securityCode.label,
                     placeholderDefault: t.securityCode.placeholder,
                     placeholderAmex: t.securityCode.placeholder,
+                    tooltip: t.securityCode.tooltip,
                     validation: .init(
                         errorEmpty: t.securityCode.errorEmptyField,
                         errorIncomplete: t.securityCode.errorIncompleteField
