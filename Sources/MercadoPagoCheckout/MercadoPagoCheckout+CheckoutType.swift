@@ -7,16 +7,23 @@
 
 public extension MercadoPagoCheckout {
     /// The type of checkout experience to launch.
-    public enum CheckoutType: Sendable {
+    // swiftformat:disable:next redundantSendable
+    enum CheckoutType: Sendable {
         /// A card-based payment form.
         ///
         /// - Parameter cardFormConfiguration: Configuration values for the card form, such as amount and payer.
         case cardForm(cardFormConfiguration: CardFormConfiguration)
-        
-        internal var configuration: CheckoutTypeConfiguration {
+
+        var configuration: CheckoutTypeConfiguration {
             switch self {
-            case .cardForm(let cardFormConfiguration):
+            case let .cardForm(cardFormConfiguration):
                 return cardFormConfiguration
+            }
+        }
+
+        var analyticsValue: String {
+            switch self {
+            case .cardForm: return "card_form"
             }
         }
     }

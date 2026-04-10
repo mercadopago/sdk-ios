@@ -32,14 +32,13 @@ struct CardFormBrick: View {
         appearance: MercadoPagoCheckout.CheckoutAppearance,
         onResult: @escaping (MercadoPagoCheckoutResult) -> Void
     ) {
-        self.configuration = configuration
         self.onResult = onResult
         self.themeDark = appearance.themeConfiguration.dark
         self.themeLight = appearance.themeConfiguration.light
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
-        self.brickViewModel = CardFormBrickViewModel(configuration: configuration)
+        self.brickViewModel = CardFormBrickViewModel(configuration: configuration, appearance: appearance)
     }
 
     var body: some View {
@@ -86,7 +85,15 @@ struct CardFormBrick: View {
             initResult: initResult,
             transactionAmount: self.transactionAmount,
             viewModel: viewModel,
-            onBack: { context in self.cancelCheckout(context: .cardForm(context)) },
+            onBack: { context in
+                viewModel.cancel(context: context, reason: .backButton)
+                self.cancelCheckout(context: .cardForm(context))
+            },
+            onDismiss: { context in
+                viewModel.cancel(context: context, reason: .dismissedScreen)
+                self.route = nil
+                self.onResult(.userCancelled(.cardForm(context)))
+            },
             onSuccess: { paymentData in
                 self.paymentData = paymentData
                 self.completeCheckout()

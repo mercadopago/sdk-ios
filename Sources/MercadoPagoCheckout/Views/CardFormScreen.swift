@@ -10,6 +10,7 @@ import SwiftUI
 
 struct CardFormScreen: View {
     private let onBack: (CardFormUserCancelledContext) -> Void
+    private let onDismiss: (CardFormUserCancelledContext) -> Void
     private let onSuccess: (MPPaymentData) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double?
@@ -23,6 +24,9 @@ struct CardFormScreen: View {
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
     @State private var isCardNumberFocused = false
+    @State private var didTapBack = false
+    @State private var didComplete = false
+    @State private var editedFields: Set<CardFormField> = []
 
     // MARK: Enviroments
 
@@ -33,10 +37,12 @@ struct CardFormScreen: View {
         transactionAmount: Double?,
         viewModel: CardFormViewModel,
         onBack: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
+        onDismiss: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
         onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self.onBack = onBack
+        self.onDismiss = onDismiss
         self.onSuccess = onSuccess
         self.onFailure = onFailure
         self.transactionAmount = transactionAmount
@@ -55,7 +61,10 @@ struct CardFormScreen: View {
     var body: some View {
         MPHeader(
             title: self.initResult.title,
-            onBack: { self.onBack(self.cardForm.cancelledFormContext) },
+            onBack: {
+                self.didTapBack = true
+                self.onBack(self.cardForm.cancelledFormContext)
+            },
             footer: {
                 MPFooter(
                     title: MPStrings.Common.total,
@@ -66,8 +75,14 @@ struct CardFormScreen: View {
                             await self.viewModel.submitCardData(
                                 cardForm: self.cardForm,
                                 transactionAmount: self.transactionAmount,
-                                onSuccess: { self.onSuccess($0) },
-                                onFailure: { self.onFailure($0) }
+                                onSuccess: {
+                                    self.didComplete = true
+                                    self.onSuccess($0)
+                                },
+                                onFailure: {
+                                    self.didComplete = true
+                                    self.onFailure($0)
+                                }
                             )
                         }
                     )
@@ -95,7 +110,9 @@ struct CardFormScreen: View {
                         liveErrorMessage: self.cardForm.cardNumberLiveErrors,
                         keyboard: .numberPad,
                         onEditingChanged: { isEditing in
-                            if !isEditing { self.viewModel.retryBinFetch() }
+                            if !isEditing, self.editedFields.contains(.cardNumber) || !self.cardForm.$cardNumber.isEmpty {
+                                self.viewModel.cardNumberEditingEnded(isValid: self.cardForm.$cardNumber.isEmpty)
+                            }
                         },
                         formatter: self.viewModel.cardNumberFormatter
                     )
@@ -106,7 +123,15 @@ struct CardFormScreen: View {
                         label: self.initResult.fields.cardHolder.label,
                         placeholder: self.initResult.fields.cardHolder.placeholder,
                         helperText: self.initResult.fields.cardHolder.helperText,
-                        errorMessage: self.cardForm.$cardHolder
+                        errorMessage: self.cardForm.$cardHolder,
+                        onEditingChanged: { isEditing in
+                            if !isEditing, self.editedFields.contains(.cardHolder) || !self.cardForm.$cardHolder.isEmpty {
+                                self.viewModel.trackInputValidation(
+                                    field: .cardHolder,
+                                    isValid: self.cardForm.$cardHolder.isEmpty
+                                )
+                            }
+                        }
                     )
 
                     MPTextField(
@@ -115,6 +140,14 @@ struct CardFormScreen: View {
                         placeholder: self.initResult.fields.expiration.placeholder,
                         errorMessage: self.cardForm.$expirationDate,
                         keyboard: .numberPad,
+                        onEditingChanged: { isEditing in
+                            if !isEditing, self.editedFields.contains(.expirationDate) || !self.cardForm.$expirationDate.isEmpty {
+                                self.viewModel.trackInputValidation(
+                                    field: .expirationDate,
+                                    isValid: self.cardForm.$expirationDate.isEmpty
+                                )
+                            }
+                        },
                         formatter: self.viewModel.expirationDateFormatter
                     )
 
@@ -125,6 +158,14 @@ struct CardFormScreen: View {
                             placeholder: self.viewModel.cvvPlaceholder,
                             errorMessage: self.cardForm.$securityCode,
                             keyboard: .numberPad,
+                            onEditingChanged: { isEditing in
+                                if !isEditing, self.editedFields.contains(.securityCode) || !self.cardForm.$securityCode.isEmpty {
+                                    self.viewModel.trackInputValidation(
+                                        field: .securityCode,
+                                        isValid: self.cardForm.$securityCode.isEmpty
+                                    )
+                                }
+                            },
                             formatter: self.viewModel.securityCodeFormatter,
                             popoverText: self.viewModel.cvvTooltipText
                         )
@@ -138,6 +179,15 @@ struct CardFormScreen: View {
                             errorMessage: self.cardForm.$documentHolder,
                             liveErrorMessage: self.cardForm.documentHolderLiveErrors,
                             keyboard: self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default,
+                            onEditingChanged: { isEditing in
+                                if !isEditing, self.editedFields.contains(.document) || !self.cardForm.$documentHolder.isEmpty {
+                                    self.viewModel.trackInputValidation(
+                                        field: .document,
+                                        isValid: self.cardForm.$documentHolder.isEmpty
+                                    )
+                                    self.viewModel.trackDropdownSelection(selectedValue: self.viewModel.selectTypeDocument?.id ?? "")
+                                }
+                            },
                             formatter: self.viewModel.documentFormatter,
                             prefix: {
                                 self.dropdownDocument()
@@ -160,6 +210,7 @@ struct CardFormScreen: View {
             self.isCardNumberFocused = true
         }
         .mpOnChange(of: self.cardForm.cardNumber) { newValue in
+            self.editedFields.insert(.cardNumber)
             self.viewModel.onCardNumberChange(newValue)
         }
         .mpOnChange(of: self.viewModel.binData) { binData in
@@ -173,6 +224,15 @@ struct CardFormScreen: View {
         }
         .mpOnChange(of: self.viewModel.showSnackbar) { show in
             if show { self.isSnackbarPresented = true }
+        }
+        .mpOnChange(of: self.cardForm.cardHolder) { _ in self.editedFields.insert(.cardHolder) }
+        .mpOnChange(of: self.cardForm.expirationDate) { _ in self.editedFields.insert(.expirationDate) }
+        .mpOnChange(of: self.cardForm.securityCode) { _ in self.editedFields.insert(.securityCode) }
+        .mpOnChange(of: self.cardForm.documentHolder) { _ in self.editedFields.insert(.document) }
+        .onDisappear {
+            if !self.didTapBack, !self.didComplete {
+                self.onDismiss(self.cardForm.cancelledFormContext)
+            }
         }
     }
 

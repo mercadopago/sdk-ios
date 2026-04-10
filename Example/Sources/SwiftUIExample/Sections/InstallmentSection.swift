@@ -1,21 +1,21 @@
-import SwiftUI
 import CoreMethods
+import SwiftUI
 
 struct InstallmentSection: View {
     let installments: [Installment.PayerCost]
     @Binding var selectedPayerCost: Installment.PayerCost?
     let currencyFormatter: NumberFormatter
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Payment Options")
                 .font(.headline)
                 .foregroundColor(.primary)
-            
-            installmentPicker
-            
+
+            self.installmentPicker
+
             if let selectedPayerCost {
-                totalAmount(for: selectedPayerCost)
+                self.totalAmount(for: selectedPayerCost)
             }
         }
         .padding(.horizontal)
@@ -24,16 +24,16 @@ struct InstallmentSection: View {
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
-    
+
     private var installmentPicker: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Installments")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            
-            Picker("Select installment", selection: $selectedPayerCost) {
-                ForEach(installments) { option in
-                    Text("\(option.installments)x of \(formatAmount(option.installmentAmount))")
+
+            Picker("Select installment", selection: self.$selectedPayerCost) {
+                ForEach(self.installments) { option in
+                    Text("\(option.installments)x of \(self.formatAmount(option.installmentAmount))")
                         .tag(Optional(option))
                 }
             }
@@ -48,23 +48,23 @@ struct InstallmentSection: View {
             )
         }
     }
-    
+
     private func totalAmount(for payerCost: Installment.PayerCost) -> some View {
         HStack {
             Text("Total amount:")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            
+
             Spacer()
-            
-            Text(formatAmount(payerCost.totalAmount))
+
+            Text(self.formatAmount(payerCost.totalAmount))
                 .font(.subheadline)
                 .fontWeight(.semibold)
         }
         .padding(.horizontal, 4)
     }
-    
+
     private func formatAmount(_ amount: Double) -> String {
-        return currencyFormatter.string(from: NSNumber(value: amount)) ?? String(format: "%.2f", amount)
+        return self.currencyFormatter.string(from: NSNumber(value: amount)) ?? String(format: "%.2f", amount)
     }
 }

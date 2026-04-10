@@ -10,11 +10,11 @@ import UIKit
 /// - Use shared ViewModel for business logic centralization
 final class CardFormViewController: UIViewController {
     // MARK: - Properties
-    
+
     /// Shared ViewModel containing all business logic
     /// This centralizes SDK calls of CoreMethods
     private let viewModel = CardFormViewModel()
-    
+
     /// Style configuration for normal field state
     private let style = TextFieldDefaultStyle()
         .borderColor(.systemGray4).borderWidth(1).cornerRadius(12)
@@ -28,7 +28,7 @@ final class CardFormViewController: UIViewController {
         .backgroundColor(.systemBackground)
         .font(.systemFont(ofSize: 16, weight: .regular))
         .textColor(UIColor.dynamicColor)
-    
+
     let paddingField = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
 
     /// Token response text label
@@ -47,7 +47,7 @@ final class CardFormViewController: UIViewController {
     }()
 
     // MARK: - UI Components
-    
+
     /// Main container for all form elements
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -56,26 +56,26 @@ final class CardFormViewController: UIViewController {
         scrollView.alwaysBounceVertical = true
         return scrollView
     }()
-    
+
     /// Main container for all form elements
     private lazy var stackView = buildStackView(axis: .vertical, spacing: 24)
-    
+
     /// Container for security code and expiration date fields
     private lazy var cardDetailsStackView = buildStackView(
         axis: .horizontal,
         spacing: 16,
         distribution: .fillEqually
     )
-    
+
     /// Container for document-related fields
     private lazy var documentSectionStackView = buildStackView(axis: .vertical, spacing: 16)
 
     /// Container for card number field with label
     private lazy var cardNumberContainer = LabeledTextField(title: "Card Number")
-    
+
     /// Container for security code field with label
     private lazy var securityCodeContainer = LabeledTextField(title: "Security Code")
-    
+
     /// Container for expiration date field with label
     private lazy var expirationDateContainer = LabeledTextField(title: "Expiration Date")
 
@@ -88,21 +88,19 @@ final class CardFormViewController: UIViewController {
         return label
     }()
 
-    
     // MARK: Core Methods fields
-    
+
     /// Card number input field with validation and formatting
     private lazy var cardNumberField: CardNumberTextField = {
         let field = CardNumberTextField(style: style)
         field.translatesAutoresizingMaskIntoConstraints = false
         field.setPlaceholder("Enter card number")
-        field.setLeftImage(view: paddingField)
+        field.setLeftImage(view: self.paddingField)
 
         // Handle BIN number changes (first 6-8 digits)
         field.onBinChanged = { [weak self] bin in
             if !bin.isEmpty {
                 Task { [weak self] in
-                    
                     // Payment Method, Issuer and Installment call
                     // ViewModel Handle bin change use CoreMethods SDK to retrive card information and update UI
                     await self?.viewModel.handleBinChange(bin)
@@ -148,7 +146,7 @@ final class CardFormViewController: UIViewController {
                 object: error
             )
         }
-        
+
         // Handle length changes
         field.onLengthChanged = { [weak self] length in
             print("CardNumberField length:", length)
@@ -174,7 +172,7 @@ final class CardFormViewController: UIViewController {
             guard let self else { return }
             self.setStyle(field, style: self.style)
         }
-        
+
         // Handle length changes
         field.onLengthChanged = { [weak self] length in
             print("SecurityCode length:", length)
@@ -184,7 +182,7 @@ final class CardFormViewController: UIViewController {
                 object: length
             )
         }
-        
+
         // Handle focus changes
         field.onFocusChanged = { [weak self] isFocused in
             print("SecurityCode Focus changed:", isFocused)
@@ -194,7 +192,7 @@ final class CardFormViewController: UIViewController {
                 object: isFocused
             )
         }
-        
+
         // Handle validation errors
         field.onError = { [weak self] error in
             guard let self else { return }
@@ -222,7 +220,7 @@ final class CardFormViewController: UIViewController {
             guard let self else { return }
             self.setStyle(field, style: self.style)
         }
-        
+
         // Handle length changes
         field.onLengthChanged = { [weak self] length in
             print("ExpirationDateTextfield length:", length)
@@ -232,7 +230,7 @@ final class CardFormViewController: UIViewController {
                 object: length
             )
         }
-        
+
         // Handle focus changes
         field.onFocusChanged = { [weak self] isFocused in
             print("ExpirationDateTextfield Focus changed:", isFocused)
@@ -242,7 +240,7 @@ final class CardFormViewController: UIViewController {
                 object: isFocused
             )
         }
-        
+
         // Handle validation errors
         field.onError = { [weak self] error in
             guard let self else { return }
@@ -256,7 +254,7 @@ final class CardFormViewController: UIViewController {
 
         return field
     }()
-    
+
     // MARK: Document Section
 
     /// Document type selector with picker
@@ -286,7 +284,7 @@ final class CardFormViewController: UIViewController {
         label.textColor = .label
         return label
     }()
-    
+
     // MARK: Installment Section
 
     /// Installment selection control
@@ -295,7 +293,7 @@ final class CardFormViewController: UIViewController {
         picker.delegate = self
         return picker
     }()
-    
+
     /// Installment section title
     private lazy var installmentSectionLabel: UILabel = {
         let label = UILabel()
@@ -304,7 +302,7 @@ final class CardFormViewController: UIViewController {
         label.textColor = .label
         return label
     }()
-    
+
     // MARK: Pay Button
 
     /// Pay button to submit the form
@@ -331,19 +329,19 @@ final class CardFormViewController: UIViewController {
         self.cardNumberContainer.addInputField(self.cardNumberField)
         self.securityCodeContainer.addInputField(self.securityCodeField)
         self.expirationDateContainer.addInputField(self.expirationDateField)
-        
-        documentNumberField.addTarget(self, action: #selector(documentTextChanged), for: .editingChanged)
-        
+
+        self.documentNumberField.addTarget(self, action: #selector(self.documentTextChanged), for: .editingChanged)
+
         // CoreMethods: Identification Types Call
         // Load initial data
         Task {
-            await viewModel.getDocuments()
+            await self.viewModel.getDocuments()
             await updateDocumentsUI()
         }
     }
 
     // MARK: - UI Setup Methods
-    
+
     /// Setup the main view and hierarchy
     private func setupView() {
         self.buildViewHierarchy()
@@ -353,8 +351,8 @@ final class CardFormViewController: UIViewController {
 
     /// Build the view hierarchy by adding subviews
     private func buildViewHierarchy() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(stackView)
+        view.addSubview(self.scrollView)
+        self.scrollView.addSubview(self.stackView)
 
         self.cardDetailsStackView.addArrangedSubview(self.securityCodeContainer)
         self.cardDetailsStackView.addArrangedSubview(self.expirationDateContainer)
@@ -377,17 +375,17 @@ final class CardFormViewController: UIViewController {
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 24),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -24),
-            stackView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -48),
-            
+            self.scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            self.scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            self.scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            self.scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            self.stackView.topAnchor.constraint(equalTo: self.scrollView.topAnchor, constant: 24),
+            self.stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            self.stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            self.stackView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor, constant: -24),
+            self.stackView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -48),
+
             self.cardNumberField.heightAnchor.constraint(equalToConstant: 56),
             self.securityCodeField.heightAnchor.constraint(equalToConstant: 56),
             self.expirationDateField.heightAnchor.constraint(equalToConstant: 56),
@@ -439,67 +437,69 @@ final class CardFormViewController: UIViewController {
     @objc private func doneButtonTapped() {
         view.endEditing(true)
     }
-    
+
     @objc private func documentTextChanged() {
-        viewModel.documentText = documentNumberField.text ?? ""
+        self.viewModel.documentText = self.documentNumberField.text ?? ""
     }
 }
 
 // MARK: - UI Update Methods
+
 @MainActor
 extension CardFormViewController {
     /// Updates the documents picker UI after fetching documents
     private func updateDocumentsUI() async {
-        documentTypePicker.reloadAllComponents()
+        self.documentTypePicker.reloadAllComponents()
         if let first = viewModel.documents.first {
-            documentTypeTextField.text = first.name
+            self.documentTypeTextField.text = first.name
         }
     }
-    
+
     /// Updates installments UI after fetching installment data
     private func updateInstallmentsUI() async {
-        installmentPicker.updatePayerCosts(viewModel.installments)
+        self.installmentPicker.updatePayerCosts(self.viewModel.installments)
     }
-    
+
     /// Updates card image UI when card logo is available
     private func updateCardImageUI() async {
         if let url = viewModel.cardNumberImageURL {
             loadCardImage(from: url.absoluteString)
         }
     }
-    
+
     /// Updates card configuration (length, mask) after payment method detection
     private func updateCardConfigurationUI() async {
-        cardNumberField.setMaxLength(viewModel.maxLengthCardNumber)
-        securityCodeField.setMaxLength(viewModel.maxLengthSecurityCode)
-        cardNumberField.setMask(pattern: viewModel.maskCardNumber)
+        self.cardNumberField.setMaxLength(self.viewModel.maxLengthCardNumber)
+        self.securityCodeField.setMaxLength(self.viewModel.maxLengthSecurityCode)
+        self.cardNumberField.setMask(pattern: self.viewModel.maskCardNumber)
     }
-    
+
     /// Updates token response UI after token creation
     private func updateTokenUI() async {
         if let token = viewModel.token {
             UIPasteboard.general.string = token
-            tokenResponseLabel.text = "Token (Already copy in your iPhone) => \(token)"
+            self.tokenResponseLabel.text = "Token (Already copy in your iPhone) => \(token)"
         }
     }
 }
 
 // MARK: - Core Methods Tokenization
+
 extension CardFormViewController {
     /// Handles the pay button tap, its here we tokenization card
     @objc private func handlePayButtonTapped() {
         Task {
             do {
                 let token = try await viewModel.createPaymentToken(
-                    cardNumber: cardNumberField,
-                    expirationDate: expirationDateField,
-                    securityCode: securityCodeField,
+                    cardNumber: self.cardNumberField,
+                    expirationDate: self.expirationDateField,
+                    securityCode: self.securityCodeField,
                     cardHolderName: "APRO"
                 )
-                
+
                 // Update UI with token response
-                await updateTokenUI()
-                
+                await self.updateTokenUI()
+
                 print("Token created successfully: \(token)")
             } catch {
                 print("Error creating token: \(error)")
@@ -511,16 +511,19 @@ extension CardFormViewController {
 // MARK: - PickerView Delegate & DataSource
 
 extension CardFormViewController: UIPickerViewDelegate, UIPickerViewDataSource {
-    func numberOfComponents(in _: UIPickerView) -> Int { 1 }
-    
+    func numberOfComponents(in _: UIPickerView) -> Int {
+        1
+    }
+
     func pickerView(_: UIPickerView, numberOfRowsInComponent _: Int) -> Int {
         self.viewModel.documents.count
     }
+
     func pickerView(_: UIPickerView, titleForRow row: Int, forComponent _: Int) -> String? {
         self.viewModel.documents[row].name
     }
-    
-    // When select the document
+
+    /// When select the document
     func pickerView(_: UIPickerView, didSelectRow row: Int, inComponent _: Int) {
         guard self.viewModel.documents.indices.contains(row) else { return }
         self.viewModel.selectedDocumentType = self.viewModel.documents[row]
@@ -530,14 +533,14 @@ extension CardFormViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 }
 
 // MARK: - InstallmentPicker Delegate
-// Select installment
+
+/// Select installment
 extension CardFormViewController: InstallmentPickerDelegate {
     func installmentPicker(_: InstallmentPickerView, didSelectPayerCost payerCost: Installment.PayerCost) {
-        viewModel.selectedPayerCost = payerCost
+        self.viewModel.selectedPayerCost = payerCost
         print("Selected installment:", payerCost.installments)
     }
 }
-
 
 // MARK: - Style Helpers
 
@@ -552,47 +555,47 @@ extension CardFormViewController {
 }
 
 // MARK: Helpers
+
 extension CardFormViewController {
     private func loadCardImage(from urlString: String) {
         guard let url = URL(string: urlString) else { return }
-        
-        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            guard let self = self,
-                  let data = data,
+
+        let task = URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self,
+                  let data,
                   error == nil,
                   let image = UIImage(data: data) else {
                 print("Error loading card image: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
-            
+
             let size = CGSize(width: 32, height: 32)
             UIGraphicsBeginImageContextWithOptions(size, false, UIScreen.main.scale)
             image.draw(in: CGRect(origin: .zero, size: size))
             let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
-            
+
             DispatchQueue.main.async {
                 let imageView = UIImageView(image: resizedImage)
                 imageView.contentMode = .scaleAspectFit
-                
+
                 let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 48, height: 32))
                 containerView.backgroundColor = .clear
-                
+
                 imageView.translatesAutoresizingMaskIntoConstraints = false
                 containerView.addSubview(imageView)
-                
+
                 NSLayoutConstraint.activate([
                     imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 8),
                     imageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
                     imageView.topAnchor.constraint(equalTo: containerView.topAnchor),
                     imageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
                 ])
-                
+
                 self.cardNumberField.setRightImage(view: containerView)
             }
         }
-        
+
         task.resume()
     }
-    
 }

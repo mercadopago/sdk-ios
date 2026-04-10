@@ -135,11 +135,11 @@ class InstallmentPickerView: UIView {
         self.installments = installments
         self.setupPayerCosts()
     }
-    
+
     /// Update installments directly with PayerCosts (for ViewModel integration)
     func updatePayerCosts(_ payerCosts: [Installment.PayerCost]) {
         self.flattenedPayerCosts = payerCosts.sorted { $0.installments < $1.installments }
-        
+
         // Set default selected option to 1 installment if available
         selectedPayerCost = self.flattenedPayerCosts.first { $0.installments == 1 } ?? self.flattenedPayerCosts.first
 
