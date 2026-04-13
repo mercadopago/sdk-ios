@@ -98,7 +98,7 @@ final class LocalCardFormInitializationRepositoryTests: XCTestCase {
     func testFetchReturnsIdentificationTypes() async throws {
         // Arrange
         let service = MockCheckoutService()
-        let expectedType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let expectedType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
         await service.setIdentificationTypesResult(.success([expectedType]))
         let repository = LocalCardFormInitializationRepository(service: service)
 

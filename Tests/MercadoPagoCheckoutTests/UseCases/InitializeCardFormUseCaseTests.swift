@@ -23,8 +23,8 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
         id: "CPF",
         name: "CPF",
         type: "number",
-        minLenght: 11,
-        maxLenght: 11
+        minLength: 11,
+        maxLength: 11
     )
 
     // MARK: - Helpers

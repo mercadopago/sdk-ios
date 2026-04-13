@@ -36,29 +36,76 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
                     "name": "CPF",
                     "type": "number",
                     "min_length": 11,
-                    "max_length": 11
+                    "max_length": 11,
+                    "placeholder": "000.000.000-00",
+                    "mask": "000.000.000-00"
                 }
             ],
             "translations": {
                 "card_form_title": "Preencha os dados do cartão",
-                "card_number_label": "Número do cartão",
-                "card_number_placeholder": "1234 1234 1234 1234",
-                "cardholder_name_label": "Nome do titular",
-                "cardholder_name_placeholder": "Ex.: Maria Lopez",
-                "cardholder_name_helper": "Como aparece no cartão",
-                "expiration_date_label": "Vencimento",
-                "expiration_date_placeholder": "MM/AA",
-                "security_code_label": "Código de segurança",
-                "security_code_placeholder": "Ex.: 123",
-                "document_label": "Documento do titular",
-                "pay_button_label": "Pagar!"
+                "card_number": {
+                    "label": "Número do cartão",
+                    "placeholder": "1234 1234 1234 1234",
+                    "helper": "",
+                    "tooltip": "",
+                    "error_empty_field": "",
+                    "error_incomplete_field": "",
+                    "error_invalid_field": ""
+                },
+                "holder_name": {
+                    "label": "Nome do titular",
+                    "placeholder": "Ex.: Maria Lopez",
+                    "helper": "Como aparece no cartão",
+                    "tooltip": "",
+                    "error_empty_field": "",
+                    "error_incomplete_field": "",
+                    "error_invalid_field": ""
+                },
+                "expiration_date": {
+                    "label": "Vencimento",
+                    "placeholder": "MM/AA",
+                    "helper": "",
+                    "tooltip": "",
+                    "error_empty_field": "",
+                    "error_incomplete_field": "",
+                    "error_invalid_field": ""
+                },
+                "security_code": {
+                    "label": "Código de segurança",
+                    "placeholder": "Ex.: 123",
+                    "helper": "",
+                    "tooltip": "",
+                    "error_empty_field": "",
+                    "error_incomplete_field": "",
+                    "error_invalid_field": ""
+                },
+                "document": {
+                    "label": "Documento do titular",
+                    "error_empty_field": "",
+                    "error_incomplete_field": "",
+                    "error_invalid_field": ""
+                },
+                "installments": {
+                    "pay_button_label": "Pagar!"
+                }
             },
             "card_number": {
-                "length": 16,
+                "type": "credit_card",
+                "length": { "min": 13, "max": 19 },
                 "mask": "#### #### #### ####"
             },
             "security_code": {
-                "length": 3
+                "length": 3,
+                "type": "back"
+            },
+            "holder_name": {
+                "type": "text",
+                "length": { "min": 2, "max": 26 }
+            },
+            "expiration_date": {
+                "type": "date",
+                "mask": "##/##",
+                "length": { "min": 4, "max": 5 }
             }
         }
         """
@@ -185,8 +232,8 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         // Assert
         XCTAssertEqual(result.identificationTypes.count, 1)
         XCTAssertEqual(result.identificationTypes.first?.id, "CPF")
-        XCTAssertEqual(result.identificationTypes.first?.minLenght, 11)
-        XCTAssertEqual(result.identificationTypes.first?.maxLenght, 11)
+        XCTAssertEqual(result.identificationTypes.first?.minLength, 11)
+        XCTAssertEqual(result.identificationTypes.first?.maxLength, 11)
     }
 
     // MARK: - Error Cases
