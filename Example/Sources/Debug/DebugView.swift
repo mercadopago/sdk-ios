@@ -13,15 +13,15 @@ struct DebugView: View {
 
     var filteredLogs: [DebugLog] {
         if let type = selectedType {
-            return logger.logs.filter { $0.type == type }
+            return self.logger.logs.filter { $0.type == type }
         }
-        return logger.logs
+        return self.logger.logs
     }
 
     var body: some View {
         NavigationView {
             VStack {
-                Picker("Filter", selection: $selectedType) {
+                Picker("Filter", selection: self.$selectedType) {
                     Text("All").tag(DebugLogType?.none)
                     ForEach(DebugLogType.allCases) { type in
                         Text(type.rawValue).tag(type as DebugLogType?)
@@ -31,7 +31,7 @@ struct DebugView: View {
                 .padding()
 
                 List {
-                    ForEach(filteredLogs) { log in
+                    ForEach(self.filteredLogs) { log in
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Text(log.type.rawValue)
@@ -46,7 +46,7 @@ struct DebugView: View {
                             Text(log.title)
                                 .font(.headline)
 
-                            if expandedLogs.contains(log.id) {
+                            if self.expandedLogs.contains(log.id) {
                                 ScrollView(.horizontal) {
                                     Text(log.details)
                                         .font(.system(.caption, design: .monospaced))
@@ -54,11 +54,11 @@ struct DebugView: View {
                                 }
                             }
 
-                            Button(expandedLogs.contains(log.id) ? "Ocultar detalhes" : "Mostrar detalhes") {
-                                if expandedLogs.contains(log.id) {
-                                    expandedLogs.remove(log.id)
+                            Button(self.expandedLogs.contains(log.id) ? "Ocultar detalhes" : "Mostrar detalhes") {
+                                if self.expandedLogs.contains(log.id) {
+                                    self.expandedLogs.remove(log.id)
                                 } else {
-                                    expandedLogs.insert(log.id)
+                                    self.expandedLogs.insert(log.id)
                                 }
                             }
                             .font(.caption2)
@@ -69,7 +69,7 @@ struct DebugView: View {
                 }
 
                 Button("Limpar logs") {
-                    logger.clearLogs()
+                    self.logger.clearLogs()
                 }
                 .padding()
             }

@@ -5,7 +5,9 @@
 //  Created by Guilherme Prata Costa on 28/01/26.
 //
 import CoreMethods
+import MPAnalytics
 import MPComponents
+import MPCore
 import SwiftUI
 
 @MainActor
@@ -14,6 +16,7 @@ final class CardFormViewModel: ObservableObject {
 
     private let configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let service: CheckoutServiceProtocol
+    private let analytics: AnalyticsInterface
 
     // MARK: - Formatters
 
@@ -34,7 +37,9 @@ final class CardFormViewModel: ObservableObject {
     @Published private(set) var isTokenizing = false
 
     @Published var selectTypeDocument: IdentificationType? {
-        didSet { self.updateIdentificationType() }
+        didSet {
+            self.updateIdentificationType()
+        }
     }
 
     var identificationTypes: [IdentificationType] = []
@@ -74,22 +79,26 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private var isCancelling = false
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
     private let fields: CardFormFields.Fields
+    private var analyticsTask: Task<Void, Never>?
 
     // MARK: - Init
 
     init(
         configuration: MercadoPagoCheckout.CheckoutConfiguration,
         initResult: CardFormInitializationOutput,
-        service: CheckoutServiceProtocol = CheckoutService()
+        service: CheckoutServiceProtocol = CheckoutService(),
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.configuration = configuration
         self.service = service
         self.fields = initResult.fields
+        self.analytics = analytics
         self.identificationTypes = initResult.identificationTypes
-        self.selectTypeDocument = initResult.identificationTypes.first
+        _selectTypeDocument = Published(wrappedValue: initResult.identificationTypes.first)
 
         self.cardNumberFormatter = CardNumberFormatter(maxLength: initResult.fields.cardNumber.config.length.max)
         self.expirationDateFormatter = ExpirationDateFormatter(maxLength: initResult.fields.expiration.config.length.max)
@@ -228,6 +237,11 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
+    func cardNumberEditingEnded(isValid: Bool) {
+        self.retryBinFetch()
+        self.trackInputValidation(field: .cardNumber, isValid: isValid)
+    }
+
     // MARK: - Payment Data
 
     private func createPaymentData(
@@ -270,13 +284,79 @@ final class CardFormViewModel: ObservableObject {
     ) async {
         self.isTokenizing = true
         defer { self.isTokenizing = false }
+
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
             let paymentData = try self.createPaymentData(transactionAmount, cardToken: cardToken, cardFormData: cardForm)
+            self.trackSubmit(paymentData: paymentData, transactionAmount: transactionAmount)
             onSuccess(paymentData)
         } catch {
             guard !Task.isCancelled else { return }
+            self.trackSubmitError(error)
             onFailure(error)
+        }
+    }
+
+    // MARK: - Analytics
+
+    func cancel(context _: CardFormUserCancelledContext, reason: CardFormCancelReason) {
+        self.isCancelling = true
+        let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(CardFormAnalyticsPath.userCanceledError)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    func trackInputValidation(field: CardFormField, isValid: Bool) {
+        guard !self.isCancelling, !self.isTokenizing else { return }
+        let eventData = CardFormInputValidationEventData(field: field.analyticsValue, isInputValid: isValid)
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(CardFormAnalyticsPath.inputValidation)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    func trackDropdownSelection(selectedValue: String) {
+        guard !self.isCancelling, !self.isTokenizing else { return }
+        let eventData = CardFormDropdownSelectionEventData(dropdownSelectionType: selectedValue)
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(CardFormAnalyticsPath.dropdownSelection)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackSubmit(paymentData: MPPaymentData, transactionAmount: Double?) {
+        let eventData = CardFormSubmitEventData(
+            cardBrand: paymentData.paymentMethodId ?? "",
+            transactionAmount: transactionAmount,
+            issuer: self.binData?.issuer?.name ?? "",
+            paymentType: paymentData.paymentTypeId
+        )
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(CardFormAnalyticsPath.submit)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackSubmitError(_ error: MercadoPagoCheckoutError) {
+        let eventData = CardFormErrorEventData(errorType: error.analyticsErrorType)
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(CardFormAnalyticsPath.submitError)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func enqueueAnalytics(_ block: @escaping @Sendable () async -> Void) {
+        let previous = self.analyticsTask
+        self.analyticsTask = Task {
+            await previous?.value
+            await block()
         }
     }
 }

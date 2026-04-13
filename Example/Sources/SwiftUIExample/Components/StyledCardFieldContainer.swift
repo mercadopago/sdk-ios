@@ -8,7 +8,7 @@ import SwiftUI
 
 struct StyledCardFieldContainer<Content: View>: View {
     let title: String
-    @Binding public var isValid: Bool
+    @Binding var isValid: Bool
     let content: Content
     let paddingContent = EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
     let onTap: (() -> Void)?
