@@ -106,8 +106,8 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     id: dto.id,
                     name: dto.name,
                     type: dto.type,
-                    minLenght: dto.minLength,
-                    maxLenght: dto.maxLength,
+                    minLength: dto.minLength,
+                    maxLength: dto.maxLength,
                     placeholder: dto.placeholder,
                     mask: dto.mask
                 )

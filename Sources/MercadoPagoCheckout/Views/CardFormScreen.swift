@@ -46,7 +46,7 @@ struct CardFormScreen: View {
 
         var formData = CardFormData(fields: initResult.fields)
         if let firstType = viewModel.selectTypeDocument {
-            formData.setDocumentLength(firstType.minLenght, firstType.maxLenght)
+            formData.setDocumentLength(firstType.minLength, firstType.maxLength)
             formData.setDocumentType(isNumeric: firstType.type != "string")
         }
         self._cardForm = State(initialValue: formData)
@@ -250,7 +250,7 @@ struct CardFormScreen: View {
 
     private func updateIdentificationTypes(_ identificationType: IdentificationType?) {
         guard let identificationType else { return }
-        self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
+        self.cardForm.setDocumentLength(identificationType.minLength, identificationType.maxLength)
         self.cardForm.setDocumentType(isNumeric: identificationType.type != "string")
     }
 }
