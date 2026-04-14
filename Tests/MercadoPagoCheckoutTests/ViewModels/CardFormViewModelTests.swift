@@ -39,15 +39,15 @@ final class CardFormViewModelTests: XCTestCase {
             id: "CPF",
             name: "CPF",
             type: "numeric",
-            minLenght: 11,
-            maxLenght: 11
+            minLength: 11,
+            maxLength: 11
         )
         static let cnpj = IdentificationType(
             id: "CNPJ",
             name: "CNPJ",
             type: "numeric",
-            minLenght: 14,
-            maxLenght: 14
+            minLength: 14,
+            maxLength: 14
         )
     }
 
@@ -994,7 +994,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_init_withNumericIdentificationType_shouldSelectNumericType() {
         // Arrange
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
 
         // Act
         let sut = self.makeSUT(identificationTypes: [numericType])
@@ -1005,7 +1005,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_init_withStringIdentificationType_shouldSelectStringType() {
         // Arrange
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLength: 14, maxLength: 14)
 
         // Act
         let sut = self.makeSUT(identificationTypes: [stringType])
@@ -1024,8 +1024,8 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_selectTypeDocument_whenChangedToStringType_shouldReflectDefaultKeyboard() {
         // Arrange
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLength: 14, maxLength: 14)
         let sut = self.makeSUT(identificationTypes: [numericType, stringType])
 
         // Act
@@ -1037,8 +1037,8 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_selectTypeDocument_whenChangedToNumericType_shouldReflectNumberPadKeyboard() {
         // Arrange
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLength: 14, maxLength: 14)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
         let sut = self.makeSUT(identificationTypes: [stringType, numericType])
 
         // Act
@@ -1052,7 +1052,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_init_withNumericIdentificationType_shouldInitializeFormatterWithNumericMask() {
         // Arrange
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
 
         // Act
         let sut = self.makeSUT(identificationTypes: [numericType])
@@ -1064,7 +1064,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_init_withStringIdentificationType_shouldInitializeFormatterWithAlphanumericMask() {
         // Arrange — CNPJ string type uses alphanumeric mask
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLength: 14, maxLength: 14)
 
         // Act
         let sut = self.makeSUT(identificationTypes: [stringType])
@@ -1076,8 +1076,8 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_selectTypeDocument_whenChangedToStringType_shouldUpdateFormatterToAlphanumeric() {
         // Arrange — start with CPF (numeric)
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLength: 14, maxLength: 14)
         let sut = self.makeSUT(identificationTypes: [numericType, stringType])
 
         // Act
@@ -1090,8 +1090,8 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_selectTypeDocument_whenChangedToNumericType_shouldUpdateFormatterToDigitsOnly() {
         // Arrange — start with CNPJ string type
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLength: 14, maxLength: 14)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
         let sut = self.makeSUT(identificationTypes: [stringType, numericType])
 
         // Act

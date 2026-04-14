@@ -10,6 +10,7 @@ import SwiftUI
 
 extension IdentificationType {
     func getPlaceholder() -> String {
+        if !placeholder.isEmpty { return placeholder }
         switch id {
         case "CPF": return "999.999.999-99"
         case "CNPJ": return "99.999.999/9999-99"
@@ -18,6 +19,7 @@ extension IdentificationType {
     }
 
     func getFormat() -> String {
+        if !mask.isEmpty { return mask }
         switch id {
         case "CPF": return "###.###.###-##"
         case "CNPJ": return type == "string" ? "AA.AAA.AAA/AAAA-##" : "##.###.###/####-##"
@@ -26,7 +28,7 @@ extension IdentificationType {
     }
 
     func getKeyboardType() -> UIKeyboardType {
-        switch type {
+        switch type.lowercased() {
         case "number": return .numberPad
         case "string": return .default
         default: return .default

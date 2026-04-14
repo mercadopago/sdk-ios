@@ -21,9 +21,9 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Formatters
 
-    @Published private(set) var cardNumberFormatter = CardNumberFormatter()
-    let expirationDateFormatter = ExpirationDateFormatter()
-    @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
+    @Published private(set) var cardNumberFormatter: CardNumberFormatter
+    let expirationDateFormatter: ExpirationDateFormatter
+    @Published private(set) var securityCodeFormatter: SecurityCodeFormatter
     @Published private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
@@ -77,6 +77,7 @@ final class CardFormViewModel: ObservableObject {
     private var isCancelling = false
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
+    private let fields: CardFormFields.Fields
     private var analyticsTask: Task<Void, Never>?
 
     // MARK: - Init
@@ -91,14 +92,19 @@ final class CardFormViewModel: ObservableObject {
         self.configuration = configuration
         self.service = service
         self.fetchCardUseCase = fetchCardUseCase
+        self.fields = initResult.fields
         self.analytics = analytics
         self.identificationTypes = initResult.identificationTypes
         _selectTypeDocument = Published(wrappedValue: initResult.identificationTypes.first)
 
+        self.cardNumberFormatter = CardNumberFormatter(maxLength: initResult.fields.cardNumber.config.length.max)
+        self.expirationDateFormatter = ExpirationDateFormatter(maxLength: initResult.fields.expiration.config.length.max)
+        self.securityCodeFormatter = SecurityCodeFormatter(maxLength: initResult.fields.cvv.config.length.max)
+
         let firstType = initResult.identificationTypes.first
         self.documentFormatter = DocumentFormatter(
             mask: firstType?.getFormat() ?? String(),
-            maxLength: firstType?.maxLenght ?? 20,
+            maxLength: firstType?.maxLength ?? 20,
             isNumericType: firstType?.type != "string"
         )
     }
@@ -108,7 +114,7 @@ final class CardFormViewModel: ObservableObject {
     private func updateIdentificationType() {
         self.documentFormatter = DocumentFormatter(
             mask: self.selectTypeDocument?.getFormat() ?? String(),
-            maxLength: self.selectTypeDocument?.maxLenght ?? 20,
+            maxLength: self.selectTypeDocument?.maxLength ?? 20,
             isNumericType: self.selectTypeDocument?.type != "string"
         )
     }
@@ -124,8 +130,8 @@ final class CardFormViewModel: ObservableObject {
                 ? SecurityCodeFormatter(maxLength: cvvLength)
                 : SecurityCodeFormatter()
         } else {
-            self.cardNumberFormatter = CardNumberFormatter()
-            self.securityCodeFormatter = SecurityCodeFormatter()
+            self.cardNumberFormatter = CardNumberFormatter(maxLength: self.fields.cardNumber.config.length.max)
+            self.securityCodeFormatter = SecurityCodeFormatter(maxLength: self.fields.cvv.config.length.max)
         }
     }
 

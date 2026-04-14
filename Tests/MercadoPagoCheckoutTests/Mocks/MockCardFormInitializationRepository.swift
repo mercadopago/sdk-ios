@@ -15,7 +15,7 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
     nonisolated(unsafe) var fetchCallCount = 0
     nonisolated(unsafe) var sequentialResults: [Result<CardFormInitializationInput, Error>] = []
 
-    func fetchInitialization() async throws -> CardFormInitializationInput {
+    func fetchInitialization(amount _: Double?, checkoutType _: String) async throws -> CardFormInitializationInput {
         self.fetchCallCount += 1
         if !self.sequentialResults.isEmpty {
             let result = self.sequentialResults.removeFirst()
@@ -28,7 +28,7 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
     static func makeDefault() -> CardFormInitializationInput {
         CardFormInitializationInput(
             title: "Default Header",
-            buttonVariants: .init(save: "Save", pay: ""),
+            buttonLabel: "Save",
             fields: CardFormInitializationInputStub.makeDefaultFields(),
             identificationTypes: []
         )
@@ -37,7 +37,7 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
     static func makeDefault(identificationTypes: [IdentificationType]) -> CardFormInitializationInput {
         CardFormInitializationInput(
             title: "Default Header",
-            buttonVariants: .init(save: "Save", pay: ""),
+            buttonLabel: "Save",
             fields: CardFormInitializationInputStub.makeDefaultFields(),
             identificationTypes: identificationTypes
         )

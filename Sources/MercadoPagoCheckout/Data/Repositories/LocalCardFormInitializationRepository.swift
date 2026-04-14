@@ -16,7 +16,7 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
         self.service = service
     }
 
-    func fetchInitialization() async throws -> CardFormInitializationInput {
+    func fetchInitialization(amount _: Double?, checkoutType _: String) async throws -> CardFormInitializationInput {
         var identificationTypes: [IdentificationType] = []
 
         if MercadoPagoSDK.shared.configuration?.country != .MEX {
@@ -25,10 +25,7 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
 
         return CardFormInitializationInput(
             title: MPStrings.CardForm.title,
-            buttonVariants: .init(
-                save: MPStrings.CardForm.button,
-                pay: ""
-            ),
+            buttonLabel: MPStrings.CardForm.button,
             fields: .init(
                 cardNumber: .init(
                     label: MPStrings.CardForm.CardNumber.label,
@@ -39,7 +36,8 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                         errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
                         errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
                         errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
-                    )
+                    ),
+                    config: .init(type: "number", length: .init(min: 13, max: 19))
                 ),
                 cardHolder: .init(
                     label: MPStrings.CardForm.CardHolder.label,
@@ -49,7 +47,8 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                         errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
                         errorInvalid: MPStrings.CardForm.CardHolder.errorInvalid
-                    )
+                    ),
+                    config: .init(type: "string", length: .init(min: 2, max: 26))
                 ),
                 expiration: .init(
                     label: MPStrings.CardForm.Expiration.label,
@@ -58,16 +57,19 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
                         errorEmpty: MPStrings.CardForm.Expiration.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.Expiration.errorIncomplete,
                         errorInvalid: MPStrings.CardForm.Expiration.errorInvalid
-                    )
+                    ),
+                    config: .init(type: "date", length: .init(min: 4, max: 4))
                 ),
                 cvv: .init(
                     label: MPStrings.CardForm.CVV.label,
                     placeholderDefault: MPStrings.CardForm.CVV.placeholderDefault,
                     placeholderAmex: MPStrings.CardForm.CVV.placeholderAmex,
+                    tooltip: MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"),
                     validation: .init(
                         errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
                         errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
-                    )
+                    ),
+                    config: .init(type: "number", length: .init(min: 3, max: 4))
                 ),
                 issuer: .init(
                     label: MPStrings.CardForm.Issuer.label,

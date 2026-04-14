@@ -13,26 +13,39 @@ struct CardFormData {
     @CardFormValidate var securityCode: String
     @CardFormValidate var documentHolder: String
 
-    init(fields: CardFormTexts.Fields) {
+    init(fields: CardFormFields.Fields) {
         _cardNumber = CardFormValidate(
             wrappedValue: "",
             RequiredRule(fields.cardNumber.validation.errorEmpty),
-            CardNumberRule(validation: fields.cardNumber.validation)
+            CardNumberRule(
+                validation: fields.cardNumber.validation,
+                min: fields.cardNumber.config.length.min,
+                max: fields.cardNumber.config.length.max
+            )
         )
         _cardHolder = CardFormValidate(
             wrappedValue: "",
             RequiredRule(fields.cardHolder.validation.errorEmpty),
-            CardHolderRule(validation: fields.cardHolder.validation)
+            CardHolderRule(
+                validation: fields.cardHolder.validation,
+                maxLength: fields.cardHolder.config.length.max
+            )
         )
         _expirationDate = CardFormValidate(
             wrappedValue: "",
             RequiredRule(fields.expiration.validation.errorEmpty),
-            ExpirationDateRule(validation: fields.expiration.validation)
+            ExpirationDateRule(
+                validation: fields.expiration.validation,
+                length: fields.expiration.config.length.max
+            )
         )
         _securityCode = CardFormValidate(
             wrappedValue: "",
             RequiredRule(fields.cvv.validation.errorEmpty),
-            SecurityCodeRule(validation: fields.cvv.validation)
+            SecurityCodeRule(
+                validation: fields.cvv.validation,
+                length: fields.cvv.config.length.max
+            )
         )
         _documentHolder = CardFormValidate(
             wrappedValue: "",

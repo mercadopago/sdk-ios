@@ -47,7 +47,12 @@ final class CardFormBrickViewModel: ObservableObject {
         guard case .loading = self.screenState else { return }
         let config = self.extractCardFormConfig()
         do {
-            let result = try await withRetry { try await self.initializeUseCase.execute(config: config) }
+            let result = try await withRetry {
+                try await self.initializeUseCase.execute(
+                    config: config,
+                    checkoutType: self.configuration.type.analyticsValue
+                )
+            }
             let viewModel = CardFormViewModel(
                 configuration: self.configuration,
                 initResult: result,

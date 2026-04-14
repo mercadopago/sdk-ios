@@ -33,8 +33,8 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     // MARK: - Stubs
 
     private enum IdentificationTypeStub {
-        static let cpf = IdentificationType(id: "CPF", name: "CPF", type: "numeric", minLenght: 11, maxLenght: 11)
-        static let cnpj = IdentificationType(id: "CNPJ", name: "CNPJ", type: "numeric", minLenght: 14, maxLenght: 14)
+        static let cpf = IdentificationType(id: "CPF", name: "CPF", type: "numeric", minLength: 11, maxLength: 11)
+        static let cnpj = IdentificationType(id: "CNPJ", name: "CNPJ", type: "numeric", minLength: 14, maxLength: 14)
     }
 
     private enum CardTokenStub {
@@ -382,13 +382,13 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let secondSendIdx = sendIndices[1]
 
         // First group (before first send) must have exactly track + setEventData
-        let firstGroup = Array(messages[0..<firstSendIdx])
+        let firstGroup = Array(messages[0 ..< firstSendIdx])
         XCTAssertEqual(firstGroup.count, 2, "First event must have exactly [track, setEventData] before its send")
         XCTAssertTrue(firstGroup.contains(.track(path: CardFormAnalyticsPath.inputValidation)))
         XCTAssertTrue(firstGroup.contains(.setEventData(["field": "card_number", "is_input_valid": true])))
 
         // Second group (between first and second send) must have exactly track + setEventData
-        let secondGroup = Array(messages[(firstSendIdx + 1)..<secondSendIdx])
+        let secondGroup = Array(messages[(firstSendIdx + 1) ..< secondSendIdx])
         XCTAssertEqual(secondGroup.count, 2, "Second event must have exactly [track, setEventData] before its send")
         XCTAssertTrue(secondGroup.contains(.track(path: CardFormAnalyticsPath.inputValidation)))
         XCTAssertTrue(secondGroup.contains(.setEventData(["field": "card_holder", "is_input_valid": false])))
@@ -412,10 +412,10 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let firstSendIdx = sendIndices[0]
         let secondSendIdx = sendIndices[1]
 
-        let firstGroup = Array(messages[0..<firstSendIdx])
+        let firstGroup = Array(messages[0 ..< firstSendIdx])
         XCTAssertEqual(firstGroup.count, 2, "First event must have exactly [track, setEventData] before its send")
 
-        let secondGroup = Array(messages[(firstSendIdx + 1)..<secondSendIdx])
+        let secondGroup = Array(messages[(firstSendIdx + 1) ..< secondSendIdx])
         XCTAssertEqual(secondGroup.count, 2, "Second event must have exactly [track, setEventData] before its send")
     }
 
@@ -461,12 +461,12 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         XCTAssertEqual(sendIndices.count, 2)
 
         // First event must be input validation
-        let firstGroup = Array(messages[0..<sendIndices[0]])
+        let firstGroup = Array(messages[0 ..< sendIndices[0]])
         XCTAssertTrue(firstGroup.contains(.track(path: CardFormAnalyticsPath.inputValidation)))
         XCTAssertFalse(firstGroup.contains(.track(path: CardFormAnalyticsPath.submit)))
 
         // Second event must be submit
-        let secondGroup = Array(messages[(sendIndices[0] + 1)..<sendIndices[1]])
+        let secondGroup = Array(messages[(sendIndices[0] + 1) ..< sendIndices[1]])
         XCTAssertTrue(secondGroup.contains(.track(path: CardFormAnalyticsPath.submit)))
         XCTAssertFalse(secondGroup.contains(.track(path: CardFormAnalyticsPath.inputValidation)))
     }
