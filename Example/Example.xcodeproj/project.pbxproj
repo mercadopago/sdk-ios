@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2239F23C044F4DC68BDD279D /* MPDevice in Frameworks */ = {isa = PBXBuildFile; productRef = 96CF427D532A4369B5E21DCA /* MPDevice */; };
 		EF0925BC2D5BDC6600B08775 /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF0925BB2D5BDC6600B08775 /* CoreMethods */; };
 		EF4754E52D14C35D00E9619F /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF4754E42D14C35D00E9619F /* CoreMethods */; };
 /* End PBXBuildFile section */
@@ -60,6 +61,7 @@
 			files = (
 				EF0925BC2D5BDC6600B08775 /* CoreMethods in Frameworks */,
 				EF4754E52D14C35D00E9619F /* CoreMethods in Frameworks */,
+				2239F23C044F4DC68BDD279D /* MPDevice in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,6 +125,7 @@
 			packageProductDependencies = (
 				EF4754E42D14C35D00E9619F /* CoreMethods */,
 				EF0925BB2D5BDC6600B08775 /* CoreMethods */,
+				96CF427D532A4369B5E21DCA /* MPDevice */,
 			);
 			productName = Example;
 			productReference = D99B79E32CA4E2B30010B87C /* Example.app */;
@@ -585,6 +588,11 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		96CF427D532A4369B5E21DCA /* MPDevice */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EF0925BA2D5BDC6600B08775 /* XCLocalSwiftPackageReference "../../sdk-ios" */;
+			productName = MPDevice;
+		};
 		EF0925BB2D5BDC6600B08775 /* CoreMethods */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CoreMethods;

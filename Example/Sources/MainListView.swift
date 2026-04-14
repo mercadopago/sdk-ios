@@ -13,6 +13,8 @@ struct MainListView: View {
 
     @State private var showingCardFormSwiftUI = false
 
+    @State private var showingDeviceSession = false
+
     @State private var showDebug = false
 
     var body: some View {
@@ -25,6 +27,12 @@ struct MainListView: View {
 
                     Button("Card Form (SwiftUI)") {
                         self.showingCardFormSwiftUI = true
+                    }
+                }
+
+                Section("Device") {
+                    Button("Device Session") {
+                        self.showingDeviceSession = true
                     }
                 }
 
@@ -42,6 +50,9 @@ struct MainListView: View {
         }
         .sheet(isPresented: self.$showingCardFormSwiftUI) {
             CardFormView()
+        }
+        .sheet(isPresented: self.$showingDeviceSession) {
+            DeviceSessionView()
         }
         .sheet(isPresented: self.$showDebug) {
             DebugView()

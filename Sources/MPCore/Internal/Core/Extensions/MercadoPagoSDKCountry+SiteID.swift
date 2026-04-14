@@ -6,7 +6,7 @@
 //
 
 extension MercadoPagoSDK.Country {
-    func getSiteId() -> String {
+    package func getSiteId() -> String {
         switch self {
         case .BRA:
             return "MLB"
