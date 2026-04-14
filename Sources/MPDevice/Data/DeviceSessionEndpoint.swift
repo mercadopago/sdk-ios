@@ -8,7 +8,7 @@ import Foundation
     import MPCore
 #endif
 
-private enum ConstantsMPDevice {
+private enum Constants {
     static let baseURL = "https://api.mercadopago.com/cho-off"
 }
 
@@ -22,7 +22,7 @@ extension DeviceSessionEndpoint: RequestEndpoint {
     }
 
     var baseURL: String {
-        ConstantsMPDevice.baseURL
+        Constants.baseURL
     }
 
     var method: HTTPMethod {

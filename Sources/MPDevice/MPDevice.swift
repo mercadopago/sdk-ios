@@ -33,6 +33,7 @@ public final class MPDevice: Sendable {
     }
 }
 
+// swiftlint:disable redundant_public_access
 public extension MPDevice {
     // MARK: - Public Functions
 
@@ -47,3 +48,5 @@ public extension MPDevice {
         return try await self.useCase.deviceSession()
     }
 }
+
+// swiftlint:enable redundant_public_access

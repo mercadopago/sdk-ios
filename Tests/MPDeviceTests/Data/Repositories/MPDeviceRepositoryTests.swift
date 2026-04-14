@@ -3,6 +3,7 @@ import CommonTests
 @testable import MPDevice
 import XCTest
 
+@MainActor
 final class MPDeviceRepositoryTests: XCTestCase {
     // MARK: - Typealias
 

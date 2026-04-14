@@ -16,7 +16,7 @@ final class DeviceSessionUseCase: DeviceSessionUseCaseProtocol {
     private let repository: MPDeviceRepositoryProtocol
 
     typealias Dependency = HasFingerPrint
-    let dependencies: Dependency
+    private let dependencies: Dependency
 
     init(
         dependencies: Dependency,

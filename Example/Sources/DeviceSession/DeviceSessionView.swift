@@ -88,7 +88,7 @@ struct DeviceSessionView: View {
         self.errorMessage = nil
         self.deviceSession = nil
 
-        Task {
+        Task { @MainActor in
             defer { isLoading = false }
             do {
                 self.deviceSession = try await self.device.deviceSession()

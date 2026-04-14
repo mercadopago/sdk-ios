@@ -16,7 +16,7 @@ final class MPDeviceRepository: MPDeviceRepositoryProtocol {
     typealias Dependency = HasNetwork
     private typealias Endpoint = DeviceSessionEndpoint
 
-    let dependencies: Dependency
+    private let dependencies: Dependency
 
     init(dependencies: Dependency = CoreDependencyContainer.shared) {
         self.dependencies = dependencies
