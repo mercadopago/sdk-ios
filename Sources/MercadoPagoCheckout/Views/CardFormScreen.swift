@@ -299,9 +299,9 @@ struct CardFormScreen: View {
     }
 
     private func updateCardNumberLength(cardData: CardPaymentBrickCardData?) {
-        if let method = cardData?.paymentMethods.first {
+        if let method = cardData?.paymentMethods.first, let securityCode = method.securityCode {
             self.cardForm.setCardNumberLength(method.cardNumber.length.min, method.cardNumber.length.max)
-            self.cardForm.setSecurityCodeLength(method.securityCode.length)
+            self.cardForm.setSecurityCodeLength(securityCode.length)
         } else {
             self.cardForm.setCardNumberLength()
             self.cardForm.cleanSecurityCodeField()

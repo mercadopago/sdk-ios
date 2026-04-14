@@ -242,6 +242,7 @@ final class CardFormViewModel: ObservableObject {
         CardPaymentBrickCardParams(
             bin: bin,
             amount: self.configuration.type.configuration.amount,
+            checkoutType: self.configuration.type.analyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
             locale: Locale.current.identifier.replacingOccurrences(of: "_", with: "-"),
             allowCardTypes: self.configuration.paymentMethod.acceptedPaymentTypeIds,

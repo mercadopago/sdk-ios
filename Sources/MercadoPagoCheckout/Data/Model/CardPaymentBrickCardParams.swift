@@ -8,6 +8,7 @@
 struct CardPaymentBrickCardParams {
     let bin: String
     let amount: Double?
+    let checkoutType: String
     let processingMode: String
     let locale: String
     let allowCardTypes: [String]

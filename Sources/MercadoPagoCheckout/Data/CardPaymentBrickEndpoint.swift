@@ -42,12 +42,11 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
             var result: [String: any CustomStringConvertible] = [
                 "product_id": MPSDKProduct.id,
                 "bin": params.bin,
+                "checkout_type": params.checkoutType,
                 "processing_mode": params.processingMode,
                 "locale": params.locale
             ]
-            if let amount = params.amount {
-                result["amount"] = "\(amount)"
-            }
+            result["amount"] = params.amount.map { "\($0)" }
             if !params.allowCardTypes.isEmpty {
                 result["allow_card_types"] = params.allowCardTypes.joined(separator: ",")
             }
