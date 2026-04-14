@@ -1,14 +1,14 @@
 import CommonTests
 @testable import MPCore
-@testable import MPDevice
+@testable import MPExtended
 import XCTest
 
 @MainActor
-final class MPDeviceRepositoryTests: XCTestCase {
+final class MPExtendedRepositoryTests: XCTestCase {
     // MARK: - Typealias
 
     private typealias SUT = (
-        sut: MPDeviceRepository,
+        sut: MPExtendedRepository,
         dependencies: MockDependencyContainer
     )
 
@@ -25,7 +25,7 @@ final class MPDeviceRepositoryTests: XCTestCase {
 
     private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
         let dependencies = MockDependencyContainer()
-        let sut = MPDeviceRepository(dependencies: dependencies)
+        let sut = MPExtendedRepository(dependencies: dependencies)
         return (sut, dependencies)
     }
 

@@ -1,13 +1,13 @@
 import CommonTests
-@testable import MPDevice
+@testable import MPExtended
 import XCTest
 
 @MainActor
-final class MPDeviceTests: XCTestCase {
+final class MPExtendedTests: XCTestCase {
     // MARK: - Typealias
 
     private typealias SUT = (
-        sut: MPDevice,
+        sut: MPExtended,
         useCase: DeviceSessionUseCaseMock
     )
 
@@ -25,7 +25,7 @@ final class MPDeviceTests: XCTestCase {
 
     private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
         let useCaseMock = DeviceSessionUseCaseMock()
-        let sut = MPDevice(useCase: useCaseMock)
+        let sut = MPExtended(useCase: useCaseMock)
         return (sut: sut, useCase: useCaseMock)
     }
 

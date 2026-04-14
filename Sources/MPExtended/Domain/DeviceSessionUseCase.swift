@@ -13,14 +13,14 @@ protocol DeviceSessionUseCaseProtocol: Sendable {
 }
 
 final class DeviceSessionUseCase: DeviceSessionUseCaseProtocol {
-    private let repository: MPDeviceRepositoryProtocol
+    private let repository: MPExtendedRepositoryProtocol
 
     typealias Dependency = HasFingerPrint
     private let dependencies: Dependency
 
     init(
         dependencies: Dependency,
-        repository: MPDeviceRepositoryProtocol
+        repository: MPExtendedRepositoryProtocol
     ) {
         self.dependencies = dependencies
         self.repository = repository

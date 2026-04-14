@@ -1,5 +1,5 @@
 //
-//  MPDeviceRepository.swift
+//  MPExtendedRepository.swift
 //  MercadoPagoSDK
 //
 
@@ -8,11 +8,11 @@ import Foundation
     import MPCore
 #endif
 
-protocol MPDeviceRepositoryProtocol: Sendable {
+protocol MPExtendedRepositoryProtocol: Sendable {
     func deviceSession(body: DeviceSessionBody) async throws -> String
 }
 
-final class MPDeviceRepository: MPDeviceRepositoryProtocol {
+final class MPExtendedRepository: MPExtendedRepositoryProtocol {
     typealias Dependency = HasNetwork
     private typealias Endpoint = DeviceSessionEndpoint
 

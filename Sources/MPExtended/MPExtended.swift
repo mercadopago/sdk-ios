@@ -1,5 +1,5 @@
 //
-//  MPDevice.swift
+//  MPExtended.swift
 //  MercadoPagoSDK
 //
 
@@ -15,16 +15,16 @@ import Foundation
 ///
 /// Example:
 /// ```swift
-/// let device = MPDevice()
+/// let device = MPExtended()
 /// let session = try await device.deviceSession()
 /// print(session)
 /// ```
-public final class MPDevice: Sendable {
+public final class MPExtended: Sendable {
     private let useCase: DeviceSessionUseCaseProtocol
 
     public init() {
         let container = CoreDependencyContainer.shared
-        let repository = MPDeviceRepository(dependencies: container)
+        let repository = MPExtendedRepository(dependencies: container)
         self.useCase = DeviceSessionUseCase(dependencies: container, repository: repository)
     }
 
@@ -34,7 +34,7 @@ public final class MPDevice: Sendable {
 }
 
 // swiftlint:disable redundant_public_access
-public extension MPDevice {
+public extension MPExtended {
     // MARK: - Public Functions
 
     /// Returns a device session for the current device.

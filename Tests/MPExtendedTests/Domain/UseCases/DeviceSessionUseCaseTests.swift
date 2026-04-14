@@ -1,6 +1,6 @@
 import CommonTests
 @testable import MPCore
-@testable import MPDevice
+@testable import MPExtended
 import XCTest
 
 @MainActor
@@ -9,7 +9,7 @@ final class DeviceSessionUseCaseTests: XCTestCase {
 
     private typealias SUT = (
         sut: DeviceSessionUseCase,
-        repository: MPDeviceRepositoryMock,
+        repository: MPExtendedRepositoryMock,
         fingerPrint: MockFingerPrint
     )
 
@@ -45,7 +45,7 @@ final class DeviceSessionUseCaseTests: XCTestCase {
     private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
         let fingerPrint = MockFingerPrint()
         let container = MockDependencyContainer(fingerPrint: fingerPrint)
-        let repositoryMock = MPDeviceRepositoryMock()
+        let repositoryMock = MPExtendedRepositoryMock()
         let useCase = DeviceSessionUseCase(dependencies: container, repository: repositoryMock)
         return (sut: useCase, repository: repositoryMock, fingerPrint: fingerPrint)
     }
@@ -86,7 +86,7 @@ final class DeviceSessionUseCaseTests: XCTestCase {
         let fingerPrint = ConfigurableFingerPrint()
         await fingerPrint.setData(FingerPrintStub.validData)
         let container = FingerPrintOnlyContainer(fingerPrint: fingerPrint)
-        let repositoryMock = MPDeviceRepositoryMock()
+        let repositoryMock = MPExtendedRepositoryMock()
         let sut = DeviceSessionUseCase(dependencies: container, repository: repositoryMock)
         await repositoryMock.setDeviceSession(result: .success(SessionStub.validString))
 
@@ -138,7 +138,7 @@ private actor ConfigurableFingerPrint: @preconcurrency FingerPrintProtocol {
     }
 }
 
-private actor MPDeviceRepositoryMock: MPDeviceRepositoryProtocol {
+private actor MPExtendedRepositoryMock: MPExtendedRepositoryProtocol {
     private(set) var deviceSessionCallCount = 0
     private(set) var lastBody: DeviceSessionBody?
     private var deviceSessionResult: Result<String, Error>!

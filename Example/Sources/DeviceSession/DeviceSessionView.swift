@@ -3,7 +3,7 @@
 //  Example
 //
 
-import MPDevice
+import MPExtended
 import SwiftUI
 
 struct DeviceSessionView: View {
@@ -11,7 +11,7 @@ struct DeviceSessionView: View {
     @State private var errorMessage: String?
     @State private var isLoading = false
 
-    private let device = MPDevice()
+    private let device = MPExtended()
 
     var body: some View {
         NavigationView {
