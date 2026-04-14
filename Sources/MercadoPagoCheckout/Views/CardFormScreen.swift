@@ -70,7 +70,7 @@ struct CardFormScreen: View {
                     title: MPStrings.Common.total,
                     amount: nil,
                     buttonData: .init(
-                        text: MPStrings.CardForm.button,
+                        text: self.initResult.button,
                         onClick: {
                             await self.viewModel.submitCardData(
                                 cardForm: self.cardForm,

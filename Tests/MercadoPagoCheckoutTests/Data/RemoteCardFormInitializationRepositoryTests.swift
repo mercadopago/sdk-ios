@@ -43,6 +43,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
             ],
             "translations": {
                 "card_form_title": "Preencha os dados do cartão",
+                "card_form_footer_button_label": "Salvar cartão",
                 "card_number": {
                     "label": "Número do cartão",
                     "placeholder": "1234 1234 1234 1234",
@@ -86,7 +87,13 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
                     "error_invalid_field": ""
                 },
                 "installments": {
-                    "pay_button_label": "Pagar!"
+                    "header": {
+                        "chevron": "Escolha o parcelamento",
+                        "radio": "Escolha o parcelamento",
+                        "title": "Escolha o parcelamento"
+                    },
+                    "interest_free_label": "Sem acréscimo",
+                    "total_label": "Total"
                 }
             },
             "card_number": {
@@ -130,7 +137,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization()
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.title, "Preencha os dados do cartão")
@@ -143,10 +150,10 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization()
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
-        XCTAssertEqual(result.buttonVariants.save, "Pagar!")
+        XCTAssertEqual(result.buttonLabel, "Salvar cartão")
     }
 
     func testFetch_whenSuccess_mapsCardNumberFields() async throws {
@@ -156,7 +163,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization()
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.cardNumber.label, "Número do cartão")
@@ -170,7 +177,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization()
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.cardHolder.label, "Nome do titular")
@@ -185,7 +192,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization()
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.expiration.label, "Vencimento")
@@ -199,7 +206,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization()
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.cvv.label, "Código de segurança")
@@ -214,7 +221,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization()
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.document.label, "Documento do titular")
@@ -227,7 +234,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization()
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.identificationTypes.count, 1)
@@ -245,7 +252,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.fetchInitialization()
+            _ = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
             XCTFail("Expected error to be thrown")
         } catch {
             XCTAssertNotNil(error)
@@ -260,7 +267,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.fetchInitialization()
+            _ = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
             XCTFail("Expected decoding error")
         } catch {
             XCTAssertNotNil(error)

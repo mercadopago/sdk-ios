@@ -16,9 +16,9 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
         self.networkService = networkService
     }
 
-    func fetchInitialization() async throws -> CardFormInitializationInput {
+    func fetchInitialization(amount: Double?, checkoutType: String) async throws -> CardFormInitializationInput {
         let response: CardFormInitializationResponse = try await networkService.request(
-            CardFormInitializationEndpoint.getInitialization
+            CardFormInitializationEndpoint(amount: amount, checkoutType: checkoutType)
         )
         return self.map(response)
     }
@@ -29,7 +29,7 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
         let translations = response.translations
         return CardFormInitializationInput(
             title: translations.cardFormTitle,
-            buttonVariants: .init(save: translations.installments.payButtonLabel, pay: translations.installments.payButtonLabel),
+            buttonLabel: translations.cardFormFooterButtonLabel,
             fields: .init(
                 cardNumber: .init(
                     label: translations.cardNumber.label,

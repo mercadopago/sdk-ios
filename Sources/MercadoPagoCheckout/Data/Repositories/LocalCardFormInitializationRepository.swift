@@ -16,7 +16,7 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
         self.service = service
     }
 
-    func fetchInitialization() async throws -> CardFormInitializationInput {
+    func fetchInitialization(amount _: Double?, checkoutType _: String) async throws -> CardFormInitializationInput {
         var identificationTypes: [IdentificationType] = []
 
         if MercadoPagoSDK.shared.configuration?.country != .MEX {
@@ -25,10 +25,7 @@ struct LocalCardFormInitializationRepository: CardFormInitializationRepository {
 
         return CardFormInitializationInput(
             title: MPStrings.CardForm.title,
-            buttonVariants: .init(
-                save: MPStrings.CardForm.button,
-                pay: ""
-            ),
+            buttonLabel: MPStrings.CardForm.button,
             fields: .init(
                 cardNumber: .init(
                     label: MPStrings.CardForm.CardNumber.label,

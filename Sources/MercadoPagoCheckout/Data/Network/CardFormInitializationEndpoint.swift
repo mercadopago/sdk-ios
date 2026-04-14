@@ -11,11 +11,10 @@ import Foundation
     import MPCore
 #endif
 
-enum CardFormInitializationEndpoint {
-    case getInitialization
-}
+struct CardFormInitializationEndpoint: RequestEndpoint {
+    let amount: Double?
+    let checkoutType: String
 
-extension CardFormInitializationEndpoint: RequestEndpoint {
     var apiVersion: APIVersion {
         .v1
     }
@@ -39,7 +38,9 @@ extension CardFormInitializationEndpoint: RequestEndpoint {
     var urlParams: [String: any CustomStringConvertible] {
         [
             "product_id": MPSDKProduct.id,
-            "locale": MercadoPagoSDK.shared.configuration?.locale ?? Locale.current.identifier
+            "locale": MercadoPagoSDK.shared.configuration?.locale ?? Locale.current.identifier,
+            "checkout_type": self.checkoutType,
+            "amount": self.amount ?? 0
         ]
     }
 

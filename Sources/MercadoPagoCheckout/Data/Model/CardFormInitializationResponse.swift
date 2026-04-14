@@ -73,6 +73,7 @@ struct CardFormInitializationResponse: Codable {
 
     struct Translations: Codable {
         let cardFormTitle: String
+        let cardFormFooterButtonLabel: String
         let cardNumber: FieldTranslation
         let holderName: FieldTranslation
         let expirationDate: FieldTranslation
@@ -82,6 +83,7 @@ struct CardFormInitializationResponse: Codable {
 
         enum CodingKeys: String, CodingKey {
             case cardFormTitle = "card_form_title"
+            case cardFormFooterButtonLabel = "card_form_footer_button_label"
             case cardNumber = "card_number"
             case holderName = "holder_name"
             case expirationDate = "expiration_date"
@@ -123,10 +125,20 @@ struct CardFormInitializationResponse: Codable {
     }
 
     struct InstallmentsTranslation: Codable {
-        let payButtonLabel: String
+        let header: HeaderTranslation
+        let interestFreeLabel: String
+        let totalLabel: String
 
         enum CodingKeys: String, CodingKey {
-            case payButtonLabel = "pay_button_label"
+            case header
+            case interestFreeLabel = "interest_free_label"
+            case totalLabel = "total_label"
+        }
+
+        struct HeaderTranslation: Codable {
+            let chevron: String
+            let radio: String
+            let title: String
         }
     }
 }

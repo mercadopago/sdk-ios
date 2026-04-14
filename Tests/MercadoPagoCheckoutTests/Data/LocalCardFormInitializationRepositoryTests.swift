@@ -27,11 +27,11 @@ final class LocalCardFormInitializationRepositoryTests: XCTestCase {
         let sut = await makeSUT()
 
         // Act
-        let data = try await sut.repository.fetchInitialization()
+        let data = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertFalse(data.title.isEmpty)
-        XCTAssertFalse(data.buttonVariants.save.isEmpty)
+        XCTAssertFalse(data.buttonLabel.isEmpty)
         XCTAssertFalse(data.fields.cardNumber.label.isEmpty)
         XCTAssertFalse(data.fields.cardNumber.placeholder.isEmpty)
         XCTAssertFalse(data.fields.cardHolder.label.isEmpty)
@@ -52,21 +52,21 @@ final class LocalCardFormInitializationRepositoryTests: XCTestCase {
         let sut = await makeSUT()
 
         // Act
-        let data = try await sut.repository.fetchInitialization()
+        let data = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(data.title, MPStrings.CardForm.title)
     }
 
-    func testButtonVariantsSaveExists() async throws {
+    func testButtonLabelExists() async throws {
         // Arrange
         let sut = await makeSUT()
 
         // Act
-        let data = try await sut.repository.fetchInitialization()
+        let data = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
-        XCTAssertFalse(data.buttonVariants.save.isEmpty)
+        XCTAssertFalse(data.buttonLabel.isEmpty)
     }
 
     func testCardNumberLabelsMatchMPStrings() async throws {
@@ -74,7 +74,7 @@ final class LocalCardFormInitializationRepositoryTests: XCTestCase {
         let sut = await makeSUT()
 
         // Act
-        let data = try await sut.repository.fetchInitialization()
+        let data = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(data.fields.cardNumber.label, MPStrings.CardForm.CardNumber.label)
@@ -86,7 +86,7 @@ final class LocalCardFormInitializationRepositoryTests: XCTestCase {
         let sut = await makeSUT()
 
         // Act
-        let data = try await sut.repository.fetchInitialization()
+        let data = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
         let validation = data.fields.cardNumber.validation
 
         // Assert
@@ -103,7 +103,7 @@ final class LocalCardFormInitializationRepositoryTests: XCTestCase {
         let repository = LocalCardFormInitializationRepository(service: service)
 
         // Act
-        let data = try await repository.fetchInitialization()
+        let data = try await repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(data.identificationTypes.count, 1)
@@ -118,7 +118,7 @@ final class LocalCardFormInitializationRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await repository.fetchInitialization()
+            _ = try await repository.fetchInitialization(amount: nil, checkoutType: "card_form")
             XCTFail("Expected error to propagate")
         } catch {
             XCTAssertTrue(error is MercadoPagoCheckoutError)
