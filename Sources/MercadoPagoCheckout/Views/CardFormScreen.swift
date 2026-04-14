@@ -213,8 +213,8 @@ struct CardFormScreen: View {
             self.editedFields.insert(.cardNumber)
             self.viewModel.onCardNumberChange(newValue)
         }
-        .mpOnChange(of: self.viewModel.binData) { binData in
-            self.updateCardNumberLength(binData: binData)
+        .mpOnChange(of: self.viewModel.cardData) { cardData in
+            self.updateCardNumberLength(cardData: cardData)
         }
         .mpOnChange(of: self.viewModel.selectTypeDocument) { identificationType in
             self.updateIdentificationTypes(identificationType)
@@ -297,10 +297,10 @@ struct CardFormScreen: View {
         .animation(nil)
     }
 
-    private func updateCardNumberLength(binData: CardBinData?) {
-        if let cardInfo = binData?.paymentMethod.card {
-            self.cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
-            self.cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
+    private func updateCardNumberLength(cardData: CardPaymentBrickCardData?) {
+        if let method = cardData?.paymentMethods.first {
+            self.cardForm.setCardNumberLength(method.cardNumber.length.min, method.cardNumber.length.max)
+            self.cardForm.setSecurityCodeLength(method.securityCode.length)
         } else {
             self.cardForm.setCardNumberLength()
             self.cardForm.cleanSecurityCodeField()
