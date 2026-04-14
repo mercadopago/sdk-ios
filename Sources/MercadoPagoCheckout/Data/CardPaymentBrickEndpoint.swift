@@ -44,9 +44,10 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
                 "bin": params.bin,
                 "checkout_type": params.checkoutType,
                 "processing_mode": params.processingMode,
+                "amount": params.amount ?? 0,
                 "locale": params.locale
             ]
-            result["amount"] = params.amount.map { "\($0)" }
+
             if !params.allowCardTypes.isEmpty {
                 result["allow_card_types"] = params.allowCardTypes.joined(separator: ",")
             }
