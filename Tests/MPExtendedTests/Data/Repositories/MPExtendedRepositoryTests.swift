@@ -35,7 +35,7 @@ final class MPExtendedRepositoryTests: XCTestCase {
         // Arrange
         let (sut, dependencies) = self.makeSUT()
 
-        let expectedResponse = DeviceSessionResponse(session: "session-token-123")
+        let expectedResponse = DeviceSessionResponse(meliSessionId: "session-token-123")
         let data = try JSONEncoder().encode(expectedResponse)
         let url = try XCTUnwrap(URL(string: "https://api.mercadopago.com/cho-off/v1/devices/session"))
         let response = try XCTUnwrap(HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil))
@@ -46,7 +46,7 @@ final class MPExtendedRepositoryTests: XCTestCase {
         let session = try await sut.deviceSession(body: BodyStub.valid)
 
         // Assert
-        XCTAssertEqual(session, expectedResponse.session)
+        XCTAssertEqual(session, expectedResponse.meliSessionId)
     }
 
     func test_deviceSession_whenNetworkFails_shouldPropagateError() async {
