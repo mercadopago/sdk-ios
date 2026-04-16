@@ -52,13 +52,11 @@ final class CardFormViewModel: ObservableObject {
     }
 
     var cvvPlaceholder: String {
-        self.cardData?.securityCodeTranslations?.placeholder
-            ?? MPStrings.CardForm.CVV.placeholderDefault
+        self.cardData?.securityCodeTranslations?.placeholder ?? self.fields.cvv.placeholder
     }
 
     var cvvTooltipText: String {
-        self.cardData?.securityCodeTranslations?.tooltip
-            ?? MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back")
+        self.cardData?.securityCodeTranslations?.tooltip ?? self.fields.cvv.tooltip
     }
 
     var isSecurityCodeMandatory: Bool {

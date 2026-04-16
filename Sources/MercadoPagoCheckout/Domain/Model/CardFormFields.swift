@@ -59,8 +59,7 @@ enum CardFormFields {
 
     struct CVVField {
         let label: String
-        let placeholderDefault: String
-        let placeholderAmex: String
+        let placeholder: String
         let tooltip: String
         let validation: Validation
         let config: CardFieldConfig

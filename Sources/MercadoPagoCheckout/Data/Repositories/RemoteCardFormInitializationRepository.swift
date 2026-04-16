@@ -75,8 +75,7 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                 ),
                 cvv: .init(
                     label: translations.securityCode.label,
-                    placeholderDefault: translations.securityCode.placeholder,
-                    placeholderAmex: translations.securityCode.placeholder,
+                    placeholder: translations.securityCode.placeholder,
                     tooltip: translations.securityCode.tooltip,
                     validation: .init(
                         errorEmpty: translations.securityCode.errorEmptyField,
