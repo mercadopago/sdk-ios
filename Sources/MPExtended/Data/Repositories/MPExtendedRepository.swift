@@ -26,6 +26,6 @@ final class MPExtendedRepository: MPExtendedRepositoryProtocol {
         let response: DeviceSessionResponse = try await dependencies.networkService.request(
             Endpoint.putSession(body: body)
         )
-        return response.session
+        return response.meliSessionId
     }
 }
