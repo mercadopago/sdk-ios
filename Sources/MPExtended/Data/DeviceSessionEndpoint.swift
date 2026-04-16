@@ -44,6 +44,26 @@ extension DeviceSessionEndpoint: RequestEndpoint {
         [:]
     }
 
+    var urlRequest: URLRequest? {
+        var components = URLComponents(string: baseURL + self.apiVersion.rawValue + self.path)
+
+        let items = self.urlParams.map { key, value in
+            URLQueryItem(name: key, value: String(describing: value))
+        }
+
+        components?.queryItems = items.isEmpty ? nil : items
+
+        guard let url = components?.url else { return nil }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = self.method.rawValue
+        request.allHTTPHeaderFields = self.headers
+        request.httpBody = self.body
+        request.cachePolicy = isCacheable ? cachePolicy : .reloadIgnoringLocalCacheData
+
+        return request
+    }
+
     var body: Data? {
         switch self {
         case let .putSession(body):

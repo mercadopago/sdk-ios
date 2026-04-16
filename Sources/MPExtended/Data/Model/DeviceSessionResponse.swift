@@ -6,5 +6,9 @@
 import Foundation
 
 struct DeviceSessionResponse: Codable {
-    let session: String
+    let meliSessionId: String
+
+    enum CodingKeys: String, CodingKey {
+        case meliSessionId = "meli_session_id"
+    }
 }
