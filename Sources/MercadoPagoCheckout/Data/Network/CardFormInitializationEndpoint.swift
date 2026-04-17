@@ -41,9 +41,7 @@ struct CardFormInitializationEndpoint: RequestEndpoint {
     var urlParams: [String: any CustomStringConvertible] {
         [
             "product_id": MPSDKProduct.id,
-            "locale": Locale.preferredLanguages.first?.replacingOccurrences(of: "-", with: "_")
-                ?? MercadoPagoSDK.shared.configuration?.locale
-                ?? Locale.current.identifier,
+            "locale": MercadoPagoSDK.shared.getLocale(),
             "checkout_type": self.checkoutType,
             "amount": self.amount ?? 0
         ]
