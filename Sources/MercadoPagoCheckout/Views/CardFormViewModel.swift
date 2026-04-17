@@ -47,10 +47,6 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: Computed Properties
 
-    var requiresIdentificationTypes: Bool {
-        MercadoPagoSDK.shared.configuration?.country != .MEX
-    }
-
     var cvvPlaceholder: String {
         self.cardData?.securityCodeTranslations?.placeholder ?? self.fields.cvv.placeholder
     }

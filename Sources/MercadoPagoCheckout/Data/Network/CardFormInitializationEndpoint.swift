@@ -32,13 +32,18 @@ struct CardFormInitializationEndpoint: RequestEndpoint {
     }
 
     var headers: [String: String] {
-        ["Content-Type": "application/json"]
+        [
+            "Content-Type": "application/json",
+            "X-Public-Key": MercadoPagoSDK.shared.getPublicKey()
+        ]
     }
 
     var urlParams: [String: any CustomStringConvertible] {
         [
             "product_id": MPSDKProduct.id,
-            "locale": MercadoPagoSDK.shared.configuration?.locale ?? Locale.current.identifier,
+            "locale": Locale.preferredLanguages.first?.replacingOccurrences(of: "-", with: "_")
+                ?? MercadoPagoSDK.shared.configuration?.locale
+                ?? Locale.current.identifier,
             "checkout_type": self.checkoutType,
             "amount": self.amount ?? 0
         ]
