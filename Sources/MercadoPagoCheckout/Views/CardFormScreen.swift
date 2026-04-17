@@ -91,7 +91,7 @@ struct CardFormScreen: View {
                 .disabled(
                     !self.cardForm.isFormValid(
                         isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory,
-                        isDocumentRequired: self.viewModel.requiresIdentificationTypes
+                        isDocumentRequired: !self.initResult.identificationTypes.isEmpty
                     )
                 )
                 .background(
@@ -172,7 +172,7 @@ struct CardFormScreen: View {
                         )
                     }
 
-                    if self.viewModel.requiresIdentificationTypes {
+                    if !self.initResult.identificationTypes.isEmpty {
                         MPTextField(
                             text: self.$cardForm.documentHolder,
                             label: self.initResult.fields.document.label,

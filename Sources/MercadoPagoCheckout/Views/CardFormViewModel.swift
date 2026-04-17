@@ -46,10 +46,6 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: Computed Properties
 
-    var requiresIdentificationTypes: Bool {
-        MercadoPagoSDK.shared.configuration?.country != .MEX
-    }
-
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
             ? self.fields.cvv.placeholderAmex

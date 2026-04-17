@@ -29,12 +29,13 @@ struct CardFormInitializationResponse: Codable {
         let name: String
         let minLength: Int
         let maxLength: Int
-        let placeholder: String
-        let mask: String
-        let type: String
+        let placeholder: String?
+        let mask: String?
+        let type: String?
+        let sequence: String?
 
         enum CodingKeys: String, CodingKey {
-            case id, name, type, placeholder, mask
+            case id, name, type, placeholder, mask, sequence
             case minLength = "min_length"
             case maxLength = "max_length"
         }
