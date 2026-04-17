@@ -38,7 +38,7 @@ struct DeviceSessionView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        Text(deviceSession.session)
+                        Text(deviceSession.session ?? "")
                             .font(.system(.body, design: .monospaced))
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
