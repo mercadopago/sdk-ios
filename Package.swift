@@ -19,6 +19,10 @@ let package = Package(
         .library(
             name: "MPApplePay",
             targets: ["MPApplePay"]
+        ),
+        .library(
+            name: "MPExtended",
+            targets: ["MPExtended"]
         )
     ],
     dependencies: [
@@ -65,8 +69,11 @@ let package = Package(
             name: "MPApplePay",
             dependencies: ["MPCore", "DeviceFingerPrint"]
         ),
-        
-        
+
+        .target(
+            name: "MPExtended",
+            dependencies: ["MPCore", "DeviceFingerPrint"]
+        ),
 
         //Tests
         .target(
@@ -89,6 +96,10 @@ let package = Package(
         .testTarget(
             name: "MPApplePayTests",
             dependencies: ["MPApplePay", "MPCore", "CommonTests"]
+        ),
+        .testTarget(
+            name: "MPExtendedTests",
+            dependencies: ["MPExtended", "MPCore", "CommonTests"]
         ),
         .testTarget(
             name: "SnapshotTests",
