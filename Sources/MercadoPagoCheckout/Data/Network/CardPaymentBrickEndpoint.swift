@@ -47,8 +47,7 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
                 "bin": params.bin,
                 "checkout_type": params.checkoutType,
                 "processing_mode": params.processingMode,
-                "amount": params.amount ?? 0,
-                "locale": params.locale
+                "amount": params.amount ?? 0
             ]
 
             if !params.allowCardTypes.isEmpty {

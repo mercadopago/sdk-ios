@@ -243,7 +243,6 @@ final class CardFormViewModel: ObservableObject {
             amount: self.configuration.type.configuration.amount,
             checkoutType: self.configuration.type.analyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
-            locale: MercadoPagoSDK.shared.getLocale(),
             allowCardTypes: self.configuration.paymentMethod.acceptedPaymentTypeIds,
             allowCardBrands: self.configuration.paymentMethod.acceptedPaymentMethodIds
         )
