@@ -43,7 +43,11 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     ),
                     config: .init(
                         type: response.cardNumber.type,
-                        length: .init(min: response.cardNumber.length.min, max: response.cardNumber.length.max)
+                        length: .init(
+                            min: response.cardNumber.length.min,
+                            max: response.cardNumber.length.max
+                        ),
+                        mask: response.cardNumber.mask
                     )
                 ),
                 cardHolder: .init(
@@ -75,8 +79,7 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                 ),
                 cvv: .init(
                     label: translations.securityCode.label,
-                    placeholderDefault: translations.securityCode.placeholder,
-                    placeholderAmex: translations.securityCode.placeholder,
+                    placeholder: translations.securityCode.placeholder,
                     tooltip: translations.securityCode.tooltip,
                     validation: .init(
                         errorEmpty: translations.securityCode.errorEmptyField,

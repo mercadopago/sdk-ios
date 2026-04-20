@@ -103,13 +103,6 @@ public final class MercadoPagoSDK: @unchecked Sendable {
 
         return key
     }
-
-    package func getLocale() -> String {
-        guard let configuration else {
-            return Locale.current.identifier
-        }
-        return configuration.country.getLocale()
-    }
 }
 
 private extension MercadoPagoSDK {

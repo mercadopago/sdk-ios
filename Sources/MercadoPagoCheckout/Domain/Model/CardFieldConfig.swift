@@ -9,6 +9,13 @@ import UIKit
 struct CardFieldConfig {
     let type: String
     let length: LengthRange
+    let mask: String?
+
+    init(type: String, length: LengthRange, mask: String? = nil) {
+        self.type = type
+        self.length = length
+        self.mask = mask
+    }
 
     struct LengthRange {
         let min: Int

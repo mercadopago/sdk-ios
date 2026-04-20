@@ -79,8 +79,7 @@ struct InitializeCardFormUseCase {
                 ),
                 cvv: .init(
                     label: fields.cvv.label,
-                    placeholderDefault: fields.cvv.placeholderDefault,
-                    placeholderAmex: fields.cvv.placeholderAmex,
+                    placeholder: fields.cvv.placeholder,
                     tooltip: fields.cvv.tooltip,
                     validation: .init(
                         errorEmpty: fields.cvv.validation.errorEmpty,

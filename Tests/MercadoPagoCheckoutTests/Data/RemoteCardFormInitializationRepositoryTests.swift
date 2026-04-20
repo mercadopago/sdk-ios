@@ -210,8 +210,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(result.fields.cvv.label, "Código de segurança")
-        XCTAssertEqual(result.fields.cvv.placeholderDefault, "Ex.: 123")
-        XCTAssertEqual(result.fields.cvv.placeholderAmex, "Ex.: 123")
+        XCTAssertEqual(result.fields.cvv.placeholder, "Ex.: 123")
     }
 
     func testFetch_whenSuccess_mapsDocumentLabel() async throws {

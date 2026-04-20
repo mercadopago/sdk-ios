@@ -81,13 +81,12 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
 
     // MARK: - CVV placeholders
 
-    func testExecute_noCvvCustom_preservesBothPlaceholders() async throws {
+    func testExecute_noCvvCustom_preservesPlaceholder() async throws {
         let sut = self.makeSUT()
         let result = try await sut.useCase.execute(config: self.makeConfig(), checkoutType: "card_form")
         let defaultFields = CardFormInitializationOutputStub.makeDefaultFields()
 
-        XCTAssertEqual(result.fields.cvv.placeholderDefault, defaultFields.cvv.placeholderDefault)
-        XCTAssertEqual(result.fields.cvv.placeholderAmex, defaultFields.cvv.placeholderAmex)
+        XCTAssertEqual(result.fields.cvv.placeholder, defaultFields.cvv.placeholder)
     }
 
     // MARK: - Button Resolution

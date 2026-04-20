@@ -48,8 +48,7 @@ enum CardFormInitializationInputStub {
             ),
             cvv: .init(
                 label: "Security code",
-                placeholderDefault: "123",
-                placeholderAmex: "1234",
+                placeholder: "123",
                 tooltip: "",
                 validation: .init(
                     errorEmpty: "Enter security code",
@@ -123,8 +122,7 @@ enum CardFormInitializationOutputStub {
             ),
             cvv: .init(
                 label: "Security code",
-                placeholderDefault: "123",
-                placeholderAmex: "1234",
+                placeholder: "123",
                 tooltip: "",
                 validation: .init(
                     errorEmpty: "Enter security code",
