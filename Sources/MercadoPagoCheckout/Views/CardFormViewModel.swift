@@ -48,11 +48,15 @@ final class CardFormViewModel: ObservableObject {
     // MARK: Computed Properties
 
     var cvvPlaceholder: String {
-        self.cardData?.securityCodeTranslations?.placeholder ?? self.fields.cvv.placeholder
+        self.cardData?.paymentMethods.first?.securityCode?.placeholder
+            ?? self.cardData?.securityCodeTranslations?.placeholder
+            ?? self.fields.cvv.placeholder
     }
 
     var cvvTooltipText: String {
-        self.cardData?.securityCodeTranslations?.tooltip ?? self.fields.cvv.tooltip
+        self.cardData?.paymentMethods.first?.securityCode?.tooltip
+            ?? self.cardData?.securityCodeTranslations?.tooltip
+            ?? self.fields.cvv.tooltip
     }
 
     var isSecurityCodeMandatory: Bool {
@@ -91,7 +95,10 @@ final class CardFormViewModel: ObservableObject {
         self.identificationTypes = initResult.identificationTypes
         _selectTypeDocument = Published(wrappedValue: initResult.identificationTypes.first)
 
-        self.cardNumberFormatter = CardNumberFormatter(maxLength: initResult.fields.cardNumber.config.length.max)
+        self.cardNumberFormatter = CardNumberFormatter(
+            maxLength: initResult.fields.cardNumber.config.length.max,
+            mask: initResult.fields.cardNumber.config.mask
+        )
         self.expirationDateFormatter = ExpirationDateFormatter(maxLength: initResult.fields.expiration.config.length.max)
         self.securityCodeFormatter = SecurityCodeFormatter(maxLength: initResult.fields.cvv.config.length.max)
 
@@ -115,10 +122,8 @@ final class CardFormViewModel: ObservableObject {
 
     private func updateFormatters(for cardData: CardPaymentBrickCardData?) {
         if let method = cardData?.paymentMethods.first {
-            let maxLength = method.cardNumber.length.max
-            self.cardNumberFormatter = maxLength > 0
-                ? CardNumberFormatter(maxLength: maxLength)
-                : CardNumberFormatter()
+            let mask = method.cardNumber.mask
+            CardNumberFormatter(mask: mask)
             let cvvLength = method.securityCode?.length ?? 0
             self.securityCodeFormatter = cvvLength > 0
                 ? SecurityCodeFormatter(maxLength: cvvLength)
@@ -238,7 +243,7 @@ final class CardFormViewModel: ObservableObject {
             amount: self.configuration.type.configuration.amount,
             checkoutType: self.configuration.type.analyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
-            locale: Locale.current.identifier.replacingOccurrences(of: "_", with: "-"),
+            locale: MercadoPagoSDK.shared.getLocale(),
             allowCardTypes: self.configuration.paymentMethod.acceptedPaymentTypeIds,
             allowCardBrands: self.configuration.paymentMethod.acceptedPaymentMethodIds
         )

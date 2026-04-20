@@ -80,7 +80,9 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
                 CardPaymentBrickCardData.PaymentMethod.SecurityCodeInfo(
                     mode: $0.mode,
                     length: $0.length,
-                    type: $0.type
+                    type: $0.type,
+                    placeholder: $0.placeholder,
+                    tooltip: $0.tooltip
                 )
             },
             issuers: data.issuers.map {

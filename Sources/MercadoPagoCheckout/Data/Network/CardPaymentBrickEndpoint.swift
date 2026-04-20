@@ -18,7 +18,7 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
     }
 
     var baseURL: String {
-        "https://api.mercadopago.com/cho-off"
+        ConstantsEndpoint.baseURLBricks
     }
 
     var method: HTTPMethod {
@@ -33,7 +33,10 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
     }
 
     var headers: [String: String] {
-        ["Content-Type": "application/json"]
+        [
+            "Content-Type": "application/json",
+            "X-Public-Key": MercadoPagoSDK.shared.getPublicKey()
+        ]
     }
 
     var urlParams: [String: any CustomStringConvertible] {
@@ -60,5 +63,22 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
 
     var body: Data? {
         nil
+    }
+
+    var urlRequest: URLRequest? {
+        var components = URLComponents(string: baseURL + self.apiVersion.rawValue + self.path)
+        components?.queryItems = self.urlParams.map { key, value in
+            URLQueryItem(name: key, value: String(describing: value))
+        }
+
+        guard let url = components?.url else { return nil }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = self.method.rawValue
+        request.allHTTPHeaderFields = self.headers
+        request.httpBody = self.body
+        request.cachePolicy = isCacheable ? cachePolicy : .reloadIgnoringLocalCacheData
+
+        return request
     }
 }

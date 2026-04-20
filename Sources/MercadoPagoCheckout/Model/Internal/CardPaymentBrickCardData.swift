@@ -58,6 +58,8 @@ struct CardPaymentBrickCardData: Equatable {
             let mode: String
             let length: Int
             let type: String
+            let placeholder: String
+            let tooltip: String
         }
 
         struct Issuer: Equatable {

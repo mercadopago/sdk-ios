@@ -10,8 +10,7 @@
 
 struct CardFormTranslationsResponse: Codable {
     let cardFormTitle: String
-    let cardFormPayButtonLabel: String
-    let cardFormSaveButtonLabel: String
+    let cardFormFooterButtonLabel: String
     let cardNumber: FieldTranslationsData
     let holderName: FieldTranslationsData
     let expirationDate: FieldTranslationsData
@@ -21,8 +20,7 @@ struct CardFormTranslationsResponse: Codable {
 
     enum CodingKeys: String, CodingKey {
         case cardFormTitle = "card_form_title"
-        case cardFormPayButtonLabel = "card_form_pay_button_label"
-        case cardFormSaveButtonLabel = "card_form_save_button_label"
+        case cardFormFooterButtonLabel = "card_form_footer_button_label"
         case cardNumber = "card_number"
         case holderName = "holder_name"
         case expirationDate = "expiration_date"
