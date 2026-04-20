@@ -9,22 +9,12 @@ import CoreMethods
 import SwiftUI
 
 extension IdentificationType {
-    func getPlaceholder() -> String {
-        if !placeholder.isEmpty { return placeholder }
-        switch id {
-        case "CPF": return "999.999.999-99"
-        case "CNPJ": return "99.999.999/9999-99"
-        default: return ""
-        }
+    func getPlaceholder() -> String? {
+        return placeholder
     }
 
-    func getFormat() -> String {
-        if !mask.isEmpty { return mask }
-        switch id {
-        case "CPF": return "###.###.###-##"
-        case "CNPJ": return type == "string" ? "AA.AAA.AAA/AAAA-##" : "##.###.###/####-##"
-        default: return ""
-        }
+    func getFormat() -> String? {
+        return mask
     }
 
     func getKeyboardType() -> UIKeyboardType {
