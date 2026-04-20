@@ -16,6 +16,13 @@ struct CardPaymentBrickCardResponse: Codable {
         case paymentMethods = "payment_methods"
     }
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.translations = try container.decode(CardFormTranslationsResponse.self, forKey: .translations)
+        self.paymentMethods = try container.decode([PaymentMethodData].self, forKey: .paymentMethods)
+        self.installment = try? container.decodeIfPresent(InstallmentData.self, forKey: .installment)
+    }
+
     // MARK: - InstallmentData
 
     struct InstallmentData: Codable {
