@@ -17,6 +17,8 @@ struct FetchCardPaymentBrickCardUseCase {
     func execute(params: CardPaymentBrickCardParams) async throws(MercadoPagoCheckoutError) -> CardPaymentBrickCardData {
         do {
             return try await self.repository.fetchCard(params: params)
+        } catch let error as MercadoPagoCheckoutError {
+            throw error
         } catch let error as APIClientError {
             throw .init(from: error, location: .paymentMethods)
         } catch {
