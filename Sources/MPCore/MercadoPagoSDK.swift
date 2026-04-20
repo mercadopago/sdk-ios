@@ -58,7 +58,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     /// - Parameter configuration: SDK configuration options
     public func initialize(_ configuration: Configuration) {
         verifyCanBeInitialized(configuration)
-        
+
         self.configuration = configuration
         self.isInitialized = true
 
@@ -67,11 +67,11 @@ public final class MercadoPagoSDK: @unchecked Sendable {
                 version: MPSDKVersion.version,
                 siteID: configuration.country.getSiteId()
             )
-            
+
             await sendInitializeAnalyticsEvent()
         }
     }
-    
+
     /// New configuration of SDK with a different public key or locale
     /// - Parameter configuration: SDK configuration options
     public func setNewConfiguration(_ configuration: Configuration) {
@@ -79,16 +79,16 @@ public final class MercadoPagoSDK: @unchecked Sendable {
             self.isInitialized,
             SDKError.notInitialized.rawValue
         )
-        
+
         self.configuration = configuration
         self.analyticsMonitoringTask?.cancel()
-        
+
         self.analyticsMonitoringTask = Task(priority: .utility) {
             await self.dependencies.analytics.initialize(
                 version: MPSDKVersion.version,
                 siteID: configuration.country.getSiteId()
             )
-            
+
             await sendInitializeAnalyticsEvent()
         }
     }
@@ -102,6 +102,13 @@ public final class MercadoPagoSDK: @unchecked Sendable {
         }
 
         return key
+    }
+
+    package func getLocale() -> String {
+        guard let configuration else {
+            return Locale.current.identifier
+        }
+        return configuration.country.getLocale()
     }
 }
 

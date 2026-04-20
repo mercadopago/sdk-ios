@@ -67,14 +67,18 @@ package struct CardNumberFormatter: TextFormatting {
 
 /// A formatter that applies MM/YY mask to expiration dates.
 package struct ExpirationDateFormatter: TextFormatting {
-    package init() {}
+    private let maxLength: Int
+
+    package init(maxLength: Int = 4) {
+        self.maxLength = maxLength
+    }
 
     package func formatOnChange(_ text: String) -> String {
         let digits = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
 
         guard !digits.isEmpty else { return "" }
 
-        let limited = String(digits.prefix(4))
+        let limited = String(digits.prefix(self.maxLength))
 
         if limited.count <= 2 {
             return limited

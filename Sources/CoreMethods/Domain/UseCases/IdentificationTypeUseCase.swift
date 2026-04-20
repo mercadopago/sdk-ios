@@ -24,8 +24,8 @@ final class IdentificationTypesUseCase: IdentificationTypesUseCaseProtocol {
                 id: data.id,
                 name: data.name,
                 type: data.type,
-                minLenght: data.minLength,
-                maxLenght: data.maxLength
+                minLength: data.minLength,
+                maxLength: data.maxLength
             )
         }
     }

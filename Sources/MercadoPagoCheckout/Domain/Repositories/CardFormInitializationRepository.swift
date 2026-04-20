@@ -8,5 +8,5 @@
 /// Abstraction for fetching card form initialization data.
 /// Current implementation is local (MPStrings + service). Future: remote endpoint.
 protocol CardFormInitializationRepository: Sendable {
-    func fetchInitialization() async throws -> CardFormInitializationInput
+    func fetchInitialization(amount: Double?, checkoutType: String) async throws -> CardFormInitializationInput
 }

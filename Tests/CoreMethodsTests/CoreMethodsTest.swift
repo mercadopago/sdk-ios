@@ -24,8 +24,8 @@ final class CoreMethodsTests: XCTestCase {
             id: "DNI",
             name: "DNI",
             type: "number",
-            minLenght: 7,
-            maxLenght: 8
+            minLength: 7,
+            maxLength: 8
         )
 
         static var validResponse: Data {
@@ -199,7 +199,7 @@ final class CoreMethodsTests: XCTestCase {
         let repository = MockCoreMethodsRepository()
 
         let repositoryThreeDS = MockThreeDSRepository()
-        
+
         let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
         let generateTokenUseCase = GenerateCardTokenUseCase(
             dependencies: container,
@@ -210,7 +210,7 @@ final class CoreMethodsTests: XCTestCase {
         let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
         let issuerUseCase = IssuerUseCase(repository: repository)
         let capabilityUseCase = CapabilityUseCase(repository: repositoryThreeDS)
-        
+
         let coreMethodsService = CoreMethods(
             dependencies: container,
             generateTokenUseCase: generateTokenUseCase,
@@ -233,7 +233,7 @@ final class CoreMethodsTests: XCTestCase {
         line: UInt = #line
     ) async {
         do {
-            let _ = try await expression()
+            _ = try await expression()
             XCTFail("Should have thrown an error, but succeeded", file: file, line: line)
         } catch let error as APIClientError {
             if case let .apiError(errorResponse) = error {
@@ -252,7 +252,7 @@ final class CoreMethodsTests: XCTestCase {
         // Arrange
         let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
-        
+
         await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
         await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
 
@@ -277,14 +277,14 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
-        
+
         await repository.setGenerateCardTokenResult(
             .failure(APIClientError.decodingFailed(NSError(domain: "test", code: 0)))
         )
 
         // Act & Assert
         do {
-            let _ = try await sut.createToken(
+            _ = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
                 securityCode: securityCode,
@@ -306,7 +306,7 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
-        
+
         await repository.setGenerateCardTokenResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
 
         // Act & Assert
@@ -329,7 +329,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act & Assert
         do {
-            let _ = try await sut.createToken(
+            _ = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
                 securityCode: securityCode,
@@ -354,7 +354,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act & Assert
         do {
-            let _ = try await sut.createToken(
+            _ = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
                 securityCode: securityCode,
@@ -376,12 +376,12 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
-        
+
         securityCode.input.textField.text = ""
 
         // Act & Assert
         do {
-            let _ = try await sut.createToken(
+            _ = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
                 securityCode: securityCode,
@@ -490,7 +490,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act
         do {
-            let _ = try await sut.createToken(
+            _ = try await sut.createToken(
                 cardNumber: cardNumber,
                 expirationDate: expirationDate,
                 securityCode: securityCode,
@@ -571,7 +571,7 @@ final class CoreMethodsTests: XCTestCase {
 
         // Act
         do {
-            let _ = try await sut.createToken(
+            _ = try await sut.createToken(
                 cardID: cardID,
                 securityCode: securityCode
             )

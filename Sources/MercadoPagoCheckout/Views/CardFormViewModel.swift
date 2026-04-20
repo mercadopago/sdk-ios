@@ -20,9 +20,9 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Formatters
 
-    @Published private(set) var cardNumberFormatter = CardNumberFormatter()
-    let expirationDateFormatter = ExpirationDateFormatter()
-    @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
+    @Published private(set) var cardNumberFormatter: CardNumberFormatter
+    let expirationDateFormatter: ExpirationDateFormatter
+    @Published private(set) var securityCodeFormatter: SecurityCodeFormatter
     @Published private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
@@ -46,21 +46,14 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: Computed Properties
 
-    var requiresIdentificationTypes: Bool {
-        MercadoPagoSDK.shared.configuration?.country != .MEX
-    }
-
     var cvvPlaceholder: String {
         self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
-            ? MPStrings.CardForm.CVV.placeholderAmex
-            : MPStrings.CardForm.CVV.placeholderDefault
+            ? self.fields.cvv.placeholderAmex
+            : self.fields.cvv.placeholderDefault
     }
 
     var cvvTooltipText: String {
-        guard let securityCode = binData?.paymentMethod.card?.securityCode else {
-            return MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back")
-        }
-        return MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
+        self.fields.cvv.tooltip
     }
 
     var isSecurityCodeMandatory: Bool {
@@ -85,6 +78,7 @@ final class CardFormViewModel: ObservableObject {
     private var isCancelling = false
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
+    private let fields: CardFormFields.Fields
     private var analyticsTask: Task<Void, Never>?
 
     // MARK: - Init
@@ -97,14 +91,19 @@ final class CardFormViewModel: ObservableObject {
     ) {
         self.configuration = configuration
         self.service = service
+        self.fields = initResult.fields
         self.analytics = analytics
         self.identificationTypes = initResult.identificationTypes
         _selectTypeDocument = Published(wrappedValue: initResult.identificationTypes.first)
 
+        self.cardNumberFormatter = CardNumberFormatter(maxLength: initResult.fields.cardNumber.config.length.max)
+        self.expirationDateFormatter = ExpirationDateFormatter(maxLength: initResult.fields.expiration.config.length.max)
+        self.securityCodeFormatter = SecurityCodeFormatter(maxLength: initResult.fields.cvv.config.length.max)
+
         let firstType = initResult.identificationTypes.first
         self.documentFormatter = DocumentFormatter(
             mask: firstType?.getFormat() ?? String(),
-            maxLength: firstType?.maxLenght ?? 20,
+            maxLength: firstType?.maxLength ?? 20,
             isNumericType: firstType?.type != "string"
         )
     }
@@ -114,7 +113,7 @@ final class CardFormViewModel: ObservableObject {
     private func updateIdentificationType() {
         self.documentFormatter = DocumentFormatter(
             mask: self.selectTypeDocument?.getFormat() ?? String(),
-            maxLength: self.selectTypeDocument?.maxLenght ?? 20,
+            maxLength: self.selectTypeDocument?.maxLength ?? 20,
             isNumericType: self.selectTypeDocument?.type != "string"
         )
     }
@@ -128,8 +127,8 @@ final class CardFormViewModel: ObservableObject {
                 ? SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
                 : SecurityCodeFormatter()
         } else {
-            self.cardNumberFormatter = CardNumberFormatter()
-            self.securityCodeFormatter = SecurityCodeFormatter()
+            self.cardNumberFormatter = CardNumberFormatter(maxLength: self.fields.cardNumber.config.length.max)
+            self.securityCodeFormatter = SecurityCodeFormatter(maxLength: self.fields.cvv.config.length.max)
         }
     }
 

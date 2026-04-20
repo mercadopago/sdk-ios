@@ -52,7 +52,7 @@ struct CardFormScreen: View {
 
         var formData = CardFormData(fields: initResult.fields)
         if let firstType = viewModel.selectTypeDocument {
-            formData.setDocumentLength(firstType.minLenght, firstType.maxLenght)
+            formData.setDocumentLength(firstType.minLength, firstType.maxLength)
             formData.setDocumentType(isNumeric: firstType.type != "string")
         }
         self._cardForm = State(initialValue: formData)
@@ -70,7 +70,7 @@ struct CardFormScreen: View {
                     title: MPStrings.Common.total,
                     amount: nil,
                     buttonData: .init(
-                        text: MPStrings.CardForm.button,
+                        text: self.initResult.button,
                         onClick: {
                             await self.viewModel.submitCardData(
                                 cardForm: self.cardForm,
@@ -91,7 +91,7 @@ struct CardFormScreen: View {
                 .disabled(
                     !self.cardForm.isFormValid(
                         isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory,
-                        isDocumentRequired: self.viewModel.requiresIdentificationTypes
+                        isDocumentRequired: !self.initResult.identificationTypes.isEmpty
                     )
                 )
                 .background(
@@ -124,6 +124,7 @@ struct CardFormScreen: View {
                         placeholder: self.initResult.fields.cardHolder.placeholder,
                         helperText: self.initResult.fields.cardHolder.helperText,
                         errorMessage: self.cardForm.$cardHolder,
+                        keyboard: self.initResult.fields.cardHolder.config.getKeyboardType(),
                         onEditingChanged: { isEditing in
                             if !isEditing, self.editedFields.contains(.cardHolder) || !self.cardForm.$cardHolder.isEmpty {
                                 self.viewModel.trackInputValidation(
@@ -139,7 +140,7 @@ struct CardFormScreen: View {
                         label: self.initResult.fields.expiration.label,
                         placeholder: self.initResult.fields.expiration.placeholder,
                         errorMessage: self.cardForm.$expirationDate,
-                        keyboard: .numberPad,
+                        keyboard: self.initResult.fields.expiration.config.getKeyboardType(),
                         onEditingChanged: { isEditing in
                             if !isEditing, self.editedFields.contains(.expirationDate) || !self.cardForm.$expirationDate.isEmpty {
                                 self.viewModel.trackInputValidation(
@@ -157,7 +158,7 @@ struct CardFormScreen: View {
                             label: self.initResult.fields.cvv.label,
                             placeholder: self.viewModel.cvvPlaceholder,
                             errorMessage: self.cardForm.$securityCode,
-                            keyboard: .numberPad,
+                            keyboard: self.initResult.fields.expiration.config.getKeyboardType(),
                             onEditingChanged: { isEditing in
                                 if !isEditing, self.editedFields.contains(.securityCode) || !self.cardForm.$securityCode.isEmpty {
                                     self.viewModel.trackInputValidation(
@@ -171,7 +172,7 @@ struct CardFormScreen: View {
                         )
                     }
 
-                    if self.viewModel.requiresIdentificationTypes {
+                    if !self.initResult.identificationTypes.isEmpty {
                         MPTextField(
                             text: self.$cardForm.documentHolder,
                             label: self.initResult.fields.document.label,
@@ -309,7 +310,7 @@ struct CardFormScreen: View {
 
     private func updateIdentificationTypes(_ identificationType: IdentificationType?) {
         guard let identificationType else { return }
-        self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
+        self.cardForm.setDocumentLength(identificationType.minLength, identificationType.maxLength)
         self.cardForm.setDocumentType(isNumeric: identificationType.type != "string")
     }
 }

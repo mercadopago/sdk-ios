@@ -46,12 +46,15 @@ package struct RequiredRule: CardFormRuleType {
 // MARK: Card Number Rule
 
 package struct CardNumberRule: CardFormRuleType {
-    private let validation: CardFormTexts.CardNumberField.Validation
-    private var min = 13, max = 19
+    private let validation: CardFormFields.CardNumberField.Validation
+    private var min: Int
+    private var max: Int
     private var externalError: CardAcceptanceError?
 
-    init(validation: CardFormTexts.CardNumberField.Validation) {
+    init(validation: CardFormFields.CardNumberField.Validation, min: Int = 13, max: Int = 19) {
         self.validation = validation
+        self.min = min
+        self.max = max
     }
 
     package mutating func apply(_ requirement: CardValidationRequirement) {
@@ -115,10 +118,12 @@ package struct CardNumberRule: CardFormRuleType {
 // MARK: - Card Holder Rule
 
 package struct CardHolderRule: CardFormRuleType {
-    private let validation: CardFormTexts.CardHolderField.Validation
+    private let validation: CardFormFields.CardHolderField.Validation
+    private let maxLength: Int
 
-    init(validation: CardFormTexts.CardHolderField.Validation) {
+    init(validation: CardFormFields.CardHolderField.Validation, maxLength: Int = .max) {
         self.validation = validation
+        self.maxLength = maxLength
     }
 
     package func validate(_ value: String) -> String? {
@@ -134,6 +139,10 @@ package struct CardHolderRule: CardFormRuleType {
             return self.validation.errorIncomplete
         }
 
+        if clearValue.count > self.maxLength {
+            return self.validation.errorInvalid
+        }
+
         return nil
     }
 }
@@ -141,16 +150,18 @@ package struct CardHolderRule: CardFormRuleType {
 // MARK: - Expiration Date Rule
 
 package struct ExpirationDateRule: CardFormRuleType {
-    private let validation: CardFormTexts.ExpirationField.Validation
+    private let validation: CardFormFields.ExpirationField.Validation
+    private let length: Int
 
-    init(validation: CardFormTexts.ExpirationField.Validation) {
+    init(validation: CardFormFields.ExpirationField.Validation, length: Int = 4) {
         self.validation = validation
+        self.length = length
     }
 
     package func validate(_ value: String) -> String? {
         let digits = value.filter(\.isNumber)
         if digits.isEmpty { return self.validation.errorEmpty }
-        guard digits.count == 4 else { return self.validation.errorIncomplete }
+        guard digits.count == self.length else { return self.validation.errorIncomplete }
 
         let month = Int(digits.prefix(2)) ?? 0
         let year = (Int(digits.suffix(2)) ?? 0) + 2000
@@ -169,11 +180,12 @@ package struct ExpirationDateRule: CardFormRuleType {
 // MARK: - Security Code Rule
 
 package struct SecurityCodeRule: CardFormRuleType {
-    private let validation: CardFormTexts.CVVField.Validation
-    private var length = 3
+    private let validation: CardFormFields.CVVField.Validation
+    private var length: Int
 
-    init(validation: CardFormTexts.CVVField.Validation) {
+    init(validation: CardFormFields.CVVField.Validation, length: Int = 3) {
         self.validation = validation
+        self.length = length
     }
 
     package mutating func apply(_ requirement: CardValidationRequirement) {
@@ -190,12 +202,12 @@ package struct SecurityCodeRule: CardFormRuleType {
 // MARK: - Document Rule
 
 package struct DocumentRule: CardFormRuleType {
-    private let validation: CardFormTexts.DocumentField.Validation
+    private let validation: CardFormFields.DocumentField.Validation
     private var maxLength = 20
     private var minLength = 1
     private var isNumericType = true
 
-    init(validation: CardFormTexts.DocumentField.Validation) {
+    init(validation: CardFormFields.DocumentField.Validation) {
         self.validation = validation
     }
 
