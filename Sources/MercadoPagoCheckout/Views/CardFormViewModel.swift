@@ -123,7 +123,7 @@ final class CardFormViewModel: ObservableObject {
     private func updateFormatters(for cardData: CardPaymentBrickCardData?) {
         if let method = cardData?.paymentMethods.first {
             let mask = method.cardNumber.mask
-            CardNumberFormatter(mask: mask)
+            self.cardNumberFormatter = CardNumberFormatter(mask: mask)
             let cvvLength = method.securityCode?.length ?? 0
             self.securityCodeFormatter = cvvLength > 0
                 ? SecurityCodeFormatter(maxLength: cvvLength)
