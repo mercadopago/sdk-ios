@@ -37,9 +37,7 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     validation: .init(
                         errorEmpty: translations.cardNumber.errorEmptyField,
                         errorIncomplete: translations.cardNumber.errorIncompleteField,
-                        errorInvalid: translations.cardNumber.errorInvalidField,
-                        errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
-                        errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
+                        errorInvalid: translations.cardNumber.errorInvalidField
                     ),
                     config: .init(
                         type: response.cardNumber.type,

@@ -16,9 +16,7 @@ final class CardFormRulesTests: XCTestCase {
         .init(
             errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
             errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
-            errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
-            errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
-            errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
+            errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid
         )
     }
 
@@ -490,9 +488,7 @@ final class CardFormRulesTests: XCTestCase {
         let customValidation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
-            errorInvalid: "CUSTOM_INVALID",
-            errorMethodNotAllowed: "CUSTOM_EXCLUSION %@",
-            errorTypeNotAllowed: "CUSTOM_TYPE %@"
+            errorInvalid: "CUSTOM_INVALID"
         )
         let rule = CardNumberRule(validation: customValidation)
 

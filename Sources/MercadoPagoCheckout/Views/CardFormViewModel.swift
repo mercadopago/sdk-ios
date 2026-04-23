@@ -67,7 +67,7 @@ final class CardFormViewModel: ObservableObject {
     private var isRetriableBinError: Bool {
         return self.binNetworkError?.code == .networkConnectionFailed
             || self.binNetworkError?.code == .networkTimeout
-            || self.binNetworkError?.code == .serviceError && !(self.binNetworkError?.isPaymentMethodNotFound ?? false)
+            || self.binNetworkError?.code == .serviceError
     }
 
     // MARK: - Private
@@ -211,25 +211,19 @@ final class CardFormViewModel: ObservableObject {
         let params = self.buildCardPaymentBrickCardParams(bin: bin)
         do {
             let data = try await withRetry(isRetryable: { error in
-                guard let checkoutError = error as? MercadoPagoCheckoutError else { return true }
-                return !checkoutError.isPaymentMethodNotFound
+                guard let binError = error as? BinFetchError else { return true }
+                return binError.isRetriable
             }) {
                 try await self.fetchCardUseCase.execute(params: params)
             }
             guard !Task.isCancelled else { return }
-            if data.paymentMethods.isEmpty {
-                self.cardData = nil
-                self.cardAcceptanceError = .paymentMethodNotFound
-            } else {
-                self.cardData = data
-            }
-        } catch let error as MercadoPagoCheckoutError {
+            self.cardData = data
+        } catch let error as BinFetchError {
             guard !Task.isCancelled else { return }
             self.cardData = nil
-            if error.isPaymentMethodNotFound {
-                self.cardAcceptanceError = .paymentMethodNotFound
-            } else {
-                self.binNetworkError = error
+            switch error {
+            case let .acceptance(acceptanceError): self.cardAcceptanceError = acceptanceError
+            case let .network(error): self.binNetworkError = error
             }
         } catch {
             guard !Task.isCancelled else { return }
