@@ -163,7 +163,7 @@ final class CoreMethodsTests: XCTestCase {
 
     /// API error response model
     private enum APIErrorStub {
-        static let badRequest = APIErrorResponse(code: "400", message: "Bad Request")
+        static let badRequest = APIErrorResponse(code: "400", errorCode: nil, message: "Bad Request")
 
         static var badRequestData: Data {
             try! JSONEncoder().encode(badRequest)

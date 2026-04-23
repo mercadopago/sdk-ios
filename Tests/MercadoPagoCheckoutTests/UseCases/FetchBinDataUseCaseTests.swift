@@ -326,7 +326,7 @@ final class FetchBinDataUseCaseTests: XCTestCase {
             _ = try await self.execute(sut.useCase, acceptedPaymentTypeIds: ["credit_card"], acceptedPaymentMethodIds: [])
             XCTFail("Expected paymentTypeNotAllowed error")
         } catch let CardAcceptanceError.paymentTypeNotAllowed(cardType) {
-            XCTAssertEqual(cardType, .debit)
+            XCTAssertEqual(cardType, "debit_card")
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
