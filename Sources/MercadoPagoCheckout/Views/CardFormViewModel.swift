@@ -61,7 +61,7 @@ final class CardFormViewModel: ObservableObject {
 
     var isSecurityCodeMandatory: Bool {
         guard let cardData else { return true }
-        return cardData.securityCodeTranslations != nil
+        return cardData.paymentMethods.first?.securityCode != nil
     }
 
     private var isRetriableBinError: Bool {
