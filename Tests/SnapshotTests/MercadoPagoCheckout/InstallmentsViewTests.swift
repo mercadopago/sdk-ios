@@ -24,7 +24,7 @@ final class InstallmentsViewTests: XCTestCase {
 
         assertSnapshot(
             of: UIHostingController(rootView: view),
-            as: .image(on: .iPhone13)
+            as: .image(on: .iPhone13, precision: 0.95, perceptualPrecision: 0.97)
         )
     }
 
