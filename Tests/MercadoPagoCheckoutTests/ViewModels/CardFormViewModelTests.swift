@@ -446,8 +446,8 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
     }
 
-    func test_isSecurityCodeMandatory_whenNoSecurityCodeTranslations_shouldReturnFalse() async {
-        // Arrange — visa stub has no securityCodeTranslations
+    func test_isSecurityCodeMandatory_whenNoSecurityCode_shouldReturnFalse() async {
+        // Arrange — visa stub has no securityCode in paymentMethods
         let sut = self.makeSUT()
         await sut.repository.setResult(.success(CardDataStub.visa))
 
@@ -459,10 +459,10 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertFalse(sut.viewModel.isSecurityCodeMandatory)
     }
 
-    func test_isSecurityCodeMandatory_whenSecurityCodeTranslationsPresent_shouldReturnTrue() async {
-        // Arrange
+    func test_isSecurityCodeMandatory_whenSecurityCodePresent_shouldReturnTrue() async {
+        // Arrange — visa stub has securityCode in paymentMethods
         let sut = self.makeSUT()
-        await sut.repository.setResult(.success(CardDataStub.visaWithSecurityCodeTranslations))
+        await sut.repository.setResult(.success(CardDataStub.visaWithSecurityCode))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
@@ -473,7 +473,7 @@ final class CardFormViewModelTests: XCTestCase {
     }
 
     func test_isSecurityCodeMandatory_whenCardDataCleared_shouldReturnTrue() async {
-        // Arrange — start with card data that has no securityCodeTranslations
+        // Arrange — start with card data that has no securityCode in paymentMethods
         let sut = self.makeSUT()
         await sut.repository.setResult(.success(CardDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
