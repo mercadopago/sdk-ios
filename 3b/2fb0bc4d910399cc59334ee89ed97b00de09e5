@@ -1,0 +1,37 @@
+Tests/MercadoPagoCheckoutTests/Utils/RetryUtilsTests.swift
+  664946dfcb7db0df 1-200
+Package.swift
+  664946dfcb7db0df 103
+fastlane/Fastfile
+  664946dfcb7db0df 11
+Tests/MercadoPagoCheckoutTests/Formatting/CardFormFormattingTests.swift
+  664946dfcb7db0df 225-432
+Tests/MercadoPagoCheckoutTests/Formatting/IssuerNameFormattingTests.swift
+  664946dfcb7db0df 1-167
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  664946dfcb7db0df 20,30-69
+.gitignore
+  664946dfcb7db0df 34-36
+Tests/MercadoPagoCheckoutTests/Utils/CardFormValidateTests.swift
+  664946dfcb7db0df 1-253
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "3b2fb0bc4d910399cc59334ee89ed97b00de09e5",
+  "prompts": {
+    "664946dfcb7db0df": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a7043c9-b65b-4ab7-be07-98a0cf6a8ea1",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 903,
+      "total_deletions": 31,
+      "accepted_lines": 874,
+      "overriden_lines": 0
+    }
+  }
+}
