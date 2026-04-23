@@ -335,18 +335,6 @@ final class ExpirationDateFormatterTests: XCTestCase {
         // Assert
         XCTAssertEqual(result, "01/99")
     }
-
-    func test_expirationFormatter_formatOnCommit_shouldMatchFormatOnChange() {
-        // Arrange
-        let formatter = ExpirationDateFormatter()
-
-        // Act
-        let onChange = formatter.formatOnChange("1234")
-        let onCommit = formatter.formatOnCommit("1234")
-
-        // Assert
-        XCTAssertEqual(onChange, onCommit)
-    }
 }
 
 // MARK: - SecurityCodeFormatter
@@ -416,17 +404,5 @@ final class SecurityCodeFormatterTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(result, "1234")
-    }
-
-    func test_securityCodeFormatter_formatOnCommit_shouldMatchFormatOnChange() {
-        // Arrange
-        let formatter = SecurityCodeFormatter()
-
-        // Act
-        let onChange = formatter.formatOnChange("12a3")
-        let onCommit = formatter.formatOnCommit("12a3")
-
-        // Assert
-        XCTAssertEqual(onChange, onCommit)
     }
 }

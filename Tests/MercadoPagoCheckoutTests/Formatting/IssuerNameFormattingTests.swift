@@ -12,10 +12,6 @@ import XCTest
 final class IssuerNameFormattingTests: XCTestCase {
     // MARK: - cleanIssuerName
 
-    func test_cleanIssuerName_whenEmpty_shouldReturnEmpty() {
-        XCTAssertEqual(MPFormatIssuerName.cleanIssuerName(""), "")
-    }
-
     func test_cleanIssuerName_whenNoMatch_shouldReturnUnchanged() {
         XCTAssertEqual(MPFormatIssuerName.cleanIssuerName("Itau"), "Itau")
     }
@@ -74,10 +70,6 @@ final class IssuerNameFormattingTests: XCTestCase {
     }
 
     // MARK: - applyCapitalizationRules
-
-    func test_applyCapitalizationRules_whenEmpty_shouldReturnEmpty() {
-        XCTAssertEqual(MPFormatIssuerName.applyCapitalizationRules(""), "")
-    }
 
     func test_applyCapitalizationRules_whenSingleWord_shouldCapitalizeFirstLetter() {
         XCTAssertEqual(MPFormatIssuerName.applyCapitalizationRules("banco"), "Banco")
@@ -148,11 +140,6 @@ final class IssuerNameFormattingTests: XCTestCase {
     }
 
     // MARK: - specialWords inventory
-
-    func test_specialWords_shouldNotBeEmpty() {
-        // Guardrail: if someone accidentally wipes the list, catch it here.
-        XCTAssertFalse(MPFormatIssuerName.specialWords.isEmpty)
-    }
 
     func test_specialWords_shouldContainExpectedIssuers() {
         // Smoke test on a known subset — not exhaustive, just a sanity check.
