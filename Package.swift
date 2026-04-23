@@ -100,6 +100,7 @@ let package = Package(
                 "CoreMethods",
                 "CommonTests",
                 "MPComponents",
+                "MercadoPagoCheckout",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
             ]
         ),
