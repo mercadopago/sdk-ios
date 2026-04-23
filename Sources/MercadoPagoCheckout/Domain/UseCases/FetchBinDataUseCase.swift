@@ -63,7 +63,8 @@ struct FetchBinDataUseCase {
             } else {
                 let detectedMethod = methods.first(where: { !acceptedPaymentTypeIds.contains($0.paymentTypeId) })
                 let detectedCardType = MercadoPagoCheckout.CardType(paymentTypeId: detectedMethod?.paymentTypeId)
-                throw CardAcceptanceError.paymentTypeNotAllowed(detectedCardType)
+                // To be removed
+                throw CardAcceptanceError.paymentTypeNotAllowed("")
             }
         }
         return method
