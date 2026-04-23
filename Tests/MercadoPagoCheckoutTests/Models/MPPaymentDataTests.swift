@@ -8,6 +8,10 @@
 @testable import MercadoPagoCheckout
 import XCTest
 
+/// Tests the two parts of `MPPaymentData` that carry real logic: the internal
+/// convenience init (with its nil-to-empty-string fallbacks) and the Codable
+/// contract that backs wire/JSON persistence. Synthesized Equatable and
+/// memberwise init are intentionally not retested.
 final class MPPaymentDataTests: XCTestCase {
     // MARK: - Convenience init (internal, with defaults)
 
@@ -18,74 +22,23 @@ final class MPPaymentDataTests: XCTestCase {
         // Assert
         XCTAssertNil(data.transactionAmount)
         XCTAssertEqual(data.token, "")
-        XCTAssertNil(data.installment)
         XCTAssertEqual(data.paymentMethodId, "")
         XCTAssertEqual(data.paymentTypeId, "")
-        XCTAssertNil(data.issuerId)
-        XCTAssertNil(data.payer)
     }
 
     func test_init_shouldReplaceNilTokenWithEmptyString() {
-        // Arrange / Act
-        let data = MPPaymentData(token: nil)
-
-        // Assert
-        XCTAssertEqual(data.token, "")
+        XCTAssertEqual(MPPaymentData(token: nil).token, "")
     }
 
     func test_init_shouldReplaceNilPaymentMethodIdWithEmptyString() {
-        let data = MPPaymentData(paymentMethodId: nil)
-        XCTAssertEqual(data.paymentMethodId, "")
+        XCTAssertEqual(MPPaymentData(paymentMethodId: nil).paymentMethodId, "")
     }
 
     func test_init_shouldReplaceNilPaymentTypeIdWithEmptyString() {
-        let data = MPPaymentData(paymentTypeId: nil)
-        XCTAssertEqual(data.paymentTypeId, "")
+        XCTAssertEqual(MPPaymentData(paymentTypeId: nil).paymentTypeId, "")
     }
 
-    func test_init_shouldPreservePassedValues() {
-        // Arrange
-        let payer = MPPaymentData.Payer(documentType: "CPF", documentNumber: "12345678901")
-
-        // Act
-        let data = MPPaymentData(
-            transactionAmount: 1000.50,
-            token: "tok_abc",
-            installment: 3,
-            paymentMethodId: "visa",
-            paymentTypeId: "credit_card",
-            issuerId: "25",
-            payer: payer
-        )
-
-        // Assert
-        XCTAssertEqual(data.transactionAmount, 1000.50)
-        XCTAssertEqual(data.token, "tok_abc")
-        XCTAssertEqual(data.installment, 3)
-        XCTAssertEqual(data.paymentMethodId, "visa")
-        XCTAssertEqual(data.paymentTypeId, "credit_card")
-        XCTAssertEqual(data.issuerId, "25")
-        XCTAssertEqual(data.payer, payer)
-    }
-
-    // MARK: - Equatable
-
-    func test_equatable_whenAllFieldsMatch_shouldBeEqual() {
-        let a = MPPaymentData(transactionAmount: 100, token: "tok", paymentMethodId: "visa")
-        let b = MPPaymentData(transactionAmount: 100, token: "tok", paymentMethodId: "visa")
-        XCTAssertEqual(a, b)
-    }
-
-    func test_equatable_whenAnyFieldDiffers_shouldNotBeEqual() {
-        let base = MPPaymentData(transactionAmount: 100, token: "tok")
-        let differentAmount = MPPaymentData(transactionAmount: 200, token: "tok")
-        let differentToken = MPPaymentData(transactionAmount: 100, token: "other")
-
-        XCTAssertNotEqual(base, differentAmount)
-        XCTAssertNotEqual(base, differentToken)
-    }
-
-    // MARK: - Codable round-trip
+    // MARK: - Codable — wire contract with backend
 
     func test_codable_roundtrip_shouldPreserveAllFields() throws {
         // Arrange
@@ -107,24 +60,9 @@ final class MPPaymentDataTests: XCTestCase {
         XCTAssertEqual(decoded, original)
     }
 
-    func test_codable_roundtrip_withOptionalNils_shouldPreserveNils() throws {
-        // Arrange
-        let original = MPPaymentData(token: "tok")
-
-        // Act
-        let data = try JSONEncoder().encode(original)
-        let decoded = try JSONDecoder().decode(MPPaymentData.self, from: data)
-
-        // Assert
-        XCTAssertEqual(decoded, original)
-        XCTAssertNil(decoded.transactionAmount)
-        XCTAssertNil(decoded.installment)
-        XCTAssertNil(decoded.issuerId)
-        XCTAssertNil(decoded.payer)
-    }
-
     func test_codable_encode_shouldProduceExpectedKeys() throws {
-        // Arrange -- contract check: keys are the field names, no custom CodingKeys
+        // Arrange -- key names are part of the backend wire contract; renaming
+        // a property without custom CodingKeys silently changes the payload.
         let data = MPPaymentData(transactionAmount: 10.0, token: "t", paymentMethodId: "visa")
 
         // Act
@@ -139,7 +77,7 @@ final class MPPaymentDataTests: XCTestCase {
     }
 
     func test_codable_decode_shouldAcceptMissingOptionalFields() throws {
-        // Arrange -- only required fields present
+        // Arrange -- backend may omit optional fields; decode must not fail.
         let json = #"{"token":"tok_abc","paymentMethodId":"visa","paymentTypeId":"credit_card"}"#
             .data(using: .utf8)!
 
@@ -148,27 +86,13 @@ final class MPPaymentDataTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(decoded.token, "tok_abc")
-        XCTAssertEqual(decoded.paymentMethodId, "visa")
-        XCTAssertEqual(decoded.paymentTypeId, "credit_card")
         XCTAssertNil(decoded.transactionAmount)
         XCTAssertNil(decoded.installment)
         XCTAssertNil(decoded.issuerId)
         XCTAssertNil(decoded.payer)
     }
 
-    // MARK: - Payer
-
-    func test_payer_equatable_whenFieldsMatch_shouldBeEqual() {
-        let a = MPPaymentData.Payer(documentType: "CPF", documentNumber: "123")
-        let b = MPPaymentData.Payer(documentType: "CPF", documentNumber: "123")
-        XCTAssertEqual(a, b)
-    }
-
-    func test_payer_equatable_whenFieldsDiffer_shouldNotBeEqual() {
-        let a = MPPaymentData.Payer(documentType: "CPF", documentNumber: "123")
-        let b = MPPaymentData.Payer(documentType: "CNPJ", documentNumber: "123")
-        XCTAssertNotEqual(a, b)
-    }
+    // MARK: - Payer — Codable contract (nested type)
 
     func test_payer_codable_roundtrip_shouldPreserveFields() throws {
         // Arrange

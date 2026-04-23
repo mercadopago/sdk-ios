@@ -758,8 +758,9 @@ final class CardFormViewModelTests: XCTestCase {
             onFailure: { capturedError = $0 }
         )
 
-        // Assert
-        XCTAssertNotNil(capturedError)
+        // Assert — verifies the exact contract of createPaymentData's throw path
+        XCTAssertEqual(capturedError?.code, .unknown)
+        XCTAssertEqual(capturedError?.locationDescription, "paymentMethods")
     }
 
     func test_submitCardData_shouldResetIsTokenizingAfterCompletion() async {

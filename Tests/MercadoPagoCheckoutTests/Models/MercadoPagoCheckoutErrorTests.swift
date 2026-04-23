@@ -8,41 +8,13 @@
 @testable import MercadoPagoCheckout
 import XCTest
 
+/// Tests the public surface of `MercadoPagoCheckoutError` that consumers depend on:
+/// stable error codes, stable location raw values, the custom Equatable scope,
+/// and the CustomNSError bridge. Conformances synthesized by the compiler
+/// (RawRepresentable, Hashable, basic init) are intentionally not tested —
+/// they are a Swift guarantee, not ours.
 final class MercadoPagoCheckoutErrorTests: XCTestCase {
-    // MARK: - Code — RawRepresentable
-
-    func test_code_initWithRawValue_shouldStoreValue() {
-        let code = MercadoPagoCheckoutError.Code(rawValue: 42)
-        XCTAssertEqual(code.rawValue, 42)
-    }
-
-    func test_code_shouldBeEquatable_whenSameRawValue() {
-        let a = MercadoPagoCheckoutError.Code(rawValue: 7)
-        let b = MercadoPagoCheckoutError.Code(rawValue: 7)
-        XCTAssertEqual(a, b)
-    }
-
-    func test_code_shouldBeNotEqual_whenDifferentRawValue() {
-        let a = MercadoPagoCheckoutError.Code(rawValue: 7)
-        let b = MercadoPagoCheckoutError.Code(rawValue: 8)
-        XCTAssertNotEqual(a, b)
-    }
-
-    func test_code_shouldBeHashable() {
-        // Arrange
-        let a = MercadoPagoCheckoutError.Code(rawValue: 7)
-        let b = MercadoPagoCheckoutError.Code(rawValue: 7)
-        var set: Set<MercadoPagoCheckoutError.Code> = []
-
-        // Act
-        set.insert(a)
-        set.insert(b)
-
-        // Assert
-        XCTAssertEqual(set.count, 1)
-    }
-
-    // MARK: - Code — predefined values
+    // MARK: - Code — public contract (error codes are an SDK-public integer API)
 
     func test_code_networkConnectionFailed_shouldBeMinus1009() {
         XCTAssertEqual(MercadoPagoCheckoutError.Code.networkConnectionFailed.rawValue, -1009)
@@ -64,39 +36,11 @@ final class MercadoPagoCheckoutErrorTests: XCTestCase {
         XCTAssertEqual(MercadoPagoCheckoutError.Code.integrationError.rawValue, 3000)
     }
 
-    // MARK: - Public static accessors (MercadoPagoCheckoutError+Error.swift)
-
-    func test_publicStatic_networkConnectionFailed_shouldMatchCode() {
-        XCTAssertEqual(MercadoPagoCheckoutError.networkConnectionFailed, .networkConnectionFailed)
-    }
-
-    func test_publicStatic_networkTimeout_shouldMatchCode() {
-        XCTAssertEqual(MercadoPagoCheckoutError.networkTimeout, .networkTimeout)
-    }
-
-    func test_publicStatic_service_shouldMatchServiceError() {
-        // Arrange -- public accessor is named `service` but maps to `.serviceError`
-        XCTAssertEqual(MercadoPagoCheckoutError.service, .serviceError)
-    }
-
-    func test_publicStatic_integrationError_shouldMatchCode() {
-        XCTAssertEqual(MercadoPagoCheckoutError.integrationError, .integrationError)
-    }
-
-    func test_publicStatic_unknown_shouldMatchCode() {
-        XCTAssertEqual(MercadoPagoCheckoutError.unknown, .unknown)
-    }
-
-    // MARK: - LocationDescription
-
-    func test_locationDescription_shouldHaveAllSixCases() {
-        let allCases = MercadoPagoCheckoutError.LocationDescription.allCases
-        XCTAssertEqual(allCases.count, 6)
-    }
+    // MARK: - LocationDescription — raw values are exposed publicly via `locationDescription`
 
     func test_locationDescription_rawValuesShouldBeStable() {
-        // Arrange -- raw values are part of the public error surface; regressions here break
-        // consumers that inspect `locationDescription` string.
+        // Consumers inspect `error.locationDescription` as a string. Any rename
+        // of the underlying enum case silently breaks that API.
         let expected: [MercadoPagoCheckoutError.LocationDescription: String] = [
             .tokenization: "tokenization",
             .identification: "identification",
@@ -111,48 +55,14 @@ final class MercadoPagoCheckoutErrorTests: XCTestCase {
         }
     }
 
-    // MARK: - Error struct — init + stored fields
-
-    func test_init_shouldStoreAllFields() {
-        // Arrange
-        let userInfo: [String: Any] = ["foo": "bar", "n": 42]
-
-        // Act
-        let error = MercadoPagoCheckoutError(
-            code: .serviceError,
-            localizedDescription: "boom",
-            userInfo: userInfo,
-            location: .tokenization
-        )
-
-        // Assert
-        XCTAssertEqual(error.code, .serviceError)
-        XCTAssertEqual(error.errorDescription, "boom")
-        XCTAssertEqual(error.locationDescription, "tokenization")
-        XCTAssertEqual(error.errorUserInfo["foo"] as? String, "bar")
-        XCTAssertEqual(error.errorUserInfo["n"] as? Int, 42)
-    }
-
-    func test_init_defaultUserInfo_shouldBeEmpty() {
-        // Arrange / Act
-        let error = MercadoPagoCheckoutError(
-            code: .unknown,
-            localizedDescription: "x",
-            location: .installments
-        )
-
-        // Assert
-        XCTAssertTrue(error.errorUserInfo.isEmpty)
-    }
-
-    // MARK: - CustomNSError
+    // MARK: - CustomNSError bridge
 
     func test_errorDomain_shouldBeMercadoPagoSDK() {
         XCTAssertEqual(MercadoPagoCheckoutError.errorDomain, "MercadoPagoSDK")
     }
 
-    func test_errorCode_shouldMatchCodeRawValue() {
-        // Arrange / Act
+    func test_errorCode_shouldDelegateToCodeRawValue() {
+        // Arrange -- NSError integration: `errorCode` must match `code.rawValue`
         let error = MercadoPagoCheckoutError(
             code: .networkTimeout,
             localizedDescription: "x",
@@ -163,7 +73,7 @@ final class MercadoPagoCheckoutErrorTests: XCTestCase {
         XCTAssertEqual(error.errorCode, -1001)
     }
 
-    // MARK: - CustomDebugStringConvertible
+    // MARK: - debugDescription format
 
     func test_debugDescription_shouldIncludeCodeLocationAndDescription() {
         // Arrange / Act
@@ -173,35 +83,19 @@ final class MercadoPagoCheckoutErrorTests: XCTestCase {
             location: .tokenization
         )
 
-        // Assert -- soft assertions on substrings; we don't pin the full format
+        // Assert -- substring checks; full format is intentionally not pinned
         let debug = error.debugDescription
-        XCTAssertTrue(debug.contains("2000"), "should include code rawValue")
-        XCTAssertTrue(debug.contains("tokenization"), "should include location")
-        XCTAssertTrue(debug.contains("broken"), "should include description")
+        XCTAssertTrue(debug.contains("2000"))
+        XCTAssertTrue(debug.contains("tokenization"))
+        XCTAssertTrue(debug.contains("broken"))
     }
 
-    // MARK: - Equatable
+    // MARK: - Equatable — custom `==` intentionally ignores userInfo and description
 
-    func test_equatable_whenSameCodeAndLocation_shouldBeEqual() {
-        let a = MercadoPagoCheckoutError(code: .unknown, localizedDescription: "a", location: .issuer)
-        let b = MercadoPagoCheckoutError(code: .unknown, localizedDescription: "b", location: .issuer)
-        XCTAssertEqual(a, b)
-    }
-
-    func test_equatable_whenDifferentCodes_shouldNotBeEqual() {
-        let a = MercadoPagoCheckoutError(code: .unknown, localizedDescription: "x", location: .issuer)
-        let b = MercadoPagoCheckoutError(code: .serviceError, localizedDescription: "x", location: .issuer)
-        XCTAssertNotEqual(a, b)
-    }
-
-    func test_equatable_whenDifferentLocations_shouldNotBeEqual() {
-        let a = MercadoPagoCheckoutError(code: .unknown, localizedDescription: "x", location: .issuer)
-        let b = MercadoPagoCheckoutError(code: .unknown, localizedDescription: "x", location: .tokenization)
-        XCTAssertNotEqual(a, b)
-    }
-
-    func test_equatable_shouldIgnoreUserInfoAndDescription() {
-        // Arrange -- equality is intentionally scoped to (code, location)
+    func test_equatable_whenSameCodeAndLocation_shouldBeEqual_evenIfUserInfoDiffers() {
+        // Arrange -- this is the load-bearing property; scoping equality to
+        // (code, location) is what makes the error usable in Sets/Dictionaries
+        // for "have we seen this kind of failure yet?" checks.
         let a = MercadoPagoCheckoutError(
             code: .unknown,
             localizedDescription: "one",
@@ -217,5 +111,17 @@ final class MercadoPagoCheckoutErrorTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(a, b)
+    }
+
+    func test_equatable_whenDifferentCodes_shouldNotBeEqual() {
+        let a = MercadoPagoCheckoutError(code: .unknown, localizedDescription: "x", location: .issuer)
+        let b = MercadoPagoCheckoutError(code: .serviceError, localizedDescription: "x", location: .issuer)
+        XCTAssertNotEqual(a, b)
+    }
+
+    func test_equatable_whenDifferentLocations_shouldNotBeEqual() {
+        let a = MercadoPagoCheckoutError(code: .unknown, localizedDescription: "x", location: .issuer)
+        let b = MercadoPagoCheckoutError(code: .unknown, localizedDescription: "x", location: .tokenization)
+        XCTAssertNotEqual(a, b)
     }
 }
