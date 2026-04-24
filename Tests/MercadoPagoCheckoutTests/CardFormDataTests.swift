@@ -205,6 +205,74 @@ final class CardFormDataTests: XCTestCase {
         XCTAssertEqual(state, .incomplete)
     }
 
+    // MARK: - cancelledFormContext — document branches
+
+    func test_cancelledFormContext_whenDocumentBelowMinLength_shouldReportIncomplete() {
+        // Arrange -- CPF minLength 11, fewer digits is incomplete
+        var form = Self.makeFormWithRealStrings()
+        form.setDocumentLength(11, 11)
+        form.documentHolder = "12345"
+
+        // Act
+        let state = form.cancelledFormContext.fields.first { $0.field == .document }?.state
+
+        // Assert
+        XCTAssertEqual(state, .incomplete)
+    }
+
+    func test_cancelledFormContext_whenDocumentAllZeros_shouldReportInvalid() {
+        // Arrange -- numeric document with only zeros is invalid regardless of length
+        var form = Self.makeFormWithRealStrings()
+        form.setDocumentLength(11, 11)
+        form.documentHolder = "00000000000"
+
+        // Act
+        let state = form.cancelledFormContext.fields.first { $0.field == .document }?.state
+
+        // Assert
+        XCTAssertEqual(state, .invalid)
+    }
+
+    func test_cancelledFormContext_whenDocumentStringTypeWithOnlySpecialChars_shouldReportEmpty() {
+        // Arrange -- string-type document strips special chars; nothing usable left → empty
+        var form = Self.makeFormWithRealStrings()
+        form.setDocumentType(isNumeric: false)
+        form.setDocumentLength(5, 14)
+        form.documentHolder = "!@#$%"
+
+        // Act
+        let state = form.cancelledFormContext.fields.first { $0.field == .document }?.state
+
+        // Assert
+        XCTAssertEqual(state, .empty)
+    }
+
+    // MARK: - cancelledFormContext — expiration branches
+
+    func test_cancelledFormContext_whenExpirationPartialDigits_shouldReportIncomplete() {
+        // Arrange -- 2 digits is below the 4-digit minimum for MM/YY
+        var form = Self.makeFormWithRealStrings()
+        form.expirationDate = "12"
+
+        // Act
+        let state = form.cancelledFormContext.fields.first { $0.field == .expirationDate }?.state
+
+        // Assert
+        XCTAssertEqual(state, .incomplete)
+    }
+
+    func test_cancelledFormContext_whenExpirationExpiredYear_shouldReportInvalid() {
+        // Arrange -- 01/00 (Jan 2000) is in the past → invalid, not incomplete
+        var form = Self.makeFormWithRealStrings()
+        form.expirationDate = "0100"
+
+        // Act
+        let state = form.cancelledFormContext.fields.first { $0.field == .expirationDate }?.state
+
+        // Assert
+        XCTAssertEqual(state, .invalid)
+    }
+
     // MARK: - Helpers
 
     /// Builds a CardFormData using the real MPStrings validation messages so
