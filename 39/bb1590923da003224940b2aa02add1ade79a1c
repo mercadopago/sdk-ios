@@ -1,0 +1,29 @@
+Sources/MercadoPagoCheckout/Views/Fields/CardFormData.swift
+  8e2a6b33b5407bad 80,82-85,101,111,115,117,122,124,129,135,137
+Tests/MercadoPagoCheckoutTests/Rules/CardFormRulesTests.swift
+  8e2a6b33b5407bad 102,437,448,500,508,521,524,527,540,543,546,558,561,574,579,593,632,644,653
+Sources/MercadoPagoCheckout/Utils/CardFormValidate.swift
+  8e2a6b33b5407bad 14,18
+Sources/MercadoPagoCheckout/Utils/Rules/CardFormRules.swift
+  8e2a6b33b5407bad 19-33,35,42,54-55,80,91,97,100-101,103,108-109,111,144,146,148,172,175,177,189,208,211,213-214,242,247,249-250,252
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "39bb1590923da003224940b2aa02add1ade79a1c",
+  "prompts": {
+    "8e2a6b33b5407bad": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4241c885-9534-49d2-99fc-efb4a39f38be",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 122,
+      "total_deletions": 80,
+      "accepted_lines": 80,
+      "overriden_lines": 20
+    }
+  }
+}
