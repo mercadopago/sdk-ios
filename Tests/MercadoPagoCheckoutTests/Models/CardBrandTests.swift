@@ -10,31 +10,53 @@ import XCTest
 
 /// The `CardBrand` type has two mappings that must stay in sync:
 /// `init(paymentMethodId:)` decodes the backend identifier into a case, and
-/// the `paymentMethodId` property encodes it back. If either drifts, the
-/// backend starts receiving or sending identifiers that don't round-trip.
+/// the `paymentMethodId` property encodes it back. Both directions are
+/// anchored to explicit string literals below — testing only the roundtrip
+/// would miss a symmetric drift (both sides renamed to the same wrong id),
+/// which would still round-trip cleanly while sending the wrong value to
+/// the backend.
 final class CardBrandTests: XCTestCase {
-    // MARK: - Roundtrip (predefined brands)
+    /// Canonical mapping between the Swift case and the backend identifier.
+    /// Drive both directions from this table so a rename on one side fails
+    /// loudly without needing a matching rename on the other.
+    private static let brandIdentifierTable: [(MercadoPagoCheckout.CardBrand, String)] = [
+        (.visa, "visa"),
+        (.master, "master"),
+        (.amex, "amex"),
+        (.elo, "elo"),
+        (.hipercard, "hipercard"),
+        (.diners, "diners"),
+        (.discover, "discover"),
+        (.jcb, "jcb"),
+        (.maestro, "maestro"),
+        // .unionPay is camelCased in Swift but lowercase in the backend
+        (.unionPay, "unionpay"),
+        (.cabal, "cabal"),
+        (.naranja, "naranja")
+    ]
 
-    func test_roundtrip_forEveryPredefinedBrand_shouldReturnOriginalCase() {
-        // Arrange -- walk all predefined brands exposed via `.defaults`
-        for brand in MercadoPagoCheckout.CardBrand.defaults {
-            // Act -- encode then decode
-            let rebuilt = MercadoPagoCheckout.CardBrand(paymentMethodId: brand.paymentMethodId)
+    // MARK: - Encode (case → identifier)
 
-            // Assert
-            XCTAssertEqual(rebuilt, brand, "brand: \(brand)")
+    func test_paymentMethodId_shouldMatchExpectedIdentifier_forEveryBrand() {
+        for (brand, expectedId) in Self.brandIdentifierTable {
+            XCTAssertEqual(
+                brand.paymentMethodId,
+                expectedId,
+                "encode mismatch for \(brand) — expected \"\(expectedId)\", got \"\(brand.paymentMethodId)\""
+            )
         }
     }
 
-    // MARK: - Payment method id casing (backend sends lowercase)
+    // MARK: - Decode (identifier → case)
 
-    func test_paymentMethodId_forUnionPay_shouldBeLowercase() {
-        // Arrange -- `.unionPay` is camelCased in Swift but the backend id is lowercase
-        XCTAssertEqual(MercadoPagoCheckout.CardBrand.unionPay.paymentMethodId, "unionpay")
-    }
-
-    func test_init_withLowercaseUnionPay_shouldReturnUnionPayCase() {
-        XCTAssertEqual(MercadoPagoCheckout.CardBrand(paymentMethodId: "unionpay"), .unionPay)
+    func test_init_shouldMapIdentifierToExpectedCase_forEveryBrand() {
+        for (expectedBrand, id) in Self.brandIdentifierTable {
+            XCTAssertEqual(
+                MercadoPagoCheckout.CardBrand(paymentMethodId: id),
+                expectedBrand,
+                "decode mismatch for \"\(id)\" — expected \(expectedBrand)"
+            )
+        }
     }
 
     // MARK: - Custom fallback
@@ -54,13 +76,10 @@ final class CardBrandTests: XCTestCase {
     // MARK: - `.defaults` inventory
 
     func test_defaults_shouldContainExpectedBrands() {
-        // Guardrail: deleting a brand from the defaults list would silently
-        // stop showing that brand in seller-facing UI. Explicit check catches it.
+        // Guardrail: deleting a brand from `.defaults` would silently stop
+        // showing that brand in seller-facing UI. Explicit check catches it.
         let identifiers = MercadoPagoCheckout.CardBrand.defaults.map(\.paymentMethodId)
-        let expected: Set<String> = [
-            "visa", "master", "amex", "elo", "hipercard", "diners",
-            "discover", "jcb", "maestro", "unionpay", "cabal", "naranja"
-        ]
+        let expected = Set(Self.brandIdentifierTable.map(\.1))
         XCTAssertEqual(Set(identifiers), expected)
     }
 }
