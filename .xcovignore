@@ -1,0 +1,16 @@
+# xcov ignore list — YAML array, one regex per entry.
+#
+# Any file whose path matches any of these regexes is skipped when computing
+# coverage. Patterns follow a SwiftUI naming convention so new screens are
+# ignored automatically without editing the Fastfile:
+#
+#   *Screen.swift          SwiftUI screens (CardFormScreen, InstallmentScreen, …)
+#   *Brick.swift           Public entry-point bricks (CardFormBrick, …)
+#   *+Compatible13.swift   iOS 13 compatibility shims
+#
+# The $ anchor keeps *Screen.swift matching only "Screen.swift" at end of name,
+# so ViewModel siblings (*ScreenViewModel.swift) stay in the coverage gate.
+
+- .*Screen\.swift$
+- .*Brick\.swift$
+- .*\+Compatible13\.swift$
