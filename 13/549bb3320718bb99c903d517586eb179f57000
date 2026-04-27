@@ -1,0 +1,53 @@
+Tests/MercadoPagoCheckoutTests/Rules/CardFormRulesTests.swift
+  8f822541655f0cc3 102,437,448,500,508,521,524,527,540,543,546,558,561,574,579,593,632,644,653
+Tests/CoreMethodsTests/UI/SecurityCodeValidationTests.swift
+  8f822541655f0cc3 1-53
+Sources/MercadoPagoCheckout/Utils/CardFormValidate.swift
+  8f822541655f0cc3 14,17-18,20-23,26,31,35-36,38,42-43
+Tests/CoreMethodsTests/UI/ExpirationDateValidationTests.swift
+  8f822541655f0cc3 1-89
+Tests/CoreMethodsTests/UI/CardNumberValidationTests.swift
+  8f822541655f0cc3 1-72
+.xcovignore
+  8f822541655f0cc3 1-16
+fastlane/Fastfile
+  8f822541655f0cc3 24-25
+Tests/CoreMethodsTests/Data/Mappers/InstallmentsMapperTests.swift
+  8f822541655f0cc3 1-147
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutBuilderTests.swift
+  8f822541655f0cc3 1-128
+Sources/MercadoPagoCheckout/Views/Fields/CardFormData.swift
+  8f822541655f0cc3 80,82-85,101,111,115,117,122,124,129,135,137
+Tests/MercadoPagoCheckoutTests/ViewModels/InstallmentsScreenViewModelTests.swift
+  8f822541655f0cc3 103-228
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPayerTests.swift
+  8f822541655f0cc3 1-26
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPaymentMethodTests.swift
+  8f822541655f0cc3 1-111
+Sources/MercadoPagoCheckout/Utils/Rules/CardFormRules.swift
+  8f822541655f0cc3 19-33,35,42,54-56,80,82,84,91,97,100-103,106,108-111,113,144,146-148,152,156,172,174-177,189-190,208,210-214,242,246-252
+Tests/CoreMethodsTests/Data/Mappers/PaymentMethodMapperTests.swift
+  8f822541655f0cc3 1-188
+Tests/MercadoPagoCheckoutTests/CardFormDataTests.swift
+  8f822541655f0cc3 208-275
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "13549bb3320718bb99c903d517586eb179f57000",
+  "prompts": {
+    "8f822541655f0cc3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8a134c96-5a61-4172-a75a-4e80108297bb",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 4208,
+      "total_deletions": 453,
+      "accepted_lines": 3829,
+      "overriden_lines": 0
+    }
+  }
+}
