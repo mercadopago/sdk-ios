@@ -37,42 +37,35 @@ final class IdentificationTypeCheckoutTests: XCTestCase {
 
     // MARK: - getPlaceholder
 
-    func test_getPlaceholder_whenCPF_shouldReturnBrazilianCPFMask() {
-        let type = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+    func test_getPlaceholder_whenInitializedWithPlaceholder_shouldReturnIt() {
+        let type = IdentificationType(
+            id: "CPF", name: "CPF", type: "number",
+            minLength: 11, maxLength: 11,
+            placeholder: "999.999.999-99",
+            mask: "###.###.###-##"
+        )
         XCTAssertEqual(type.getPlaceholder(), "999.999.999-99")
     }
 
-    func test_getPlaceholder_whenCNPJ_shouldReturnBrazilianCNPJMask() {
-        let type = IdentificationType(id: "CNPJ", name: "CNPJ", type: "number", minLenght: 14, maxLenght: 14)
-        XCTAssertEqual(type.getPlaceholder(), "99.999.999/9999-99")
-    }
-
-    func test_getPlaceholder_whenUnknownId_shouldReturnEmpty() {
-        // Arrange -- documents from other countries (DNI, RUC, …) don't have a placeholder mask
-        let type = IdentificationType(id: "DNI", name: "DNI", type: "number", minLenght: 7, maxLenght: 9)
+    func test_getPlaceholder_whenPublicInit_shouldReturnEmpty() {
+        let type = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
         XCTAssertEqual(type.getPlaceholder(), "")
     }
 
     // MARK: - getFormat
 
-    func test_getFormat_whenCPF_shouldReturnNumericMask() {
-        let type = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
+    func test_getFormat_whenInitializedWithMask_shouldReturnIt() {
+        let type = IdentificationType(
+            id: "CPF", name: "CPF", type: "number",
+            minLength: 11, maxLength: 11,
+            placeholder: "999.999.999-99",
+            mask: "###.###.###-##"
+        )
         XCTAssertEqual(type.getFormat(), "###.###.###-##")
     }
 
-    func test_getFormat_whenCNPJ_andNumberType_shouldReturnNumericMask() {
-        let type = IdentificationType(id: "CNPJ", name: "CNPJ", type: "number", minLenght: 14, maxLenght: 14)
-        XCTAssertEqual(type.getFormat(), "##.###.###/####-##")
-    }
-
-    func test_getFormat_whenCNPJ_andStringType_shouldReturnAlphanumericMask() {
-        // Arrange -- CNPJ alfanumérico (Receita Federal 2026+): aceita letras nas primeiras 12 posições
-        let type = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
-        XCTAssertEqual(type.getFormat(), "AA.AAA.AAA/AAAA-##")
-    }
-
-    func test_getFormat_whenUnknownId_shouldReturnEmpty() {
-        let type = IdentificationType(id: "DNI", name: "DNI", type: "number", minLenght: 7, maxLenght: 9)
+    func test_getFormat_whenPublicInit_shouldReturnEmpty() {
+        let type = IdentificationType(id: "DNI", name: "DNI", type: "number", minLength: 7, maxLength: 9)
         XCTAssertEqual(type.getFormat(), "")
     }
 }

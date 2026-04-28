@@ -44,7 +44,7 @@ enum CardFormInitializationInputStub {
                     errorIncomplete: "Expiration incomplete",
                     errorInvalid: "Expiration invalid"
                 ),
-                config: .init(type: "number", length: .init(min: 4, max: 5))
+                config: .init(type: "number", length: .init(min: 4, max: 4))
             ),
             cvv: .init(
                 label: "Security code",
@@ -118,7 +118,7 @@ enum CardFormInitializationOutputStub {
                     errorIncomplete: "Expiration incomplete",
                     errorInvalid: "Expiration invalid"
                 ),
-                config: .init(type: "number", length: .init(min: 4, max: 5))
+                config: .init(type: "number", length: .init(min: 4, max: 4))
             ),
             cvv: .init(
                 label: "Security code",
