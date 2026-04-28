@@ -238,8 +238,8 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         // Assert
         XCTAssertEqual(result.identificationTypes.count, 1)
         XCTAssertEqual(result.identificationTypes.first?.id, "CPF")
-        XCTAssertEqual(result.identificationTypes.first?.minLength, 11)
-        XCTAssertEqual(result.identificationTypes.first?.maxLength, 11)
+        XCTAssertEqual(result.identificationTypes.first?.minLenght, 11)
+        XCTAssertEqual(result.identificationTypes.first?.maxLenght, 11)
     }
 
     // MARK: - Error Cases

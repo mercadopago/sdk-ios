@@ -34,8 +34,8 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     // MARK: - Stubs
 
     private enum IdentificationTypeStub {
-        static let cpf = IdentificationType(id: "CPF", name: "CPF", type: "numeric", minLength: 11, maxLength: 11)
-        static let cnpj = IdentificationType(id: "CNPJ", name: "CNPJ", type: "numeric", minLength: 14, maxLength: 14)
+        static let cpf = IdentificationType(id: "CPF", name: "CPF", type: "numeric", minLenght: 11, maxLenght: 11)
+        static let cnpj = IdentificationType(id: "CNPJ", name: "CNPJ", type: "numeric", minLenght: 14, maxLenght: 14)
     }
 
     private enum CardTokenStub {

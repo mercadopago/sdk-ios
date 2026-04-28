@@ -24,8 +24,8 @@ final class CoreMethodsTests: XCTestCase {
             id: "DNI",
             name: "DNI",
             type: "number",
-            minLength: 7,
-            maxLength: 8
+            minLenght: 7,
+            maxLenght: 8
         )
 
         static var validResponse: Data {
