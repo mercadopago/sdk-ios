@@ -1,0 +1,7 @@
+{
+    "platform": "iOS",
+    "type": "testapp",
+    "module": "testapp",
+    "description": "CHOBK SDK TestApp",
+    "build_type": "Local"
+}
