@@ -101,13 +101,7 @@ The `Example/` directory contains an Xcode project that demonstrates the SDK int
 
 ### Setup
 
-```bash
-cd Example
-pod install
-open Example.xcworkspace
-```
-
-> Requires CocoaPods (`gem install cocoapods`). Use `Example.xcworkspace`, not `Example.xcodeproj`.
+Open `Example/Example.xcodeproj` directly in Xcode. The SDK is linked locally via Swift Package Manager — no extra steps required.
 
 ### When to use it
 
