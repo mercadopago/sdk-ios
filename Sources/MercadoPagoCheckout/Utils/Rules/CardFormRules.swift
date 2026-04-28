@@ -107,14 +107,11 @@ package struct CardNumberRule: CardFormRuleType {
                 message: message
             )
         case let .paymentTypeNotAllowed(message):
-            guard let cardType else {
-                return CardFormFieldError(type: .invalid, message: message)
-            }
             return CardFormFieldError(
                 type: .invalid,
                 message: message
             )
-        case .paymentMethodNotFound:
+        case let .paymentMethodNotFound(message):
             return CardFormFieldError(type: .invalid, message: message)
         }
     }

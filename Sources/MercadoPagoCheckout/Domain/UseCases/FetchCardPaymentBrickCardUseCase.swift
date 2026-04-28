@@ -16,7 +16,11 @@ struct FetchCardPaymentBrickCardUseCase {
 
     func execute(params: CardPaymentBrickCardParams) async throws(BinFetchError) -> CardPaymentBrickCardData {
         do {
-            return try await self.repository.fetchCard(params: params)
+            let data = try await self.repository.fetchCard(params: params)
+            if data.paymentMethods.isEmpty {
+                throw BinFetchError.acceptance(.paymentMethodNotFound(""))
+            }
+            return data
         } catch let error as BinFetchError {
             throw error
         } catch let error as APIClientError {
@@ -33,6 +37,8 @@ struct FetchCardPaymentBrickCardUseCase {
                 }
             }
             throw .network(.init(from: error, location: .binChange))
+        } catch let error as MercadoPagoCheckoutError {
+            throw .network(error)
         } catch {
             throw .network(.init(code: .unknown, localizedDescription: error.localizedDescription, location: .binChange))
         }
