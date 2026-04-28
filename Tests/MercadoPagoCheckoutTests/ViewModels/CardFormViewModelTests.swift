@@ -40,15 +40,15 @@ final class CardFormViewModelTests: XCTestCase {
             id: "CPF",
             name: "CPF",
             type: "numeric",
-            minLength: 11,
-            maxLength: 11
+            minLenght: 11,
+            maxLenght: 11
         )
         static let cnpj = IdentificationType(
             id: "CNPJ",
             name: "CNPJ",
             type: "numeric",
-            minLength: 14,
-            maxLength: 14
+            minLenght: 14,
+            maxLenght: 14
         )
     }
 
@@ -734,8 +734,9 @@ final class CardFormViewModelTests: XCTestCase {
             onFailure: { capturedError = $0 }
         )
 
-        // Assert
-        XCTAssertNotNil(capturedError)
+        // Assert — verifies the exact contract of createPaymentData's throw path
+        XCTAssertEqual(capturedError?.code, .unknown)
+        XCTAssertEqual(capturedError?.locationDescription, "paymentMethods")
     }
 
     func test_submitCardData_shouldResetIsTokenizingAfterCompletion() async {
@@ -965,7 +966,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_init_withNumericIdentificationType_shouldSelectNumericType() {
         // Arrange
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLength: 11, maxLength: 11)
+        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
 
         // Act
         let sut = self.makeSUT(identificationTypes: [numericType])
@@ -976,7 +977,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     func test_init_withStringIdentificationType_shouldSelectStringType() {
         // Arrange
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLength: 14, maxLength: 14)
+        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
 
         // Act
         let sut = self.makeSUT(identificationTypes: [stringType])

@@ -97,7 +97,7 @@ final class CardFormRulesTests: XCTestCase {
 
         // Assert
         XCTAssertNotNil(result)
-        XCTAssertTrue(result?.contains("visa") == true)
+        XCTAssertTrue(result?.message.contains("visa") == true)
     }
 
     func test_cardNumberRule_whenPaymentTypeNotAllowedCredit_shouldReturnTypeNotAllowedError() {
@@ -432,7 +432,7 @@ final class CardFormRulesTests: XCTestCase {
         let result = rule.validate("")
 
         // Assert
-        XCTAssertEqual(result, MPStrings.CardForm.CVV.errorEmpty)
+        XCTAssertEqual(result?.message, MPStrings.CardForm.CVV.errorEmpty)
     }
 
     func test_securityCodeRule_whenIncomplete_shouldReturnIncompleteError() {
@@ -443,7 +443,7 @@ final class CardFormRulesTests: XCTestCase {
         let result = rule.validate("12")
 
         // Assert
-        XCTAssertEqual(result, MPStrings.CardForm.CVV.errorIncomplete)
+        XCTAssertEqual(result?.message, MPStrings.CardForm.CVV.errorIncomplete)
     }
 
     func test_securityCodeRule_whenCompleteWithDefaultLength_shouldReturnNil() {
@@ -493,7 +493,7 @@ final class CardFormRulesTests: XCTestCase {
         let rule = CardNumberRule(validation: customValidation)
 
         // Act / Assert -- empty
-        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+        XCTAssertEqual(rule.validate("")?.message, "CUSTOM_EMPTY")
 
         // Act / Assert -- above min length, no Luhn check in validate
         XCTAssertNil(rule.validate("1111 1111 1111 1111"))
@@ -501,7 +501,7 @@ final class CardFormRulesTests: XCTestCase {
         // Act / Assert -- incomplete
         var ruleWithRange = CardNumberRule(validation: customValidation)
         ruleWithRange.apply(.cardNumberRange(min: 16, max: 16))
-        XCTAssertEqual(ruleWithRange.validate("4111 1111"), "CUSTOM_INCOMPLETE")
+        XCTAssertEqual(ruleWithRange.validate("4111 1111")?.message, "CUSTOM_INCOMPLETE")
     }
 
     func test_cardHolderRule_usesCustomValidationTexts() {
@@ -514,13 +514,13 @@ final class CardFormRulesTests: XCTestCase {
         let rule = CardHolderRule(validation: customValidation)
 
         // Act / Assert -- empty
-        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+        XCTAssertEqual(rule.validate("")?.message, "CUSTOM_EMPTY")
 
         // Act / Assert -- incomplete (single char)
-        XCTAssertEqual(rule.validate("A"), "CUSTOM_INCOMPLETE")
+        XCTAssertEqual(rule.validate("A")?.message, "CUSTOM_INCOMPLETE")
 
         // Act / Assert -- invalid format
-        XCTAssertEqual(rule.validate("Jo@hn"), "CUSTOM_FORMAT")
+        XCTAssertEqual(rule.validate("Jo@hn")?.message, "CUSTOM_FORMAT")
     }
 
     func test_expirationDateRule_usesCustomValidationTexts() {
@@ -533,13 +533,13 @@ final class CardFormRulesTests: XCTestCase {
         let rule = ExpirationDateRule(validation: customValidation)
 
         // Act / Assert -- empty
-        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+        XCTAssertEqual(rule.validate("")?.message, "CUSTOM_EMPTY")
 
         // Act / Assert -- incomplete (only 2 digits)
-        XCTAssertEqual(rule.validate("12"), "CUSTOM_INCOMPLETE")
+        XCTAssertEqual(rule.validate("12")?.message, "CUSTOM_INCOMPLETE")
 
         // Act / Assert -- invalid (month 13)
-        XCTAssertEqual(rule.validate("1399"), "CUSTOM_INVALID")
+        XCTAssertEqual(rule.validate("1399")?.message, "CUSTOM_INVALID")
     }
 
     func test_securityCodeRule_usesCustomValidationTexts() {
@@ -551,10 +551,10 @@ final class CardFormRulesTests: XCTestCase {
         let rule = SecurityCodeRule(validation: customValidation)
 
         // Act / Assert -- empty
-        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+        XCTAssertEqual(rule.validate("")?.message, "CUSTOM_EMPTY")
 
         // Act / Assert -- incomplete
-        XCTAssertEqual(rule.validate("12"), "CUSTOM_INCOMPLETE")
+        XCTAssertEqual(rule.validate("12")?.message, "CUSTOM_INCOMPLETE")
     }
 
     func test_documentRule_usesCustomValidationTexts() {
@@ -567,12 +567,12 @@ final class CardFormRulesTests: XCTestCase {
         let rule = DocumentRule(validation: customValidation)
 
         // Act / Assert -- empty
-        XCTAssertEqual(rule.validate(""), "CUSTOM_EMPTY")
+        XCTAssertEqual(rule.validate("")?.message, "CUSTOM_EMPTY")
 
         // Act / Assert -- invalid (all zeros)
         var ruleWithLen = DocumentRule(validation: customValidation)
         ruleWithLen.apply(.documentLength(min: 3, max: 3))
-        XCTAssertEqual(ruleWithLen.validate("000"), "CUSTOM_INVALID")
+        XCTAssertEqual(ruleWithLen.validate("000")?.message, "CUSTOM_INVALID")
     }
 
     // MARK: - DocumentRule (string/alphanumeric type)
@@ -586,7 +586,7 @@ final class CardFormRulesTests: XCTestCase {
         let result = rule.validate("")
 
         // Assert
-        XCTAssertEqual(result, MPStrings.CardForm.Document.errorEmpty)
+        XCTAssertEqual(result?.message, MPStrings.CardForm.Document.errorEmpty)
     }
 
     func test_documentRule_stringType_whenValidAlphanumeric_shouldReturnNil() {
@@ -625,7 +625,7 @@ final class CardFormRulesTests: XCTestCase {
         let result = rule.validate("AB")
 
         // Assert
-        XCTAssertEqual(result, MPStrings.CardForm.Document.errorIncomplete)
+        XCTAssertEqual(result?.message, MPStrings.CardForm.Document.errorIncomplete)
     }
 
     func test_documentRule_stringType_whenOnlySpecialChars_shouldReturnEmptyError() {
@@ -637,7 +637,7 @@ final class CardFormRulesTests: XCTestCase {
         let result = rule.validate("!@#$%")
 
         // Assert
-        XCTAssertEqual(result, MPStrings.CardForm.Document.errorEmpty)
+        XCTAssertEqual(result?.message, MPStrings.CardForm.Document.errorEmpty)
     }
 
     func test_documentRule_whenTypeToggledFromNumericToString_allZerosShouldBecomeValid() {
@@ -646,7 +646,7 @@ final class CardFormRulesTests: XCTestCase {
         rule.apply(.documentLength(min: 3, max: 3))
 
         // Act / Assert — numeric type: all zeros invalid
-        XCTAssertEqual(rule.validate("000"), MPStrings.CardForm.Document.errorInvalid)
+        XCTAssertEqual(rule.validate("000")?.message, MPStrings.CardForm.Document.errorInvalid)
 
         // Act — switch to string type
         rule.apply(.documentType(isNumeric: false))

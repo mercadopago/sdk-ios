@@ -10,19 +10,19 @@ public struct IdentificationType: Sendable, Equatable, Hashable, Codable {
     public let id: String
     public let name: String
     public let type: String
-    public let minLength: Int
-    public let maxLength: Int
+    public let minLenght: Int
+    public let maxLenght: Int
 
     package let placeholder: String
     package let mask: String
     package let sequence: String?
 
-    public init(id: String, name: String, type: String, minLength: Int, maxLength: Int) {
+    public init(id: String, name: String, type: String, minLenght: Int, maxLenght: Int) {
         self.id = id
         self.name = name
         self.type = type
-        self.minLength = minLength
-        self.maxLength = maxLength
+        self.minLenght = minLenght
+        self.maxLenght = maxLenght
         self.placeholder = ""
         self.mask = ""
         self.sequence = nil
@@ -32,8 +32,8 @@ public struct IdentificationType: Sendable, Equatable, Hashable, Codable {
         self.id = ""
         self.name = name
         self.type = ""
-        self.minLength = 0
-        self.maxLength = 0
+        self.minLenght = 0
+        self.maxLenght = 0
         self.placeholder = ""
         self.mask = ""
         self.sequence = nil
@@ -43,8 +43,8 @@ public struct IdentificationType: Sendable, Equatable, Hashable, Codable {
         id: String,
         name: String,
         type: String,
-        minLength: Int,
-        maxLength: Int,
+        minLenght: Int,
+        maxLenght: Int,
         placeholder: String,
         mask: String,
         sequence: String? = nil
@@ -52,8 +52,8 @@ public struct IdentificationType: Sendable, Equatable, Hashable, Codable {
         self.id = id
         self.name = name
         self.type = type
-        self.minLength = minLength
-        self.maxLength = maxLength
+        self.minLenght = minLenght
+        self.maxLenght = maxLenght
         self.placeholder = placeholder
         self.mask = mask
         self.sequence = sequence

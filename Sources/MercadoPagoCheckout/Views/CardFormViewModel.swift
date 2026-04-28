@@ -105,7 +105,7 @@ final class CardFormViewModel: ObservableObject {
         let firstType = initResult.identificationTypes.first
         self.documentFormatter = DocumentFormatter(
             mask: firstType?.getFormat() ?? String(),
-            maxLength: firstType?.maxLength ?? 20,
+            maxLength: firstType?.maxLenght ?? 20,
             isNumericType: firstType?.type != "string"
         )
     }
@@ -115,7 +115,7 @@ final class CardFormViewModel: ObservableObject {
     private func updateIdentificationType() {
         self.documentFormatter = DocumentFormatter(
             mask: self.selectTypeDocument?.getFormat() ?? String(),
-            maxLength: self.selectTypeDocument?.maxLength ?? 20,
+            maxLength: self.selectTypeDocument?.maxLenght ?? 20,
             isNumericType: self.selectTypeDocument?.type != "string"
         )
     }

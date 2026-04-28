@@ -15,12 +15,12 @@ final class CardFormFormattingTests: XCTestCase {
         // Arrange
         let formatter = CardNumberFormatter()
 
-        // Act — 22 digits provided, only 19 should be accepted
+        // Act — 22 digits provided, only 16 should be accepted
         let result = formatter.formatOnChange("1234567890123456789012")
 
         // Assert
         let digits = result.filter(\.isNumber)
-        XCTAssertEqual(digits.count, 19)
+        XCTAssertEqual(digits.count, 16)
     }
 
     func test_cardNumberFormatter_default_shouldApply16DigitMask() {
@@ -71,7 +71,7 @@ final class CardFormFormattingTests: XCTestCase {
 
     func test_cardNumberFormatter_whenMaxLength19_shouldLimitTo19Digits() {
         // Arrange
-        let formatter = CardNumberFormatter(maxLength: 19)
+        let formatter = CardNumberFormatter(maxLength: 19, mask: "#### #### #### #### ###")
 
         // Act — 20 digits provided, only 19 should be accepted
         let result = formatter.formatOnChange("12345678901234567890")
@@ -83,7 +83,7 @@ final class CardFormFormattingTests: XCTestCase {
 
     func test_cardNumberFormatter_whenMaxLength19_shouldApply19DigitMask() {
         // Arrange
-        let formatter = CardNumberFormatter(maxLength: 19)
+        let formatter = CardNumberFormatter(maxLength: 19, mask: "#### #### #### #### ###")
 
         // Act
         let result = formatter.formatOnChange("1234567890123456789")
@@ -94,7 +94,7 @@ final class CardFormFormattingTests: XCTestCase {
 
     func test_cardNumberFormatter_whenMaxLength19_shouldNotLimitAt16() {
         // Arrange
-        let formatter = CardNumberFormatter(maxLength: 19)
+        let formatter = CardNumberFormatter(maxLength: 19, mask: "#### #### #### #### ####")
 
         // Act — 17 digits: should not be cut at 16
         let result = formatter.formatOnChange("12345678901234567")
@@ -220,5 +220,189 @@ final class DocumentFormatterStringTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(result, "")
+    }
+}
+
+// MARK: - ExpirationDateFormatter
+
+final class ExpirationDateFormatterTests: XCTestCase {
+    func test_expirationFormatter_whenEmpty_shouldReturnEmpty() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("")
+
+        // Assert
+        XCTAssertEqual(result, "")
+    }
+
+    func test_expirationFormatter_whenNonDigitsOnly_shouldReturnEmpty() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("abc/xy")
+
+        // Assert
+        XCTAssertEqual(result, "")
+    }
+
+    func test_expirationFormatter_whenSingleDigit_shouldReturnAsIs() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("1")
+
+        // Assert
+        XCTAssertEqual(result, "1")
+    }
+
+    func test_expirationFormatter_whenTwoDigits_shouldReturnWithoutSlash() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("12")
+
+        // Assert
+        XCTAssertEqual(result, "12")
+    }
+
+    func test_expirationFormatter_whenThreeDigits_shouldInsertSlashAfterMonth() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("123")
+
+        // Assert
+        XCTAssertEqual(result, "12/3")
+    }
+
+    func test_expirationFormatter_whenFourDigits_shouldApplyFullMask() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("1234")
+
+        // Assert
+        XCTAssertEqual(result, "12/34")
+    }
+
+    func test_expirationFormatter_whenMoreThanFourDigits_shouldTruncate() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("123456")
+
+        // Assert
+        XCTAssertEqual(result, "12/34")
+    }
+
+    func test_expirationFormatter_whenInputAlreadyFormatted_shouldReturnSameMask() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act — simulates user pasting "12/34"
+        let result = formatter.formatOnChange("12/34")
+
+        // Assert
+        XCTAssertEqual(result, "12/34")
+    }
+
+    func test_expirationFormatter_whenInputMixesLettersAndDigits_shouldStripLetters() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("ab12cd34ef")
+
+        // Assert
+        XCTAssertEqual(result, "12/34")
+    }
+
+    func test_expirationFormatter_whenLeadingZeros_shouldPreserveThem() {
+        // Arrange
+        let formatter = ExpirationDateFormatter()
+
+        // Act — 01/99 should survive verbatim
+        let result = formatter.formatOnChange("0199")
+
+        // Assert
+        XCTAssertEqual(result, "01/99")
+    }
+}
+
+// MARK: - SecurityCodeFormatter
+
+final class SecurityCodeFormatterTests: XCTestCase {
+    func test_securityCodeFormatter_default_shouldLimitToThreeDigits() {
+        // Arrange
+        let formatter = SecurityCodeFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("12345")
+
+        // Assert
+        XCTAssertEqual(result, "123")
+    }
+
+    func test_securityCodeFormatter_default_whenFewerDigits_shouldReturnAll() {
+        // Arrange
+        let formatter = SecurityCodeFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("12")
+
+        // Assert
+        XCTAssertEqual(result, "12")
+    }
+
+    func test_securityCodeFormatter_default_whenEmpty_shouldReturnEmpty() {
+        // Arrange
+        let formatter = SecurityCodeFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("")
+
+        // Assert
+        XCTAssertEqual(result, "")
+    }
+
+    func test_securityCodeFormatter_default_shouldStripNonDigits() {
+        // Arrange
+        let formatter = SecurityCodeFormatter()
+
+        // Act
+        let result = formatter.formatOnChange("a1b2c3d4")
+
+        // Assert — digits extracted, then limited to 3
+        XCTAssertEqual(result, "123")
+    }
+
+    func test_securityCodeFormatter_whenMaxLengthFour_shouldAllowFourDigits() {
+        // Arrange — Amex uses 4-digit CVV
+        let formatter = SecurityCodeFormatter(maxLength: 4)
+
+        // Act
+        let result = formatter.formatOnChange("12345")
+
+        // Assert
+        XCTAssertEqual(result, "1234")
+    }
+
+    func test_securityCodeFormatter_whenMaxLengthFour_withExactFourDigits_shouldReturnAll() {
+        // Arrange
+        let formatter = SecurityCodeFormatter(maxLength: 4)
+
+        // Act
+        let result = formatter.formatOnChange("1234")
+
+        // Assert
+        XCTAssertEqual(result, "1234")
     }
 }
