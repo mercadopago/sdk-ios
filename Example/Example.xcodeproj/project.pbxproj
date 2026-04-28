@@ -7,11 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2239F23C044F4DC68BDD279D /* MPExtended in Frameworks */ = {isa = PBXBuildFile; productRef = 96CF427D532A4369B5E21DCA /* MPExtended */; };
 		EF0925BC2D5BDC6600B08775 /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF0925BB2D5BDC6600B08775 /* CoreMethods */; };
 		EF4754E52D14C35D00E9619F /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF4754E42D14C35D00E9619F /* CoreMethods */; };
-		EFA3F2AC2F27E33600F4E185 /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EFA3F2AB2F27E33600F4E185 /* CoreMethods */; };
-		EFA3F2AE2F27E33600F4E185 /* MPApplePay in Frameworks */ = {isa = PBXBuildFile; productRef = EFA3F2AD2F27E33600F4E185 /* MPApplePay */; };
-		EFA3F2B02F27E33600F4E185 /* MercadoPagoCheckout in Frameworks */ = {isa = PBXBuildFile; productRef = EFA3F2AF2F27E33600F4E185 /* MercadoPagoCheckout */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,10 +60,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF0925BC2D5BDC6600B08775 /* CoreMethods in Frameworks */,
-				EFA3F2AC2F27E33600F4E185 /* CoreMethods in Frameworks */,
 				EF4754E52D14C35D00E9619F /* CoreMethods in Frameworks */,
-				EFA3F2AE2F27E33600F4E185 /* MPApplePay in Frameworks */,
-				EFA3F2B02F27E33600F4E185 /* MercadoPagoCheckout in Frameworks */,
+				2239F23C044F4DC68BDD279D /* MPExtended in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,9 +125,7 @@
 			packageProductDependencies = (
 				EF4754E42D14C35D00E9619F /* CoreMethods */,
 				EF0925BB2D5BDC6600B08775 /* CoreMethods */,
-				EFA3F2AB2F27E33600F4E185 /* CoreMethods */,
-				EFA3F2AD2F27E33600F4E185 /* MPApplePay */,
-				EFA3F2AF2F27E33600F4E185 /* MercadoPagoCheckout */,
+				96CF427D532A4369B5E21DCA /* MPExtended */,
 			);
 			productName = Example;
 			productReference = D99B79E32CA4E2B30010B87C /* Example.app */;
@@ -216,7 +210,7 @@
 			mainGroup = D99B79DA2CA4E2B30010B87C;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				EFA3F2AA2F27E33600F4E185 /* XCLocalSwiftPackageReference "../../sdk-ios" */,
+				EF0925BA2D5BDC6600B08775 /* XCLocalSwiftPackageReference "../../sdk-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D99B79E42CA4E2B30010B87C /* Products */;
@@ -587,13 +581,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		EFA3F2AA2F27E33600F4E185 /* XCLocalSwiftPackageReference "../../sdk-ios" */ = {
+		EF0925BA2D5BDC6600B08775 /* XCLocalSwiftPackageReference "../../sdk-ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../sdk-ios";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		96CF427D532A4369B5E21DCA /* MPExtended */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EF0925BA2D5BDC6600B08775 /* XCLocalSwiftPackageReference "../../sdk-ios" */;
+			productName = MPExtended;
+		};
 		EF0925BB2D5BDC6600B08775 /* CoreMethods */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CoreMethods;
@@ -601,18 +600,6 @@
 		EF4754E42D14C35D00E9619F /* CoreMethods */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CoreMethods;
-		};
-		EFA3F2AB2F27E33600F4E185 /* CoreMethods */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = CoreMethods;
-		};
-		EFA3F2AD2F27E33600F4E185 /* MPApplePay */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MPApplePay;
-		};
-		EFA3F2AF2F27E33600F4E185 /* MercadoPagoCheckout */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MercadoPagoCheckout;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
