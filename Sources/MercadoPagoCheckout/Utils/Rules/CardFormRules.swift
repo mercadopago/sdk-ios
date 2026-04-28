@@ -164,7 +164,7 @@ package struct CardHolderRule: CardFormRuleType {
         }
 
         if clearValue.count > self.maxLength {
-            return self.validation.errorInvalid
+            return CardFormFieldError(type: .invalid, message: self.validation.errorInvalid)
         }
 
         return nil
