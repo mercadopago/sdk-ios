@@ -1,24 +1,25 @@
 # Pull Request
-<!--Provide the title of the pull request-->
-## Ticket or Issue link
-<!--Provide link for your issue or ticket that describes this pull request-->
+
+## Ticket / Issue
+<!-- Link to the ticket or issue this PR addresses -->
 
 ## Description
-<!--Include a list of the changes that were made. List the dependencies that were required for this change.-->
+<!-- Summarize the changes made and the motivation behind them -->
 
 ## Checklist
-- [] I have tested my changes creating a local version (More info in README file).
-- [] I have added tests that prove my solution is effective and works
-- [] New and existing unit tests pass locally with my changes.
-- [] Verify that you are merged with the latest in develop.
-- [] I have run `swiftlint` and fixed any possible issues of my code.
-- [] I have tested my changes with configuration changes such as rotation, no conection, framework error handling
-- [] I have tested the accessibility of the changes and added them to the screenshots.
-- [] I have added a tag to the pull request that contains the product this pull request is related to.
+- [ ] Branch is up to date with `main`
+- [ ] `swiftformat .` was run and the diff is clean
+- [ ] `swiftlint lint` passes with no errors
+- [ ] Tests were added or updated to cover the change
+- [ ] All unit tests pass locally (`swift test`)
+- [ ] Coverage stays at or above 80% (`bundle exec fastlane test`)
+- [ ] Tested on a physical device or simulator (rotation, no connection, error handling)
+- [ ] Accessibility verified for any UI changes
+- [ ] No PCI data (PAN, CVV, expiry) appears in logs, screenshots, or this description
 
-## Screenshots or videos (if applies)
-<!---
-Provide videos or screenshots. You can change their size in the src
+## Screenshots / Screen Recording
+<!-- Required for any UI change. Remove visible card data before attaching -->
+<!--
 <p float="center">
     <img width="200" src="">
     <img width="200" src="">
