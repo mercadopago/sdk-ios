@@ -11,31 +11,39 @@ import Foundation
 package struct CardFormValidate {
     private var value: String
     private var rules: [any CardFormRuleType]
-    package private(set) var errorMessages: [String] = []
+    package private(set) var errors: [CardFormFieldError] = []
     package private(set) var liveErrorMessages: [String] = []
 
-    package var wrappedValue: String {
-        get { value }
-        set { value = newValue; validate() }
+    package var errorMessages: [String] {
+        self.errors.map(\.message)
     }
 
-    package var projectedValue: [String] { errorMessages }
+    package var wrappedValue: String {
+        get { self.value }
+        set { self.value = newValue
+            self.validate()
+        }
+    }
+
+    package var projectedValue: [String] {
+        self.errorMessages
+    }
 
     package init(wrappedValue: String = "", _ rules: CardFormRuleType...) {
         self.value = wrappedValue
         self.rules = rules
-        validate()
+        self.validate()
     }
 
     package mutating func update(_ requirement: CardValidationRequirement) {
-        for index in 0..<rules.count {
-            rules[index].apply(requirement)
+        for index in 0 ..< self.rules.count {
+            self.rules[index].apply(requirement)
         }
-        validate()
+        self.validate()
     }
 
     private mutating func validate() {
-        errorMessages = rules.compactMap { $0.validate(value) }
-        liveErrorMessages = rules.compactMap { $0.validateLive(value) }
+        self.errors = self.rules.compactMap { $0.validate(self.value) }
+        self.liveErrorMessages = self.rules.compactMap { $0.validateLive(self.value) }
     }
 }
