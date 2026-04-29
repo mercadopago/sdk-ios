@@ -37,62 +37,28 @@ import Foundation
 /// }
 /// ```
 public final actor CoreMethods {
-    
-    public struct Configuration: Sendable {
-        
-        public var threeDS: ThreeDS = .init()
-        
-        public struct ThreeDS: Sendable {
-            public var protocolVersion = "2.2.0"
-            
-            public var sdkVersion: String = ""
-            
-            public var deviceRenderOptions: DeviceRenderOptions = DeviceRenderOptions()
-            
-            public var maxTimeout: Int = 5
-            
-            public struct DeviceRenderOptions: Sendable {
-                /// SDK interface type (e.g., "Native", "HTML").
-                public var interface: Interface = .both
-                
-                public enum Interface: Int, Sendable {
-                    case onlyNative = 01
-                    case openWebView = 02
-                    case both = 03
-                }
-                
-                /// List of supported UI types for challenge display.
-                public var uiTypes: [String] = ["01", "02", "03", "04", "05"]
-            }
-        }
-        
-        public init() {}
-    }
-    
-    public var configuration: Configuration
-    
     // MARK: Use Cases
-    internal let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
+
+    let generateTokenUseCase: GenerateCardTokenUseCaseProtocol
     private let identificationTypeUseCase: IdentificationTypesUseCaseProtocol
     private let installmentsUseCase: InstallmentsUseCaseProtocol
     private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
     private let issuerUseCase: IssuerUseCaseProtocol
-    internal let capabilityUseCase: CapabilityUseCaseProtocol
 
     typealias Dependency = HasAnalytics & HasFingerPrint
 
     let dependencies: Dependency
 
     // MARK: - Initialization
+
     /// Initializes a new instance of CoreMethods with default dependencies.
     ///
     /// This initializer sets up the class with the standard implementation of core methods.
     /// Use this initializer for production code.
     ///
-    public init(configuration: Configuration = Configuration()) {
+    public init() {
         self.dependencies = CoreDependencyContainer.shared
         let repository = CoreMethodsRepository()
-        let threeDSRepository = ThreeDSRepository()
         let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
         self.generateTokenUseCase = GenerateCardTokenUseCase(
             dependencies: self.dependencies,
@@ -103,9 +69,6 @@ public final actor CoreMethods {
         self.installmentsUseCase = InstallmentsUseCase(repository: repository)
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = IssuerUseCase(repository: repository)
-        self.capabilityUseCase = CapabilityUseCase(repository: threeDSRepository)
-        
-        self.configuration = configuration
     }
 
     /// Initializes a new instance of CoreMethods with custom dependencies.
@@ -119,9 +82,7 @@ public final actor CoreMethods {
         identificationTypeUseCase: IdentificationTypesUseCaseProtocol,
         installmentsUseCase: InstallmentsUseCaseProtocol,
         paymentMethodUseCase: PaymentMethodUseCaseProtocol,
-        issuerUseCase: IssuerUseCaseProtocol,
-        capabilityUseCase: CapabilityUseCaseProtocol,
-        configuration: Configuration = Configuration()
+        issuerUseCase: IssuerUseCaseProtocol
     ) {
         self.dependencies = dependencies
         self.generateTokenUseCase = generateTokenUseCase
@@ -129,18 +90,10 @@ public final actor CoreMethods {
         self.installmentsUseCase = installmentsUseCase
         self.paymentMethodUseCase = paymentMethodUseCase
         self.issuerUseCase = issuerUseCase
-        self.capabilityUseCase = capabilityUseCase
-        
-        self.configuration = configuration
     }
 
-    /// Replaces the current configuration atomically.
-    public func setConfiguration(_ newConfiguration: Configuration) {
-        configuration = newConfiguration
-    }
-    
     // MARK: Create Token
-    
+
     /// Creates a card token using the provided card details.
     ///
     /// This method processes the input from card-related text fields and generates
@@ -258,7 +211,7 @@ public final actor CoreMethods {
         async let expirationDateYear = expirationDate.getYear()
         async let expirationDateMonth = expirationDate.getMonth()
         async let securityCode = securityCode.input.getValue()
-        
+
         return try await tokenization(
             cardNumber: cardNumber,
             expirationDateMonth: expirationDateMonth,
@@ -317,7 +270,7 @@ public final actor CoreMethods {
         async let expirationDateYear = expirationDate?.getYear()
         async let expirationDateMonth = expirationDate?.getMonth()
         async let securityCode = securityCode.input.getValue()
-        
+
         return try await tokenization(
             expirationDateMonth: expirationDateMonth,
             expirationDateYear: expirationDateYear,
@@ -327,7 +280,7 @@ public final actor CoreMethods {
     }
 
     // MARK: Identification Types
-    
+
     /// Retrieves the list of identification document types supported by the Mercado Pago API.
     ///
     /// - Returns: An array of ``IdentificationType`` objects representing the supported
@@ -351,7 +304,7 @@ public final actor CoreMethods {
             }
         )
     }
-    
+
     // MARK: Installments
 
     /// Gets available installment options for a payment amount and card BIN
@@ -389,7 +342,7 @@ public final actor CoreMethods {
             }
         )
     }
-    
+
     // MARK: Payment Methods
 
     /// Gets available payment methods for a card BIN
@@ -436,7 +389,7 @@ public final actor CoreMethods {
             }
         )
     }
-    
+
     // MARK: Issuers
 
     /// Gets available issuers for a card BIN and payment method
@@ -496,7 +449,8 @@ public final actor CoreMethods {
 }
 
 // MARK: Tokenization Method
-internal extension CoreMethods {
+
+extension CoreMethods {
     func tokenization(
         cardNumber: String? = nil,
         expirationDateMonth: String? = nil,
@@ -509,7 +463,7 @@ internal extension CoreMethods {
     ) async throws -> CardToken {
         return try await executeWithTracking(
             operation: {
-                let response = try await self.generateTokenUseCase
+                return try await self.generateTokenUseCase
                     .tokenize(
                         cardNumber: cardNumber,
                         expirationDateMonth: expirationDateMonth,
@@ -520,8 +474,6 @@ internal extension CoreMethods {
                         identificationType: documentType,
                         identificationNumber: documentNumber
                     )
-                
-                return response
             },
             path: AnalyticsPath.tokenization,
             extractEventData: { _ -> TokenizationEventData? in
@@ -531,6 +483,5 @@ internal extension CoreMethods {
                 )
             }
         )
-
     }
 }

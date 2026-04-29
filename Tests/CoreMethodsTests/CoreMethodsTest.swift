@@ -198,8 +198,6 @@ final class CoreMethodsTests: XCTestCase {
         let analytics = container.mockAnalytics
         let repository = MockCoreMethodsRepository()
 
-        let repositoryThreeDS = MockThreeDSRepository()
-        
         let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
         let generateTokenUseCase = GenerateCardTokenUseCase(
             dependencies: container,
@@ -209,16 +207,14 @@ final class CoreMethodsTests: XCTestCase {
         let identificationTypeUseCase = IdentificationTypesUseCase(repository: repository)
         let installmentsUseCase: InstallmentsUseCaseProtocol = InstallmentsUseCase(repository: repository)
         let issuerUseCase = IssuerUseCase(repository: repository)
-        let capabilityUseCase = CapabilityUseCase(repository: repositoryThreeDS)
-        
+
         let coreMethodsService = CoreMethods(
             dependencies: container,
             generateTokenUseCase: generateTokenUseCase,
             identificationTypeUseCase: identificationTypeUseCase,
             installmentsUseCase: installmentsUseCase,
             paymentMethodUseCase: paymentMethodUseCase,
-            issuerUseCase: issuerUseCase,
-            capabilityUseCase: capabilityUseCase
+            issuerUseCase: issuerUseCase
         )
 
         return (coreMethodsService, repository, analytics)
@@ -252,7 +248,7 @@ final class CoreMethodsTests: XCTestCase {
         // Arrange
         let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
-        
+
         await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
         await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
 
@@ -277,7 +273,7 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
-        
+
         await repository.setGenerateCardTokenResult(
             .failure(APIClientError.decodingFailed(NSError(domain: "test", code: 0)))
         )
@@ -306,7 +302,7 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
-        
+
         await repository.setGenerateCardTokenResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
 
         // Act & Assert
@@ -376,7 +372,7 @@ final class CoreMethodsTests: XCTestCase {
         let (sut, repository, _) = await self.makeSUT()
         let (cardNumber, expirationDate, securityCode) = await makeCardFields()
         await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
-        
+
         securityCode.input.textField.text = ""
 
         // Act & Assert
