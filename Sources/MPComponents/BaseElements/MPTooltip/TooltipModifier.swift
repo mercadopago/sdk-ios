@@ -97,6 +97,7 @@ struct MPTooltipFloatingContent: View {
 
             self.balloonView
                 .position(x: position.x, y: position.y)
+                .opacity(self.measuredSize == .zero ? 0 : 1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .edgesIgnoringSafeArea(.all)
