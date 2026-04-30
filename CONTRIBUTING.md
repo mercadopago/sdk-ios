@@ -63,10 +63,10 @@ Changes via PR are the best way to contribute. Before writing code, read the [Co
 
 | Command | Description |
 |---------|-------------|
-| `make setup` | Full initial setup — runs all steps below in sequence |
-| `make install-tools` | Installs SwiftLint and SwiftFormat via Homebrew |
-| `make setup-git-hooks` | Configures the git pre-commit hook for auto-formatting |
-| `make install-fastlane` | Installs Fastlane and its dependencies via Bundler |
+| `make setup` | Full initial setup — runs the three commands below in sequence |
+| `make install-tools` | Installs SwiftLint and SwiftFormat via Homebrew *(called by `make setup`)* |
+| `make setup-git-hooks` | Configures the git pre-commit hook for auto-formatting *(called by `make setup`)* |
+| `make install-fastlane` | Installs Fastlane and its dependencies via Bundler *(called by `make setup`)* |
 | `make format` | Auto-formats Swift code with SwiftFormat |
 | `make test` | Runs unit tests and generates coverage report via Fastlane |
 | `make clean` | Removes installed tools and generated test/coverage output |
@@ -100,7 +100,7 @@ Commits like `fix tests`, `now it works`, or `wip` will not be accepted. See [Co
 
 ## Example app
 
-The `Example/` directory contains an Xcode project that demonstrates the SDK integrations — CardForm (SwiftUI and UIKit), Device Session, 3DS, and Installments. It links to the local SDK via Swift Package Manager, so changes you make to the SDK are immediately reflected.
+The `Example/` directory contains an Xcode project that demonstrates the SDK integrations — CardForm (SwiftUI and UIKit), Device Session, and Installments. It links to the local SDK via Swift Package Manager, so changes you make to the SDK are immediately reflected.
 
 ### Setup
 
