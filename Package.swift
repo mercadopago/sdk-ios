@@ -21,10 +21,6 @@ let package = Package(
             targets: ["MPApplePay"]
         ),
         .library(
-            name: "MercadoPagoCheckout",
-            targets: ["MercadoPagoCheckout"]
-        ),
-         .library(
             name: "MPExtended",
             targets: ["MPExtended"]
         )
