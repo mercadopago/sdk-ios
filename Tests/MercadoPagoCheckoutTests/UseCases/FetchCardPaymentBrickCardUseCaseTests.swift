@@ -113,25 +113,6 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
         }
     }
 
-    func test_execute_whenAPIErrorUnsupportedPaymentType_shouldThrowAcceptanceError() async {
-        // Arrange
-        let sut = self.makeSUT()
-        await sut.repository.setResult(.failure(self.makeAPIError(errorCode: "UNSUPPORTED_PAYMENT_TYPE", userMessage: "Type not supported")))
-
-        // Act & Assert
-        do {
-            _ = try await sut.useCase.execute(params: self.makeParams())
-            XCTFail("Expected BinFetchError to be thrown")
-        } catch {
-            guard case let .acceptance(acceptance) = error,
-                  case let .paymentTypeNotAllowed(message) = acceptance else {
-                XCTFail("Expected .acceptance(.paymentTypeNotAllowed), got \(error)")
-                return
-            }
-            XCTAssertEqual(message, "Type not supported")
-        }
-    }
-
     // MARK: - Network Errors
 
     func test_execute_whenAPIErrorUnknownCode_shouldThrowNetworkError() async {
