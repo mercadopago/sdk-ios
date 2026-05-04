@@ -120,7 +120,7 @@ struct CardFormData {
                 return .cardBrandNotAccepted
             case .paymentTypeNotAllowed:
                 return .cardTypeNotAccepted
-            case .paymentMethodNotFound: return .valid
+            case .paymentMethodNotFound: return .invalid
             }
         }
         return _cardNumber.errors.contains(where: { $0.type == .incomplete }) ? .incomplete : .invalid

@@ -18,7 +18,7 @@ struct FetchCardPaymentBrickCardUseCase {
         do {
             let data = try await self.repository.fetchCard(params: params)
             if data.paymentMethods.isEmpty {
-                throw BinFetchError.acceptance(.paymentMethodNotFound(""))
+                throw BinFetchError.acceptance(.paymentMethodNotFound)
             }
             return data
         } catch let error as BinFetchError {
@@ -26,12 +26,10 @@ struct FetchCardPaymentBrickCardUseCase {
         } catch let error as APIClientError {
             if case let .apiError(response) = error {
                 switch response.errorCode {
-                case "PAYMENT_METHOD_NOT_FOUND":
-                    throw .acceptance(.paymentMethodNotFound(response.userErrorMessage ?? String()))
+                case "EMPTY_PAYMENT_METHODS":
+                    throw .acceptance(.paymentMethodNotFound)
                 case "PAYMENT_METHOD_UNAVAILABLE":
                     throw .acceptance(.paymentMethodNotAllowed(response.userErrorMessage ?? String()))
-                case "UNSUPPORTED_PAYMENT_TYPE":
-                    throw .acceptance(.paymentTypeNotAllowed(response.userErrorMessage ?? String()))
                 default:
                     throw .network(.init(from: error, location: .binChange))
                 }
