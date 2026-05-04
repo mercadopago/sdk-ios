@@ -56,7 +56,7 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
     }
 
     private func makeAPIError(errorCode: String, userMessage: String = "Error message") -> APIClientError {
-        .apiError(APIErrorResponse(code: "400", errorCode: errorCode, message: "error", userErrorMessage: userMessage))
+        .apiError(APIErrorResponse(code: "400", message: "error", errorCode: errorCode, userErrorMessage: userMessage))
     }
 
     // MARK: - Success
