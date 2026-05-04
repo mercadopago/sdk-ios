@@ -11,10 +11,10 @@ public struct APIErrorResponse: Codable, Equatable, Sendable {
     package let errorCode: String?
     package let userErrorMessage: String?
 
-    package init(code: String, errorCode: String?, message: String, userErrorMessage: String? = nil) {
+    package init(code: String, message: String, errorCode: String? = nil, userErrorMessage: String? = nil) {
         self.code = code
-        self.errorCode = errorCode
         self.message = message
+        self.errorCode = errorCode
         self.userErrorMessage = userErrorMessage
     }
 
