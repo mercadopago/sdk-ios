@@ -7,6 +7,7 @@
 import Foundation
 import MPCore
 
+@frozen
 public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugStringConvertible, CustomNSError {
     public struct Code: RawRepresentable, Equatable, Hashable, Sendable {
         public let rawValue: Int
