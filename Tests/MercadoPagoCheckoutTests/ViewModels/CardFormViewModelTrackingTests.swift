@@ -16,6 +16,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     typealias SUT = (
         viewModel: CardFormViewModel,
         service: MockCheckoutService,
+        repository: MockCardPaymentBrickCardRepository,
         analytics: MockAnalytics
     )
 
@@ -59,33 +60,19 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         )
     }
 
-    private enum CardBinDataStub {
-        static let visa = CardBinData(
-            paymentMethod: PaymentMethod(
-                id: "visa",
-                paymentTypeId: "credit_card",
-                status: "active",
-                processingMode: "aggregator",
-                accreditationTime: 0,
-                merchantAccountId: "",
-                siteId: "MLB",
-                thumbnail: nil,
-                minAccreditationDays: 0,
-                maxAccreditationDays: 0,
-                totalFinancialCost: 0,
-                financialInstitution: nil,
-                issuer: nil,
-                card: nil,
-                bins: nil,
-                marketplace: nil,
-                deferredCapture: nil,
-                agreements: nil,
-                payerCosts: nil,
-                labels: nil,
-                additionalInfoNeeded: nil
-            ),
-            issuer: nil,
-            installment: nil
+    private enum CardDataStub {
+        static let visa = CardPaymentBrickCardData(
+            securityCodeTranslations: nil,
+            installment: nil,
+            paymentMethods: [
+                CardPaymentBrickCardData.PaymentMethod(
+                    id: "visa",
+                    paymentTypeId: "credit_card",
+                    cardNumber: .init(type: "number", length: .init(min: 16, max: 16), mask: "XXXX XXXX XXXX XXXX"),
+                    securityCode: nil,
+                    issuers: []
+                )
+            ]
         )
     }
 
@@ -107,6 +94,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         identificationTypes: [IdentificationType] = []
     ) -> SUT {
         let service = MockCheckoutService()
+        let repository = MockCardPaymentBrickCardRepository()
         let analytics = MockAnalytics()
         let configuration = MercadoPagoCheckout.CheckoutConfiguration(
             type: .cardForm(cardFormConfiguration: .init()),
@@ -117,15 +105,16 @@ final class CardFormViewModelTrackingTests: XCTestCase {
             configuration: configuration,
             initResult: initResult,
             service: service,
+            fetchCardUseCase: FetchCardPaymentBrickCardUseCase(repository: repository),
             analytics: analytics
         )
-        return (viewModel, service, analytics)
+        return (viewModel, service, repository, analytics)
     }
 
-    private func setupBinData(_ sut: SUT) async {
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+    private func setupCardData(_ sut: SUT) async {
+        await sut.repository.setResult(.success(CardDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
     }
 
     private func waitForChange<T>(
@@ -288,7 +277,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     func test_trackSubmit_onSuccess_shouldTrackSubmitEvent() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
         // Act
@@ -309,7 +298,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     func test_trackSubmit_onSuccess_shouldIncludeCardBrandAndPaymentType() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
         // Act
@@ -336,7 +325,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     func test_trackSubmitError_onTokenizationFailure_shouldTrackSubmitErrorEvent() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         let tokenError = MercadoPagoCheckoutError(
             code: .networkConnectionFailed,
             localizedDescription: "No connection",
@@ -382,13 +371,13 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let secondSendIdx = sendIndices[1]
 
         // First group (before first send) must have exactly track + setEventData
-        let firstGroup = Array(messages[0..<firstSendIdx])
+        let firstGroup = Array(messages[0 ..< firstSendIdx])
         XCTAssertEqual(firstGroup.count, 2, "First event must have exactly [track, setEventData] before its send")
         XCTAssertTrue(firstGroup.contains(.track(path: CardFormAnalyticsPath.inputValidation)))
         XCTAssertTrue(firstGroup.contains(.setEventData(["field": "card_number", "is_input_valid": true])))
 
         // Second group (between first and second send) must have exactly track + setEventData
-        let secondGroup = Array(messages[(firstSendIdx + 1)..<secondSendIdx])
+        let secondGroup = Array(messages[(firstSendIdx + 1) ..< secondSendIdx])
         XCTAssertEqual(secondGroup.count, 2, "Second event must have exactly [track, setEventData] before its send")
         XCTAssertTrue(secondGroup.contains(.track(path: CardFormAnalyticsPath.inputValidation)))
         XCTAssertTrue(secondGroup.contains(.setEventData(["field": "card_holder", "is_input_valid": false])))
@@ -412,10 +401,10 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let firstSendIdx = sendIndices[0]
         let secondSendIdx = sendIndices[1]
 
-        let firstGroup = Array(messages[0..<firstSendIdx])
+        let firstGroup = Array(messages[0 ..< firstSendIdx])
         XCTAssertEqual(firstGroup.count, 2, "First event must have exactly [track, setEventData] before its send")
 
-        let secondGroup = Array(messages[(firstSendIdx + 1)..<secondSendIdx])
+        let secondGroup = Array(messages[(firstSendIdx + 1) ..< secondSendIdx])
         XCTAssertEqual(secondGroup.count, 2, "Second event must have exactly [track, setEventData] before its send")
     }
 
@@ -440,7 +429,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     func test_enqueueAnalytics_submitAndInputValidation_submitShouldArriveFirst() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
         // Act — fire input validation then submit (submit track is enqueued via submitCardData)
@@ -461,12 +450,12 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         XCTAssertEqual(sendIndices.count, 2)
 
         // First event must be input validation
-        let firstGroup = Array(messages[0..<sendIndices[0]])
+        let firstGroup = Array(messages[0 ..< sendIndices[0]])
         XCTAssertTrue(firstGroup.contains(.track(path: CardFormAnalyticsPath.inputValidation)))
         XCTAssertFalse(firstGroup.contains(.track(path: CardFormAnalyticsPath.submit)))
 
         // Second event must be submit
-        let secondGroup = Array(messages[(sendIndices[0] + 1)..<sendIndices[1]])
+        let secondGroup = Array(messages[(sendIndices[0] + 1) ..< sendIndices[1]])
         XCTAssertTrue(secondGroup.contains(.track(path: CardFormAnalyticsPath.submit)))
         XCTAssertFalse(secondGroup.contains(.track(path: CardFormAnalyticsPath.inputValidation)))
     }

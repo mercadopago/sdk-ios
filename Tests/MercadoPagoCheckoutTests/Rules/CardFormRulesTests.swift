@@ -12,7 +12,7 @@ import XCTest
 final class CardFormRulesTests: XCTestCase {
     // MARK: - Default Validation Data Helpers
 
-    private static func defaultCardNumberValidation() -> CardFormTexts.CardNumberField.Validation {
+    private static func defaultCardNumberValidation() -> CardFormFields.CardNumberField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
             errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
@@ -22,7 +22,7 @@ final class CardFormRulesTests: XCTestCase {
         )
     }
 
-    private static func defaultCardHolderValidation() -> CardFormTexts.CardHolderField.Validation {
+    private static func defaultCardHolderValidation() -> CardFormFields.CardHolderField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
             errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
@@ -30,7 +30,7 @@ final class CardFormRulesTests: XCTestCase {
         )
     }
 
-    private static func defaultExpirationValidation() -> CardFormTexts.ExpirationField.Validation {
+    private static func defaultExpirationValidation() -> CardFormFields.ExpirationField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.Expiration.errorEmpty,
             errorIncomplete: MPStrings.CardForm.Expiration.errorIncomplete,
@@ -38,14 +38,14 @@ final class CardFormRulesTests: XCTestCase {
         )
     }
 
-    private static func defaultCVVValidation() -> CardFormTexts.CVVField.Validation {
+    private static func defaultCVVValidation() -> CardFormFields.CVVField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
             errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
         )
     }
 
-    private static func defaultDocumentValidation() -> CardFormTexts.DocumentField.Validation {
+    private static func defaultDocumentValidation() -> CardFormFields.DocumentField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.Document.errorEmpty,
             errorIncomplete: MPStrings.CardForm.Document.errorIncomplete,
@@ -487,7 +487,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.CardNumberField.Validation(
+        let customValidation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
             errorInvalid: "CUSTOM_INVALID",
@@ -510,7 +510,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.CardHolderField.Validation(
+        let customValidation = CardFormFields.CardHolderField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
             errorInvalid: "CUSTOM_FORMAT"
@@ -529,7 +529,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_expirationDateRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.ExpirationField.Validation(
+        let customValidation = CardFormFields.ExpirationField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
             errorInvalid: "CUSTOM_INVALID"
@@ -548,7 +548,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_securityCodeRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.CVVField.Validation(
+        let customValidation = CardFormFields.CVVField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE"
         )
@@ -563,7 +563,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_documentRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.DocumentField.Validation(
+        let customValidation = CardFormFields.DocumentField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
             errorInvalid: "CUSTOM_INVALID"

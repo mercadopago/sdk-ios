@@ -18,7 +18,7 @@ final class CardFormDataTests: XCTestCase {
         form.cardNumber = "4111111111111111"
         form.cardHolder = "John Doe"
         form.expirationDate = "0130"
-        form.securityCode = "123"
+        form.securityCode = "1234"
         form.documentHolder = "12345678901"
 
         // Assert
@@ -82,7 +82,7 @@ final class CardFormDataTests: XCTestCase {
         form.cardNumber = "4111 1111 1111 1111"
         form.cardHolder = "Maria Lopez"
         form.expirationDate = "1230" // MM=12, YY=30 (future)
-        form.securityCode = "123"
+        form.securityCode = "1234"
         form.documentHolder = "12345678901"
 
         // Act
@@ -281,7 +281,7 @@ final class CardFormDataTests: XCTestCase {
     /// strings that never match the `MPStrings.CardForm.*.errorIncomplete`
     /// substrings the state machine looks for.
     private static func makeFormWithRealStrings() -> CardFormData {
-        CardFormData(fields: CardFormTexts.Fields(
+        CardFormData(fields: CardFormFields.Fields(
             cardNumber: .init(
                 label: "Card number",
                 placeholder: "0000 0000 0000 0000",
@@ -291,7 +291,8 @@ final class CardFormDataTests: XCTestCase {
                     errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
                     errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
                     errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
-                )
+                ),
+                config: .init(type: "number", length: .init(min: 13, max: 19))
             ),
             cardHolder: .init(
                 label: "Cardholder name",
@@ -301,7 +302,8 @@ final class CardFormDataTests: XCTestCase {
                     errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
                     errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
                     errorInvalid: MPStrings.CardForm.CardHolder.errorInvalid
-                )
+                ),
+                config: .init(type: "string", length: .init(min: 2, max: 26))
             ),
             expiration: .init(
                 label: "Expiration",
@@ -310,16 +312,18 @@ final class CardFormDataTests: XCTestCase {
                     errorEmpty: MPStrings.CardForm.Expiration.errorEmpty,
                     errorIncomplete: MPStrings.CardForm.Expiration.errorIncomplete,
                     errorInvalid: MPStrings.CardForm.Expiration.errorInvalid
-                )
+                ),
+                config: .init(type: "number", length: .init(min: 4, max: 4))
             ),
             cvv: .init(
                 label: "Security code",
-                placeholderDefault: "123",
-                placeholderAmex: "1234",
+                placeholder: "123",
+                tooltip: "",
                 validation: .init(
                     errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
                     errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
-                )
+                ),
+                config: .init(type: "number", length: .init(min: 3, max: 4))
             ),
             issuer: .init(
                 label: "Issuer",

@@ -1,11 +1,11 @@
 //
-//  CardFormTexts.swift
+//  CardFormFields.swift
 //  MercadoPagoSDK
 //
 //  Created by Guilherme Prata Costa on 16/03/26.
 //
 
-enum CardFormTexts {
+enum CardFormFields {
     struct Fields {
         let cardNumber: CardNumberField
         let cardHolder: CardHolderField
@@ -19,6 +19,7 @@ enum CardFormTexts {
         let label: String
         let placeholder: String
         let validation: Validation
+        let config: CardFieldConfig
 
         struct Validation {
             let errorEmpty: String
@@ -34,6 +35,7 @@ enum CardFormTexts {
         let placeholder: String
         let helperText: String
         let validation: Validation
+        let config: CardFieldConfig
 
         struct Validation {
             let errorEmpty: String
@@ -46,6 +48,7 @@ enum CardFormTexts {
         let label: String
         let placeholder: String
         let validation: Validation
+        let config: CardFieldConfig
 
         struct Validation {
             let errorEmpty: String
@@ -56,9 +59,10 @@ enum CardFormTexts {
 
     struct CVVField {
         let label: String
-        let placeholderDefault: String
-        let placeholderAmex: String
+        let placeholder: String
+        let tooltip: String
         let validation: Validation
+        let config: CardFieldConfig
 
         struct Validation {
             let errorEmpty: String

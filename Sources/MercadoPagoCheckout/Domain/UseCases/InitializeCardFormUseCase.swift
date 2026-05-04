@@ -12,15 +12,18 @@ import CoreMethods
 struct InitializeCardFormUseCase {
     private let repository: CardFormInitializationRepository
 
-    init(repository: CardFormInitializationRepository = LocalCardFormInitializationRepository()) {
+    init(repository: CardFormInitializationRepository = RemoteCardFormInitializationRepository()) {
         self.repository = repository
     }
 
     /// Fetches initialization data from the repository,
     /// then applies business rules (button selection, custom text overrides).
-    func execute(config: MercadoPagoCheckout.CardFormConfiguration) async throws(MercadoPagoCheckoutError) -> CardFormInitializationOutput {
+    func execute(
+        config: MercadoPagoCheckout.CardFormConfiguration,
+        checkoutType: String
+    ) async throws(MercadoPagoCheckoutError) -> CardFormInitializationOutput {
         do {
-            let data = try await repository.fetchInitialization()
+            let data = try await repository.fetchInitialization(amount: config.amount, checkoutType: checkoutType)
             return self.mapToResult(data: data, config: config)
         } catch let error as APIClientError {
             throw .init(from: error, location: .initialization)
@@ -39,7 +42,7 @@ struct InitializeCardFormUseCase {
 
         return CardFormInitializationOutput(
             title: data.title,
-            button: data.buttonVariants.save,
+            button: data.buttonLabel,
             fields: .init(
                 cardNumber: .init(
                     label: fields.cardNumber.label,
@@ -50,7 +53,8 @@ struct InitializeCardFormUseCase {
                         errorInvalid: fields.cardNumber.validation.errorInvalid,
                         errorMethodNotAllowed: fields.cardNumber.validation.errorMethodNotAllowed,
                         errorTypeNotAllowed: fields.cardNumber.validation.errorTypeNotAllowed
-                    )
+                    ),
+                    config: fields.cardNumber.config
                 ),
                 cardHolder: .init(
                     label: fields.cardHolder.label,
@@ -60,7 +64,8 @@ struct InitializeCardFormUseCase {
                         errorEmpty: fields.cardHolder.validation.errorEmpty,
                         errorIncomplete: fields.cardHolder.validation.errorIncomplete,
                         errorInvalid: fields.cardHolder.validation.errorInvalid
-                    )
+                    ),
+                    config: fields.cardHolder.config
                 ),
                 expiration: .init(
                     label: fields.expiration.label,
@@ -69,16 +74,18 @@ struct InitializeCardFormUseCase {
                         errorEmpty: fields.expiration.validation.errorEmpty,
                         errorIncomplete: fields.expiration.validation.errorIncomplete,
                         errorInvalid: fields.expiration.validation.errorInvalid
-                    )
+                    ),
+                    config: fields.expiration.config
                 ),
                 cvv: .init(
                     label: fields.cvv.label,
-                    placeholderDefault: fields.cvv.placeholderDefault,
-                    placeholderAmex: fields.cvv.placeholderAmex,
+                    placeholder: fields.cvv.placeholder,
+                    tooltip: fields.cvv.tooltip,
                     validation: .init(
                         errorEmpty: fields.cvv.validation.errorEmpty,
                         errorIncomplete: fields.cvv.validation.errorIncomplete
-                    )
+                    ),
+                    config: fields.cvv.config
                 ),
                 issuer: .init(
                     label: fields.issuer.label,

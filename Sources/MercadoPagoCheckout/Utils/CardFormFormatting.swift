@@ -11,22 +11,8 @@ import MPComponents
 // MARK: - Card Number Formatter
 
 /// A formatter that applies a mask pattern to card numbers.
-package struct CardNumberFormatter: TextFormatting {
-    private static let maskByLength: [Int: String] = [
-        8: "#### ####",
-        9: "#### #####",
-        10: "#### ######",
-        11: "#### #### ###",
-        12: "#### #### ####",
-        13: "#### ###### ###",
-        14: "#### ###### ####",
-        15: "#### ###### #####",
-        16: "#### #### #### ####",
-        17: "#### #### #### #####",
-        18: "#### #### #### ######",
-        19: "#### #### #### #### ###"
-    ]
-    private static let defaultMask = "#### #### #### ####"
+package struct CardNumberFormatter: TextFormatting, Equatable {
+    private static let defaultMask = "#### #### #### #### ###"
 
     private let maskFormat: String
     private let maxLength: Int
@@ -34,9 +20,16 @@ package struct CardNumberFormatter: TextFormatting {
     /// Creates a card number formatter for the specified max digit count.
     /// The mask is automatically selected based on `maxLength`.
     /// - Parameter maxLength: Maximum number of digits accepted. Default is 19.
-    package init(maxLength: Int = 19) {
+    package init(maxLength: Int = 19, mask: String? = Self.defaultMask) {
         self.maxLength = maxLength
-        self.maskFormat = Self.maskByLength[maxLength] ?? Self.defaultMask
+        self.maskFormat = mask ?? Self.defaultMask
+    }
+
+    /// Creates a card number formatter using an explicit mask pattern from the BIN response.
+    /// - Parameter mask: Mask string where `#` represents a digit and any other character is a separator (e.g. `"#### ###### #####"`).
+    package init(mask: String) {
+        self.maskFormat = mask
+        self.maxLength = mask.filter { $0 == "#" }.count
     }
 
     package func formatOnChange(_ text: String) -> String {
@@ -67,14 +60,18 @@ package struct CardNumberFormatter: TextFormatting {
 
 /// A formatter that applies MM/YY mask to expiration dates.
 package struct ExpirationDateFormatter: TextFormatting {
-    package init() {}
+    private let maxLength: Int
+
+    package init(maxLength: Int = 4) {
+        self.maxLength = maxLength
+    }
 
     package func formatOnChange(_ text: String) -> String {
         let digits = text.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
 
         guard !digits.isEmpty else { return "" }
 
-        let limited = String(digits.prefix(4))
+        let limited = String(digits.prefix(self.maxLength))
 
         if limited.count <= 2 {
             return limited
