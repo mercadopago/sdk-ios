@@ -41,13 +41,12 @@ package struct MPBottomSheet: View {
     package init<Option: MPBottomSheetListOption>(
         title: String,
         options: [Option],
-        selected: Binding<Option?>
+        selected: Binding<Option?>,
+        @ViewBuilder label: @escaping () -> some View
     ) {
         self.title = title
         self.height = Self.optionsHeight(count: options.count)
-        self.makeTrigger = {
-            AnyView(MPBottomSheetPickerLabel(selected: selected))
-        }
+        self.makeTrigger = { AnyView(label()) }
         self.makeContent = { dismiss in
             AnyView(MPBottomSheetOptionsList(options: options, selected: selected, onDismiss: dismiss))
         }
@@ -85,29 +84,6 @@ package struct MPBottomSheet: View {
     ///   drag indicator=20, header=40, each item=52, bottom (padding + safe area)=46
     private static func optionsHeight(count: Int) -> CGFloat {
         20 + 40 + CGFloat(count) * 52 + 46
-    }
-}
-
-// MARK: - Private: Picker trigger label
-
-private struct MPBottomSheetPickerLabel<Option: MPBottomSheetListOption>: View {
-    @Binding var selected: Option?
-    @Environment(\.checkoutTheme) private var theme: MPTheme
-
-    var body: some View {
-        HStack(spacing: 0) {
-            Text(self.selected?.displayName ?? "")
-                .textStyle(.bodyMedium(colorType: .secondary))
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
-
-            Image(systemName: "chevron.down")
-                .renderingMode(.template)
-                .foregroundColor(self.theme.textFields.standard.idle.borderColor)
-                .padding(.horizontal, self.theme.spacings.xmicro)
-        }
-        .padding(.leading, self.theme.spacings.micro)
-        .animation(nil)
     }
 }
 
@@ -193,6 +169,7 @@ private final class MPSheetPresentationController: UIPresentationController {
     private let dimmingView = UIView()
     var onDidDismiss: (() -> Void)?
     private var dismissNotified = false
+    private var panStartY: CGFloat = 0
 
     init(presentedViewController: UIViewController, presenting: UIViewController?, height: CGFloat?) {
         self.sheetHeight = height
@@ -233,6 +210,48 @@ private final class MPSheetPresentationController: UIPresentationController {
         presentedViewController.view.layer.cornerRadius = 20
         presentedViewController.view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         presentedViewController.view.layer.masksToBounds = true
+    }
+
+    override func presentationTransitionDidEnd(_ completed: Bool) {
+        guard completed else { return }
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(self.handlePan(_:)))
+        presentedViewController.view.addGestureRecognizer(pan)
+    }
+
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard let view = gesture.view, let containerView else { return }
+        let translation = gesture.translation(in: containerView)
+        let velocity = gesture.velocity(in: containerView)
+        let origin = self.frameOfPresentedViewInContainerView.origin.y
+
+        switch gesture.state {
+        case .began:
+            self.panStartY = view.frame.origin.y
+
+        case .changed:
+            let newY = max(origin, panStartY + translation.y)
+            view.frame.origin.y = newY
+            let progress = (newY - origin) / view.frame.height
+            self.dimmingView.alpha = 0.4 * (1 - progress)
+
+        case .ended, .cancelled:
+            let distanceDragged = view.frame.origin.y - origin
+            let shouldDismiss = velocity.y > 500 || distanceDragged > view.frame.height * 0.4
+
+            if shouldDismiss {
+                self.dismissNotified = true
+                self.onDidDismiss?()
+                presentingViewController.dismiss(animated: true)
+            } else {
+                UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
+                    view.frame.origin.y = origin
+                    self.dimmingView.alpha = 0.4
+                }
+            }
+
+        default:
+            break
+        }
     }
 
     @objc private func dimmingTapped() {
