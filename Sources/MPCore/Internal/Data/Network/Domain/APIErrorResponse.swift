@@ -8,9 +8,20 @@
 public struct APIErrorResponse: Codable, Equatable, Sendable {
     public let code: String
     package let message: String
+    package let errorCode: String?
+    package let userErrorMessage: String?
 
-    package init(code: String, message: String) {
+    package init(code: String, errorCode: String?, message: String, userErrorMessage: String? = nil) {
         self.code = code
+        self.errorCode = errorCode
         self.message = message
+        self.userErrorMessage = userErrorMessage
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case code
+        case message
+        case errorCode = "error_code"
+        case userErrorMessage = "user_error_message"
     }
 }

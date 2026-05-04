@@ -116,9 +116,11 @@ struct CardFormData {
         if digits.isEmpty { return .empty }
         if let acceptanceError = cardAcceptanceError {
             switch acceptanceError {
-            case let .paymentMethodNotAllowed(brand): return .cardBrandNotAccepted(brand: .init(paymentMethodId: brand))
-            case let .paymentTypeNotAllowed(cardType): return .cardTypeNotAccepted(cardType: cardType)
-            case .paymentMethodNotFound: return .invalid
+            case .paymentMethodNotAllowed:
+                return .cardBrandNotAccepted
+            case .paymentTypeNotAllowed:
+                return .cardTypeNotAccepted
+            case .paymentMethodNotFound: return .valid
             }
         }
         return _cardNumber.errors.contains(where: { $0.type == .incomplete }) ? .incomplete : .invalid

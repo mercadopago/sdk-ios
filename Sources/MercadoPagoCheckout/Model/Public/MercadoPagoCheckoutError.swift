@@ -28,6 +28,7 @@ public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugString
         case installments
         case issuer
         case initialization
+        case binChange
     }
 
     public let code: Code

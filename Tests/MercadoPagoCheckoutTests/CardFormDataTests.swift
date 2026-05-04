@@ -120,21 +120,21 @@ final class CardFormDataTests: XCTestCase {
         let cardNumberState = context.fields.first { $0.field == .cardNumber }?.state
 
         // Assert
-        XCTAssertEqual(cardNumberState, .cardBrandNotAccepted(brand: .visa))
+        XCTAssertEqual(cardNumberState, .cardBrandNotAccepted)
     }
 
     func test_cancelledFormContext_whenPaymentTypeNotAllowed_shouldReportCardTypeNotAccepted() {
         // Arrange -- user typed a valid number but the seller does not accept credit cards
         var form = Self.makeFormWithRealStrings()
         form.cardNumber = "4111 1111 1111 1111"
-        form.setCardNumberExternalError(.paymentTypeNotAllowed(.credit))
+        form.setCardNumberExternalError(.paymentTypeNotAllowed(""))
 
         // Act
         let context = form.cancelledFormContext
         let cardNumberState = context.fields.first { $0.field == .cardNumber }?.state
 
         // Assert
-        XCTAssertEqual(cardNumberState, .cardTypeNotAccepted(cardType: .credit))
+        XCTAssertEqual(cardNumberState, .cardTypeNotAccepted)
     }
 
     func test_cancelledFormContext_whenCustomBrandNotAllowed_shouldPreserveCustomIdentifier() {
@@ -148,7 +148,7 @@ final class CardFormDataTests: XCTestCase {
         let cardNumberState = context.fields.first { $0.field == .cardNumber }?.state
 
         // Assert
-        XCTAssertEqual(cardNumberState, .cardBrandNotAccepted(brand: .custom("sodexo")))
+        XCTAssertEqual(cardNumberState, .cardBrandNotAccepted)
     }
 
     // MARK: - cancelledFormContext — incomplete vs invalid disambiguation
@@ -288,9 +288,7 @@ final class CardFormDataTests: XCTestCase {
                 validation: .init(
                     errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
                     errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
-                    errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
-                    errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
-                    errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
+                    errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid
                 ),
                 config: .init(type: "number", length: .init(min: 13, max: 19))
             ),
