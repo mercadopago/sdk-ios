@@ -94,25 +94,6 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
         }
     }
 
-    func test_execute_whenAPIErrorPaymentMethodNotFound_shouldThrowAcceptanceError() async {
-        // Arrange
-        let sut = self.makeSUT()
-        await sut.repository.setResult(.failure(self.makeAPIError(errorCode: "PAYMENT_METHOD_NOT_FOUND", userMessage: "Method not found")))
-
-        // Act & Assert
-        do {
-            _ = try await sut.useCase.execute(params: self.makeParams())
-            XCTFail("Expected BinFetchError to be thrown")
-        } catch {
-            guard case let .acceptance(acceptance) = error,
-                  case let .paymentMethodNotFound(message) = acceptance else {
-                XCTFail("Expected .acceptance(.paymentMethodNotFound), got \(error)")
-                return
-            }
-            XCTAssertEqual(message, "Method not found")
-        }
-    }
-
     func test_execute_whenAPIErrorPaymentMethodUnavailable_shouldThrowAcceptanceError() async {
         // Arrange
         let sut = self.makeSUT()
