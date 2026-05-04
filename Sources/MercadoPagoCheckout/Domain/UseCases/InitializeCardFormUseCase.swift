@@ -26,6 +26,16 @@ struct InitializeCardFormUseCase {
             let data = try await repository.fetchInitialization(amount: config.amount, checkoutType: checkoutType)
             return self.mapToResult(data: data, config: config)
         } catch let error as APIClientError {
+            if case let .apiError(response) = error,
+               let errorCode = response.errorCode,
+               CheckoutAPIErrorCode.Integration(rawValue: errorCode) != nil {
+                throw MercadoPagoCheckoutError(
+                    code: .integrationError,
+                    localizedDescription: response.message,
+                    userInfo: ["error_code": errorCode, "message": response.message],
+                    location: .initialization
+                )
+            }
             throw .init(from: error, location: .initialization)
         } catch {
             throw .init(code: .unknown, localizedDescription: error.localizedDescription, location: .identification)
@@ -50,9 +60,7 @@ struct InitializeCardFormUseCase {
                     validation: .init(
                         errorEmpty: fields.cardNumber.validation.errorEmpty,
                         errorIncomplete: fields.cardNumber.validation.errorIncomplete,
-                        errorInvalid: fields.cardNumber.validation.errorInvalid,
-                        errorMethodNotAllowed: fields.cardNumber.validation.errorMethodNotAllowed,
-                        errorTypeNotAllowed: fields.cardNumber.validation.errorTypeNotAllowed
+                        errorInvalid: fields.cardNumber.validation.errorInvalid
                     ),
                     config: fields.cardNumber.config
                 ),

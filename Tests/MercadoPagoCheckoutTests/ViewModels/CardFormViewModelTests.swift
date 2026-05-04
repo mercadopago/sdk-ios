@@ -594,9 +594,9 @@ final class CardFormViewModelTests: XCTestCase {
     }
 
     func test_retryBinFetch_whenAcceptanceError_shouldNotRetry() async {
-        // Arrange — empty methods sets acceptance error (not a retriable error)
+        // Arrange — acceptance error sets cardAcceptanceError (not a retriable error)
         let sut = self.makeSUT()
-        await sut.repository.setResult(.success(CardDataStub.emptyPaymentMethods))
+        await sut.repository.setResult(.failure(BinFetchError.acceptance(.paymentMethodNotFound)))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardAcceptanceError)
         XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotFound)

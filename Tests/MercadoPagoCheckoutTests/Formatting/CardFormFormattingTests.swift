@@ -15,12 +15,12 @@ final class CardFormFormattingTests: XCTestCase {
         // Arrange
         let formatter = CardNumberFormatter()
 
-        // Act — 22 digits provided, only 19 should be accepted
+        // Act — 22 digits provided, only 16 should be accepted
         let result = formatter.formatOnChange("1234567890123456789012")
 
         // Assert
         let digits = result.filter(\.isNumber)
-        XCTAssertEqual(digits.count, 19)
+        XCTAssertEqual(digits.count, 16)
     }
 
     func test_cardNumberFormatter_default_shouldApply16DigitMask() {

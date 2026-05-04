@@ -14,15 +14,31 @@ struct FetchCardPaymentBrickCardUseCase {
         self.repository = repository
     }
 
-    func execute(params: CardPaymentBrickCardParams) async throws(MercadoPagoCheckoutError) -> CardPaymentBrickCardData {
+    func execute(params: CardPaymentBrickCardParams) async throws(BinFetchError) -> CardPaymentBrickCardData {
         do {
-            return try await self.repository.fetchCard(params: params)
-        } catch let error as MercadoPagoCheckoutError {
+            let data = try await self.repository.fetchCard(params: params)
+            if data.paymentMethods.isEmpty {
+                throw BinFetchError.acceptance(.paymentMethodNotFound)
+            }
+            return data
+        } catch let error as BinFetchError {
             throw error
         } catch let error as APIClientError {
-            throw .init(from: error, location: .paymentMethods)
+            if case let .apiError(response) = error {
+                switch response.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) {
+                case .emptyPaymentMethods:
+                    throw .acceptance(.paymentMethodNotFound)
+                case .paymentMethodUnavailable:
+                    throw .acceptance(.paymentMethodNotAllowed(response.userErrorMessage ?? String()))
+                case nil:
+                    throw .network(.init(from: error, location: .binChange))
+                }
+            }
+            throw .network(.init(from: error, location: .binChange))
+        } catch let error as MercadoPagoCheckoutError {
+            throw .network(error)
         } catch {
-            throw .init(code: .unknown, localizedDescription: error.localizedDescription, location: .paymentMethods)
+            throw .network(.init(code: .unknown, localizedDescription: error.localizedDescription, location: .binChange))
         }
     }
 }

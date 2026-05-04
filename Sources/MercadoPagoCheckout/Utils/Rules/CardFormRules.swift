@@ -101,29 +101,18 @@ package struct CardNumberRule: CardFormRuleType {
 
     private func validateExternalError(_ error: CardAcceptanceError) -> CardFormFieldError? {
         switch error {
-        case let .paymentMethodNotAllowed(method):
+        case let .paymentMethodNotAllowed(message):
             return CardFormFieldError(
                 type: .invalid,
-                message: String(format: self.validation.errorMethodNotAllowed, method)
+                message: message
             )
-        case let .paymentTypeNotAllowed(cardType):
-            guard let cardType else {
-                return CardFormFieldError(type: .invalid, message: self.validation.errorInvalid)
-            }
+        case let .paymentTypeNotAllowed(message):
             return CardFormFieldError(
                 type: .invalid,
-                message: String(format: self.validation.errorTypeNotAllowed, self.cardTypeDisplayName(cardType).lowercased())
+                message: message
             )
         case .paymentMethodNotFound:
             return CardFormFieldError(type: .invalid, message: self.validation.errorInvalid)
-        }
-    }
-
-    private func cardTypeDisplayName(_ cardType: MercadoPagoCheckout.CardType) -> String {
-        switch cardType {
-        case .credit: return MPStrings.Common.creditCard
-        case .debit: return MPStrings.Common.debitCard
-        case .prepaid: return MPStrings.Common.prepaidCard
         }
     }
 

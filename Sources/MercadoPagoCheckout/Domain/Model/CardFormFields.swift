@@ -25,8 +25,6 @@ enum CardFormFields {
             let errorEmpty: String
             let errorIncomplete: String
             let errorInvalid: String
-            let errorMethodNotAllowed: String
-            let errorTypeNotAllowed: String
         }
     }
 

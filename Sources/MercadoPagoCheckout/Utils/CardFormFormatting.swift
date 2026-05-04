@@ -12,7 +12,7 @@ import MPComponents
 
 /// A formatter that applies a mask pattern to card numbers.
 package struct CardNumberFormatter: TextFormatting, Equatable {
-    private static let defaultMask = "#### #### #### #### ###"
+    private static let defaultMask = "#### #### #### ####"
 
     private let maskFormat: String
     private let maxLength: Int

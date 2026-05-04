@@ -134,9 +134,7 @@ final class CardFormValidateTests: XCTestCase {
         let validation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "num.empty",
             errorIncomplete: "num.incomplete",
-            errorInvalid: "num.invalid",
-            errorMethodNotAllowed: "num.method %@",
-            errorTypeNotAllowed: "num.type %@"
+            errorInvalid: "num.invalid"
         )
         var rule = CardNumberRule(validation: validation)
         rule.apply(.cardNumberRange(min: 16, max: 16))
@@ -154,9 +152,7 @@ final class CardFormValidateTests: XCTestCase {
         let validation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "num.empty",
             errorIncomplete: "num.incomplete",
-            errorInvalid: "num.invalid",
-            errorMethodNotAllowed: "num.method %@",
-            errorTypeNotAllowed: "num.type %@"
+            errorInvalid: "num.invalid"
         )
         var rule = CardNumberRule(validation: validation)
         rule.apply(.cardNumberRange(min: 16, max: 16))
@@ -187,9 +183,7 @@ final class CardFormValidateTests: XCTestCase {
         let validation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "num.empty",
             errorIncomplete: "num.incomplete",
-            errorInvalid: "num.invalid",
-            errorMethodNotAllowed: "num.method %@",
-            errorTypeNotAllowed: "num.type %@"
+            errorInvalid: "num.invalid"
         )
 
         // Act

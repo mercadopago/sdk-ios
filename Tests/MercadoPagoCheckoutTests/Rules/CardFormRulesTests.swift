@@ -16,9 +16,7 @@ final class CardFormRulesTests: XCTestCase {
         .init(
             errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
             errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
-            errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
-            errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
-            errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
+            errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid
         )
     }
 
@@ -105,7 +103,7 @@ final class CardFormRulesTests: XCTestCase {
     func test_cardNumberRule_whenPaymentTypeNotAllowedCredit_shouldReturnTypeNotAllowedError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.credit)))
+        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed("credit_card")))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
@@ -117,7 +115,7 @@ final class CardFormRulesTests: XCTestCase {
     func test_cardNumberRule_whenPaymentTypeNotAllowedDebit_shouldReturnTypeNotAllowedError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.debit)))
+        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed("debit_card")))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
@@ -129,7 +127,7 @@ final class CardFormRulesTests: XCTestCase {
     func test_cardNumberRule_whenPaymentTypeNotAllowedPrepaid_shouldReturnTypeNotAllowedError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.prepaid)))
+        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed("prepaid_card")))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
@@ -141,7 +139,7 @@ final class CardFormRulesTests: XCTestCase {
     func test_cardNumberRule_whenPaymentTypeNotAllowedNil_shouldReturnInvalidError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(nil)))
+        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed("")))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
@@ -490,9 +488,7 @@ final class CardFormRulesTests: XCTestCase {
         let customValidation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
-            errorInvalid: "CUSTOM_INVALID",
-            errorMethodNotAllowed: "CUSTOM_EXCLUSION %@",
-            errorTypeNotAllowed: "CUSTOM_TYPE %@"
+            errorInvalid: "CUSTOM_INVALID"
         )
         let rule = CardNumberRule(validation: customValidation)
 
