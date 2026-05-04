@@ -238,7 +238,7 @@ struct CardFormScreen: View {
 
     private func dropdownDocument() -> some View {
         HStack(spacing: 0) {
-            MPOptionPicker(
+            MPBottomSheet(
                 title: MPStrings.CardForm.Document.label,
                 options: self.viewModel.identificationTypes,
                 selected: self.$viewModel.selectTypeDocument

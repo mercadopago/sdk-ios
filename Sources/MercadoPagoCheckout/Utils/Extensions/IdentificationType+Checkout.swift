@@ -9,7 +9,7 @@ import CoreMethods
 import MPComponents
 import SwiftUI
 
-extension IdentificationType: MPPickerOption {
+extension IdentificationType: MPBottomSheetListOption {
     package var displayName: String { name }
 }
 
