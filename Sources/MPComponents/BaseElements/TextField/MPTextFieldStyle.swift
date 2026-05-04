@@ -5,8 +5,8 @@
 //  Created by SDK on 20/08/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 /// A style protocol for `MPTextField` enabling custom skins.
 package protocol MPTextFieldStyle: StyleProtocol, Identifiable where Configuration == MPTextFieldStyleConfiguration {}
@@ -15,91 +15,140 @@ package protocol MPTextFieldStyle: StyleProtocol, Identifiable where Configurati
 package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
     public var id: UUID = .init()
     @Environment(\.checkoutTheme) var theme: MPTheme
-    
+
+    @State private var isPopoverPresented = false
+
     /// Returns the appearance configuration for the TextField.
     private var appearance: MPTextFieldAppearance {
-        theme.textFields.standard
+        self.theme.textFields.standard
     }
 
     public init() {}
 
     @MainActor
     public func makeBody(configuration: MPTextFieldStyleConfiguration) -> some View {
-        let stateAppearance = appearance(for: configuration.state)
-        
+        let stateAppearance = self.appearance(for: configuration.state)
+
         VStack(alignment: .leading) {
-            
             // Label
             if let label = configuration.label {
-                label
-                    .body
-                    .font(appearance.labelFont.toFont())
-                    .foregroundColor(stateAppearance.labelColor)
+                self.labelContent(
+                    label: label,
+                    popoverText: configuration.popoverText,
+                    appearance: self.appearance,
+                    stateAppearance: stateAppearance
+                )
             }
 
             // Field
             HStack(spacing: 0) {
                 configuration.prefix
                     .frame(maxHeight: .infinity)
-               
+
                 configuration
                     .field
-                    .font(appearance.textFont.toFont())
+                    .font(self.appearance.textFont.toFont())
                     .foregroundColor(stateAppearance.textColor)
-                    .padding(appearance.padding)
+                    .padding(self.appearance.padding)
 
                 configuration.suffix
                     .frame(maxHeight: .infinity)
             }
+            .frame(height: 48)
             .background(stateAppearance.backgroundColor)
-            .cornerRadius(appearance.cornerRadius)
+            .cornerRadius(self.appearance.cornerRadius)
             .overlay(
-                RoundedRectangle(cornerRadius: appearance.cornerRadius)
+                RoundedRectangle(cornerRadius: self.appearance.cornerRadius)
                     .stroke(
                         stateAppearance.borderColor,
                         lineWidth: stateAppearance.borderWidth
                     )
             )
-            .frame(maxHeight: 44)
 
-            // Helper text (shown on error states)
+            // Helper text
             if let helper = configuration.helper {
-                HStack(alignment: .center) {
-                    if configuration.state.hasError {
-                        Image(Logos.errorFilled, bundle: .bundleMP)
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 16, height: 16)
-                            .foregroundColor(stateAppearance.helperColor)
-                    }
-
-                    helper
-                        .font(appearance.helperFont.toFont())
-                        .foregroundColor(stateAppearance.helperColor)
-                    
-                }
-                .padding(.top, theme.spacings.xnano)
+                Helper(helper, self.helperTone(for: configuration))
+                    .helperStyle(self.helperStyle(for: configuration))
+                    .padding(.top, self.theme.spacings.xnano)
             }
         }
         .animation(.easeInOut(duration: 0.15))
+    }
+
+    @ViewBuilder
+    @MainActor
+    private func labelContent(
+        label: MPTextFieldStyleConfiguration.Label,
+        popoverText: String?,
+        appearance: MPTextFieldAppearance,
+        stateAppearance: MPTextFieldStateAppearance
+    ) -> some View {
+        HStack {
+            label
+                .body
+                .font(appearance.labelFont.toFont())
+                .foregroundColor(stateAppearance.labelColor)
+
+            if let popoverText {
+                self.popoverButton(textPopover: popoverText)
+            }
+        }
+    }
+
+    @ViewBuilder
+    @MainActor
+    private func popoverButton(textPopover: String) -> some View {
+        Button(action: {
+            isPopoverPresented = true
+        }) {
+            MPIcon(
+                systemName: Logos.questionMark,
+                size: .small,
+                color: .accent,
+                isDecorative: true
+            )
+        }
+        .accessibility(label: Text(MPStrings.Common.Accessibility.TextField.moreInfo))
+        .buttonStyle(.plain)
+        .popover(isPresented: $isPopoverPresented) {
+            Text(textPopover)
+                .textStyle(.bodyMedium(colorType: .secondary))
+        }
     }
 
     /// Returns the state-specific appearance for a given TextField state.
     private func appearance(for state: MPTextFieldState) -> MPTextFieldStateAppearance {
         switch state {
         case .idle:
-            return appearance.idle
+            return self.appearance.idle
         case .focused:
-            return appearance.focused
+            return self.appearance.focused
         case .error:
-            return appearance.error
+            return self.appearance.error
         case .focusError:
-            return appearance.focusError
+            return self.appearance.focusError
         case .readOnly:
-            return appearance.readOnly
+            return self.appearance.readOnly
         case .disabled:
-            return appearance.disabled
+            return self.appearance.disabled
+        }
+    }
+
+    private func helperTone(for config: MPTextFieldStyleConfiguration) -> HelperTone {
+        switch config.state {
+        case .focusError, .error:
+            return .negative
+        default:
+            return .none
+        }
+    }
+
+    private func helperStyle(for config: MPTextFieldStyleConfiguration) -> HelperDefaultStyle {
+        switch config.state {
+        case .focusError, .error:
+            return .loud()
+        default:
+            return .quiet()
         }
     }
 }
@@ -116,17 +165,16 @@ private struct ResolvedMPTextfieldFieldStyle<Style: MPTextFieldStyle>: View {
     let configuration: Style.Configuration
 
     var body: some View {
-        style
-            .makeBody(configuration: configuration)
+        self.style
+            .makeBody(configuration: self.configuration)
     }
 }
 
 package extension View {
     /// Sets the style for `MPTextField` within this view hierarchy.
-    func mpTextFieldStyle<S: MPTextFieldStyle>(_ style: S) -> some View {
+    func mpTextFieldStyle(_ style: some MPTextFieldStyle) -> some View {
         environment(\.mpTextFieldStyle, style)
     }
-
 }
 
 private struct MPTextFieldStyleKey: @preconcurrency EnvironmentKey {

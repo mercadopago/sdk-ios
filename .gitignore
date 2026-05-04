@@ -31,6 +31,9 @@ playground.xcworkspace
 
 .build/
 
+# Local planning notes (Claude Code workflow)
+tasks/
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However
@@ -91,6 +94,8 @@ buildServer.json
 Example/Sources/ExampleApp.swift
 
 CLAUDE.md
+
+CLAUDE.local.md
 
 # SDD Kit — artefatos intermediarios de extracao (nao versionar)
 meli/extracted/

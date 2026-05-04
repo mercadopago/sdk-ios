@@ -1,0 +1,21 @@
+//
+//  CheckoutServiceProtocol.swift
+//  MercadoPagoSDK
+//
+//  Created by Danielle Nozaki Ogawa on 23/02/26.
+//
+import CoreMethods
+
+protocol CheckoutServiceProtocol: Sendable {
+    func identificationTypes() async throws(MercadoPagoCheckoutError) -> [IdentificationType]
+    func paymentMethod(bin: String) async throws(MercadoPagoCheckoutError) -> [PaymentMethod]
+    func issuers(bin: String, paymentMethodID: String) async throws(MercadoPagoCheckoutError) -> [Issuer]
+    func installments(amount: Double, bin: String) async throws(MercadoPagoCheckoutError) -> [Installment]
+    func createCardToken(cardParams: CardParams) async throws(MercadoPagoCheckoutError) -> CardToken
+    func fetchBinData(
+        bin: String,
+        amount: Double?,
+        acceptedPaymentTypeIds: [String],
+        acceptedPaymentMethodIds: [String]
+    ) async throws -> CardBinData
+}

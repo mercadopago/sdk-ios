@@ -44,15 +44,14 @@ package extension AnalyticsEventData {
             return false
         #endif
     }
-    
+
     func isFromAppStore() -> Bool {
         guard let receiptURL = Bundle.main.appStoreReceiptURL else {
             return false
         }
-        
+
         do {
-            let isReachable = try receiptURL.checkResourceIsReachable()
-            return isReachable
+            return try receiptURL.checkResourceIsReachable()
         } catch {
             return false
         }
@@ -244,7 +243,7 @@ package final class MPAnalytics: AnalyticsInterface {
             return
         }
         let payload = await buildPayload()
-        
+
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
 
@@ -257,7 +256,7 @@ package final class MPAnalytics: AnalyticsInterface {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = jsonData
 
-            let _ = try await URLSession.shared.data(for: request)
+            _ = try await URLSession.shared.data(for: request)
 
             await self.track.setEventData(nil)
 
@@ -319,4 +318,3 @@ private extension MPAnalytics {
         return eventData
     }
 }
-

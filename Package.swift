@@ -21,6 +21,10 @@ let package = Package(
             targets: ["MPApplePay"]
         ),
         .library(
+            name: "MercadoPagoCheckout",
+            targets: ["MercadoPagoCheckout"]
+        ),
+         .library(
             name: "MPExtended",
             targets: ["MPExtended"]
         )
@@ -51,7 +55,7 @@ let package = Package(
         
         .target(
             name: "MercadoPagoCheckout",
-            dependencies: ["MPComponents", "CoreMethods"]
+            dependencies: ["MPComponents", "CoreMethods", "MPCore", "MPAnalytics"]
         ),
         .target(
             name: "MPComponents",
@@ -107,6 +111,15 @@ let package = Package(
                 "CoreMethods",
                 "CommonTests",
                 "MPComponents",
+                "MercadoPagoCheckout",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+            ]
+        ),
+        .testTarget(
+            name: "MercadoPagoCheckoutTests",
+            dependencies: [
+                "MercadoPagoCheckout",
+                "CommonTests",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
             ]
         )

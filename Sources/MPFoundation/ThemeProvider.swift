@@ -22,7 +22,7 @@ package struct ThemeProvider<Content: View>: View {
     /// The theme used when the system is in dark mode.
     private let darkTheme: MPTheme
 
-    private let style: UserInterfaceStyle
+    private let style: MercadoPagoUserInterfaceStyle
 
     /// The content view to wrap in the themed environment.
     private let content: () -> Content
@@ -36,7 +36,7 @@ package struct ThemeProvider<Content: View>: View {
     package init(
         light: MPTheme,
         dark: MPTheme,
-        style: UserInterfaceStyle = .automatic,
+        style: MercadoPagoUserInterfaceStyle = .automatic,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.lightTheme = light

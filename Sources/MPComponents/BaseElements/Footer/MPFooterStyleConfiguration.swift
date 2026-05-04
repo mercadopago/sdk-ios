@@ -32,7 +32,7 @@ package struct MPFooterStyleConfiguration {
     package let descriptionLine: DescriptionLine
     
     
-    package let button: Button
+    package let button: Button?
     
     /// Whether the footer has description information
     package let hasDescription: Bool
@@ -43,7 +43,7 @@ package struct MPFooterStyleConfiguration {
     package init(
         summaryLine: some View,
         descriptionLine: some View,
-        button: some View,
+        button: (some View)? = nil,
         hasDescription: Bool
     ) {
         self.summaryLine = SummaryLine(body: AnyView(summaryLine))
