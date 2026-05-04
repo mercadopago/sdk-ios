@@ -10,19 +10,16 @@ import UIKit
 
 struct MainListView: View {
     @State private var showingCardForm = false
-
     @State private var showingCardFormSwiftUI = false
-
     @State private var showDebug = false
 
     var body: some View {
         NavigationView {
             List {
-                Section("Payment Forms") {
+                Section("CoreMethods") {
                     Button("Card Form (UIKit)") {
                         self.showingCardForm = true
                     }
-
                     Button("Card Form (SwiftUI)") {
                         self.showingCardFormSwiftUI = true
                     }

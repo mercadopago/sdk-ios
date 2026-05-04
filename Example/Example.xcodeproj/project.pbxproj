@@ -82,6 +82,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BB8DD0C02FA152C900C2981F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D99B79DA2CA4E2B30010B87C = {
 			isa = PBXGroup;
 			children = (
@@ -89,6 +96,7 @@
 				D99B79E52CA4E2B30010B87C /* Sources */,
 				D99B79F62CA4E2B50010B87C /* ExampleTests */,
 				D99B7A002CA4E2B50010B87C /* ExampleUITests */,
+				BB8DD0C02FA152C900C2981F /* Frameworks */,
 				D99B79E42CA4E2B30010B87C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -126,6 +134,7 @@
 				EF4754E42D14C35D00E9619F /* CoreMethods */,
 				EF0925BB2D5BDC6600B08775 /* CoreMethods */,
 				96CF427D532A4369B5E21DCA /* MPExtended */,
+				BB8DD0C12FA152C900C2981F /* MercadoPagoCheckout */,
 			);
 			productName = Example;
 			productReference = D99B79E32CA4E2B30010B87C /* Example.app */;
@@ -592,6 +601,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EF0925BA2D5BDC6600B08775 /* XCLocalSwiftPackageReference "../../sdk-ios" */;
 			productName = MPExtended;
+		};
+		BB8DD0C12FA152C900C2981F /* MercadoPagoCheckout */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EF0925BA2D5BDC6600B08775 /* XCLocalSwiftPackageReference "../../sdk-ios" */;
+			productName = MercadoPagoCheckout;
 		};
 		EF0925BB2D5BDC6600B08775 /* CoreMethods */ = {
 			isa = XCSwiftPackageProductDependency;

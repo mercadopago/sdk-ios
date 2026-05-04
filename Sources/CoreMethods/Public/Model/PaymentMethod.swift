@@ -6,7 +6,7 @@
 //
 import Foundation
 
-public struct PaymentMethod: Sendable {
+public struct PaymentMethod: Sendable, Equatable {
     public let id: String
     public let paymentTypeId: String
     public let status: String
@@ -75,7 +75,7 @@ public struct PaymentMethod: Sendable {
         self.additionalInfoNeeded = additionalInfoNeeded
     }
 
-    public struct FinancialInstitution: Sendable {
+    public struct FinancialInstitution: Sendable, Equatable {
         public let id: String
         public let description: String
 
@@ -85,7 +85,7 @@ public struct PaymentMethod: Sendable {
         }
     }
 
-    public struct Issuer: Sendable {
+    public struct Issuer: Sendable, Equatable {
         public let id: Int
         public let isDefault: Bool
         public let thumbnail: String?
@@ -97,7 +97,7 @@ public struct PaymentMethod: Sendable {
         }
     }
 
-    public struct CardInfo: Sendable {
+    public struct CardInfo: Sendable, Equatable {
         public let bin: Int
         public let length: CardLength
         public let validation: String
@@ -110,7 +110,7 @@ public struct PaymentMethod: Sendable {
             self.securityCode = securityCode
         }
 
-        public struct CardLength: Sendable {
+        public struct CardLength: Sendable, Equatable {
             public let min: Int
             public let max: Int
 
@@ -120,7 +120,7 @@ public struct PaymentMethod: Sendable {
             }
         }
 
-        public struct SecurityCode: Sendable {
+        public struct SecurityCode: Sendable, Equatable {
             public let mode: String
             public let location: String
             public let length: Int
@@ -133,7 +133,7 @@ public struct PaymentMethod: Sendable {
         }
     }
 
-    public struct PayerCost: Sendable {
+    public struct PayerCost: Sendable, Equatable {
         public let installments: Int
         public let installmentRate: Double
         public let discountRate: Double
@@ -164,7 +164,7 @@ public struct PaymentMethod: Sendable {
         }
     }
 
-    public struct Agreement: Sendable {
+    public struct Agreement: Sendable, Equatable {
         public let timeFrame: TimeFrame
         public let merchantAccounts: [MerchantAccount]
 
@@ -173,7 +173,7 @@ public struct PaymentMethod: Sendable {
             self.merchantAccounts = merchantAccounts
         }
 
-        public struct TimeFrame: Sendable {
+        public struct TimeFrame: Sendable, Equatable {
             public let startDate: Date
             public let endDate: Date
 
@@ -183,7 +183,7 @@ public struct PaymentMethod: Sendable {
             }
         }
 
-        public struct MerchantAccount: Sendable {
+        public struct MerchantAccount: Sendable, Equatable {
             public let id: String
             public let paymentMethodOptionId: String
 

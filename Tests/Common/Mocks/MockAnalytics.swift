@@ -121,12 +121,24 @@ package final class MockAnalytics: AnalyticsInterface {
                 self.sendContinuation = continuation
             }
         }
+
+        package func waitForSend(count: Int) async {
+            var observed = self.messages.filter { $0 == .send }.count
+            while observed < count {
+                await withCheckedContinuation { continuation in
+                    self.sendContinuation = continuation
+                }
+                observed = self.messages.filter { $0 == .send }.count
+            }
+        }
     }
 
     package let mock = Mock()
 
     package let sellerInfo = MPSellerInfo()
     package let buyerInfo = MPBuyerInfo()
+
+    package init() {}
 
     package func initialize(version: String, siteID: String) async {
         await self.mock.insert(.initialize(version: version, siteID: siteID))

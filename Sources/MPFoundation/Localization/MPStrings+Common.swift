@@ -36,6 +36,31 @@ extension MPStrings {
         
         /// Loading indicator text
         package static var loading: String { localized("common.loading") }
+        
+        /// Footer total text
+        package static var total: String { localized("common.total") }
+        
+        /// Currency symbol (e.g., R$, $)
+        package static var currency: String { localized("common.currency") }
+        
+        /// Payment type name for Credit
+        package static var creditCard: String { localized("common.credit") }
+        
+        /// Payment type name for Debit
+        package static var debitCard: String { localized("common.debit") }
+
+        /// Payment type name for Prepaid
+        package static var prepaidCard: String { localized("common.prepaid") }
+        
+        /// Card text
+        package static var card: String { localized("common.card") }
+
+        package enum Accessibility: Sendable {
+            package enum TextField: Sendable {
+                package static var moreInfo: String { localized("common.accessibility.textfield.moreInfo") }
+            }
+            
+        }
     }
     
     /// Error messages

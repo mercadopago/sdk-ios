@@ -5,9 +5,10 @@
 //  Created by SDK on 20/08/25.
 //
 
-import SwiftUI
 import Combine
 import MPFoundation
+import SwiftUI
+
 /// A highly customizable text field for SwiftUI.
 ///
 /// The field supports multiple visual states, validation, formatting, and full
@@ -39,39 +40,39 @@ import MPFoundation
 /// - **Styling**: Customize the entire look and feel of the component by creating a custom `MPTextFieldStyle`.
 ///
 package struct MPTextField<Prefix: View, Suffix: View>: View {
-    
     @Binding private var text: String
     private let label: String?
     private let placeholder: String?
     private let helperText: String?
-    
+    private let errorMessageProvider: () -> [String]?
+    private let liveErrorMessageProvider: () -> [String]?
+
     private let keyboard: UIKeyboardType
     private let contentType: UITextContentType?
     private let autocorrection: UITextAutocorrectionType
     private let onCommit: (() -> Void)?
     private let onEditingChanged: ((Bool) -> Void)?
     private let formatter: TextFormatting?
-    private let validator: TextValidating?
     private let prefixView: Prefix
     private let suffixView: Suffix
 
+    private let popoverText: String?
+
     // MARK: - Environment
+
     @Environment(\.mpTextFieldStyle) private var style: any MPTextFieldStyle
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.isReadOnly) private var isReadOnly
     @Environment(\.checkoutTheme) var theme: MPTheme
 
     // MARK: - Editing State
-    @State private var isEditing: Bool = false
-    @State private var hasBeenTouched: Bool = false
-    @State internal var internalState: MPTextFieldState = .idle
-    @State private var lastValidatedText: String?
-    @State private var lastValidationResult: ValidationResult?
-    @State private var validationWorkItem: DispatchWorkItem?
-    private let validationDebounceInterval: DispatchTimeInterval = .milliseconds(150)
+
+    @State private var isEditing = false
+    @State private var hasBeenTouched = false
+    @State var internalState: MPTextFieldState = .idle
 
     // MARK: - Init
-    
+
     /// Creates a new `MPTextField` with the specified configuration.
     ///
     /// - Parameters:
@@ -93,13 +94,15 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         label: String?,
         placeholder: String?,
         helperText: String? = nil,
+        errorMessage: @autoclosure @escaping () -> [String]? = nil,
+        liveErrorMessage: @autoclosure @escaping () -> [String]? = nil,
         keyboard: UIKeyboardType = .default,
         contentType: UITextContentType? = nil,
         autocorrection: UITextAutocorrectionType = .default,
         onCommit: (() -> Void)? = nil,
         onEditingChanged: ((Bool) -> Void)? = nil,
         formatter: TextFormatting? = nil,
-        validator: TextValidating? = nil,
+        popoverText: String? = nil,
         @ViewBuilder prefix: () -> Prefix = { EmptyView() },
         @ViewBuilder suffix: () -> Suffix = { EmptyView() }
     ) {
@@ -113,9 +116,11 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
         self.onCommit = onCommit
         self.onEditingChanged = onEditingChanged
         self.formatter = formatter
-        self.validator = validator
         self.prefixView = prefix()
         self.suffixView = suffix()
+        self.popoverText = popoverText
+        self.errorMessageProvider = errorMessage
+        self.liveErrorMessageProvider = liveErrorMessage
         self._internalState = State(initialValue: .idle)
     }
 
@@ -123,110 +128,96 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     @MainActor
     public var body: some View {
-        let textField = fieldView()
+        let textField = self.fieldView()
 
         let configuration = MPTextFieldStyleConfiguration(
-            label: label == nil ? nil : labelView,
+            label: label == nil ? nil : self.labelView,
             field: textField,
-            helper: helperView,
-            prefix: prefixView,
-            suffix: suffixView,
-            state: currentState
+            helper: self.currentState.errorMessage ?? self.helperText ?? nil,
+            popoverText: self.popoverText,
+            prefix: self.prefixView,
+            suffix: self.suffixView,
+            state: self.currentState
         )
 
         return AnyView(
-            style.resolve(configuration: configuration)
+            self.style.resolve(configuration: configuration)
         )
         .frame(minHeight: 44)
-        .accessibilityElement(children: .combine)
-        .accessibility(label: Text(accessibilityLabel))
-        .accessibility(value: Text(text))
-        .accessibility(hint: Text(accessibilityHint(for: currentState) ?? ""))
-        .disabled(!isEnabled)
+        .accessibilityElement(children: .contain)
+        .disabled(!self.isEnabled)
     }
 
     // MARK: - Subviews
 
     @ViewBuilder
     private func fieldView() -> some View {
-        
         ZStack(alignment: .leading) {
-                    
-            if text.isEmpty {
-                Text(placeholder ?? "")
-                    .foregroundColor(theme.textFields.standard.placeholderColor)
+            if self.text.isEmpty {
+                Text(self.placeholder ?? "")
+                    .foregroundColor(self.theme.textFields.standard.placeholderColor)
                     .padding(.leading, 4)
+                    .accessibility(hidden: true)
             }
-            
+
             TextField(
                 "",
-                text: $text,
+                text: self.$text,
                 onEditingChanged: { editing in
                     self.isEditing = editing
                     self.onEditingChanged?(editing)
-                    
+
                     if editing {
-                        if hasBeenTouched {
-                            updateStateOnChange(isEditing: true)
+                        if self.hasBeenTouched {
+                            self.updateStateOnChange(isEditing: true)
                         } else {
-                            internalState = .focused
+                            self.internalState = .focused
                         }
                     } else {
                         // Mark as touched and validate on blur
-                        hasBeenTouched = true
-                        updateStateOnBlur()
+                        self.hasBeenTouched = true
+                        self.updateStateOnBlur()
                     }
                 },
-                onCommit: { handleCommit() }
+                onCommit: { self.handleCommit() }
             )
-            .onReceive(Just(text)) { newValue in
-                guard !isReadOnly && isEnabled else { return }
-                
-                let formatted = formatter?.formatOnChange(newValue) ?? newValue
+            .onReceive(Just(self.text)) { newValue in
+                guard !self.isReadOnly, self.isEnabled else { return }
+
+                let formatted = self.formatter?.formatOnChange(newValue) ?? newValue
                 if formatted != newValue {
-                    text = formatted
+                    self.text = formatted
                     return
                 }
-                
-                if hasBeenTouched {
-                    updateStateOnChange(isEditing: isEditing)
-                } else if isEditing {
-                    internalState = .focused
+
+                if self.hasBeenTouched {
+                    self.updateStateOnChange(isEditing: self.isEditing)
+                } else if self.isEditing {
+                    self.internalState = .focused
                 }
             }
             .autocapitalization(.none)
-            .keyboardType(keyboard)
-            .textContentType(contentType)
-            .disabled(!isEnabled)
+            .keyboardType(self.keyboard)
+            .textContentType(self.contentType)
+            .disabled(!self.isEnabled)
+            .accessibility(label: Text(self.accessibilityLabel))
+            .accessibility(hint: Text(self.accessibilityHint(for: self.currentState) ?? ""))
         }
     }
-    
+
     @ViewBuilder
     private var labelView: some View {
         Group {
             if let label { Text(label) }
-        }
-        .accessibility(hidden: true)
-    }
-    
-    @ViewBuilder
-    private var helperView: some View {
-        Group {
-            if let error = currentState.errorMessage {
-                Text(error)
-            } else if let helperText {
-                Text(helperText)
-            }
         }
     }
 
     // MARK: - Helpers
 
     private func handleCommit() {
-        if let formatter { text = formatter.formatOnCommit(text) }
-        validationWorkItem?.cancel()
-        updateStateOnCommit()
-        onCommit?()
+        if let formatter { self.text = formatter.formatOnCommit(self.text) }
+        self.updateStateOnCommit()
+        self.onCommit?()
     }
 
     private var accessibilityLabel: String {
@@ -237,197 +228,159 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     private func accessibilityHint(for state: MPTextFieldState) -> String? {
         if let error = state.errorMessage { return error }
-        return helperText
+        return nil
     }
 
     // MARK: - State Management
 
     private var currentState: MPTextFieldState {
         // ReadOnly / Disabled override any other state
-        if isReadOnly { return .readOnly }
-        if !isEnabled { return .disabled }
+        if self.isReadOnly { return .readOnly }
+        if !self.isEnabled { return .disabled }
 
-        return internalState
+        if let error = liveErrorMessageProvider()?.first, !error.isEmpty {
+            return self.isEditing ? .focusError(error) : .error(error)
+        }
+        return self.internalState
     }
 
     private func updateStateOnChange(
         isEditing: Bool
     ) {
-        validateAndUpdateState(isEditing: isEditing, debounce: true)
+        self.validateAndUpdateState(isEditing: isEditing, debounce: true)
     }
 
     private func updateStateOnCommit() {
-        hasBeenTouched = true
-        validateAndUpdateState(isEditing: false, debounce: false)
-    }
-    
-    private func updateStateOnBlur() {
-        validateAndUpdateState(isEditing: false, debounce: false)
-    }
-    
-    func shouldShowHelperOrError(for state: MPTextFieldState) -> Bool {
-        if helperText != nil { return true }
-        return false
+        self.hasBeenTouched = true
+        self.validateAndUpdateState(isEditing: false, debounce: false)
     }
 
-    private func validateAndUpdateState(isEditing: Bool, debounce: Bool) {
-        guard isEnabled && !isReadOnly else { return }
-        
-        guard let validator else {
-            setInternalStateIfNeeded(isEditing ? .focused : .idle)
+    private func updateStateOnBlur() {
+        self.validateAndUpdateState(isEditing: false, debounce: false)
+    }
+
+    private func validateAndUpdateState(isEditing: Bool, debounce _: Bool) {
+        guard self.isEnabled, !self.isReadOnly else { return }
+
+        let currentErrors = self.errorMessageProvider()
+
+        guard let currentErrors else {
+            self.setInternalStateIfNeeded(isEditing ? .focused : .idle)
             return
         }
-        
-        let currentText = text
-        if lastValidatedText == currentText, let cachedResult = lastValidationResult {
-            applyValidationResult(cachedResult, isEditing: isEditing)
-            return
-        }
-        
-        let performValidation = {
-            let result = validator.validate(currentText)
-            lastValidatedText = currentText
-            lastValidationResult = result
-            applyValidationResult(result, isEditing: isEditing)
-        }
-        
-        if debounce {
-            validationWorkItem?.cancel()
-            let workItem = DispatchWorkItem(block: performValidation)
-            validationWorkItem = workItem
-            DispatchQueue.main.asyncAfter(
-                deadline: .now() + validationDebounceInterval,
-                execute: workItem
-            )
-        } else {
-            validationWorkItem?.cancel()
-            performValidation()
+
+        if currentErrors.isEmpty {
+            self.setInternalStateIfNeeded(isEditing ? .focused : .idle)
+        } else if let message = currentErrors.first {
+            self.setInternalStateIfNeeded(isEditing ? .focusError(message) : .error(message))
         }
     }
-    
-    private func applyValidationResult(_ result: ValidationResult, isEditing: Bool) {
-        switch result {
-        case .valid:
-            setInternalStateIfNeeded(isEditing ? .focused : .idle)
-        case .invalid(let message):
-            setInternalStateIfNeeded(isEditing ? .focusError(message) : .error(message))
-        }
-    }
-    
+
     private func setInternalStateIfNeeded(_ newState: MPTextFieldState) {
-        guard internalState != newState else { return }
-        internalState = newState
+        guard self.internalState != newState else { return }
+        self.internalState = newState
     }
 }
 
 #if DEBUG
-import SwiftUI
+    import SwiftUI
 
-@available(iOS 14.0, *)
-struct MPTextField_Previews: PreviewProvider {
-    struct PreviewHost: View {
-        @State private var textIdle: String = "Seed"
-        @State private var textFocused: String = ""
-        
-        @State private var textError: String = "Seed"
-        @State private var textFocusError: String = "Seed"
-        @State private var textReadOnly: String = "Read only"
-        @State private var textDisabled: String = "Disabled"
-        @State private var textSelected: String = "Selected"
-        
-        // Demo: formatter e validator
-        private let uppercaseFormatter = UppercaseFormatter()
-        private let minLengthValidator = MinLengthValidator(min: 5)
-        
-        public init() {}
+    @available(iOS 14.0, *)
+    struct MPTextField_Previews: PreviewProvider {
+        struct PreviewHost: View {
+            @State private var textIdle = "Seed"
+            @State private var textFocused = ""
 
-        public var body: some View {
-            ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Group {
-                            MPTextField(
-                                text: $textIdle,
-                                label: "Idle (Uppercase onChange)",
-                                placeholder: "Placeholder",
-                                helperText: "Helper",
-                                formatter: uppercaseFormatter,
-                                prefix: {
-                                    Image(systemName: "magnifyingglass")
-                                },
-                                suffix: {
-                                    Image(systemName: "checkmark.circle")
-                                }
-                            )
+            @State private var textError = "Seed"
+            @State private var textFocusError = "Seed"
+            @State private var textReadOnly = "Read only"
+            @State private var textDisabled = "Disabled"
+            @State private var textSelected = "Selected"
 
-                            MPTextField(
-                                text: $textFocused,
-                                label: "Focused (Min length 5)",
-                                placeholder: "Placeholder",
-                                helperText: "Min 5 chars",
-                                validator: minLengthValidator
-                            )
+            // Demo: formatter
+            private let uppercaseFormatter = UppercaseFormatter()
 
-                            MPTextField(
-                                text: $textSelected,
-                                label: "Selected",
-                                placeholder: "Placeholder",
-                                helperText: "Helper"
-                            )
+            public init() {}
 
-                            EmptyView()
+            public var body: some View {
+                ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Group {
+                                MPTextField(
+                                    text: self.$textIdle,
+                                    label: "Idle (Uppercase onChange)",
+                                    placeholder: "Placeholder",
+                                    helperText: "Helper",
+                                    formatter: self.uppercaseFormatter,
+                                    prefix: {
+                                        Image(systemName: "magnifyingglass")
+                                    },
+                                    suffix: {
+                                        Image(systemName: "checkmark.circle")
+                                    }
+                                )
 
-                            MPTextField(
-                                text: $textError,
-                                label: "Error",
-                                placeholder: "Placeholder",
-                                helperText: nil,
-                                validator: MinLengthValidator(min: 10)
-                            )
+                                MPTextField(
+                                    text: self.$textFocused,
+                                    label: "Focused (Min length 5)",
+                                    placeholder: "Placeholder",
+                                    helperText: "Min 5 chars"
+                                )
 
-                            MPTextField(
-                                text: $textReadOnly,
-                                label: "Read only",
-                                placeholder: "Placeholder",
-                                helperText: "You can copy"
-                            )
-                            .readOnly(true)
+                                MPTextField(
+                                    text: self.$textSelected,
+                                    label: "Selected",
+                                    placeholder: "Placeholder",
+                                    helperText: "Helper"
+                                )
 
-                            MPTextField(
-                                text: $textDisabled,
-                                label: "Disabled",
-                                placeholder: "Placeholder",
-                                helperText: "Unavailable"
-                            )
-                            .disabled(true)
+                                EmptyView()
 
-                            EmptyView()
+                                MPTextField(
+                                    text: self.$textError,
+                                    label: "Error",
+                                    placeholder: "Placeholder",
+                                    helperText: nil
+                                )
+
+                                MPTextField(
+                                    text: self.$textReadOnly,
+                                    label: "Read only",
+                                    placeholder: "Placeholder",
+                                    helperText: "You can copy"
+                                )
+                                .readOnly(true)
+
+                                MPTextField(
+                                    text: self.$textDisabled,
+                                    label: "Disabled",
+                                    placeholder: "Placeholder",
+                                    helperText: "Unavailable"
+                                )
+                                .disabled(true)
+
+                                EmptyView()
+                            }
+                            .frame(maxWidth: 360)
                         }
-                        .frame(maxWidth: 360)
+                        .padding(16)
                     }
-                    .padding(16)
                 }
             }
         }
-    }
-    static var previews: some View {
-        Group {
-            PreviewHost()
-                .previewDisplayName("Light")
+
+        static var previews: some View {
+            Group {
+                PreviewHost()
+                    .previewDisplayName("Light")
+            }
         }
     }
-}
 
-// Exampe of use in Preview
-private struct UppercaseFormatter: TextFormatting {
-    func formatOnChange(_ text: String) -> String { text.uppercased() }
-    func formatOnCommit(_ text: String) -> String { text.uppercased() }
-}
-
-private struct MinLengthValidator: TextValidating {
-    let min: Int
-    func validate(_ text: String) -> ValidationResult {
-        return text.count >= min ? .valid : .invalid(message: "Minimum \(min) characters")
+    /// Exampe of use in Preview
+    private struct UppercaseFormatter: TextFormatting {
+        func formatOnChange(_ text: String) -> String { text.uppercased() }
+        func formatOnCommit(_ text: String) -> String { text.uppercased() }
     }
-}
 #endif

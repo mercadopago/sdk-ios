@@ -1,0 +1,92 @@
+/*
+  Localizable.strings (Spanish - Colombia)
+  MercadoPagoSDK
+
+  Extraído de: MCO.tokens.json
+*/
+
+/* MARK: - Form Title & Buttons */
+"form.title" = "Ingresa tu tarjeta";
+"form.button" = "Guardar tarjeta";
+
+/* MARK: - Card Number */
+"card_number.label" = "Número de tarjeta";
+"card_number.placeholder" = "1234 1234 1234 1234";
+"card_number.error.empty" = "Completa este campo.";
+"card_number.error.incomplete" = "Ingresa el número completo.";
+"card_number.error.invalid" = "Ingresa el número tal como aparece en la tarjeta.";
+"card_number.error.credit_limit" = "Verifica que la tarjeta tenga límite suficiente.";
+"card_number.error.debit_balance" = "Ingresa una tarjeta con saldo suficiente para pagar el monto.";
+"card_number.error.seller_exclusion" = "La tienda no acepta tarjetas %@.";
+"card_number.error.credit_only" = "La tienda solo acepta tarjetas de crédito.";
+"card_number.error.debit_only" = "La tienda solo acepta tarjetas de débito.";
+"card_number.error.type_not_allowed" = "La tienda no acepta %@.";
+
+/* MARK: - Card Holder */
+"card_holder.label" = "Nombre del titular";
+"card_holder.placeholder" = "Ej.: María López";
+"card_holder.error.empty" = "Completa este campo.";
+"card_holder.error.incomplete" = "Ingresa el nombre tal como aparece en la tarjeta.";
+"card_holder.error.invalid_format" = "Ingresa solo letras y números.";
+"card_holder.helper.text" = "Como aparece en la tarjeta.";
+
+/* MARK: - Expiration Date */
+"expiration.label" = "Vencimiento";
+"expiration.placeholder" = "MM/AA";
+"expiration.error.empty" = "Completa este campo.";
+"expiration.error.incomplete" = "Ingresa la fecha completa.";
+"expiration.error.invalid" = "Ingresa una fecha válida.";
+
+/* MARK: - Security Code (CVV) */
+"cvv.label" = "Código de seguridad";
+"cvv.placeholder.default" = "Ej.: 123";
+"cvv.placeholder.amex" = "Ej.: 1234";
+"cvv.error.empty" = "Completa este campo.";
+"cvv.error.incomplete" = "Ingresa el código completo.";
+"cvv.optional" = "Dato opcional.";
+"cvv.tooltip.static.back" = "Es un número de %ld dígitos que está en el dorso de tu tarjeta o en la app de tu banco.";
+"cvv.tooltip.static.front" = "Es un número de %ld dígitos que está en el frente de tu tarjeta o en la app de tu banco.";
+"cvv.tooltip.dynamic.default" = "Es un número de 3 dígitos que encuentras en la app de tu banco o billetera.";
+"cvv.tooltip.dynamic.amex" = "Es un número de 4 dígitos que encuentras en la app de tu banco o billetera.";
+"cvv.tooltip.unknown.default" = "Es un número de 3 dígitos que está en el dorso de tu tarjeta.";
+"cvv.tooltip.unknown.amex" = "Es un número de 4 dígitos. Lo encuentras al frente de tu tarjeta o en la app de tu banco o billetera.";
+
+/* MARK: - Issuer (Multiple Issuers) */
+"issuer.label" = "Entidad emisora";
+"issuer.placeholder" = "Selecciona una opción.";
+"issuer.error.empty" = "Selecciona una opción.";
+
+/* MARK: - Document */
+"document.label" = "Documento del titular";
+"document.type" = "CC";
+"document.placeholder" = "9.999.999.999";
+"document.error.empty" = "Completa este campo.";
+"document.error.incomplete" = "Ingresa un documento válido.";
+"document.error.invalid" = "Ingresa un documento válido.";
+"document.error.funding" = "Solo podrás ingresar dinero con tarjetas a tu nombre.";
+
+/* MARK: - Installments */
+"installments.title" = "Elige las cuotas";
+"installments.show_more" = "Mostrar más opciones";
+"installments.show_less" = "Mostrar menos opciones";
+"installments.interest_free" = "Sin interés";
+
+/* MARK: - Common */
+"common.cancel" = "Cancelar";
+"common.confirm" = "Confirmar";
+"common.continue" = "Continuar";
+"common.back" = "Volver";
+"common.close" = "Cerrar";
+"common.error" = "Error";
+"common.retry" = "Reintentar";
+"common.loading" = "Cargando...";
+"common.accessibility.textfield.moreInfo" = "Más información";
+"common.total" = "Total";
+"common.currency" = "$";
+"common.credit" = "Tarjeta de Crédito";
+"common.debit" = "Tarjeta de Débito";
+"common.prepaid" = "Tarjeta Prepago";
+
+/* MARK: - Errors */
+"error.generic" = "Ocurrió un error. Por favor, intenta de nuevo.";
+"error.network" = "Error de conexión. Verifica tu conexión a internet.";

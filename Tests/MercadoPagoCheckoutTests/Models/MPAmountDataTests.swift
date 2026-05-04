@@ -1,0 +1,59 @@
+//
+//  MPAmountDataTests.swift
+//  MercadoPagoSDK
+//
+//  Created by Danielle Nozaki Ogawa on 10/03/26.
+//
+
+@testable import MPComponents
+@testable import MPFoundation
+import XCTest
+
+final class MPAmountDataTests: XCTestCase {
+    // MARK: - init(from:)
+
+    func test_initFromDouble_shouldUseCurrencySymbol() {
+        // Arrange / Act
+        let result = MPAmountData(from: 100.0)
+
+        // Assert
+        XCTAssertEqual(result.currencySymbol, MPStrings.Common.currency)
+    }
+
+    func test_initFromDouble_withRoundValue_shouldHaveZeroDecimalPart() {
+        // Arrange / Act
+        let result = MPAmountData(from: 1000.0)
+
+        // Assert
+        XCTAssertEqual(result.decimalPart, "00")
+    }
+
+    func test_initFromDouble_withNonZeroDecimal_shouldExtractDecimalPart() {
+        // Arrange / Act
+        let result = MPAmountData(from: 1000.99)
+
+        // Assert
+        XCTAssertEqual(result.decimalPart, "99")
+    }
+
+    func test_initFromDouble_integerPartShouldNotContainDecimalSeparator() {
+        // Arrange
+        let formatter = NumberFormatter()
+        let separator = formatter.decimalSeparator ?? ","
+
+        // Act
+        let result = MPAmountData(from: 1000.0)
+
+        // Assert
+        XCTAssertFalse(result.integerPart.contains(separator))
+    }
+
+    func test_initFromDouble_shouldProduceEqualResultForSameValue() {
+        // Arrange / Act
+        let result1 = MPAmountData(from: 500.50)
+        let result2 = MPAmountData(from: 500.50)
+
+        // Assert
+        XCTAssertEqual(result1, result2)
+    }
+}

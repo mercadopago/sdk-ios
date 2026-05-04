@@ -9,53 +9,44 @@ import SwiftUI
 
 /// Configuration passed to `MPHeaderStyle` for rendering.
 package struct MPHeaderStyleConfiguration {
-    
     // MARK: - Subviews
-    
-    package struct MainHeader: View {
+
+    package struct TrailingActions: View {
         package let body: AnyView
     }
-    
-    package struct SubHeader: View {
-        package let body: AnyView
-    }
-    
+
     // MARK: - Properties
-    
-    /// Main header view (with back button, title, and trailing actions)
-    package let mainHeader: MainHeader
-    
-    /// Sub-header view (large collapsible title)
-    package let subHeader: SubHeader
-    
-    /// Progress of collapse animation (0 = expanded, 1 = collapsed)
-    package let collapseProgress: CGFloat
-    
-    /// Full height of sub-header (for measuring)
-    package let subHeaderHeight: CGFloat
-    
-    /// Visible height of sub-header (after collapse calculation)
-    package let subHeaderVisibleHeight: CGFloat
-    
-    /// Current scroll offset (negative when scrolled down)
+
+    /// Header title.
+    package let title: String
+
+    /// Action invoked when the back button is pressed.
+    package let onBack: () -> Void
+
+    /// Optional trailing actions on the right side.
+    package let trailingActions: TrailingActions?
+
+    /// Current scroll offset (negative when scrolled down). Used for background styling.
     package let scrollOffset: CGFloat
-    
+
+    /// Opacity for the inline title next to the back button (0 = hidden, 1 = fully visible).
+    /// Increases as the large title in scroll content disappears.
+    package let inlineTitleOpacity: CGFloat
+
     // MARK: - Initialization
-    
+
     @MainActor
     package init(
-        mainHeader: some View,
-        subHeader: some View,
-        collapseProgress: CGFloat,
-        subHeaderHeight: CGFloat,
-        subHeaderVisibleHeight: CGFloat,
-        scrollOffset: CGFloat
+        title: String,
+        onBack: @escaping () -> Void,
+        trailingActions: TrailingActions? = nil,
+        scrollOffset: CGFloat,
+        inlineTitleOpacity: CGFloat = 0
     ) {
-        self.mainHeader = MainHeader(body: AnyView(mainHeader))
-        self.subHeader = SubHeader(body: AnyView(subHeader))
-        self.collapseProgress = collapseProgress
-        self.subHeaderHeight = subHeaderHeight
-        self.subHeaderVisibleHeight = subHeaderVisibleHeight
+        self.title = title
+        self.onBack = onBack
+        self.trailingActions = trailingActions
         self.scrollOffset = scrollOffset
+        self.inlineTitleOpacity = inlineTitleOpacity
     }
 }
