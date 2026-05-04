@@ -28,7 +28,7 @@ struct InitializeCardFormUseCase {
         } catch let error as APIClientError {
             if case let .apiError(response) = error,
                let errorCode = response.errorCode,
-               ["IDENTIFICATION_TYPE_UNAVAILABLE", "UNSUPPORTED_SITE"].contains(errorCode) {
+               CheckoutAPIErrorCode.Integration(rawValue: errorCode) != nil {
                 throw MercadoPagoCheckoutError(
                     code: .integrationError,
                     localizedDescription: response.message,

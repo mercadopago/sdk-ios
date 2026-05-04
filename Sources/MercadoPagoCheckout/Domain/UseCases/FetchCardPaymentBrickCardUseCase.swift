@@ -25,12 +25,12 @@ struct FetchCardPaymentBrickCardUseCase {
             throw error
         } catch let error as APIClientError {
             if case let .apiError(response) = error {
-                switch response.errorCode {
-                case "EMPTY_PAYMENT_METHODS":
+                switch response.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) {
+                case .emptyPaymentMethods:
                     throw .acceptance(.paymentMethodNotFound)
-                case "PAYMENT_METHOD_UNAVAILABLE":
+                case .paymentMethodUnavailable:
                     throw .acceptance(.paymentMethodNotAllowed(response.userErrorMessage ?? String()))
-                default:
+                case nil:
                     throw .network(.init(from: error, location: .binChange))
                 }
             }
