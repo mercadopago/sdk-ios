@@ -1,0 +1,23 @@
+Sources/MPComponents/BaseElements/BottomSheet/MPBottomSheet.swift
+  613c474b3e07b244 44,49,172,215-216,218-224,226-228,230-234,236-241,244-256
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "f4b5e18e371968bf2c95b50bee5d16d62615c63b",
+  "prompts": {
+    "613c474b3e07b244": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c8c126c1-f41d-433b-8c90-b61de0599b6c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 66,
+      "total_deletions": 29,
+      "accepted_lines": 91,
+      "overriden_lines": 8
+    }
+  }
+}
