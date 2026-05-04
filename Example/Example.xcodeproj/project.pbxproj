@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2239F23C044F4DC68BDD279D /* MPExtended in Frameworks */ = {isa = PBXBuildFile; productRef = 96CF427D532A4369B5E21DCA /* MPExtended */; };
+		BBA34BA92FA926A700DFD4CD /* MercadoPagoCheckout in Frameworks */ = {isa = PBXBuildFile; productRef = BB8DD0C12FA152C900C2981F /* MercadoPagoCheckout */; };
 		EF0925BC2D5BDC6600B08775 /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF0925BB2D5BDC6600B08775 /* CoreMethods */; };
 		EF4754E52D14C35D00E9619F /* CoreMethods in Frameworks */ = {isa = PBXBuildFile; productRef = EF4754E42D14C35D00E9619F /* CoreMethods */; };
 /* End PBXBuildFile section */
@@ -59,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBA34BA92FA926A700DFD4CD /* MercadoPagoCheckout in Frameworks */,
 				EF0925BC2D5BDC6600B08775 /* CoreMethods in Frameworks */,
 				EF4754E52D14C35D00E9619F /* CoreMethods in Frameworks */,
 				2239F23C044F4DC68BDD279D /* MPExtended in Frameworks */,
@@ -422,6 +424,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Sources/Preview Content\"";
+				DEVELOPMENT_TEAM = N34W3XSZ62;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -435,7 +438,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mercadopago.sdk.ios.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mercadopago.sdk.ios.Example.danielle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -455,6 +458,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Sources/Preview Content\"";
+				DEVELOPMENT_TEAM = N34W3XSZ62;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -468,7 +472,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mercadopago.sdk.ios.Example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mercadopago.sdk.ios.Example.danielle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

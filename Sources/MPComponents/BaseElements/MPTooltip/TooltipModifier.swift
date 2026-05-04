@@ -153,26 +153,26 @@ struct MPTooltipFloatingContent: View {
         let minY = self.safeAreaInsets.top + screenPadding + self.tooltipHeight / 2
         let maxY = screenBounds.height - self.safeAreaInsets.bottom - screenPadding - self.tooltipHeight / 2
 
-        var x = self.triggerFrame.midX
-        var y = self.triggerFrame.midY
+        var xPos = self.triggerFrame.midX
+        var yPos = self.triggerFrame.midY
 
         switch self.config.side.toPopoverSide() {
         case .top, .topLeft, .topRight:
-            y = self.triggerFrame.minY - gap - self.tooltipHeight / 2
+            yPos = self.triggerFrame.minY - gap - self.tooltipHeight / 2
         case .bottom, .bottomLeft, .bottomRight, .center:
-            y = self.triggerFrame.maxY + gap + self.tooltipHeight / 2
+            yPos = self.triggerFrame.maxY + gap + self.tooltipHeight / 2
         case .left:
-            x = self.triggerFrame.minX - gap - self.tooltipWidth / 2
-            y = self.triggerFrame.midY
+            xPos = self.triggerFrame.minX - gap - self.tooltipWidth / 2
+            yPos = self.triggerFrame.midY
         case .right:
-            x = self.triggerFrame.maxX + gap + self.tooltipWidth / 2
-            y = self.triggerFrame.midY
+            xPos = self.triggerFrame.maxX + gap + self.tooltipWidth / 2
+            yPos = self.triggerFrame.midY
         }
 
-        x = max(minX, min(maxX, x))
-        y = max(minY, min(maxY, y))
+        xPos = max(minX, min(maxX, xPos))
+        yPos = max(minY, min(maxY, yPos))
 
-        return CGPoint(x: x, y: y)
+        return CGPoint(x: xPos, y: yPos)
     }
 }
 
@@ -229,7 +229,11 @@ extension EnvironmentValues {
                 Spacer()
                 HStack {
                     Spacer()
-                    MPTooltipPreviewTrigger(label: "↑ Top", side: .top, content: "É um número de 3 digitos  que está atrás do seu cartão ou no app do seu banco.")
+                    MPTooltipPreviewTrigger(
+                        label: "↑ Top",
+                        side: .top,
+                        content: "É um número de 3 digitos  que está atrás do seu cartão ou no app do seu banco."
+                    )
                     Spacer()
                 }
                 Spacer()
