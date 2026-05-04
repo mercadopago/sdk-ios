@@ -6,7 +6,12 @@
 //
 
 import CoreMethods
+import MPComponents
 import SwiftUI
+
+extension IdentificationType: MPPickerOption {
+    package var displayName: String { name }
+}
 
 extension IdentificationType {
     func getPlaceholder() -> String {
