@@ -87,7 +87,7 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
             XCTFail("Expected MercadoPagoCheckoutError to be thrown")
         } catch {
             XCTAssertEqual(error.code, .serviceError)
-            XCTAssertEqual(error.serviceError?.errorCode, CheckoutAPIErrorCode.Acceptance.emptyPaymentMethods.rawValue)
+            XCTAssertEqual(error.serviceError?.errorCode, CheckoutAPIErrorCode.emptyPaymentMethods.rawValue)
         }
     }
 

@@ -26,7 +26,7 @@ struct FetchCardPaymentBrickCardUseCase {
                     serviceError: APIErrorResponse(
                         code: "",
                         message: "",
-                        errorCode: CheckoutAPIErrorCode.Acceptance.emptyPaymentMethods.rawValue
+                        errorCode: CheckoutAPIErrorCode.emptyPaymentMethods.rawValue
                     )
                 )
             }
