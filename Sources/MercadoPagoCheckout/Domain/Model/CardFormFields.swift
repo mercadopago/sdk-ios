@@ -5,8 +5,8 @@
 //  Created by Guilherme Prata Costa on 16/03/26.
 //
 
-enum CardFormFields {
-    struct Fields {
+enum CardFormFields: Equatable {
+    struct Fields: Equatable {
         let cardNumber: CardNumberField
         let cardHolder: CardHolderField
         let expiration: ExpirationField
@@ -15,70 +15,71 @@ enum CardFormFields {
         let document: DocumentField
     }
 
-    struct CardNumberField {
+    struct CardNumberField: Equatable {
         let label: String
         let placeholder: String
         let validation: Validation
         let config: CardFieldConfig
 
-        struct Validation {
+        struct Validation: Equatable {
             let errorEmpty: String
             let errorIncomplete: String
             let errorInvalid: String
         }
     }
 
-    struct CardHolderField {
+    struct CardHolderField: Equatable {
         let label: String
         let placeholder: String
         let helperText: String
         let validation: Validation
         let config: CardFieldConfig
 
-        struct Validation {
+        struct Validation: Equatable {
             let errorEmpty: String
             let errorIncomplete: String
             let errorInvalid: String
         }
     }
 
-    struct ExpirationField {
+    struct ExpirationField: Equatable {
         let label: String
         let placeholder: String
         let validation: Validation
         let config: CardFieldConfig
 
-        struct Validation {
+        struct Validation: Equatable {
             let errorEmpty: String
             let errorIncomplete: String
             let errorInvalid: String
         }
     }
 
-    struct CVVField {
+    struct CVVField: Equatable {
         let label: String
         let placeholder: String
         let tooltip: String
         let validation: Validation
         let config: CardFieldConfig
 
-        struct Validation {
+        struct Validation: Equatable {
             let errorEmpty: String
             let errorIncomplete: String
+            let errorInvalid: String
         }
     }
 
-    struct IssuerField {
+    struct IssuerField: Equatable {
         let label: String
         let placeholder: String
     }
 
-    struct DocumentField {
+    struct DocumentField: Equatable {
         let label: String
         let placeholder: String
         let validation: Validation
 
-        struct Validation {
+        struct Validation: Equatable {
             let errorEmpty: String
             let errorIncomplete: String
             let errorInvalid: String

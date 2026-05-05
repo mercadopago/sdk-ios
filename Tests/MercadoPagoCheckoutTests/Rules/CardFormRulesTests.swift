@@ -39,7 +39,8 @@ final class CardFormRulesTests: XCTestCase {
     private static func defaultCVVValidation() -> CardFormFields.CVVField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
-            errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
+            errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete,
+            errorInvalid: ""
         )
     }
 
@@ -546,7 +547,8 @@ final class CardFormRulesTests: XCTestCase {
         // Arrange
         let customValidation = CardFormFields.CVVField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
-            errorIncomplete: "CUSTOM_INCOMPLETE"
+            errorIncomplete: "CUSTOM_INCOMPLETE",
+            errorInvalid: ""
         )
         let rule = SecurityCodeRule(validation: customValidation)
 

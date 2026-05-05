@@ -61,14 +61,12 @@ final class CardFormViewModelTests: XCTestCase {
             securityCode: .init(mode: "mandatory", length: 3, type: "number", placeholder: "123", tooltip: "cvv_back_tooltip")
         )
         static let visaWithSecurityCodeTranslations = CardPaymentBrickCardData(
-            securityCodeTranslations: .init(
+            securityCodeTranslations: CardFormFields.CVVField(
                 label: "CVV",
                 placeholder: "123",
-                helper: "",
                 tooltip: "cvv_translations_tooltip",
-                errorEmpty: "",
-                errorIncomplete: "",
-                errorInvalid: ""
+                validation: .init(errorEmpty: "", errorIncomplete: "", errorInvalid: ""),
+                config: .init(type: "number", length: .init(min: 3, max: 3))
             ),
             installment: nil,
             paymentMethods: [makePaymentMethod(id: "visa")]
@@ -596,7 +594,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_retryBinFetch_whenAcceptanceError_shouldNotRetry() async {
         // Arrange — acceptance error sets cardAcceptanceError (not a retriable error)
         let sut = self.makeSUT()
-        await sut.repository.setResult(.failure(BinFetchError.acceptance(.paymentMethodNotFound)))
+        await sut.repository.setResult(.failure(APIClientError.apiError(APIErrorResponse(code: "400", message: "error", errorCode: "EMPTY_PAYMENT_METHODS", userErrorMessage: nil))))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardAcceptanceError)
         XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotFound)

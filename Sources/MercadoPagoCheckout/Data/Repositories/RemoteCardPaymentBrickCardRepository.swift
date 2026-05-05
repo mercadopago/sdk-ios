@@ -28,23 +28,35 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
 
     private func map(response: CardPaymentBrickCardResponse) -> CardPaymentBrickCardData {
         CardPaymentBrickCardData(
-            securityCodeTranslations: response.translations.securityCode.map { self.mapSecurityCodeTranslations($0) },
+            securityCodeTranslations: response.translations.securityCode.map {
+                self.mapSecurityCodeTranslations($0, response)
+            },
             installment: response.installment.map { self.mapInstallment($0) },
             paymentMethods: response.paymentMethods.map { self.mapPaymentMethod($0) }
         )
     }
 
     private func mapSecurityCodeTranslations(
-        _ data: CardFormTranslationsResponse.FieldTranslationsData
-    ) -> CardPaymentBrickCardData.SecurityCodeTranslations {
-        CardPaymentBrickCardData.SecurityCodeTranslations(
+        _ data: CardFormTranslationsResponse.FieldTranslationsData,
+        _ response: CardPaymentBrickCardResponse
+    ) -> CardFormFields.CVVField {
+        let securityCode = response.paymentMethods.map { self.mapPaymentMethod($0) }
+        return CardFormFields.CVVField(
             label: data.label,
             placeholder: data.placeholder,
-            helper: data.helper,
             tooltip: data.tooltip,
-            errorEmpty: data.errorEmptyField,
-            errorIncomplete: data.errorIncompleteField,
-            errorInvalid: data.errorInvalidField
+            validation: .init(
+                errorEmpty: data.errorEmptyField,
+                errorIncomplete: data.errorIncompleteField,
+                errorInvalid: data.errorInvalidField
+            ),
+            config: .init(
+                type: securityCode.first?.securityCode?.type ?? String(),
+                length: .init(
+                    min: securityCode.first?.securityCode?.length ?? 0,
+                    max: securityCode.first?.securityCode?.length ?? 0
+                )
+            )
         )
     }
 

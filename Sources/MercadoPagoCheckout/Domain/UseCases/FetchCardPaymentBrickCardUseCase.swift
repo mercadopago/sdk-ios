@@ -6,6 +6,7 @@
 //
 
 import CoreMethods
+import MPCore
 
 struct FetchCardPaymentBrickCardUseCase {
     private let repository: CardPaymentBrickCardRepository
@@ -14,31 +15,28 @@ struct FetchCardPaymentBrickCardUseCase {
         self.repository = repository
     }
 
-    func execute(params: CardPaymentBrickCardParams) async throws(BinFetchError) -> CardPaymentBrickCardData {
+    func execute(params: CardPaymentBrickCardParams) async throws(MercadoPagoCheckoutError) -> CardPaymentBrickCardData {
         do {
             let data = try await self.repository.fetchCard(params: params)
             if data.paymentMethods.isEmpty {
-                throw BinFetchError.acceptance(.paymentMethodNotFound)
+                throw MercadoPagoCheckoutError(
+                    code: .serviceError,
+                    localizedDescription: "",
+                    location: .binChange,
+                    serviceError: APIErrorResponse(
+                        code: "",
+                        message: "",
+                        errorCode: CheckoutAPIErrorCode.Acceptance.emptyPaymentMethods.rawValue
+                    )
+                )
             }
             return data
-        } catch let error as BinFetchError {
+        } catch let error as MercadoPagoCheckoutError {
             throw error
         } catch let error as APIClientError {
-            if case let .apiError(response) = error {
-                switch response.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) {
-                case .emptyPaymentMethods:
-                    throw .acceptance(.paymentMethodNotFound)
-                case .paymentMethodUnavailable:
-                    throw .acceptance(.paymentMethodNotAllowed(response.userErrorMessage ?? String()))
-                case nil:
-                    throw .network(.init(from: error, location: .binChange))
-                }
-            }
-            throw .network(.init(from: error, location: .binChange))
-        } catch let error as MercadoPagoCheckoutError {
-            throw .network(error)
+            throw MercadoPagoCheckoutError(from: error, location: .binChange)
         } catch {
-            throw .network(.init(code: .unknown, localizedDescription: error.localizedDescription, location: .binChange))
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .binChange)
         }
     }
 }

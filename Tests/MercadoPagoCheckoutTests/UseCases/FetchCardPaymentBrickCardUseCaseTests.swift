@@ -76,7 +76,7 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
 
     // MARK: - Acceptance Errors
 
-    func test_execute_whenPaymentMethodsEmpty_shouldThrowPaymentMethodNotFound() async {
+    func test_execute_whenPaymentMethodsEmpty_shouldThrowWithEmptyPaymentMethodsErrorCode() async {
         // Arrange
         let sut = self.makeSUT()
         await sut.repository.setResult(.success(self.makeCardData(paymentMethods: [])))
@@ -84,17 +84,14 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
         // Act & Assert
         do {
             _ = try await sut.useCase.execute(params: self.makeParams())
-            XCTFail("Expected BinFetchError to be thrown")
+            XCTFail("Expected MercadoPagoCheckoutError to be thrown")
         } catch {
-            guard case let .acceptance(acceptance) = error,
-                  case .paymentMethodNotFound = acceptance else {
-                XCTFail("Expected .acceptance(.paymentMethodNotFound), got \(error)")
-                return
-            }
+            XCTAssertEqual(error.code, .serviceError)
+            XCTAssertEqual(error.serviceError?.errorCode, CheckoutAPIErrorCode.Acceptance.emptyPaymentMethods.rawValue)
         }
     }
 
-    func test_execute_whenAPIErrorPaymentMethodUnavailable_shouldThrowAcceptanceError() async {
+    func test_execute_whenAPIErrorPaymentMethodUnavailable_shouldThrowWithServiceError() async {
         // Arrange
         let sut = self.makeSUT()
         await sut.repository.setResult(.failure(self.makeAPIError(errorCode: "PAYMENT_METHOD_UNAVAILABLE", userMessage: "Method unavailable")))
@@ -102,20 +99,18 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
         // Act & Assert
         do {
             _ = try await sut.useCase.execute(params: self.makeParams())
-            XCTFail("Expected BinFetchError to be thrown")
+            XCTFail("Expected MercadoPagoCheckoutError to be thrown")
         } catch {
-            guard case let .acceptance(acceptance) = error,
-                  case let .paymentMethodNotAllowed(message) = acceptance else {
-                XCTFail("Expected .acceptance(.paymentMethodNotAllowed), got \(error)")
-                return
-            }
-            XCTAssertEqual(message, "Method unavailable")
+            XCTAssertEqual(error.code, .serviceError)
+            XCTAssertEqual(error.serviceError?.errorCode, "PAYMENT_METHOD_UNAVAILABLE")
+            XCTAssertEqual(error.serviceError?.userErrorMessage, "Method unavailable")
+            XCTAssertEqual(error.serviceError?.code, "400")
         }
     }
 
     // MARK: - Network Errors
 
-    func test_execute_whenAPIErrorUnknownCode_shouldThrowNetworkError() async {
+    func test_execute_whenAPIErrorUnknownCode_shouldThrowServiceError() async {
         // Arrange
         let sut = self.makeSUT()
         await sut.repository.setResult(.failure(self.makeAPIError(errorCode: "UNKNOWN_CODE")))
@@ -123,13 +118,11 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
         // Act & Assert
         do {
             _ = try await sut.useCase.execute(params: self.makeParams())
-            XCTFail("Expected BinFetchError to be thrown")
+            XCTFail("Expected MercadoPagoCheckoutError to be thrown")
         } catch {
-            guard case let .network(checkoutError) = error else {
-                XCTFail("Expected .network, got \(error)")
-                return
-            }
-            XCTAssertEqual(checkoutError.code, .serviceError)
+            XCTAssertEqual(error.code, .serviceError)
+            XCTAssertEqual(error.serviceError?.errorCode, "UNKNOWN_CODE")
+            XCTAssertEqual(error.serviceError?.code, "400")
         }
     }
 
@@ -141,17 +134,14 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
         // Act & Assert
         do {
             _ = try await sut.useCase.execute(params: self.makeParams())
-            XCTFail("Expected BinFetchError to be thrown")
+            XCTFail("Expected MercadoPagoCheckoutError to be thrown")
         } catch {
-            guard case let .network(checkoutError) = error else {
-                XCTFail("Expected .network, got \(error)")
-                return
-            }
-            XCTAssertEqual(checkoutError.code, .networkConnectionFailed)
+            XCTAssertEqual(error.code, .networkConnectionFailed)
+            XCTAssertNil(error.serviceError)
         }
     }
 
-    func test_execute_whenMercadoPagoCheckoutError_shouldPropagateAsNetworkError() async {
+    func test_execute_whenMercadoPagoCheckoutError_shouldPropagate() async {
         // Arrange
         let sut = self.makeSUT()
         let original = MercadoPagoCheckoutError(code: .serviceError, localizedDescription: "service error", location: .binChange)
@@ -160,17 +150,13 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
         // Act & Assert
         do {
             _ = try await sut.useCase.execute(params: self.makeParams())
-            XCTFail("Expected BinFetchError to be thrown")
+            XCTFail("Expected MercadoPagoCheckoutError to be thrown")
         } catch {
-            guard case let .network(checkoutError) = error else {
-                XCTFail("Expected .network, got \(error)")
-                return
-            }
-            XCTAssertEqual(checkoutError, original)
+            XCTAssertEqual(error, original)
         }
     }
 
-    func test_execute_whenUnknownError_shouldThrowNetworkUnknown() async {
+    func test_execute_whenUnknownError_shouldThrowUnknown() async {
         // Arrange
         let sut = self.makeSUT()
         struct UnknownError: Error {}
@@ -179,13 +165,10 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
         // Act & Assert
         do {
             _ = try await sut.useCase.execute(params: self.makeParams())
-            XCTFail("Expected BinFetchError to be thrown")
+            XCTFail("Expected MercadoPagoCheckoutError to be thrown")
         } catch {
-            guard case let .network(checkoutError) = error else {
-                XCTFail("Expected .network, got \(error)")
-                return
-            }
-            XCTAssertEqual(checkoutError.code, .unknown)
+            XCTAssertEqual(error.code, .unknown)
+            XCTAssertNil(error.serviceError)
         }
     }
 }

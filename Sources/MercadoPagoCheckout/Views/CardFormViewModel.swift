@@ -65,9 +65,7 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private var isRetriableBinError: Bool {
-        return self.binNetworkError?.code == .networkConnectionFailed
-            || self.binNetworkError?.code == .networkTimeout
-            || self.binNetworkError?.code == .serviceError
+        self.binNetworkError?.isRetriable ?? false
     }
 
     // MARK: - Private
@@ -211,19 +209,26 @@ final class CardFormViewModel: ObservableObject {
         let params = self.buildCardPaymentBrickCardParams(bin: bin)
         do {
             let data = try await withRetry(isRetryable: { error in
-                guard let binError = error as? BinFetchError else { return true }
-                return binError.isRetriable
+                guard let checkoutError = error as? MercadoPagoCheckoutError else { return true }
+                guard checkoutError.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) == nil else { return false }
+                return checkoutError.code == .networkConnectionFailed
+                    || checkoutError.code == .networkTimeout
+                    || checkoutError.code == .serviceError
             }) {
                 try await self.fetchCardUseCase.execute(params: params)
             }
             guard !Task.isCancelled else { return }
             self.cardData = data
-        } catch let error as BinFetchError {
+        } catch let error as MercadoPagoCheckoutError {
             guard !Task.isCancelled else { return }
             self.cardData = nil
-            switch error {
-            case let .acceptance(acceptanceError): self.cardAcceptanceError = acceptanceError
-            case let .network(error): self.binNetworkError = error
+            switch error.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) {
+            case .emptyPaymentMethods:
+                self.cardAcceptanceError = .paymentMethodNotFound
+            case .paymentMethodUnavailable:
+                self.cardAcceptanceError = .paymentMethodNotAllowed(error.serviceError?.userErrorMessage ?? String())
+            case nil:
+                self.binNetworkError = error
             }
         } catch {
             guard !Task.isCancelled else { return }

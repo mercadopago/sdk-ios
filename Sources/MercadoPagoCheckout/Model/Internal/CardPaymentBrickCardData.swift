@@ -6,21 +6,11 @@
 //
 
 struct CardPaymentBrickCardData: Equatable {
-    let securityCodeTranslations: SecurityCodeTranslations?
+    let securityCodeTranslations: CardFormFields.CVVField?
     let installment: Installment?
     let paymentMethods: [PaymentMethod]
 
     // MARK: - SecurityCodeTranslations
-
-    struct SecurityCodeTranslations: Equatable {
-        let label: String
-        let placeholder: String
-        let helper: String
-        let tooltip: String
-        let errorEmpty: String
-        let errorIncomplete: String
-        let errorInvalid: String
-    }
 
     // MARK: - Installment
 
