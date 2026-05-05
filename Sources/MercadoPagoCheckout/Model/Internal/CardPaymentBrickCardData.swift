@@ -10,8 +10,6 @@ struct CardPaymentBrickCardData: Equatable {
     let installment: Installment?
     let paymentMethods: [PaymentMethod]
 
-    // MARK: - SecurityCodeTranslations
-
     // MARK: - Installment
 
     struct Installment: Equatable {
