@@ -81,9 +81,12 @@ package struct MPBottomSheet: View {
     // MARK: - Height calculation
 
     /// Breakdown (theme values: xtiny=16, xmicro=8, micro=12):
-    ///   drag indicator=20, header=40, each item=52, bottom (padding + safe area)=46
+    ///   drag indicator=20, header=40, each item=52, bottom (padding + safe area)=60
+    ///   capped at 60% of screen height
     private static func optionsHeight(count: Int) -> CGFloat {
-        20 + 40 + CGFloat(count) * 52 + 46
+        let calculated = 20 + 40 + CGFloat(count) * 52 + 60
+        let maxHeight = UIScreen.main.bounds.height * 0.6
+        return min(calculated, maxHeight)
     }
 }
 
@@ -126,7 +129,7 @@ package struct MPBottomSheetContent<Content: View>: View {
     @Environment(\.checkoutTheme) private var theme: MPTheme
 
     package var body: some View {
-        VStack(spacing: 0) {
+        VStack {
             self.dragIndicator
             self.header
             ScrollView { self.content() }
@@ -136,9 +139,9 @@ package struct MPBottomSheetContent<Content: View>: View {
     }
 
     private var dragIndicator: some View {
-        VStack(spacing: 0) {
+        VStack {
             RoundedRectangle(cornerRadius: self.theme.borderRadius.full)
-                .fill(self.theme.colors.icon.primary)
+                .fill(self.theme.colors.interactive.iconIdle)
                 .frame(width: 32, height: 4)
         }
         .frame(height: 20)
@@ -147,10 +150,10 @@ package struct MPBottomSheetContent<Content: View>: View {
 
     private var header: some View {
         HStack(alignment: .center, spacing: 0) {
-            Text(self.title).textStyle(.headingLarge())
+            Text(self.title).textStyle(.headingMedium())
             Spacer()
             Button(action: self.onDismiss) {
-                Image(systemName: "xmark")
+                Image(Logos.close, bundle: .bundleMP)
                     .renderingMode(.template)
                     .foregroundColor(self.theme.colors.icon.primary)
                     .frame(width: 24, height: 24)
@@ -285,7 +288,7 @@ private final class MPSheetTransitionAnimator: NSObject, UIViewControllerAnimate
             } completion: { _ in ctx.completeTransition(!ctx.transitionWasCancelled) }
         } else {
             guard let fromView = ctx.view(forKey: .from) else { return }
-            UIView.animate(withDuration: self.transitionDuration(using: ctx), delay: 0, options: .curveEaseIn) {
+            UIView.animate(withDuration: self.transitionDuration(using: ctx), delay: 0.15, options: .curveEaseIn) {
                 fromView.frame = fromView.frame.offsetBy(dx: 0, dy: fromView.frame.height)
             } completion: { _ in ctx.completeTransition(!ctx.transitionWasCancelled) }
         }
