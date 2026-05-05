@@ -81,7 +81,8 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
                     tooltip: translations.securityCode.tooltip,
                     validation: .init(
                         errorEmpty: translations.securityCode.errorEmptyField,
-                        errorIncomplete: translations.securityCode.errorIncompleteField
+                        errorIncomplete: translations.securityCode.errorIncompleteField,
+                        errorInvalid: translations.securityCode.errorInvalidField
                     ),
                     config: .init(
                         type: response.securityCode.type,

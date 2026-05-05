@@ -91,7 +91,8 @@ struct InitializeCardFormUseCase {
                     tooltip: fields.cvv.tooltip,
                     validation: .init(
                         errorEmpty: fields.cvv.validation.errorEmpty,
-                        errorIncomplete: fields.cvv.validation.errorIncomplete
+                        errorIncomplete: fields.cvv.validation.errorIncomplete,
+                        errorInvalid: fields.cvv.validation.errorInvalid
                     ),
                     config: fields.cvv.config
                 ),

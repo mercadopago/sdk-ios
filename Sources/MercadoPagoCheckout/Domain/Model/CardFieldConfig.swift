@@ -6,7 +6,7 @@
 //
 import UIKit
 
-struct CardFieldConfig {
+struct CardFieldConfig: Equatable {
     let type: String
     let length: LengthRange
     let mask: String?
@@ -17,7 +17,7 @@ struct CardFieldConfig {
         self.mask = mask
     }
 
-    struct LengthRange {
+    struct LengthRange: Equatable {
         let min: Int
         let max: Int
     }
