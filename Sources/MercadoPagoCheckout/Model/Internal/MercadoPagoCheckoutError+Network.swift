@@ -42,7 +42,8 @@ extension MercadoPagoCheckoutError {
                 code: .serviceError,
                 localizedDescription: "An error occurred. Check the error_code for more details.",
                 userInfo: ["error_code": error.code, "message": error.message],
-                location: location
+                location: location,
+                serviceError: error
             )
         case let .statusCode(status):
             self.init(
@@ -89,14 +90,5 @@ extension MercadoPagoCheckoutError {
                 location: location
             )
         }
-    }
-}
-
-// MARK: - MercadoPagoCheckoutError + PaymentMethodNotFound
-
-extension MercadoPagoCheckoutError {
-    var isPaymentMethodNotFound: Bool {
-        errorUserInfo["error_code"] as? String == "not_found"
-            || errorUserInfo["message"] as? String == "Payment methods not found"
     }
 }

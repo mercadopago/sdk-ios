@@ -40,8 +40,8 @@ extension CardFormUserCancelledContext.FieldState {
         /// The field contained an invalid value.
         case invalid
         /// The card brand is not accepted by the seller.
-        case cardBrandNotAccepted(brand: MercadoPagoCheckout.CardBrand)
+        case cardBrandNotAccepted
         /// The card type is not accepted by the seller.
-        case cardTypeNotAccepted(cardType: MercadoPagoCheckout.CardType?)
+        case cardTypeNotAccepted
     }
 }

@@ -18,7 +18,8 @@ final class CardFormViewModelTests: XCTestCase {
 
     typealias SUT = (
         viewModel: CardFormViewModel,
-        service: MockCheckoutService
+        service: MockCheckoutService,
+        repository: MockCardPaymentBrickCardRepository
     )
 
     // MARK: - Properties
@@ -51,121 +52,74 @@ final class CardFormViewModelTests: XCTestCase {
         )
     }
 
-    private enum CardBinDataStub {
-        static let visa = CardBinData(
-            paymentMethod: makePaymentMethod(id: "visa", paymentTypeId: "credit_card"),
-            issuer: nil,
-            installment: nil
+    private enum CardDataStub {
+        static let visa = makeCardData(id: "visa")
+        static let master = makeCardData(id: "master")
+
+        static let visaWithSecurityCode = makeCardData(
+            id: "visa",
+            securityCode: .init(mode: "mandatory", length: 3, type: "number", placeholder: "123", tooltip: "cvv_back_tooltip")
         )
-        static let master = CardBinData(
-            paymentMethod: makePaymentMethod(id: "master", paymentTypeId: "credit_card"),
-            issuer: nil,
-            installment: nil
+        static let visaWithSecurityCodeTranslations = CardPaymentBrickCardData(
+            securityCodeTranslations: CardFormFields.CVVField(
+                label: "CVV",
+                placeholder: "123",
+                tooltip: "cvv_translations_tooltip",
+                validation: .init(errorEmpty: "", errorIncomplete: "", errorInvalid: ""),
+                config: .init(type: "number", length: .init(min: 3, max: 3))
+            ),
+            installment: nil,
+            paymentMethods: [makePaymentMethod(id: "visa")]
+        )
+        static let amex = makeCardData(
+            id: "amex",
+            securityCode: .init(mode: "mandatory", length: 4, type: "number", placeholder: "1234", tooltip: "cvv_front_tooltip")
+        )
+        static let visaWithIssuer = CardPaymentBrickCardData(
+            securityCodeTranslations: nil,
+            installment: nil,
+            paymentMethods: [
+                CardPaymentBrickCardData.PaymentMethod(
+                    id: "visa",
+                    paymentTypeId: "credit_card",
+                    cardNumber: .init(type: "number", length: .init(min: 16, max: 16), mask: "XXXX XXXX XXXX XXXX"),
+                    securityCode: nil,
+                    issuers: [.init(id: "24", name: "Bradesco")]
+                )
+            ]
         )
 
-        static let visaWithCVV = CardBinData(
-            paymentMethod: makePaymentMethodWithCard(id: "visa", paymentTypeId: "credit_card", securityCodeLength: 3),
-            issuer: nil,
-            installment: nil
-        )
-        static let visaOptionalCVV = CardBinData(
-            paymentMethod: makePaymentMethodWithCard(id: "visa", paymentTypeId: "credit_card", securityCodeLength: 0),
-            issuer: nil,
-            installment: nil
-        )
-        static let amex = CardBinData(
-            paymentMethod: makePaymentMethodWithCard(id: "amex", paymentTypeId: "credit_card", securityCodeLength: 4, location: "front"),
-            issuer: nil,
-            installment: nil
+        static let emptyPaymentMethods = CardPaymentBrickCardData(
+            securityCodeTranslations: nil,
+            installment: nil,
+            paymentMethods: []
         )
 
-        private static func makePaymentMethod(id: String, paymentTypeId: String) -> PaymentMethod {
-            PaymentMethod(
-                id: id,
-                paymentTypeId: paymentTypeId,
-                status: "active",
-                processingMode: "aggregator",
-                accreditationTime: 0,
-                merchantAccountId: "",
-                siteId: "MLB",
-                thumbnail: nil,
-                minAccreditationDays: 0,
-                maxAccreditationDays: 0,
-                totalFinancialCost: 0,
-                financialInstitution: nil,
-                issuer: nil,
-                card: nil,
-                bins: nil,
-                marketplace: nil,
-                deferredCapture: nil,
-                agreements: nil,
-                payerCosts: nil,
-                labels: nil,
-                additionalInfoNeeded: nil
-            )
-        }
-
-        private static func makePaymentMethodWithCard(
+        private static func makeCardData(
             id: String,
-            paymentTypeId: String,
-            securityCodeLength: Int,
-            location: String = "back"
-        ) -> PaymentMethod {
-            PaymentMethod(
-                id: id,
-                paymentTypeId: paymentTypeId,
-                status: "active",
-                processingMode: "aggregator",
-                accreditationTime: 0,
-                merchantAccountId: "",
-                siteId: "MLB",
-                thumbnail: nil,
-                minAccreditationDays: 0,
-                maxAccreditationDays: 0,
-                totalFinancialCost: 0,
-                financialInstitution: nil,
-                issuer: nil,
-                card: PaymentMethod.CardInfo(
-                    bin: 0,
-                    length: .init(min: 16, max: 16),
-                    validation: "standard",
-                    securityCode: .init(mode: "mandatory", location: location, length: securityCodeLength)
-                ),
-                bins: nil,
-                marketplace: nil,
-                deferredCapture: nil,
-                agreements: nil,
-                payerCosts: nil,
-                labels: nil,
-                additionalInfoNeeded: nil
+            paymentTypeId: String = "credit_card",
+            securityCode: CardPaymentBrickCardData.PaymentMethod.SecurityCodeInfo? = nil
+        ) -> CardPaymentBrickCardData {
+            CardPaymentBrickCardData(
+                securityCodeTranslations: nil,
+                installment: nil,
+                paymentMethods: [self.makePaymentMethod(id: id, paymentTypeId: paymentTypeId, securityCode: securityCode)]
             )
         }
-    }
 
-    // MARK: - Helpers
-
-    private func makeSUT(
-        identificationTypes: [IdentificationType] = []
-    ) -> SUT {
-        let service = MockCheckoutService()
-        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
-            type: .cardForm(cardFormConfiguration: .init()),
-            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
-        )
-        let initResult = CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
-        let viewModel = CardFormViewModel(configuration: configuration, initResult: initResult, service: service)
-        return (viewModel, service)
-    }
-
-    private func makeSUTWithAmount(_ amount: Double) -> SUT {
-        let service = MockCheckoutService()
-        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
-            type: .cardForm(cardFormConfiguration: .init(amount: amount)),
-            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
-        )
-        let initResult = CardFormInitializationOutputStub.make(identificationTypes: [])
-        let viewModel = CardFormViewModel(configuration: configuration, initResult: initResult, service: service)
-        return (viewModel, service)
+        private static func makePaymentMethod(
+            id: String,
+            paymentTypeId: String = "credit_card",
+            securityCode: CardPaymentBrickCardData.PaymentMethod.SecurityCodeInfo? = nil
+        ) -> CardPaymentBrickCardData.PaymentMethod {
+            CardPaymentBrickCardData.PaymentMethod(
+                id: id,
+                paymentTypeId: paymentTypeId,
+                cardNumber: .init(type: "number", length: .init(min: 16, max: 16), mask: "XXXX XXXX XXXX XXXX"),
+                securityCode: securityCode,
+                issuers: []
+            )
+        }
     }
 
     private enum CardTokenStub {
@@ -190,17 +144,6 @@ final class CardFormViewModelTests: XCTestCase {
         )
     }
 
-    private enum IssuerStub {
-        static let bradesco = Issuer(
-            id: "24",
-            name: "Bradesco",
-            merchantAccountId: "",
-            processingMode: "aggregator",
-            status: "active",
-            thumbnail: ""
-        )
-    }
-
     private enum CardFormDataStub {
         static var validForm: CardFormData {
             var form = CardFormData(fields: CardFormInitializationOutputStub.makeDefaultFields())
@@ -213,10 +156,10 @@ final class CardFormViewModelTests: XCTestCase {
         }
     }
 
-    private func setupBinData(_ sut: SUT) async {
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+    private func setupCardData(_ sut: SUT) async {
+        await sut.repository.setResult(.success(CardDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
     }
 
     private func waitForChange<T>(
@@ -232,14 +175,52 @@ final class CardFormViewModelTests: XCTestCase {
         await fulfillment(of: [exp], timeout: timeout)
     }
 
+    // MARK: - Helpers
+
+    private func makeSUT(
+        identificationTypes: [IdentificationType] = []
+    ) -> SUT {
+        let service = MockCheckoutService()
+        let repository = MockCardPaymentBrickCardRepository()
+        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
+            type: .cardForm(cardFormConfiguration: .init()),
+            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
+        )
+        let initResult = CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
+        let viewModel = CardFormViewModel(
+            configuration: configuration,
+            initResult: initResult,
+            service: service,
+            fetchCardUseCase: FetchCardPaymentBrickCardUseCase(repository: repository)
+        )
+        return (viewModel, service, repository)
+    }
+
+    private func makeSUTWithAmount(_ amount: Double) -> SUT {
+        let service = MockCheckoutService()
+        let repository = MockCardPaymentBrickCardRepository()
+        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
+            type: .cardForm(cardFormConfiguration: .init(amount: amount)),
+            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
+        )
+        let initResult = CardFormInitializationOutputStub.make(identificationTypes: [])
+        let viewModel = CardFormViewModel(
+            configuration: configuration,
+            initResult: initResult,
+            service: service,
+            fetchCardUseCase: FetchCardPaymentBrickCardUseCase(repository: repository)
+        )
+        return (viewModel, service, repository)
+    }
+
     // MARK: - Init
 
-    func test_init_binDataShouldBeNil() {
+    func test_init_cardDataShouldBeNil() {
         // Arrange / Act
         let sut = self.makeSUT()
 
         // Assert
-        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertNil(sut.viewModel.cardData)
     }
 
     func test_init_binFetchErrorShouldBeNil() {
@@ -268,7 +249,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     // MARK: - onCardNumberChange
 
-    func test_onCardNumberChange_whenDigitsLessThan8_shouldNotFetchBinData() {
+    func test_onCardNumberChange_whenDigitsLessThan8_shouldNotFetchCardData() {
         // Arrange
         let sut = self.makeSUT()
 
@@ -276,28 +257,28 @@ final class CardFormViewModelTests: XCTestCase {
         sut.viewModel.onCardNumberChange("1234567")
 
         // Assert
-        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertNil(sut.viewModel.cardData)
         XCTAssertNil(sut.viewModel.cardAcceptanceError)
     }
 
-    func test_onCardNumberChange_whenDigitsReach8_withSuccess_shouldSetBinData() async {
+    func test_onCardNumberChange_whenDigitsReach8_withSuccess_shouldSetCardData() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
+        XCTAssertEqual(sut.viewModel.cardData, CardDataStub.visa)
         XCTAssertNil(sut.viewModel.cardAcceptanceError)
     }
 
-    func test_onCardNumberChange_whenDigitsReach8_withError_shouldSetApiError() async {
+    func test_onCardNumberChange_whenDigitsReach8_withEmptyMethods_shouldSetAcceptanceError() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.failure(CardAcceptanceError.paymentMethodNotAllowed("visa")))
+        await sut.repository.setResult(.success(CardDataStub.emptyPaymentMethods))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
@@ -305,114 +286,114 @@ final class CardFormViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertNotNil(sut.viewModel.cardAcceptanceError)
-        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertNil(sut.viewModel.cardData)
     }
 
-    func test_onCardNumberChange_whenClearedBelow8Digits_shouldClearBinDataAndError() async {
+    func test_onCardNumberChange_whenClearedBelow8Digits_shouldClearCardDataAndError() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Act — clearing to below 8 digits is synchronous
         sut.viewModel.onCardNumberChange("123")
 
         // Assert
-        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertNil(sut.viewModel.cardData)
         XCTAssertNil(sut.viewModel.cardAcceptanceError)
     }
 
     func test_onCardNumberChange_whenSameBINCalledTwice_shouldNotRefetch() async {
-        // Arrange — first call fails
+        // Arrange — first call returns empty methods (triggers acceptance error)
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.failure(CardAcceptanceError.paymentMethodNotAllowed("visa")))
+        await sut.repository.setResult(.success(CardDataStub.emptyPaymentMethods))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardAcceptanceError)
         XCTAssertNotNil(sut.viewModel.cardAcceptanceError)
 
         // Change result to success, but call with same BIN
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
 
         // Act — same BIN is rejected synchronously before any task is created
         sut.viewModel.onCardNumberChange("12345678")
 
         // Assert — state unchanged
         XCTAssertNotNil(sut.viewModel.cardAcceptanceError)
-        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertNil(sut.viewModel.cardData)
     }
 
     func test_onCardNumberChange_whenDifferentBINAfterError_shouldRefetchAndClearError() async {
-        // Arrange — first BIN fails
+        // Arrange — first BIN returns empty methods
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.failure(CardAcceptanceError.paymentMethodNotAllowed("visa")))
+        await sut.repository.setResult(.success(CardDataStub.emptyPaymentMethods))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardAcceptanceError)
 
         // Act — different BIN with success
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.master))
+        await sut.repository.setResult(.success(CardDataStub.master))
         sut.viewModel.onCardNumberChange("87654321")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
         XCTAssertNil(sut.viewModel.cardAcceptanceError)
-        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.master)
+        XCTAssertEqual(sut.viewModel.cardData, CardDataStub.master)
     }
 
     func test_onCardNumberChange_whenFormattedCardNumber_shouldExtractBINCorrectly() async {
         // Arrange — formatted number "1234 5678 9012 3456"
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
 
         // Act
         sut.viewModel.onCardNumberChange("1234 5678 9012 3456")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert — BIN extracted from digits only (12345678)
-        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
+        XCTAssertEqual(sut.viewModel.cardData, CardDataStub.visa)
     }
 
     // MARK: - fetchBinData retry
 
-    func test_onCardNumberChange_whenFirstBinFetchSucceeds_shouldCallServiceOnce() async {
+    func test_onCardNumberChange_whenFirstFetchSucceeds_shouldCallRepositoryOnce() async {
         // Arrange
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
-        let callCount = await sut.service.fetchBinDataCallCount
-        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
+        let callCount = await sut.repository.callCount
+        XCTAssertEqual(sut.viewModel.cardData, CardDataStub.visa)
         XCTAssertEqual(callCount, 1)
     }
 
-    func test_onCardNumberChange_whenFirstBinFetchFails_shouldRetryAndSetBinData() async {
+    func test_onCardNumberChange_whenFirstFetchFails_shouldRetryAndSetCardData() async {
         // Arrange
         let sut = self.makeSUT()
         let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "timeout", location: .paymentMethods)
-        await sut.service.setSequentialFetchBinDataResults(
+        await sut.repository.setSequentialResults(
             .failure(networkError),
-            .success(CardBinDataStub.visa)
+            .success(CardDataStub.visa)
         )
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
-        let callCount = await sut.service.fetchBinDataCallCount
-        XCTAssertEqual(sut.viewModel.binData, CardBinDataStub.visa)
+        let callCount = await sut.repository.callCount
+        XCTAssertEqual(sut.viewModel.cardData, CardDataStub.visa)
         XCTAssertEqual(callCount, 2)
     }
 
-    func test_onCardNumberChange_whenAllBinFetchesFail_shouldSetBinNetworkErrorAfter2Calls() async {
+    func test_onCardNumberChange_whenAllFetchesFail_shouldSetBinNetworkErrorAfter2Calls() async {
         // Arrange
         let sut = self.makeSUT()
         let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "timeout", location: .paymentMethods)
-        await sut.service.setSequentialFetchBinDataResults(
+        await sut.repository.setSequentialResults(
             .failure(networkError),
             .failure(networkError)
         )
@@ -422,25 +403,23 @@ final class CardFormViewModelTests: XCTestCase {
         await self.waitForChange(sut.viewModel.$binNetworkError)
 
         // Assert
-        let callCount = await sut.service.fetchBinDataCallCount
+        let callCount = await sut.repository.callCount
         XCTAssertNotNil(sut.viewModel.binNetworkError)
-        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertNil(sut.viewModel.cardData)
         XCTAssertEqual(callCount, 2)
     }
 
-    func test_onCardNumberChange_whenCardAcceptanceError_shouldNotRetry() async {
-        // Arrange
+    func test_onCardNumberChange_whenEmptyPaymentMethods_shouldNotRetry() async {
+        // Arrange — empty methods is a success response, not an error, so no retry
         let sut = self.makeSUT()
-        await sut.service.setSequentialFetchBinDataResults(
-            .failure(CardAcceptanceError.paymentMethodNotAllowed("visa"))
-        )
+        await sut.repository.setResult(.success(CardDataStub.emptyPaymentMethods))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardAcceptanceError)
 
         // Assert
-        let callCount = await sut.service.fetchBinDataCallCount
+        let callCount = await sut.repository.callCount
         XCTAssertNotNil(sut.viewModel.cardAcceptanceError)
         XCTAssertEqual(callCount, 1)
     }
@@ -457,7 +436,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     // MARK: - isSecurityCodeMandatory
 
-    func test_isSecurityCodeMandatory_whenBinDataIsNil_shouldReturnTrue() {
+    func test_isSecurityCodeMandatory_whenCardDataIsNil_shouldReturnTrue() {
         // Arrange / Act
         let sut = self.makeSUT()
 
@@ -465,134 +444,129 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
     }
 
-    func test_isSecurityCodeMandatory_whenCardInfoIsNil_shouldReturnTrue() async {
-        // Arrange — visa stub has card: nil
+    func test_isSecurityCodeMandatory_whenNoSecurityCode_shouldReturnFalse() async {
+        // Arrange — visa stub has no securityCode in paymentMethods
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
-
-        // Assert
-        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
-    }
-
-    func test_isSecurityCodeMandatory_whenSecurityCodeLengthIsPositive_shouldReturnTrue() async {
-        // Arrange
-        let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaWithCVV))
-
-        // Act
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
-
-        // Assert
-        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
-    }
-
-    func test_isSecurityCodeMandatory_whenSecurityCodeLengthIsZero_shouldReturnFalse() async {
-        // Arrange
-        let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaOptionalCVV))
-
-        // Act
-        sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
         XCTAssertFalse(sut.viewModel.isSecurityCodeMandatory)
     }
 
-    func test_isSecurityCodeMandatory_whenBinDataCleared_shouldReturnTrue() async {
-        // Arrange — start with optional CVV
+    func test_isSecurityCodeMandatory_whenSecurityCodePresent_shouldReturnTrue() async {
+        // Arrange — visa stub has securityCode in paymentMethods
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaOptionalCVV))
+        await sut.repository.setResult(.success(CardDataStub.visaWithSecurityCode))
+
+        // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert
+        XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
+    }
+
+    func test_isSecurityCodeMandatory_whenCardDataCleared_shouldReturnTrue() async {
+        // Arrange — start with card data that has no securityCode in paymentMethods
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(CardDataStub.visa))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
         XCTAssertFalse(sut.viewModel.isSecurityCodeMandatory)
 
-        // Act — clearing below 8 digits resets binData to nil synchronously
+        // Act — clearing below 8 digits resets cardData to nil synchronously
         sut.viewModel.onCardNumberChange("123")
 
         // Assert
-        XCTAssertNil(sut.viewModel.binData)
+        XCTAssertNil(sut.viewModel.cardData)
         XCTAssertTrue(sut.viewModel.isSecurityCodeMandatory)
     }
 
     // MARK: - cvvTooltipText
 
-    func test_cvvTooltipText_whenBinDataIsNil_shouldReturnStaticDefault() {
+    func test_cvvTooltipText_whenCardDataIsNil_shouldReturnFieldDefault() {
         // Arrange / Act
         let sut = self.makeSUT()
 
-        // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
+        // Assert — returns fields.cvv.tooltip from initialization output
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, "")
     }
 
-    func test_cvvTooltipText_whenCardInfoIsNil_shouldReturnStaticDefault() async {
-        // Arrange — visa stub has card: nil
+    func test_cvvTooltipText_whenNoSecurityCodeInfo_shouldReturnFieldDefault() async {
+        // Arrange — visa stub has no securityCode
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, "")
     }
 
-    func test_cvvTooltipText_whenLocationIsBack_shouldReturnStaticDefault() async throws {
-        // Arrange — visa with 3-digit CVV, location: "back"
+    func test_cvvTooltipText_whenSecurityCodeHasTooltip_shouldReturnSecurityCodeTooltip() async {
+        // Arrange — visa with security code tooltip
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visaWithCVV))
-        let securityCode = try XCTUnwrap(CardBinDataStub.visaWithCVV.paymentMethod.card?.securityCode)
-        let expectedText = MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
+        await sut.repository.setResult(.success(CardDataStub.visaWithSecurityCode))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, expectedText)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, "cvv_back_tooltip")
     }
 
-    func test_cvvTooltipText_whenLocationIsFrontAndAmexLength_shouldReturnStaticAmex() async throws {
-        // Arrange — amex with 4-digit CVV, location: "front"
+    func test_cvvTooltipText_whenAmexSecurityCode_shouldReturnAmexTooltip() async {
+        // Arrange — amex with front security code tooltip
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.amex))
-        let securityCode = try XCTUnwrap(CardBinDataStub.amex.paymentMethod.card?.securityCode)
-        let expectedText = MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
+        await sut.repository.setResult(.success(CardDataStub.amex))
 
         // Act
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, expectedText)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, "cvv_front_tooltip")
     }
 
-    func test_cvvTooltipText_whenBinDataCleared_shouldReturnStaticDefault() async throws {
+    func test_cvvTooltipText_whenCardDataCleared_shouldReturnFieldDefault() async {
         // Arrange — start with amex card
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.amex))
-        let amexSecurityCode = try XCTUnwrap(CardBinDataStub.amex.paymentMethod.card?.securityCode)
+        await sut.repository.setResult(.success(CardDataStub.amex))
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: amexSecurityCode.length, location: amexSecurityCode.location))
+        await self.waitForChange(sut.viewModel.$cardData)
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, "cvv_front_tooltip")
 
-        // Act — clearing resets binData to nil
+        // Act — clearing resets cardData to nil
         sut.viewModel.onCardNumberChange("123")
 
         // Assert
-        XCTAssertEqual(sut.viewModel.cvvTooltipText, MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back"))
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, "")
+    }
+
+    func test_cvvTooltipText_whenSecurityCodeTranslationsPresent_shouldReturnTranslationsTooltip() async {
+        // Arrange — no securityCode but securityCodeTranslations set
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(CardDataStub.visaWithSecurityCodeTranslations))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert — securityCodeTranslations.tooltip used as fallback
+        XCTAssertEqual(sut.viewModel.cvvTooltipText, "cvv_translations_tooltip")
     }
 
     // MARK: - retryBinFetch
 
     func test_retryBinFetch_whenNoPreviousError_shouldNotShowSnackbar() {
-        // Arrange — no BIN fetch has occurred
+        // Arrange — no fetch has occurred
         let sut = self.makeSUT()
 
         // Act — guard: binFetchError == nil → retryBinFetch does nothing
@@ -602,30 +576,30 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertFalse(sut.viewModel.showSnackbar)
     }
 
-    func test_retryBinFetch_whenBinDataIsPresent_shouldNotRetry() async {
-        // Arrange — successful fetch means binData != nil
+    func test_retryBinFetch_whenCardDataIsPresent_shouldNotRetry() async {
+        // Arrange — successful fetch means cardData != nil
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
-        XCTAssertNotNil(sut.viewModel.binData)
+        await self.waitForChange(sut.viewModel.$cardData)
+        XCTAssertNotNil(sut.viewModel.cardData)
 
-        // Act — guard: binData != nil → retryBinFetch does nothing
+        // Act — guard: cardData != nil → retryBinFetch does nothing
         sut.viewModel.retryBinFetch()
 
         // Assert
         XCTAssertFalse(sut.viewModel.showSnackbar)
     }
 
-    func test_retryBinFetch_whenValidationError_shouldNotRetry() async {
-        // Arrange — paymentMethodNotAllowed is not a retriable error
+    func test_retryBinFetch_whenAcceptanceError_shouldNotRetry() async {
+        // Arrange — acceptance error sets cardAcceptanceError (not a retriable error)
         let sut = self.makeSUT()
-        await sut.service.setFetchBinDataResult(.failure(CardAcceptanceError.paymentMethodNotAllowed("visa")))
+        await sut.repository.setResult(.failure(APIClientError.apiError(APIErrorResponse(code: "400", message: "error", errorCode: "EMPTY_PAYMENT_METHODS", userErrorMessage: nil))))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardAcceptanceError)
-        XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotAllowed("visa"))
+        XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotFound)
 
-        // Act — guard: binFetchError is not .networkError/.serviceError → does nothing
+        // Act — guard: binNetworkError is nil → does nothing
         sut.viewModel.retryBinFetch()
 
         // Assert
@@ -636,13 +610,13 @@ final class CardFormViewModelTests: XCTestCase {
         // Arrange — initial fetch fails with networkError
         let sut = self.makeSUT()
         let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "", location: .paymentMethods)
-        await sut.service.setFetchBinDataResult(.failure(networkError))
+        await sut.repository.setResult(.failure(networkError))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binNetworkError)
         XCTAssertEqual(sut.viewModel.binNetworkError?.code, .networkConnectionFailed)
 
         // Act — retry also fails
-        await sut.service.setFetchBinDataResult(.failure(networkError))
+        await sut.repository.setResult(.failure(networkError))
         sut.viewModel.retryBinFetch()
         await self.waitForChange(sut.viewModel.$showSnackbar)
 
@@ -654,13 +628,13 @@ final class CardFormViewModelTests: XCTestCase {
         // Arrange — initial fetch fails with serviceError
         let sut = self.makeSUT()
         let serviceError = MercadoPagoCheckoutError(code: .serviceError, localizedDescription: "", location: .paymentMethods)
-        await sut.service.setFetchBinDataResult(.failure(serviceError))
+        await sut.repository.setResult(.failure(serviceError))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binNetworkError)
         XCTAssertEqual(sut.viewModel.binNetworkError?.code, .serviceError)
 
         // Act — retry also fails
-        await sut.service.setFetchBinDataResult(.failure(serviceError))
+        await sut.repository.setResult(.failure(serviceError))
         sut.viewModel.retryBinFetch()
         await self.waitForChange(sut.viewModel.$showSnackbar)
 
@@ -672,18 +646,18 @@ final class CardFormViewModelTests: XCTestCase {
         // Arrange — initial fetch fails with networkError
         let sut = self.makeSUT()
         let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "", location: .paymentMethods)
-        await sut.service.setFetchBinDataResult(.failure(networkError))
+        await sut.repository.setResult(.failure(networkError))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binNetworkError)
 
         // Act — retry succeeds
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
         sut.viewModel.retryBinFetch()
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
 
         // Assert
         XCTAssertFalse(sut.viewModel.showSnackbar)
-        XCTAssertNotNil(sut.viewModel.binData)
+        XCTAssertNotNil(sut.viewModel.cardData)
     }
 
     // MARK: - footerAmount
@@ -709,7 +683,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenServiceSucceeds_shouldCallOnSuccessWithToken() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var capturedPaymentData: MPPaymentData?
 
@@ -728,7 +702,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenServiceFails_shouldCallOnFailure() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.failure(MockCheckoutService.MockError.resultNotSet))
         var capturedError: MercadoPagoCheckoutError?
 
@@ -744,8 +718,8 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertNotNil(capturedError)
     }
 
-    func test_submitCardData_whenBinDataIsNil_shouldCallOnFailure() async {
-        // Arrange — no bin fetch triggered, binData remains nil
+    func test_submitCardData_whenCardDataIsNil_shouldCallOnFailure() async {
+        // Arrange — no fetch triggered, cardData remains nil
         let sut = self.makeSUT()
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var capturedError: MercadoPagoCheckoutError?
@@ -754,7 +728,7 @@ final class CardFormViewModelTests: XCTestCase {
         await sut.viewModel.submitCardData(
             cardForm: CardFormDataStub.validForm,
             transactionAmount: nil,
-            onSuccess: { _ in XCTFail("Expected failure due to missing bin data") },
+            onSuccess: { _ in XCTFail("Expected failure due to missing card data") },
             onFailure: { capturedError = $0 }
         )
 
@@ -766,7 +740,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_shouldResetIsTokenizingAfterCompletion() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
         // Act
@@ -784,7 +758,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_shouldStripSpacesFromCardNumber() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.cardNumber = "4111 1111 1111 1111"
@@ -805,7 +779,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_shouldPrefixYearWithCurrentCentury() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.expirationDate = "12/27"
@@ -828,7 +802,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_shouldStripMaskFromDocument() async {
         // Arrange
         let sut = self.makeSUT()
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.documentHolder = "123.456.789-09"
@@ -849,7 +823,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenCalledWithDocumentTypeSelected_shouldPassDocumentType() async {
         // Arrange
         let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
         // Act
@@ -868,7 +842,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenDocumentTypeIsSelected_shouldIncludePayer() async {
         // Arrange
         let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.documentHolder = "12345678900"
@@ -890,7 +864,7 @@ final class CardFormViewModelTests: XCTestCase {
     func test_submitCardData_whenDocumentTypeIsSelected_shouldSetTransactionAmountAndInstallment() async {
         // Arrange
         let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
-        await self.setupBinData(sut)
+        await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var capturedPaymentData: MPPaymentData?
 
@@ -908,12 +882,12 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(capturedPaymentData?.token, CardTokenStub.valid.token)
     }
 
-    func test_submitCardData_whenBinDataIsAvailable_shouldIncludePaymentMethodAndTypeIds() async {
+    func test_submitCardData_whenCardDataIsAvailable_shouldIncludePaymentMethodAndTypeIds() async {
         // Arrange
         let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
-        await sut.service.setFetchBinDataResult(.success(CardBinDataStub.visa))
+        await sut.repository.setResult(.success(CardDataStub.visa))
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var capturedPaymentData: MPPaymentData?
 
@@ -930,17 +904,12 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(capturedPaymentData?.paymentTypeId, "credit_card")
     }
 
-    func test_submitPaymentData_whenBinDataHasIssuer_shouldIncludeIssuerId() async {
+    func test_submitCardData_whenCardDataHasIssuer_shouldIncludeIssuerId() async {
         // Arrange
         let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
-        let binDataWithIssuer = CardBinData(
-            paymentMethod: CardBinDataStub.visa.paymentMethod,
-            issuer: IssuerStub.bradesco,
-            installment: nil
-        )
-        await sut.service.setFetchBinDataResult(.success(binDataWithIssuer))
+        await sut.repository.setResult(.success(CardDataStub.visaWithIssuer))
         sut.viewModel.onCardNumberChange("12345678")
-        await self.waitForChange(sut.viewModel.$binData)
+        await self.waitForChange(sut.viewModel.$cardData)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var capturedPaymentData: MPPaymentData?
 
@@ -953,19 +922,19 @@ final class CardFormViewModelTests: XCTestCase {
         )
 
         // Assert
-        XCTAssertEqual(capturedPaymentData?.issuerId, IssuerStub.bradesco.id)
+        XCTAssertEqual(capturedPaymentData?.issuerId, "24")
     }
 
     func test_retryBinFetch_whenCalledTwice_withNetworkError_shouldShowSnackbarBothTimes() async {
         // Arrange — initial fetch fails
         let sut = self.makeSUT()
         let networkError = MercadoPagoCheckoutError(code: .networkConnectionFailed, localizedDescription: "", location: .paymentMethods)
-        await sut.service.setFetchBinDataResult(.failure(networkError))
+        await sut.repository.setResult(.failure(networkError))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$binNetworkError)
 
         // First retry fails → showSnackbar becomes true
-        await sut.service.setFetchBinDataResult(.failure(networkError))
+        await sut.repository.setResult(.failure(networkError))
         sut.viewModel.retryBinFetch()
         await self.waitForChange(sut.viewModel.$showSnackbar)
         XCTAssertTrue(sut.viewModel.showSnackbar)
@@ -983,7 +952,7 @@ final class CardFormViewModelTests: XCTestCase {
             }
             .store(in: &self.cancellables)
 
-        await sut.service.setFetchBinDataResult(.failure(networkError))
+        await sut.repository.setResult(.failure(networkError))
         sut.viewModel.retryBinFetch()
         await fulfillment(of: [exp], timeout: 1.0)
 
@@ -1013,93 +982,5 @@ final class CardFormViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .default)
-    }
-
-    func test_init_withNoIdentificationTypes_shouldHaveNilSelectTypeDocument() {
-        // Arrange / Act
-        let sut = self.makeSUT()
-
-        // Assert — nil selectTypeDocument → View falls back to .default
-        XCTAssertNil(sut.viewModel.selectTypeDocument)
-    }
-
-    func test_selectTypeDocument_whenChangedToStringType_shouldReflectDefaultKeyboard() {
-        // Arrange
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
-        let sut = self.makeSUT(identificationTypes: [numericType, stringType])
-
-        // Act
-        sut.viewModel.selectTypeDocument = stringType
-
-        // Assert
-        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .default)
-    }
-
-    func test_selectTypeDocument_whenChangedToNumericType_shouldReflectNumberPadKeyboard() {
-        // Arrange
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
-        let sut = self.makeSUT(identificationTypes: [stringType, numericType])
-
-        // Act
-        sut.viewModel.selectTypeDocument = numericType
-
-        // Assert
-        XCTAssertEqual(sut.viewModel.selectTypeDocument?.getKeyboardType(), .numberPad)
-    }
-
-    // MARK: - documentFormatter
-
-    func test_init_withNumericIdentificationType_shouldInitializeFormatterWithNumericMask() {
-        // Arrange
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
-
-        // Act
-        let sut = self.makeSUT(identificationTypes: [numericType])
-
-        // Assert — numeric formatter strips letters, applies CPF mask
-        let formatted = sut.viewModel.documentFormatter.formatOnChange("12345678901")
-        XCTAssertEqual(formatted, "123.456.789-01")
-    }
-
-    func test_init_withStringIdentificationType_shouldInitializeFormatterWithAlphanumericMask() {
-        // Arrange — CNPJ string type uses alphanumeric mask
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
-
-        // Act
-        let sut = self.makeSUT(identificationTypes: [stringType])
-
-        // Assert — string formatter accepts letters, applies CNPJ alphanumeric mask
-        let formatted = sut.viewModel.documentFormatter.formatOnChange("AB123456CDEF12")
-        XCTAssertEqual(formatted, "AB.123.456/CDEF-12")
-    }
-
-    func test_selectTypeDocument_whenChangedToStringType_shouldUpdateFormatterToAlphanumeric() {
-        // Arrange — start with CPF (numeric)
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
-        let sut = self.makeSUT(identificationTypes: [numericType, stringType])
-
-        // Act
-        sut.viewModel.selectTypeDocument = stringType
-
-        // Assert — formatter now accepts letters
-        let formatted = sut.viewModel.documentFormatter.formatOnChange("AB123456CDEF12")
-        XCTAssertEqual(formatted, "AB.123.456/CDEF-12")
-    }
-
-    func test_selectTypeDocument_whenChangedToNumericType_shouldUpdateFormatterToDigitsOnly() {
-        // Arrange — start with CNPJ string type
-        let stringType = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
-        let numericType = IdentificationType(id: "CPF", name: "CPF", type: "number", minLenght: 11, maxLenght: 11)
-        let sut = self.makeSUT(identificationTypes: [stringType, numericType])
-
-        // Act
-        sut.viewModel.selectTypeDocument = numericType
-
-        // Assert — formatter now strips letters, applies CPF numeric mask
-        let formatted = sut.viewModel.documentFormatter.formatOnChange("12345678901")
-        XCTAssertEqual(formatted, "123.456.789-01")
     }
 }

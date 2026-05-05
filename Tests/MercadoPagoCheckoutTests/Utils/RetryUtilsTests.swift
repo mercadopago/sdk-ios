@@ -192,7 +192,9 @@ final class RetryUtilsTests: XCTestCase {
 
 private actor CallCounter {
     private(set) var count = 0
-    func inc() { self.count += 1 }
+    func inc() {
+        self.count += 1
+    }
 }
 
 private struct TestError: Error, Equatable {

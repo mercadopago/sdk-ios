@@ -70,7 +70,7 @@ struct CardFormScreen: View {
                     title: MPStrings.Common.total,
                     amount: nil,
                     buttonData: .init(
-                        text: MPStrings.CardForm.button,
+                        text: self.initResult.button,
                         onClick: {
                             await self.viewModel.submitCardData(
                                 cardForm: self.cardForm,
@@ -91,7 +91,7 @@ struct CardFormScreen: View {
                 .disabled(
                     !self.cardForm.isFormValid(
                         isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory,
-                        isDocumentRequired: self.viewModel.requiresIdentificationTypes
+                        isDocumentRequired: !self.initResult.identificationTypes.isEmpty
                     )
                 )
                 .background(
@@ -124,6 +124,7 @@ struct CardFormScreen: View {
                         placeholder: self.initResult.fields.cardHolder.placeholder,
                         helperText: self.initResult.fields.cardHolder.helperText,
                         errorMessage: self.cardForm.$cardHolder,
+                        keyboard: self.initResult.fields.cardHolder.config.getKeyboardType(),
                         onEditingChanged: { isEditing in
                             if !isEditing, self.editedFields.contains(.cardHolder) || !self.cardForm.$cardHolder.isEmpty {
                                 self.viewModel.trackInputValidation(
@@ -139,7 +140,7 @@ struct CardFormScreen: View {
                         label: self.initResult.fields.expiration.label,
                         placeholder: self.initResult.fields.expiration.placeholder,
                         errorMessage: self.cardForm.$expirationDate,
-                        keyboard: .numberPad,
+                        keyboard: self.initResult.fields.expiration.config.getKeyboardType(),
                         onEditingChanged: { isEditing in
                             if !isEditing, self.editedFields.contains(.expirationDate) || !self.cardForm.$expirationDate.isEmpty {
                                 self.viewModel.trackInputValidation(
@@ -157,7 +158,7 @@ struct CardFormScreen: View {
                             label: self.initResult.fields.cvv.label,
                             placeholder: self.viewModel.cvvPlaceholder,
                             errorMessage: self.cardForm.$securityCode,
-                            keyboard: .numberPad,
+                            keyboard: self.initResult.fields.expiration.config.getKeyboardType(),
                             onEditingChanged: { isEditing in
                                 if !isEditing, self.editedFields.contains(.securityCode) || !self.cardForm.$securityCode.isEmpty {
                                     self.viewModel.trackInputValidation(
@@ -171,7 +172,7 @@ struct CardFormScreen: View {
                         )
                     }
 
-                    if self.viewModel.requiresIdentificationTypes {
+                    if !self.initResult.identificationTypes.isEmpty {
                         MPTextField(
                             text: self.$cardForm.documentHolder,
                             label: self.initResult.fields.document.label,
@@ -206,6 +207,9 @@ struct CardFormScreen: View {
             bottomPadding: self.footerHeight
         )
         .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
+        .onTapGesture {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
         .onAppear {
             self.isCardNumberFocused = true
         }
@@ -213,8 +217,8 @@ struct CardFormScreen: View {
             self.editedFields.insert(.cardNumber)
             self.viewModel.onCardNumberChange(newValue)
         }
-        .mpOnChange(of: self.viewModel.binData) { binData in
-            self.updateCardNumberLength(binData: binData)
+        .mpOnChange(of: self.viewModel.cardData) { cardData in
+            self.updateCardNumberLength(cardData: cardData)
         }
         .mpOnChange(of: self.viewModel.selectTypeDocument) { identificationType in
             self.updateIdentificationTypes(identificationType)
@@ -297,10 +301,10 @@ struct CardFormScreen: View {
         .animation(nil)
     }
 
-    private func updateCardNumberLength(binData: CardBinData?) {
-        if let cardInfo = binData?.paymentMethod.card {
-            self.cardForm.setCardNumberLength(cardInfo.length.min, cardInfo.length.max)
-            self.cardForm.setSecurityCodeLength(cardInfo.securityCode.length)
+    private func updateCardNumberLength(cardData: CardPaymentBrickCardData?) {
+        if let method = cardData?.paymentMethods.first, let securityCode = method.securityCode {
+            self.cardForm.setCardNumberLength(method.cardNumber.length.min, method.cardNumber.length.max)
+            self.cardForm.setSecurityCodeLength(securityCode.length)
         } else {
             self.cardForm.setCardNumberLength()
             self.cardForm.cleanSecurityCodeField()

@@ -16,19 +16,20 @@ final class CardFormViewModel: ObservableObject {
 
     private let configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let service: CheckoutServiceProtocol
+    private let fetchCardUseCase: FetchCardPaymentBrickCardUseCase
     private let analytics: AnalyticsInterface
 
     // MARK: - Formatters
 
-    @Published private(set) var cardNumberFormatter = CardNumberFormatter()
-    let expirationDateFormatter = ExpirationDateFormatter()
-    @Published private(set) var securityCodeFormatter = SecurityCodeFormatter()
+    @Published private(set) var cardNumberFormatter: CardNumberFormatter
+    let expirationDateFormatter: ExpirationDateFormatter
+    @Published private(set) var securityCodeFormatter: SecurityCodeFormatter
     @Published private(set) var documentFormatter = DocumentFormatter()
 
     // MARK: - Published State
 
-    @Published private(set) var binData: CardBinData? {
-        didSet { self.updateFormatters(for: self.binData) }
+    @Published private(set) var cardData: CardPaymentBrickCardData? {
+        didSet { self.updateFormatters(for: self.cardData) }
     }
 
     @Published private(set) var cardAcceptanceError: CardAcceptanceError?
@@ -46,45 +47,33 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: Computed Properties
 
-    var requiresIdentificationTypes: Bool {
-        MercadoPagoSDK.shared.configuration?.country != .MEX
-    }
-
     var cvvPlaceholder: String {
-        self.binData?.paymentMethod.card?.securityCode.length == Self.amexSecurityCodeLength
-            ? MPStrings.CardForm.CVV.placeholderAmex
-            : MPStrings.CardForm.CVV.placeholderDefault
+        self.cardData?.paymentMethods.first?.securityCode?.placeholder
+            ?? self.cardData?.securityCodeTranslations?.placeholder
+            ?? self.fields.cvv.placeholder
     }
 
     var cvvTooltipText: String {
-        guard let securityCode = binData?.paymentMethod.card?.securityCode else {
-            return MPStrings.CardForm.CVV.tooltipStatic(length: 3, location: "back")
-        }
-        return MPStrings.CardForm.CVV.tooltipStatic(length: securityCode.length, location: securityCode.location)
+        self.cardData?.paymentMethods.first?.securityCode?.tooltip
+            ?? self.cardData?.securityCodeTranslations?.tooltip
+            ?? self.fields.cvv.tooltip
     }
 
     var isSecurityCodeMandatory: Bool {
-        guard let securityCode = binData?.paymentMethod.card?.securityCode else {
-            return true
-        }
-        return securityCode.length > 0
+        guard let cardData else { return true }
+        return cardData.paymentMethods.first?.securityCode != nil
     }
 
     private var isRetriableBinError: Bool {
-        return self.binNetworkError?.code == .networkConnectionFailed
-            || self.binNetworkError?.code == .networkTimeout
-            || self.binNetworkError?.code == .serviceError && !(self.binNetworkError?.isPaymentMethodNotFound ?? false)
+        self.binNetworkError?.isRetriable ?? false
     }
-
-    // MARK: - Constants
-
-    private static let amexSecurityCodeLength = 4
 
     // MARK: - Private
 
     private var isCancelling = false
     private var lastFetchedBIN: String?
     private var paymentMethodTask: Task<Void, Never>?
+    private let fields: CardFormFields.Fields
     private var analyticsTask: Task<Void, Never>?
 
     // MARK: - Init
@@ -93,13 +82,23 @@ final class CardFormViewModel: ObservableObject {
         configuration: MercadoPagoCheckout.CheckoutConfiguration,
         initResult: CardFormInitializationOutput,
         service: CheckoutServiceProtocol = CheckoutService(),
+        fetchCardUseCase: FetchCardPaymentBrickCardUseCase = FetchCardPaymentBrickCardUseCase(),
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.configuration = configuration
         self.service = service
+        self.fetchCardUseCase = fetchCardUseCase
+        self.fields = initResult.fields
         self.analytics = analytics
         self.identificationTypes = initResult.identificationTypes
         _selectTypeDocument = Published(wrappedValue: initResult.identificationTypes.first)
+
+        self.cardNumberFormatter = CardNumberFormatter(
+            maxLength: initResult.fields.cardNumber.config.length.max,
+            mask: initResult.fields.cardNumber.config.mask
+        )
+        self.expirationDateFormatter = ExpirationDateFormatter(maxLength: initResult.fields.expiration.config.length.max)
+        self.securityCodeFormatter = SecurityCodeFormatter(maxLength: initResult.fields.cvv.config.length.max)
 
         let firstType = initResult.identificationTypes.first
         self.documentFormatter = DocumentFormatter(
@@ -119,17 +118,17 @@ final class CardFormViewModel: ObservableObject {
         )
     }
 
-    private func updateFormatters(for binData: CardBinData?) {
-        if let cardInfo = binData?.paymentMethod.card {
-            self.cardNumberFormatter = cardInfo.length.max > 0
-                ? CardNumberFormatter(maxLength: cardInfo.length.max)
-                : CardNumberFormatter()
-            self.securityCodeFormatter = cardInfo.securityCode.length > 0
-                ? SecurityCodeFormatter(maxLength: cardInfo.securityCode.length)
+    private func updateFormatters(for cardData: CardPaymentBrickCardData?) {
+        if let method = cardData?.paymentMethods.first {
+            let mask = method.cardNumber.mask
+            self.cardNumberFormatter = CardNumberFormatter(mask: mask)
+            let cvvLength = method.securityCode?.length ?? 0
+            self.securityCodeFormatter = cvvLength > 0
+                ? SecurityCodeFormatter(maxLength: cvvLength)
                 : SecurityCodeFormatter()
         } else {
-            self.cardNumberFormatter = CardNumberFormatter()
-            self.securityCodeFormatter = SecurityCodeFormatter()
+            self.cardNumberFormatter = CardNumberFormatter(maxLength: self.fields.cardNumber.config.length.max)
+            self.securityCodeFormatter = SecurityCodeFormatter(maxLength: self.fields.cvv.config.length.max)
         }
     }
 
@@ -169,6 +168,11 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Payment Methods
 
+    func cardNumberEditingEnded(isValid: Bool) {
+        self.retryBinFetch()
+        self.trackInputValidation(field: .cardNumber, isValid: isValid)
+    }
+
     func onCardNumberChange(_ cardNumber: String) {
         let digits = cardNumber.filter(\.isNumber)
         let bin = digits.count >= 8 ? String(digits.prefix(8)) : nil
@@ -177,7 +181,7 @@ final class CardFormViewModel: ObservableObject {
         self.lastFetchedBIN = bin
 
         self.paymentMethodTask?.cancel()
-        self.binData = nil
+        self.cardData = nil
         self.cardAcceptanceError = nil
         self.binNetworkError = nil
 
@@ -189,7 +193,7 @@ final class CardFormViewModel: ObservableObject {
     }
 
     func retryBinFetch() {
-        guard self.binData == nil, let lastFetchedBIN, isRetriableBinError else { return }
+        guard self.cardData == nil, let lastFetchedBIN, isRetriableBinError else { return }
         self.cardAcceptanceError = nil
         self.binNetworkError = nil
         self.showSnackbar = false
@@ -202,41 +206,45 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private func fetchBinData(bin: String) async {
-        let amount = self.configuration.type.configuration.amount
-        let acceptedPaymentTypeIds = self.configuration.paymentMethod.acceptedPaymentTypeIds
-        let acceptedPaymentMethodIds = self.configuration.paymentMethod.acceptedPaymentMethodIds
+        let params = self.buildCardPaymentBrickCardParams(bin: bin)
         do {
-            let data = try await withRetry(isRetryable: { !($0 is CardAcceptanceError) }) {
-                try await self.service.fetchBinData(
-                    bin: bin,
-                    amount: amount,
-                    acceptedPaymentTypeIds: acceptedPaymentTypeIds,
-                    acceptedPaymentMethodIds: acceptedPaymentMethodIds
-                )
+            let data = try await withRetry(isRetryable: { error in
+                guard let checkoutError = error as? MercadoPagoCheckoutError else { return true }
+                guard checkoutError.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) == nil else { return false }
+                return checkoutError.code == .networkConnectionFailed
+                    || checkoutError.code == .networkTimeout
+                    || checkoutError.code == .serviceError
+            }) {
+                try await self.fetchCardUseCase.execute(params: params)
             }
             guard !Task.isCancelled else { return }
-            self.binData = data
-        } catch let error as CardAcceptanceError {
-            guard !Task.isCancelled else { return }
-            self.binData = nil
-            self.cardAcceptanceError = error
+            self.cardData = data
         } catch let error as MercadoPagoCheckoutError {
             guard !Task.isCancelled else { return }
-            self.binData = nil
-            if error.isPaymentMethodNotFound {
+            self.cardData = nil
+            switch error.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) {
+            case .emptyPaymentMethods:
                 self.cardAcceptanceError = .paymentMethodNotFound
-            } else {
+            case .paymentMethodUnavailable:
+                self.cardAcceptanceError = .paymentMethodNotAllowed(error.serviceError?.userErrorMessage ?? String())
+            case nil:
                 self.binNetworkError = error
             }
         } catch {
             guard !Task.isCancelled else { return }
-            self.binData = nil
+            self.cardData = nil
         }
     }
 
-    func cardNumberEditingEnded(isValid: Bool) {
-        self.retryBinFetch()
-        self.trackInputValidation(field: .cardNumber, isValid: isValid)
+    private func buildCardPaymentBrickCardParams(bin: String) -> CardPaymentBrickCardParams {
+        CardPaymentBrickCardParams(
+            bin: bin,
+            amount: self.configuration.type.configuration.amount,
+            checkoutType: self.configuration.type.analyticsValue,
+            processingMode: ProcessingMode.aggregator.rawValue,
+            allowCardTypes: self.configuration.paymentMethod.acceptedPaymentTypeIds,
+            allowCardBrands: self.configuration.paymentMethod.acceptedPaymentMethodIds
+        )
     }
 
     // MARK: - Payment Data
@@ -254,10 +262,10 @@ final class CardFormViewModel: ObservableObject {
             )
         }
 
-        guard let binData else {
+        guard let paymentMethod = cardData?.paymentMethods.first else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
-                localizedDescription: "Couldn't create payment data: bin data is missing",
+                localizedDescription: "Couldn't create payment data: card data is missing",
                 location: .paymentMethods
             )
         }
@@ -266,9 +274,9 @@ final class CardFormViewModel: ObservableObject {
             transactionAmount: amount,
             token: cardToken.token,
             installment: 1,
-            paymentMethodId: binData.paymentMethod.id,
-            paymentTypeId: binData.paymentMethod.paymentTypeId,
-            issuerId: self.binData?.issuer?.id,
+            paymentMethodId: paymentMethod.id,
+            paymentTypeId: paymentMethod.paymentTypeId,
+            issuerId: paymentMethod.issuers.first?.id,
             payer: payer
         )
     }
@@ -330,7 +338,7 @@ final class CardFormViewModel: ObservableObject {
         let eventData = CardFormSubmitEventData(
             cardBrand: paymentData.paymentMethodId ?? "",
             transactionAmount: transactionAmount,
-            issuer: self.binData?.issuer?.name ?? "",
+            issuer: self.cardData?.paymentMethods.first?.issuers.first?.name ?? "",
             paymentType: paymentData.paymentTypeId
         )
         self.enqueueAnalytics { [analytics = self.analytics] in
