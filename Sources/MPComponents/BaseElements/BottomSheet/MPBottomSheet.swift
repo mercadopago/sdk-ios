@@ -3,27 +3,25 @@
 //  MPComponents
 //
 
-import MPFoundation
 import SwiftUI
-import UIKit
 
 // MARK: - MPBottomSheet
 
 /// A bottom sheet component with two presentation modes.
 ///
-/// **Options picker** — built-in trigger (picker label + chevron) and a list of selectable items:
+/// **Options picker** — built-in trigger and list of selectable items:
 /// ```swift
 /// MPBottomSheet(
 ///     title: "Documento do titular",
 ///     options: viewModel.identificationTypes,
 ///     selected: $viewModel.selectTypeDocument
-/// )
+/// ) { documentLabel() }
 /// ```
 ///
-/// **Custom content** — caller-provided trigger label and sheet body:
+/// **Custom content** — caller-provided trigger and sheet body:
 /// ```swift
 /// MPBottomSheet(title: "Filtros") {
-///     Image(systemName: "line.3.horizontal.decrease")
+///     Image(systemName: "slider.horizontal.3")
 /// } content: {
 ///     FilterView()
 /// }
@@ -78,298 +76,20 @@ package struct MPBottomSheet: View {
         }
     }
 
-    // MARK: - Height calculation
+    // MARK: - Height
 
-    /// Breakdown (theme values: xtiny=16, xmicro=8, micro=12):
-    ///   drag indicator=20, header=40, each item=52, bottom (padding + safe area)=60
-    ///   capped at 60% of screen height
+    private enum Layout {
+        static let dragIndicator: CGFloat = 20
+        static let header: CGFloat = 40
+        static let itemHeight: CGFloat = 52
+        static let bottomPadding: CGFloat = 60
+        static let maxHeightRatio: CGFloat = 0.6
+    }
+
     private static func optionsHeight(count: Int) -> CGFloat {
-        let calculated = 20 + 40 + CGFloat(count) * 52 + 60
-        let maxHeight = UIScreen.main.bounds.height * 0.6
+        let calculated = Layout.dragIndicator + Layout.header + CGFloat(count) * Layout.itemHeight + Layout.bottomPadding
+        let maxHeight = UIScreen.main.bounds.height * Layout.maxHeightRatio
         return min(calculated, maxHeight)
-    }
-}
-
-// MARK: - Private: Options list
-
-private struct MPBottomSheetOptionsList<Option: MPBottomSheetListOption>: View {
-    let options: [Option]
-    @Binding var selected: Option?
-    let onDismiss: () -> Void
-    @Environment(\.checkoutTheme) private var theme: MPTheme
-
-    var body: some View {
-        VStack(spacing: 0) {
-            ForEach(self.options) { option in
-                MPListItem(
-                    isSelected: Binding(
-                        get: { self.selected?.id == option.id },
-                        set: { if $0 { self.selected = option
-                            self.onDismiss()
-                        } }
-                    ),
-                    contentInfo: MPListItemContentInfo(title: option.displayName)
-                )
-            }
-        }
-        .listItemStyle(.pick)
-        .padding(.horizontal, self.theme.spacings.xnano)
-        .padding(.bottom, self.theme.spacings.micro)
-    }
-}
-
-// MARK: - Internal: Sheet content container
-
-/// Visual container used by MPBottomSheetPresenter: drag indicator + header + scrollable content.
-package struct MPBottomSheetContent<Content: View>: View {
-    let title: String
-    let onDismiss: () -> Void
-    @ViewBuilder let content: () -> Content
-
-    @Environment(\.checkoutTheme) private var theme: MPTheme
-
-    package var body: some View {
-        VStack {
-            self.dragIndicator
-            self.header
-            ScrollView { self.content() }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
-    }
-
-    private var dragIndicator: some View {
-        VStack {
-            RoundedRectangle(cornerRadius: self.theme.borderRadius.full)
-                .fill(self.theme.colors.interactive.iconIdle)
-                .frame(width: 32, height: 4)
-        }
-        .frame(height: 20)
-        .frame(maxWidth: .infinity)
-    }
-
-    private var header: some View {
-        HStack(alignment: .center, spacing: 0) {
-            Text(self.title).textStyle(.headingMedium())
-            Spacer()
-            Button(action: self.onDismiss) {
-                Image(Logos.close, bundle: .bundleMP)
-                    .renderingMode(.template)
-                    .foregroundColor(self.theme.colors.icon.primary)
-                    .frame(width: 24, height: 24)
-            }
-        }
-        .padding(.horizontal, self.theme.spacings.micro)
-        .padding(.vertical, self.theme.spacings.xmicro)
-        .background(self.theme.colors.background.primary)
-    }
-}
-
-// MARK: - UIKit Presentation Controller
-
-private final class MPSheetPresentationController: UIPresentationController {
-    private let sheetHeight: CGFloat?
-    private let dimmingView = UIView()
-    var onDidDismiss: (() -> Void)?
-    private var dismissNotified = false
-    private var panStartY: CGFloat = 0
-
-    init(presentedViewController: UIViewController, presenting: UIViewController?, height: CGFloat?) {
-        self.sheetHeight = height
-        super.init(presentedViewController: presentedViewController, presenting: presenting)
-    }
-
-    override var frameOfPresentedViewInContainerView: CGRect {
-        guard let containerView else { return .zero }
-        let height = self.sheetHeight ?? containerView.bounds.height * 0.5
-        return CGRect(x: 0, y: containerView.bounds.height - height, width: containerView.bounds.width, height: height)
-    }
-
-    override func presentationTransitionWillBegin() {
-        guard let containerView else { return }
-        self.dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.4)
-        self.dimmingView.alpha = 0
-        self.dimmingView.frame = containerView.bounds
-        containerView.insertSubview(self.dimmingView, at: 0)
-        self.dimmingView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.dimmingTapped)))
-        presentedViewController.transitionCoordinator?.animate { _ in self.dimmingView.alpha = 1 }
-    }
-
-    override func dismissalTransitionWillBegin() {
-        presentedViewController.transitionCoordinator?.animate(
-            alongsideTransition: { _ in self.dimmingView.alpha = 0 },
-            completion: { _ in self.dimmingView.removeFromSuperview() }
-        )
-    }
-
-    override func dismissalTransitionDidEnd(_ completed: Bool) {
-        guard completed, !self.dismissNotified else { return }
-        self.dismissNotified = true
-        self.onDidDismiss?()
-    }
-
-    override func containerViewWillLayoutSubviews() {
-        presentedViewController.view.frame = self.frameOfPresentedViewInContainerView
-        presentedViewController.view.layer.cornerRadius = 20
-        presentedViewController.view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        presentedViewController.view.layer.masksToBounds = true
-    }
-
-    override func presentationTransitionDidEnd(_ completed: Bool) {
-        guard completed else { return }
-        let pan = UIPanGestureRecognizer(target: self, action: #selector(self.handlePan(_:)))
-        presentedViewController.view.addGestureRecognizer(pan)
-    }
-
-    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
-        guard let view = gesture.view, let containerView else { return }
-        let translation = gesture.translation(in: containerView)
-        let velocity = gesture.velocity(in: containerView)
-        let origin = self.frameOfPresentedViewInContainerView.origin.y
-
-        switch gesture.state {
-        case .began:
-            self.panStartY = view.frame.origin.y
-
-        case .changed:
-            let newY = max(origin, panStartY + translation.y)
-            view.frame.origin.y = newY
-            let progress = (newY - origin) / view.frame.height
-            self.dimmingView.alpha = 0.4 * (1 - progress)
-
-        case .ended, .cancelled:
-            let distanceDragged = view.frame.origin.y - origin
-            let shouldDismiss = velocity.y > 500 || distanceDragged > view.frame.height * 0.4
-
-            if shouldDismiss {
-                self.dismissNotified = true
-                self.onDidDismiss?()
-                presentingViewController.dismiss(animated: true)
-            } else {
-                UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
-                    view.frame.origin.y = origin
-                    self.dimmingView.alpha = 0.4
-                }
-            }
-
-        default:
-            break
-        }
-    }
-
-    @objc private func dimmingTapped() {
-        self.dismissNotified = true
-        self.onDidDismiss?()
-        presentingViewController.dismiss(animated: true)
-    }
-}
-
-// MARK: - Transition Animator
-
-private final class MPSheetTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-    let isPresenting: Bool
-    init(isPresenting: Bool) { self.isPresenting = isPresenting }
-    func transitionDuration(using _: UIViewControllerContextTransitioning?) -> TimeInterval { 0.35 }
-
-    func animateTransition(using ctx: UIViewControllerContextTransitioning) {
-        if self.isPresenting {
-            guard let toVC = ctx.viewController(forKey: .to), let toView = ctx.view(forKey: .to) else { return }
-            let final = ctx.finalFrame(for: toVC)
-            ctx.containerView.addSubview(toView)
-            toView.frame = final.offsetBy(dx: 0, dy: final.height)
-            UIView.animate(
-                withDuration: self.transitionDuration(using: ctx),
-                delay: 0,
-                usingSpringWithDamping: 0.85,
-                initialSpringVelocity: 0.3,
-                options: .curveEaseOut
-            ) {
-                toView.frame = final
-            } completion: { _ in ctx.completeTransition(!ctx.transitionWasCancelled) }
-        } else {
-            guard let fromView = ctx.view(forKey: .from) else { return }
-            UIView.animate(withDuration: self.transitionDuration(using: ctx), delay: 0.15, options: .curveEaseIn) {
-                fromView.frame = fromView.frame.offsetBy(dx: 0, dy: fromView.frame.height)
-            } completion: { _ in ctx.completeTransition(!ctx.transitionWasCancelled) }
-        }
-    }
-}
-
-// MARK: - UIKit Presenter (UIViewControllerRepresentable)
-
-struct MPBottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
-    let isPresented: Binding<Bool>
-    let title: String
-    let height: CGFloat?
-    let content: () -> Content
-
-    func makeCoordinator() -> Coordinator { Coordinator(self.isPresented, height: self.height) }
-
-    func makeUIViewController(context _: Context) -> UIViewController {
-        let vc = UIViewController()
-        vc.view.backgroundColor = .clear
-        return vc
-    }
-
-    func updateUIViewController(_ backgroundVC: UIViewController, context: Context) {
-        if self.isPresented.wrappedValue {
-            if let existing = context.coordinator.presentedController as? MPAutoUpdateHostingController<MPBottomSheetContent<Content>>,
-               backgroundVC.presentedViewController === existing {
-                existing.rootView = MPBottomSheetContent(title: self.title, onDismiss: { self.isPresented.wrappedValue = false }, content: self.content)
-                return
-            }
-            guard backgroundVC.presentedViewController == nil else { return }
-
-            let hostingVC = MPAutoUpdateHostingController(rootView: MPBottomSheetContent(
-                title: title, onDismiss: { self.isPresented.wrappedValue = false }, content: content
-            ))
-            hostingVC.modalPresentationStyle = .custom
-            hostingVC.transitioningDelegate = context.coordinator
-            context.coordinator.presentedController = hostingVC
-
-            DispatchQueue.main.async {
-                guard backgroundVC.view.window != nil, backgroundVC.presentedViewController == nil else { return }
-                backgroundVC.present(hostingVC, animated: true)
-            }
-        } else {
-            if let presented = backgroundVC.presentedViewController,
-               presented === context.coordinator.presentedController,
-               !presented.isBeingDismissed {
-                presented.dismiss(animated: true)
-            }
-            context.coordinator.presentedController = nil
-        }
-    }
-}
-
-extension MPBottomSheetPresenter {
-    final class Coordinator: NSObject, UIViewControllerTransitioningDelegate, UIAdaptivePresentationControllerDelegate {
-        let isPresented: Binding<Bool>
-        let height: CGFloat?
-        weak var presentedController: UIViewController?
-
-        init(_ isPresented: Binding<Bool>, height: CGFloat?) {
-            self.isPresented = isPresented
-            self.height = height
-        }
-
-        func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source _: UIViewController) -> UIPresentationController? {
-            let ctrl = MPSheetPresentationController(presentedViewController: presented, presenting: presenting, height: height)
-            ctrl.delegate = self
-            ctrl.onDidDismiss = { [weak self] in
-                self?.isPresented.wrappedValue = false
-                self?.presentedController = nil
-            }
-            return ctrl
-        }
-
-        func animationController(forPresented _: UIViewController, presenting _: UIViewController, source _: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-            MPSheetTransitionAnimator(isPresenting: true)
-        }
-
-        func animationController(forDismissed _: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-            MPSheetTransitionAnimator(isPresenting: false)
-        }
     }
 }
 
@@ -384,6 +104,13 @@ package extension View {
         height: CGFloat? = nil,
         @ViewBuilder content: @escaping () -> some View
     ) -> some View {
-        background(MPBottomSheetPresenter(isPresented: isPresented, title: title, height: height, content: content))
+        background(
+            MPBottomSheetPresenter(
+                isPresented: isPresented,
+                title: title,
+                height: height,
+                content: content
+            )
+        )
     }
 }
