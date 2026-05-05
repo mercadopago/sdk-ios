@@ -6,5 +6,5 @@
 package enum CardAcceptanceError: Error, Equatable {
     case paymentMethodNotAllowed(String)
     case paymentTypeNotAllowed(String)
-    case paymentMethodNotFound
+    case paymentMethodNotFound(String)
 }
