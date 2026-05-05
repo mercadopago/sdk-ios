@@ -68,6 +68,7 @@ struct MPTooltipFloatingContent: View {
     @State private var measuredSize: CGSize = .zero
     @State private var contentSize: CGSize = .zero
 
+    /// Not configurable by sellers; fixed layout constraint for tooltip bubble width.
     private let maxWidth: CGFloat = 280
 
     private var effectiveContentWidth: CGFloat? {
@@ -83,32 +84,28 @@ struct MPTooltipFloatingContent: View {
         self.measuredSize.height > 0 ? self.measuredSize.height : 36
     }
 
-    private var safeAreaInsets: UIEdgeInsets {
-        UIApplication.shared.windows.first?.safeAreaInsets ?? .zero
-    }
-
     var body: some View {
-        let position = self.calculatePosition()
+        GeometryReader { screenGeo in
+            ZStack {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture { self.onDismiss() }
 
-        ZStack {
-            Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture { self.onDismiss() }
-
-            self.balloonView
-                .position(x: position.x, y: position.y)
-                .opacity(self.measuredSize == .zero ? 0 : 1)
+                self.balloonView
+                    .position(self.calculatePosition(screenGeo: screenGeo))
+                    .opacity(self.measuredSize == .zero ? 0 : 1)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onPreferenceChange(MPTooltipContentSizeKey.self) { size in
+                guard size.width > 0, size.height > 0 else { return }
+                DispatchQueue.main.async { self.contentSize = size }
+            }
+            .onPreferenceChange(MPTooltipBubbleSizeKey.self) { size in
+                guard size.width > 0, size.height > 0 else { return }
+                DispatchQueue.main.async { self.measuredSize = size }
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .edgesIgnoringSafeArea(.all)
-        .onPreferenceChange(MPTooltipContentSizeKey.self) { size in
-            guard size.width > 0, size.height > 0 else { return }
-            DispatchQueue.main.async { self.contentSize = size }
-        }
-        .onPreferenceChange(MPTooltipBubbleSizeKey.self) { size in
-            guard size.width > 0, size.height > 0 else { return }
-            DispatchQueue.main.async { self.measuredSize = size }
-        }
     }
 
     // MARK: - Balloon (no arrow, no close button)
@@ -144,14 +141,15 @@ struct MPTooltipFloatingContent: View {
 
     // MARK: - Position Calculation
 
-    private func calculatePosition() -> CGPoint {
+    private func calculatePosition(screenGeo: GeometryProxy) -> CGPoint {
         let gap: CGFloat = self.theme.spacings.xnano
         let screenPadding: CGFloat = 8
-        let screenBounds = UIScreen.main.bounds
-        let minX = self.safeAreaInsets.left + screenPadding + self.tooltipWidth / 2
-        let maxX = screenBounds.width - self.safeAreaInsets.right - screenPadding - self.tooltipWidth / 2
-        let minY = self.safeAreaInsets.top + screenPadding + self.tooltipHeight / 2
-        let maxY = screenBounds.height - self.safeAreaInsets.bottom - screenPadding - self.tooltipHeight / 2
+        let insets = screenGeo.safeAreaInsets
+        let screenSize = screenGeo.size
+        let minX = insets.leading + screenPadding + self.tooltipWidth / 2
+        let maxX = screenSize.width - insets.trailing - screenPadding - self.tooltipWidth / 2
+        let minY = insets.top + screenPadding + self.tooltipHeight / 2
+        let maxY = screenSize.height - insets.bottom - screenPadding - self.tooltipHeight / 2
 
         var xPos = self.triggerFrame.midX
         var yPos = self.triggerFrame.midY

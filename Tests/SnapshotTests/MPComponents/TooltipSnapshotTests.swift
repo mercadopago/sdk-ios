@@ -88,6 +88,8 @@ final class TooltipSnapshotTests: XCTestCase {
         hostingController.view.layoutIfNeeded()
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         hostingController.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
+        hostingController.view.layoutIfNeeded()
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
         hostingController.view.layoutIfNeeded()
         return hostingController
