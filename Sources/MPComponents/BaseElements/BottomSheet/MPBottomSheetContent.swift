@@ -16,13 +16,14 @@ package struct MPBottomSheetContent<Content: View>: View {
     @Environment(\.checkoutTheme) private var theme: MPTheme
 
     package var body: some View {
-        VStack(spacing: 0) {
-            self.dragIndicator
-            self.header
-            ScrollView { self.content() }
+        ZStack(alignment: .top) {
+            self.theme.colors.background.primary.edgesIgnoringSafeArea(.all)
+            VStack(spacing: 0) {
+                self.dragIndicator
+                self.header
+                ScrollView { self.content() }
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
     }
 
     private var dragIndicator: some View {

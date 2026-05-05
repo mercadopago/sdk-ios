@@ -21,7 +21,11 @@ struct MPBottomSheetOptionsList<Option: MPBottomSheetListOption>: View {
                         set: {
                             if $0 {
                                 self.selected = option
-                                self.onDismiss()
+
+                                Task {
+                                    try? await Task.sleep(nanoseconds: 20_000_000)
+                                    self.onDismiss()
+                                }
                             }
                         }
                     ),

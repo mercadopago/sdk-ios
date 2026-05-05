@@ -24,6 +24,7 @@ struct CardFormScreen: View {
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
     @State private var isCardNumberFocused = false
+    @State private var isDocumentSheetPresented = false
     @State private var didTapBack = false
     @State private var didComplete = false
     @State private var editedFields: Set<CardFormField> = []
@@ -238,6 +239,12 @@ struct CardFormScreen: View {
                 self.onDismiss(self.cardForm.cancelledFormContext)
             }
         }
+        .mpBottomSheet(
+            isPresented: self.$isDocumentSheetPresented,
+            title: MPStrings.CardForm.Document.label,
+            options: self.viewModel.identificationTypes,
+            selected: self.$viewModel.selectTypeDocument
+        )
     }
 
     private func documentLabel() -> some View {
@@ -258,14 +265,9 @@ struct CardFormScreen: View {
 
     private func dropdownDocument() -> some View {
         HStack(spacing: 0) {
-            MPBottomSheet(
-                title: MPStrings.CardForm.Document.label,
-                options: self.viewModel.identificationTypes,
-                selected: self.$viewModel.selectTypeDocument
-            ) {
-                self.documentLabel()
-            }
-            .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
+            self.documentLabel()
+                .onTapGesture { self.isDocumentSheetPresented = true }
+                .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
 
             Rectangle()
                 .fill(self.theme.textFields.standard.idle.borderColor)
