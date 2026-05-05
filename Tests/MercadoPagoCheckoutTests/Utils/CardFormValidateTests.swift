@@ -15,7 +15,8 @@ final class CardFormValidateTests: XCTestCase {
     private static func cvvValidation() -> CardFormFields.CVVField.Validation {
         .init(
             errorEmpty: "cvv.empty",
-            errorIncomplete: "cvv.incomplete"
+            errorIncomplete: "cvv.incomplete",
+            errorInvalid: "cvv.invalid"
         )
     }
 

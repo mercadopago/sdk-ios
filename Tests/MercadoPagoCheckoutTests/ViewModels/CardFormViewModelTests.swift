@@ -61,14 +61,12 @@ final class CardFormViewModelTests: XCTestCase {
             securityCode: .init(mode: "mandatory", length: 3, type: "number", placeholder: "123", tooltip: "cvv_back_tooltip")
         )
         static let visaWithSecurityCodeTranslations = CardPaymentBrickCardData(
-            securityCodeTranslations: .init(
+            securityCodeTranslations: CardFormFields.CVVField(
                 label: "CVV",
                 placeholder: "123",
-                helper: "",
                 tooltip: "cvv_translations_tooltip",
-                errorEmpty: "",
-                errorIncomplete: "",
-                errorInvalid: ""
+                validation: .init(errorEmpty: "", errorIncomplete: "", errorInvalid: ""),
+                config: .init(type: "number", length: .init(min: 3, max: 3))
             ),
             installment: nil,
             paymentMethods: [makePaymentMethod(id: "visa")]

@@ -319,7 +319,8 @@ final class CardFormDataTests: XCTestCase {
                 tooltip: "",
                 validation: .init(
                     errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
-                    errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
+                    errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete,
+                    errorInvalid: ""
                 ),
                 config: .init(type: "number", length: .init(min: 3, max: 4))
             ),

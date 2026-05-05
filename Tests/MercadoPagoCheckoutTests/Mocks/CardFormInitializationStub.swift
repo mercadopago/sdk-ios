@@ -50,7 +50,8 @@ enum CardFormInitializationInputStub {
                 tooltip: "",
                 validation: .init(
                     errorEmpty: "Enter security code",
-                    errorIncomplete: "Security code incomplete"
+                    errorIncomplete: "Security code incomplete",
+                    errorInvalid: "Security code invalid"
                 ),
                 config: .init(type: "number", length: .init(min: 3, max: 4))
             ),
@@ -122,7 +123,8 @@ enum CardFormInitializationOutputStub {
                 tooltip: "",
                 validation: .init(
                     errorEmpty: "Enter security code",
-                    errorIncomplete: "Security code incomplete"
+                    errorIncomplete: "Security code incomplete",
+                    errorInvalid: "Security code invalid"
                 ),
                 config: .init(type: "number", length: .init(min: 3, max: 4))
             ),
