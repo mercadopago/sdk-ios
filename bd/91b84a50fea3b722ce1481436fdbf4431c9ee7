@@ -1,0 +1,33 @@
+Sources/MPComponents/BaseElements/BottomSheet/UIKit/MPBottomSheetPresenter.swift
+  613c474b3e07b244 1-19,21-29,31-32,34-36,38-51,55-113
+Sources/MPComponents/BaseElements/BottomSheet/MPBottomSheet.swift
+  613c474b3e07b244 12,18,21,24,79,81-86,89-92,107-114
+Sources/MPComponents/BaseElements/BottomSheet/MPBottomSheetContent.swift
+  613c474b3e07b244 1-51
+Sources/MPComponents/BaseElements/BottomSheet/UIKit/MPSheetPresentationController.swift
+  613c474b3e07b244 1-141
+Sources/MPComponents/BaseElements/BottomSheet/MPBottomSheetOptionsList.swift
+  613c474b3e07b244 1-36
+Sources/MPComponents/BaseElements/BottomSheet/UIKit/MPSheetTransitionAnimator.swift
+  613c474b3e07b244 1-15,18,20-28,30-43,45-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "bd91b84a50fea3b722ce1481436fdbf4431c9ee7",
+  "prompts": {
+    "613c474b3e07b244": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c8c126c1-f41d-433b-8c90-b61de0599b6c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 560,
+      "total_deletions": 437,
+      "accepted_lines": 438,
+      "overriden_lines": 14
+    }
+  }
+}
