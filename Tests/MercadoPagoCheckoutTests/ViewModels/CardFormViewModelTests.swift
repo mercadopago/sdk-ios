@@ -563,6 +563,77 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertEqual(sut.viewModel.cvvTooltipText, "cvv_translations_tooltip")
     }
 
+    // MARK: - Acceptance errors (binValidation)
+
+    func test_onCardNumberChange_whenEmptyPaymentMethodsWithMessage_shouldSetPaymentMethodNotFound() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.failure(APIClientError.apiError(APIErrorResponse(
+            code: "400", message: "error",
+            errorCode: "EMPTY_PAYMENT_METHODS",
+            userErrorMessage: "Insira conforme está no cartão"
+        ))))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardAcceptanceError)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotFound("Insira conforme está no cartão"))
+    }
+
+    func test_onCardNumberChange_whenInstallmentsUnavailable_shouldSetPaymentMethodNotFound() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.failure(APIClientError.apiError(APIErrorResponse(
+            code: "400", message: "error",
+            errorCode: "INSTALLMENTS_UNAVAILABLE",
+            userErrorMessage: "Insira conforme está no cartão"
+        ))))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardAcceptanceError)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotFound("Insira conforme está no cartão"))
+    }
+
+    func test_onCardNumberChange_whenIdentificationTypeUnavailable_shouldSetPaymentMethodNotFound() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.failure(APIClientError.apiError(APIErrorResponse(
+            code: "400", message: "error",
+            errorCode: "IDENTIFICATION_TYPE_UNAVAILABLE",
+            userErrorMessage: "Insira conforme está no cartão"
+        ))))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardAcceptanceError)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotFound("Insira conforme está no cartão"))
+    }
+
+    func test_onCardNumberChange_whenUnsupportedSite_shouldSetBinNetworkError() async {
+        // Arrange — UNSUPPORTED_SITE is not in binValidation → falls to binNetworkError (snackbar)
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.failure(APIClientError.apiError(APIErrorResponse(
+            code: "400", message: "error",
+            errorCode: "UNSUPPORTED_SITE",
+            userErrorMessage: "Your country is not supported"
+        ))))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$binNetworkError)
+
+        // Assert
+        XCTAssertNil(sut.viewModel.cardAcceptanceError)
+        XCTAssertNotNil(sut.viewModel.binNetworkError)
+    }
+
     // MARK: - retryBinFetch
 
     func test_retryBinFetch_whenNoPreviousError_shouldNotShowSnackbar() {
@@ -597,7 +668,7 @@ final class CardFormViewModelTests: XCTestCase {
         await sut.repository.setResult(.failure(APIClientError.apiError(APIErrorResponse(code: "400", message: "error", errorCode: "EMPTY_PAYMENT_METHODS", userErrorMessage: nil))))
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardAcceptanceError)
-        XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotFound)
+        XCTAssertEqual(sut.viewModel.cardAcceptanceError, .paymentMethodNotFound(""))
 
         // Act — guard: binNetworkError is nil → does nothing
         sut.viewModel.retryBinFetch()

@@ -210,7 +210,9 @@ final class CardFormViewModel: ObservableObject {
         do {
             let data = try await withRetry(isRetryable: { error in
                 guard let checkoutError = error as? MercadoPagoCheckoutError else { return true }
-                guard checkoutError.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) == nil else { return false }
+                guard checkoutError.serviceError?.errorCode
+                    .flatMap(CheckoutAPIErrorCode.init)
+                    .map(CheckoutAPIErrorCode.binValidation.contains) != true else { return false }
                 return checkoutError.code == .networkConnectionFailed
                     || checkoutError.code == .networkTimeout
                     || checkoutError.code == .serviceError
@@ -222,13 +224,17 @@ final class CardFormViewModel: ObservableObject {
         } catch let error as MercadoPagoCheckoutError {
             guard !Task.isCancelled else { return }
             self.cardData = nil
-            switch error.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.Acceptance.init) {
-            case .emptyPaymentMethods:
-                self.cardAcceptanceError = .paymentMethodNotFound
-            case .paymentMethodUnavailable:
-                self.cardAcceptanceError = .paymentMethodNotAllowed(error.serviceError?.userErrorMessage ?? String())
-            case nil:
+            let message = error.serviceError?.userErrorMessage ?? String()
+            guard let code = error.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.init),
+                  CheckoutAPIErrorCode.binValidation.contains(code) else {
                 self.binNetworkError = error
+                return
+            }
+            switch code {
+            case .paymentMethodUnavailable:
+                self.cardAcceptanceError = .paymentMethodNotAllowed(message)
+            default:
+                self.cardAcceptanceError = .paymentMethodNotFound(message)
             }
         } catch {
             guard !Task.isCancelled else { return }

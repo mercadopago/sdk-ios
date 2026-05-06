@@ -28,7 +28,7 @@ struct InitializeCardFormUseCase {
         } catch let error as APIClientError {
             if case let .apiError(response) = error,
                let errorCode = response.errorCode,
-               CheckoutAPIErrorCode.Integration(rawValue: errorCode) != nil {
+               CheckoutAPIErrorCode.isIntegrationError(errorCode) {
                 throw MercadoPagoCheckoutError(
                     code: .integrationError,
                     localizedDescription: response.message,

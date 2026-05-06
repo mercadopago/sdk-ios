@@ -111,8 +111,8 @@ package struct CardNumberRule: CardFormRuleType {
                 type: .invalid,
                 message: message
             )
-        case .paymentMethodNotFound:
-            return CardFormFieldError(type: .invalid, message: self.validation.errorInvalid)
+        case let .paymentMethodNotFound(message):
+            return CardFormFieldError(type: .invalid, message: message)
         }
     }
 
