@@ -80,6 +80,7 @@ struct InstallmentScreen: View {
                     subtitle: self.viewModel.formatFooterDescription(),
                     buttonData: .init(
                         text: "text",
+                        icon: .padlockClose,
                         onClick: {
                             self.onContinue()
                         }
