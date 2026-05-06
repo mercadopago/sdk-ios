@@ -240,53 +240,8 @@ struct CardFormScreen: View {
         }
     }
 
-    private func dropdownDocument() -> some View {
-        HStack(spacing: 0) {
-            if #available(iOS 14.0, *) {
-                self.documentPickerMenu()
-            } else {
-                self.documentPickerFallback()
-            }
-
-            Rectangle()
-                .fill(self.theme.textFields.standard.idle.borderColor)
-                .frame(width: self.theme.borderWidth.small)
-        }
-    }
-
-    @available(iOS 14.0, *)
-    private func documentPickerMenu() -> some View {
-        Menu {
-            Picker(
-                selection: self.$viewModel.selectTypeDocument,
-                label: EmptyView()
-            ) {
-                ForEach(self.viewModel.identificationTypes, id: \.id) { type in
-                    Text(type.name).tag(Optional(type))
-                }
-            }
-        } label: {
-            self.documentLabel()
-        }
-        .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
-    }
-
-    private func documentPickerFallback() -> some View {
-        Picker(
-            selection: self.$viewModel.selectTypeDocument,
-            label: self.documentLabel()
-        ) {
-            ForEach(self.viewModel.identificationTypes, id: \.id) { type in
-                Text(type.name).tag(Optional(type))
-            }
-        }
-        .fixedSize(horizontal: true, vertical: false)
-        .accentColor(self.theme.textFields.standard.idle.textColor)
-        .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
-    }
-
     private func documentLabel() -> some View {
-        HStack {
+        HStack(spacing: 0) {
             Text(self.viewModel.selectTypeDocument?.name ?? String())
                 .textStyle(.bodyMedium(colorType: .secondary))
                 .lineLimit(1)
@@ -299,6 +254,22 @@ struct CardFormScreen: View {
         }
         .padding(.leading, self.theme.spacings.micro)
         .animation(nil)
+    }
+
+    private func dropdownDocument() -> some View {
+        HStack(spacing: 0) {
+            self.documentLabel()
+                .mpBottomSheet(
+                    title: MPStrings.CardForm.Document.label,
+                    options: self.viewModel.identificationTypes,
+                    selected: self.$viewModel.selectTypeDocument
+                )
+                .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
+
+            Rectangle()
+                .fill(self.theme.textFields.standard.idle.borderColor)
+                .frame(width: self.theme.borderWidth.small)
+        }
     }
 
     private func updateCardNumberLength(cardData: CardPaymentBrickCardData?) {
