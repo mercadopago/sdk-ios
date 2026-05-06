@@ -85,9 +85,9 @@ package struct MPBackButtonStyle: ButtonStyle {
     package func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(self.theme.colors.icon.accent)
-            .padding()
+            .frame(width: 40, height: 40)
             .background(self.theme.colors.interactive.fillQuietIdle)
-            .cornerRadius(self.theme.borderRadius.medium)
+            .clipShape(RoundedRectangle(cornerRadius: self.theme.borderRadius.medium))
     }
 }
 
