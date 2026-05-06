@@ -61,10 +61,13 @@ struct MPBottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
         hostingVC.transitioningDelegate = context.coordinator
         context.coordinator.presentedController = hostingVC
 
-        DispatchQueue.main.async {
-            guard backgroundVC.view.window != nil,
-                  backgroundVC.presentedViewController == nil else { return }
-            backgroundVC.present(hostingVC, animated: true)
+        Task { @MainActor in
+            guard
+                let presenter = backgroundVC.view.window?.topMostViewController,
+                presenter.presentedViewController == nil else {
+                return
+            }
+            presenter.present(hostingVC, animated: true)
         }
     }
 
