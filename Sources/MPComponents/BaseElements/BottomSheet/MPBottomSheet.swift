@@ -5,91 +5,79 @@
 
 import SwiftUI
 
-// MARK: - MPBottomSheet
+// MARK: - mpBottomSheet Modifier
 
-/// A bottom sheet component with two presentation modes.
+/// Turns any view into a tap target that presents a bottom sheet with a selectable list.
 ///
-/// **Options picker** — built-in trigger and list of selectable items:
 /// ```swift
-/// MPBottomSheet(
-///     title: "Documento do titular",
-///     options: viewModel.identificationTypes,
-///     selected: $viewModel.selectTypeDocument
-/// ) { documentLabel() }
+/// documentLabel()
+///     .mpBottomSheet(
+///         title: "Documento do titular",
+///         options: viewModel.identificationTypes,
+///         selected: $viewModel.selectTypeDocument
+///     )
 /// ```
-///
-/// **Custom content** — caller-provided trigger and sheet body:
-/// ```swift
-/// MPBottomSheet(title: "Filtros") {
-///     Image(systemName: "slider.horizontal.3")
-/// } content: {
-///     FilterView()
-/// }
-/// ```
-package struct MPBottomSheet: View {
-    private let title: String
-    private let height: CGFloat?
+private struct MPBottomSheetModifier<Option: MPBottomSheetListOption>: ViewModifier {
+    let title: String
+    let options: [Option]
+    @Binding var selected: Option?
     @State private var isPresented = false
 
-    private let makeTrigger: () -> AnyView
-    private let makeContent: (@escaping () -> Void) -> AnyView
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture { self.isPresented = true }
+            )
+            .bottomSheet(isPresented: self.$isPresented, title: self.title, height: self.sheetHeight) {
+                MPBottomSheetOptionsList(
+                    options: self.options,
+                    selected: self.$selected,
+                    onDismiss: {
+                        self.isPresented = false
+                    }
+                )
+            }
+    }
 
-    // MARK: - Init: options picker
+    private var sheetHeight: CGFloat {
+        let dragIndicator: CGFloat = 20
+        let header: CGFloat = 40
+        let itemHeight: CGFloat = 52
+        let bottomPadding: CGFloat = 60
+        let calculated = dragIndicator + header + CGFloat(self.options.count) * itemHeight + bottomPadding
+        return min(calculated, UIScreen.main.bounds.height * 0.6)
+    }
+}
 
-    package init<Option: MPBottomSheetListOption>(
+package extension View {
+    /// Presents a selectable bottom sheet when this view is tapped (internal state).
+    func mpBottomSheet<Option: MPBottomSheetListOption>(
         title: String,
         options: [Option],
-        selected: Binding<Option?>,
-        @ViewBuilder label: @escaping () -> some View
-    ) {
-        self.title = title
-        self.height = Self.optionsHeight(count: options.count)
-        self.makeTrigger = { AnyView(label()) }
-        self.makeContent = { dismiss in
-            AnyView(MPBottomSheetOptionsList(options: options, selected: selected, onDismiss: dismiss))
-        }
+        selected: Binding<Option?>
+    ) -> some View {
+        modifier(MPBottomSheetModifier(title: title, options: options, selected: selected))
     }
 
-    // MARK: - Init: custom content
-
-    package init(
+    /// Presents a selectable bottom sheet controlled by an external binding.
+    /// Apply this to the screen body and control presentation via `isPresented`.
+    func mpBottomSheet<Option: MPBottomSheetListOption>(
+        isPresented: Binding<Bool>,
         title: String,
-        height: CGFloat? = nil,
-        @ViewBuilder label: @escaping () -> some View,
-        @ViewBuilder content: @escaping () -> some View
-    ) {
-        self.title = title
-        self.height = height
-        self.makeTrigger = { AnyView(label()) }
-        self.makeContent = { _ in AnyView(content()) }
-    }
-
-    // MARK: - Body
-
-    package var body: some View {
-        Button { self.isPresented = true } label: {
-            self.makeTrigger()
+        options: [Option],
+        selected: Binding<Option?>
+    ) -> some View {
+        let calculated: CGFloat = 20 + 40 + CGFloat(options.count) * 52 + 60
+        let height = min(calculated, UIScreen.main.bounds.height * 0.6)
+        return bottomSheet(isPresented: isPresented, title: title, height: height) {
+            MPBottomSheetOptionsList(
+                options: options,
+                selected: selected,
+                onDismiss: { isPresented.wrappedValue = false }
+            )
         }
-        .buttonStyle(.plain)
-        .bottomSheet(isPresented: self.$isPresented, title: self.title, height: self.height) {
-            self.makeContent { self.isPresented = false }
-        }
-    }
-
-    // MARK: - Height
-
-    private enum Layout {
-        static let dragIndicator: CGFloat = 20
-        static let header: CGFloat = 40
-        static let itemHeight: CGFloat = 52
-        static let bottomPadding: CGFloat = 60
-        static let maxHeightRatio: CGFloat = 0.6
-    }
-
-    private static func optionsHeight(count: Int) -> CGFloat {
-        let calculated = Layout.dragIndicator + Layout.header + CGFloat(count) * Layout.itemHeight + Layout.bottomPadding
-        let maxHeight = UIScreen.main.bounds.height * Layout.maxHeightRatio
-        return min(calculated, maxHeight)
     }
 }
 
