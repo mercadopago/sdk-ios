@@ -10,6 +10,13 @@ import MPComponents
 import MPFoundation
 import SwiftUI
 
+extension InstallmentScreen {
+    enum InteractionMode {
+        case radioButton
+        case chevron
+    }
+}
+
 struct InstallmentScreen: View {
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.presentationMode) var presentationMode
@@ -17,6 +24,7 @@ struct InstallmentScreen: View {
     @ObservedObject private var viewModel: InstallmentsScreenViewModel
     @State var selectedPayerCost: Installment.PayerCost?
 
+    private let interactionMode: InteractionMode
     private let onBack: () -> Void
     private let onContinue: () -> Void
     @Binding private var paymentData: MPPaymentData
@@ -24,16 +32,27 @@ struct InstallmentScreen: View {
     init(
         paymentData: Binding<MPPaymentData>,
         installments: Installment,
+        interactionMode: InteractionMode = .radioButton,
         onBack: @escaping () -> Void,
-        onContinue: @escaping () -> Void
+        onContinue: @escaping () -> Void = {}
     ) {
         self._paymentData = paymentData
         self.viewModel = InstallmentsScreenViewModel(installments: installments)
+        self.interactionMode = interactionMode
         self.onBack = onBack
         self.onContinue = onContinue
     }
 
     var body: some View {
+        switch self.interactionMode {
+        case .radioButton:
+            self.radioButtonContent
+        case .chevron:
+            self.chevronContent
+        }
+    }
+
+    private var radioButtonContent: some View {
         MPHeader(
             title: MPStrings.Installments.title,
             onBack: {
@@ -42,7 +61,45 @@ struct InstallmentScreen: View {
             content: {
                 ForEach(self.viewModel.payerCosts) { payerCost in
                     MPListItem(
-                        isSelected: self.bindingForPayerCost(payerCost),
+                        isSelected: self.radioBindingForPayerCost(payerCost),
+                        contentInfo: .init(
+                            title: self.viewModel.formatInstallmentLabel(for: payerCost),
+                            description: nil
+                        ),
+                        trailing: MPListItemTrailing(
+                            text: self.viewModel.formatInterestLabel(for: payerCost),
+                            color: self.viewModel.findInterestLabelColor(for: payerCost)
+                        )
+                    )
+                }
+            },
+            footer: {
+                MPFooter(
+                    title: MPStrings.Common.total,
+                    amount: self.viewModel.selectedTotalAmount(self.selectedPayerCost),
+                    subtitle: self.viewModel.formatFooterDescription(),
+                    buttonData: .init(
+                        text: "text",
+                        onClick: {
+                            self.onContinue()
+                        }
+                    )
+                )
+            }
+        )
+        .listItemStyle(.radioButton)
+    }
+
+    private var chevronContent: some View {
+        MPHeader(
+            title: MPStrings.Installments.title,
+            onBack: {
+                self.presentationMode.wrappedValue.dismiss()
+            },
+            content: {
+                ForEach(self.viewModel.payerCosts) { payerCost in
+                    MPListItem(
+                        isSelected: self.chevronBindingForPayerCost(payerCost),
                         contentInfo: .init(
                             title: self.viewModel.formatInstallmentLabel(for: payerCost),
                             description: nil
@@ -62,26 +119,48 @@ struct InstallmentScreen: View {
                 )
             }
         )
+        .listItemStyle(.chevron)
+        .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.right")))
     }
 
-    private func bindingForPayerCost(_ payerCost: Installment.PayerCost) -> Binding<Bool> {
+    private func radioBindingForPayerCost(_ payerCost: Installment.PayerCost) -> Binding<Bool> {
         Binding(
             get: { self.selectedPayerCost == payerCost },
             set: { if $0 { self.selectedPayerCost = payerCost } }
         )
     }
+
+    private func chevronBindingForPayerCost(_: Installment.PayerCost) -> Binding<Bool> {
+        guard case .chevron = self.interactionMode else {
+            return .constant(false)
+        }
+        return Binding(
+            get: { false },
+            set: { if $0 { self.onContinue() } }
+        )
+    }
 }
 
-#Preview {
+#Preview("Radio Button") {
     InstallmentScreen(
         paymentData: .constant(
             MPPaymentData(transactionAmount: 100)
         ),
         installments: InstallmentMock.visa,
-        onBack: {},
-        onContinue: {}
+        interactionMode: .radioButton,
+        onBack: {}
     )
-    .listItemStyle(.radioButton)
+}
+
+#Preview("Chevron") {
+    InstallmentScreen(
+        paymentData: .constant(
+            MPPaymentData(transactionAmount: 100)
+        ),
+        installments: InstallmentMock.visa,
+        interactionMode: .chevron,
+        onBack: {}
+    )
 }
 
 #if DEBUG

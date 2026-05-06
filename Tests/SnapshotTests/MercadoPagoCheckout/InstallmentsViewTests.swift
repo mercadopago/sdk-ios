@@ -13,13 +13,28 @@ import XCTest
 
 @MainActor
 final class InstallmentsViewTests: XCTestCase {
-    func test_installmentScreen() {
+    func test_installmentScreen_radioButton() {
         var paymentData = MPPaymentData(transactionAmount: 1000, token: "")
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installments: Self.validInstallments,
-            onBack: {},
-            onContinue: {}
+            interactionMode: .radioButton,
+            onBack: {}
+        )
+
+        assertSnapshot(
+            of: UIHostingController(rootView: view),
+            as: .image(on: .iPhone13, precision: 0.95, perceptualPrecision: 0.97)
+        )
+    }
+
+    func test_installmentScreen_chevron() {
+        var paymentData = MPPaymentData(transactionAmount: 1000, token: "")
+        let view = InstallmentScreen(
+            paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
+            installments: Self.validInstallments,
+            interactionMode: .chevron,
+            onBack: {}
         )
 
         assertSnapshot(

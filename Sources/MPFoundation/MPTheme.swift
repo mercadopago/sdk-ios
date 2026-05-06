@@ -201,10 +201,12 @@ public struct MPHeadingStyle: Sendable {
 public struct MPLargeStyle: Sendable {
     public var `default`: UIFont
     public var emphasis: UIFont
+    public var semibold: UIFont
 
-    public init(default: UIFont, emphasis: UIFont) {
+    public init(default: UIFont, emphasis: UIFont, semibold: UIFont) {
         self.default = `default`
         self.emphasis = emphasis
+        self.semibold = semibold
     }
 }
 
