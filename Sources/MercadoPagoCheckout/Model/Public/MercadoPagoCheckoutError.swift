@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 30/01/26.
 //
 import Foundation
+import MPCore
 
 @frozen
 public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugStringConvertible, CustomNSError {
@@ -28,18 +29,27 @@ public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugString
         case installments
         case issuer
         case initialization
+        case binChange
     }
 
     public let code: Code
     private let _localizedDescription: String
     private let _userInfo: [String: Any]
     private let _location: LocationDescription
+    package let serviceError: APIErrorResponse?
 
-    init(code: Code, localizedDescription: String, userInfo: [String: Any] = [:], location: LocationDescription) {
+    init(
+        code: Code,
+        localizedDescription: String,
+        userInfo: [String: Any] = [:],
+        location: LocationDescription,
+        serviceError: APIErrorResponse? = nil
+    ) {
         self.code = code
         self._localizedDescription = localizedDescription
         self._userInfo = userInfo
         self._location = location
+        self.serviceError = serviceError
     }
 
     public var errorDescription: String? {
@@ -62,5 +72,9 @@ public struct MercadoPagoCheckoutError: Error, LocalizedError, CustomDebugString
 
     public var errorUserInfo: [String: Any] {
         self._userInfo
+    }
+
+    package var isRetriable: Bool {
+        self.code == .networkConnectionFailed || self.code == .networkTimeout || self.code == .serviceError
     }
 }

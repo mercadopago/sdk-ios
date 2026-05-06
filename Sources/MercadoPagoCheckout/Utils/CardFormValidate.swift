@@ -14,7 +14,9 @@ package struct CardFormValidate {
     package private(set) var errors: [CardFormFieldError] = []
     package private(set) var liveErrorMessages: [String] = []
 
-    package var errorMessages: [String] { self.errors.map(\.message) }
+    package var errorMessages: [String] {
+        self.errors.map(\.message)
+    }
 
     package var wrappedValue: String {
         get { self.value }
@@ -23,7 +25,9 @@ package struct CardFormValidate {
         }
     }
 
-    package var projectedValue: [String] { self.errorMessages }
+    package var projectedValue: [String] {
+        self.errorMessages
+    }
 
     package init(wrappedValue: String = "", _ rules: CardFormRuleType...) {
         self.value = wrappedValue

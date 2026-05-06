@@ -15,12 +15,12 @@ final class CardFormFormattingTests: XCTestCase {
         // Arrange
         let formatter = CardNumberFormatter()
 
-        // Act — 22 digits provided, only 19 should be accepted
+        // Act — 22 digits provided, only 16 should be accepted
         let result = formatter.formatOnChange("1234567890123456789012")
 
         // Assert
         let digits = result.filter(\.isNumber)
-        XCTAssertEqual(digits.count, 19)
+        XCTAssertEqual(digits.count, 16)
     }
 
     func test_cardNumberFormatter_default_shouldApply16DigitMask() {
@@ -71,7 +71,7 @@ final class CardFormFormattingTests: XCTestCase {
 
     func test_cardNumberFormatter_whenMaxLength19_shouldLimitTo19Digits() {
         // Arrange
-        let formatter = CardNumberFormatter(maxLength: 19)
+        let formatter = CardNumberFormatter(maxLength: 19, mask: "#### #### #### #### ###")
 
         // Act — 20 digits provided, only 19 should be accepted
         let result = formatter.formatOnChange("12345678901234567890")
@@ -83,7 +83,7 @@ final class CardFormFormattingTests: XCTestCase {
 
     func test_cardNumberFormatter_whenMaxLength19_shouldApply19DigitMask() {
         // Arrange
-        let formatter = CardNumberFormatter(maxLength: 19)
+        let formatter = CardNumberFormatter(maxLength: 19, mask: "#### #### #### #### ###")
 
         // Act
         let result = formatter.formatOnChange("1234567890123456789")
@@ -94,7 +94,7 @@ final class CardFormFormattingTests: XCTestCase {
 
     func test_cardNumberFormatter_whenMaxLength19_shouldNotLimitAt16() {
         // Arrange
-        let formatter = CardNumberFormatter(maxLength: 19)
+        let formatter = CardNumberFormatter(maxLength: 19, mask: "#### #### #### #### ####")
 
         // Act — 17 digits: should not be cut at 16
         let result = formatter.formatOnChange("12345678901234567")

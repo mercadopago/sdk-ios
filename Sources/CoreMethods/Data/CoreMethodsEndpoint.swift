@@ -10,11 +10,6 @@ import Foundation
     import MPCore
 #endif
 
-enum ConstantsCoreMethods {
-    static let baseURLToken = "https://api.mercadopago.com"
-    static let baseURLBricks = "https://api.mercadopago.com/cho-off"
-}
-
 /// Endpoints
 enum CoreMethodsEndpoint {
     case postCardToken(body: CardTokenBody)
@@ -35,9 +30,9 @@ extension CoreMethodsEndpoint: RequestEndpoint {
     var baseURL: String {
         switch self {
         case .postCardToken:
-            return ConstantsCoreMethods.baseURLToken
+            return ConstantsEndpoint.baseURLToken
         default:
-            return ConstantsCoreMethods.baseURLBricks
+            return ConstantsEndpoint.baseURLBricks
         }
     }
 
@@ -70,15 +65,14 @@ extension CoreMethodsEndpoint: RequestEndpoint {
     /// Request headers.
     var headers: [String: String] {
         switch self {
-            
-        case .postCardToken(let body):
+        case let .postCardToken(body):
             return [
                 "Content-Type": "application/json",
                 "X-Product-id": MPSDKProduct.id,
                 "Meli-Session-id": body.session ?? "",
                 "SDK-version": body.sdkVersion ?? ""
             ]
-            
+
         default:
             return [
                 "Content-Type": "application/json"
@@ -117,7 +111,7 @@ extension CoreMethodsEndpoint: RequestEndpoint {
         switch self {
         case let .postCardToken(body):
             return body.toJSONData()
-            
+
         default:
             return nil
         }
