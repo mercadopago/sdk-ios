@@ -240,6 +240,7 @@ struct CardFormScreen: View {
             }
         }
         .mpBottomSheet(
+            isPresented: self.$isDocumentSheetPresented,
             title: self.initResult.fields.document.label,
             options: self.viewModel.identificationTypes,
             selected: self.$viewModel.selectTypeDocument
