@@ -207,9 +207,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
 
     @ViewBuilder
     private var labelView: some View {
-        Group {
-            if let label { Text(label) }
-        }
+        if let label { Text(label) }
     }
 
     // MARK: - Helpers
@@ -341,7 +339,8 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
                                     text: self.$textError,
                                     label: "Error",
                                     placeholder: "Placeholder",
-                                    helperText: nil
+                                    helperText: nil,
+                                    errorMessage: ["Error"]
                                 )
 
                                 MPTextField(
