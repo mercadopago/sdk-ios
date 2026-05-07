@@ -108,7 +108,6 @@ struct CardFormBrick: View {
         InstallmentScreen(
             paymentData: self.$paymentData,
             installments: InstallmentMock.visa,
-            interactionMode: .radioButton,
             onBack: {
                 self.presentationMode.wrappedValue.dismiss()
             },
