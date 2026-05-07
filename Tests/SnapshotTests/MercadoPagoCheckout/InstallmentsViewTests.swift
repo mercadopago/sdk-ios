@@ -18,7 +18,7 @@ final class InstallmentsViewTests: XCTestCase {
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installments: Self.validInstallments,
-            interactionMode: .radioButton,
+            style: .radioButton,
             onBack: {}
         )
 
@@ -33,7 +33,7 @@ final class InstallmentsViewTests: XCTestCase {
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installments: Self.validInstallments,
-            interactionMode: .chevron,
+            style: .chevron,
             onBack: {}
         )
 
