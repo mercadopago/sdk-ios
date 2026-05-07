@@ -69,10 +69,11 @@ struct InstallmentScreen: View {
             )
         )
 
-        if self.interactionMode == .radioButton {
+        switch self.interactionMode {
+        case .radioButton:
             listItem
                 .listItemStyle(.radioButton)
-        } else {
+        case .chevron:
             listItem
                 .listItemStyle(.chevron)
                 .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.right")))
