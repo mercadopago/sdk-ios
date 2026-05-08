@@ -14,7 +14,7 @@ import XCTest
 final class InstallmentsViewTests: XCTestCase {
     func test_installmentScreen_radioButton() {
         var paymentData = MPPaymentData(transactionAmount: 1000, token: "")
-        var installmentsData = Self.validInstallmentsData
+        var installmentsData = Self.validMPInstallmentsData
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
@@ -30,7 +30,7 @@ final class InstallmentsViewTests: XCTestCase {
 
     func test_installmentScreen_chevron() {
         var paymentData = MPPaymentData(transactionAmount: 1000, token: "")
-        var installmentsData = Self.validInstallmentsData
+        var installmentsData = Self.validMPInstallmentsData
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
@@ -46,7 +46,7 @@ final class InstallmentsViewTests: XCTestCase {
 
     // MARK: - Fixture
 
-    private static let validInstallmentsData = InstallmentsData(
+    private static let validMPInstallmentsData = MPInstallmentsData(
         installment: .init(
             selectionType: "radio_button",
             quotas: [
@@ -80,8 +80,8 @@ final class InstallmentsViewTests: XCTestCase {
             ],
             translations: .init(
                 headerTitle: "Escolha o parcelamento",
-
-                totalLabel: "Total"
+                totalLabel: "Total",
+                payButtonLabel: "Pagar"
             )
         ),
         cardDisplayInfo: .init(

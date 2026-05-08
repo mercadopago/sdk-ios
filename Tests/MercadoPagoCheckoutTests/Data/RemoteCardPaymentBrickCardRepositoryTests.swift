@@ -128,7 +128,8 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
                         "title": "Escolha o parcelamento"
                     },
 
-                    "total_label": "Total"
+                    "total_label": "Total",
+                    "pay_button_label": "Pagar"
                 }
             },
             \(installmentJSON)
@@ -258,7 +259,7 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
         let result = try await sut.repository.fetchCard(params: self.makeParams())
 
         // Assert — second quota has state "none"
-        XCTAssertEqual(result.installment?.quotas.last?.state, .none)
+        XCTAssertEqual(result.installment?.quotas.last?.state, CardPaymentBrickCardData.Installment.QuotaState.none)
     }
 
     func testFetchCard_whenSuccess_mapsQuotaTertiaryLabelAbsent() async throws {

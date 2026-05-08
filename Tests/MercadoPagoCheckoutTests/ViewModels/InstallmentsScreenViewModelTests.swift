@@ -8,6 +8,7 @@
 @testable import MercadoPagoCheckout
 @testable import MPComponents
 @testable import MPFoundation
+import SwiftUI
 import XCTest
 
 final class InstallmentsScreenViewModelTests: XCTestCase {
@@ -92,7 +93,7 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSUT(
-        installmentsData: InstallmentsData = .validInstallmentsData
+        installmentsData: MPInstallmentsData = .validMPInstallmentsData
     ) -> InstallmentsScreenViewModel {
         var data = installmentsData
         return InstallmentsScreenViewModel(installmentsData: Binding(get: { data }, set: { data = $0 }))
@@ -101,8 +102,8 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
 
 // MARK: - Test Fixtures
 
-extension InstallmentsData {
-    static let validInstallmentsData = InstallmentsData(
+extension MPInstallmentsData {
+    static let validMPInstallmentsData = MPInstallmentsData(
         installment: .validInstallments,
         cardDisplayInfo: .make()
     )
@@ -118,8 +119,8 @@ extension CardPaymentBrickCardData.Installment {
         ],
         translations: .init(
             headerTitle: "Escolha o parcelamento",
-
-            totalLabel: "Total"
+            totalLabel: "Total",
+            payButtonLabel: "Pagar"
         )
     )
 }
