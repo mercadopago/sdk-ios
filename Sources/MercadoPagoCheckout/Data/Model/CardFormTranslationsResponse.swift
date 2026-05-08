@@ -72,8 +72,6 @@ struct CardFormTranslationsResponse: Codable {
         }
 
         struct HeaderData: Codable {
-            let chevron: String
-            let radio: String
             let title: String
         }
     }

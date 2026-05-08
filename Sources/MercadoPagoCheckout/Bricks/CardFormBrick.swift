@@ -15,6 +15,7 @@ struct CardFormBrick: View {
 
     @State private var route: Route?
     @State private var paymentData: MPPaymentData
+    @State private var installmentsData: MPInstallmentsData
     @ObservedObject private var brickViewModel: CardFormBrickViewModel
 
     private var configuration: MercadoPagoCheckout.CheckoutConfiguration
@@ -38,6 +39,14 @@ struct CardFormBrick: View {
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
+        self._installmentsData = State(initialValue: .init(
+            installment: .init(
+                selectionType: String(),
+                quotas: [],
+                translations: .init(headerTitle: String(), interestFreeLabel: String(), totalLabel: String())
+            ),
+            cardDisplayInfo: .init(issuerName: String(), paymentTypeId: String(), lastFourDigits: String())
+        ))
         self.brickViewModel = CardFormBrickViewModel(configuration: configuration, appearance: appearance)
     }
 
@@ -94,9 +103,14 @@ struct CardFormBrick: View {
                 self.route = nil
                 self.onResult(.userCancelled(.cardForm(context)))
             },
-            onSuccess: { paymentData in
+            onSuccess: { paymentData, installmentsData in
                 self.paymentData = paymentData
-                self.completeCheckout()
+                if let installmentsData {
+                    self.installmentsData = installmentsData
+                    self.route = .installments
+                } else {
+                    self.completeCheckout()
+                }
             },
             onFailure: { error in
                 self.fail(error)
@@ -107,7 +121,7 @@ struct CardFormBrick: View {
     private func installmentScreen() -> some View {
         InstallmentScreen(
             paymentData: self.$paymentData,
-            installments: InstallmentMock.visa,
+            installmentsData: self.$installmentsData,
             onBack: {
                 self.presentationMode.wrappedValue.dismiss()
             },

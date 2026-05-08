@@ -11,7 +11,7 @@ import SwiftUI
 struct CardFormScreen: View {
     private let onBack: (CardFormUserCancelledContext) -> Void
     private let onDismiss: (CardFormUserCancelledContext) -> Void
-    private let onSuccess: (MPPaymentData) -> Void
+    private let onSuccess: (MPPaymentData, MPInstallmentsData?) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double?
 
@@ -38,7 +38,7 @@ struct CardFormScreen: View {
         viewModel: CardFormViewModel,
         onBack: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
         onDismiss: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
-        onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
+        onSuccess: @escaping (MPPaymentData, MPInstallmentsData?) -> Void = { _, _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self.onBack = onBack
@@ -77,7 +77,7 @@ struct CardFormScreen: View {
                                 transactionAmount: self.transactionAmount,
                                 onSuccess: {
                                     self.didComplete = true
-                                    self.onSuccess($0)
+                                    self.onSuccess($0, self.makeInstallmentsData())
                                 },
                                 onFailure: {
                                     self.didComplete = true
@@ -315,5 +315,20 @@ struct CardFormScreen: View {
         guard let identificationType else { return }
         self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
         self.cardForm.setDocumentType(isNumeric: identificationType.type != "string")
+    }
+
+    private func makeInstallmentsData() -> MPInstallmentsData? {
+        guard
+            let installment = self.viewModel.cardData?.installment,
+            let method = self.viewModel.cardData?.paymentMethods.first
+        else { return nil }
+
+        let lastFourDigits = String(self.cardForm.cardNumber.filter(\.isNumber).suffix(4))
+        let cardDisplayInfo = CardDisplayInfo(
+            issuerName: method.issuers.first?.name ?? String(),
+            paymentTypeId: method.paymentTypeId,
+            lastFourDigits: lastFourDigits
+        )
+        return MPInstallmentsData(installment: installment, cardDisplayInfo: cardDisplayInfo)
     }
 }
