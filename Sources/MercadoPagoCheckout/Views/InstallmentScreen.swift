@@ -164,10 +164,7 @@ struct InstallmentScreen: View {
     private func listItem(for quota: CardPaymentBrickCardData.Installment.Quota) -> AnyView {
         MPListItem(
             isSelected: self.bindingForQuota(quota),
-            contentInfo: .init(
-                title: quota.primaryLabel,
-                description: quota.tertiaryLabel
-            ),
+            contentInfo: self.viewModel.contentInfo(for: quota),
             trailing: MPListItemTrailing(
                 text: quota.secondaryLabel,
                 color: self.viewModel.color(for: quota)

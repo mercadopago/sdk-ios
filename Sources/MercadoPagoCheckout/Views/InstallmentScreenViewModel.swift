@@ -45,12 +45,30 @@ final class InstallmentsScreenViewModel: ObservableObject {
         quota.state == .success ? .feedbackPositive : nil
     }
 
+    func primaryLabelComponents(_ label: String) -> (title: String, decimalSuffix: String?) {
+        guard
+            let commaIndex = label.lastIndex(of: ","),
+            label.distance(from: commaIndex, to: label.endIndex) == 3
+        else { return (label, nil) }
+
+        let decimalPart = label[label.index(after: commaIndex)...]
+        return (String(label[..<commaIndex]), String(decimalPart))
+    }
+
+    func contentInfo(for quota: CardPaymentBrickCardData.Installment.Quota) -> MPListItemContentInfo {
+        let components = self.primaryLabelComponents(quota.primaryLabel)
+        return .init(
+            title: components.title,
+            titleDecimalSuffix: components.decimalSuffix,
+            description: quota.tertiaryLabel
+        )
+    }
+
     func footerDescription() -> String {
         let info = self.installmentsData.cardDisplayInfo
         let issuerName = MPFormatIssuerName.applyCapitalizationRules(
             MPFormatIssuerName.cleanIssuerName(info.issuerName ?? String())
         )
-//        let paymentTypeLabel = MPFormatIssuerName.formattedPaymentType(info.paymentTypeId ?? String())
         return "\(issuerName) **** \(info.lastFourDigits)"
     }
 }
