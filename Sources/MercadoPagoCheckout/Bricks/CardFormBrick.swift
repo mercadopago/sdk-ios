@@ -39,14 +39,7 @@ struct CardFormBrick: View {
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
         self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
-        self._installmentsData = State(initialValue: .init(
-            installment: .init(
-                selectionType: String(),
-                quotas: [],
-                translations: .init(headerTitle: String(), totalLabel: String(), payButtonLabel: String())
-            ),
-            cardDisplayInfo: .init(issuerName: String(), paymentTypeId: String(), lastFourDigits: String())
-        ))
+        self._installmentsData = State(initialValue: .empty)
         self.brickViewModel = CardFormBrickViewModel(configuration: configuration, appearance: appearance)
     }
 
