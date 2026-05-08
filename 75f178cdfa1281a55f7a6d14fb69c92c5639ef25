@@ -1,0 +1,23 @@
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  908af645856eaea3 87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "75f178cdfa1281a55f7a6d14fb69c92c5639ef25",
+  "prompts": {
+    "908af645856eaea3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "acd91fa4-9f76-45e5-a5b0-e1984bb7468b",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
