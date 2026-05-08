@@ -127,18 +127,14 @@ struct CardFormInitializationResponse: Codable {
 
     struct InstallmentsTranslation: Codable {
         let header: HeaderTranslation
-        let interestFreeLabel: String
         let totalLabel: String
 
         enum CodingKeys: String, CodingKey {
             case header
-            case interestFreeLabel = "interest_free_label"
             case totalLabel = "total_label"
         }
 
         struct HeaderTranslation: Codable {
-            let chevron: String
-            let radio: String
             let title: String
         }
     }
