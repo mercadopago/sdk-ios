@@ -1,0 +1,29 @@
+Tests/MercadoPagoCheckoutTests/Data/RemoteCardPaymentBrickCardRepositoryTests.swift
+  s_337aea31e8f27a::t_e8a76c2fd264c1 130
+Tests/MercadoPagoCheckoutTests/ViewModels/InstallmentsScreenViewModelTests.swift
+  s_337aea31e8f27a::t_cb5d464002fdd0 121
+Sources/MercadoPagoCheckout/Model/Internal/CardPaymentBrickCardData.swift
+  s_337aea31e8f27a::t_8f003e845cab65 49
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_337aea31e8f27a::t_81379085e5ac3c 260
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_337aea31e8f27a::t_cf72d828ac7e77 46
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  s_337aea31e8f27a::t_f87ce754392cdd 83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "8d3536ed7daf9a07331de3f3c1dbfe8251d784d9",
+  "prompts": {},
+  "sessions": {
+    "s_337aea31e8f27a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "24e30131-148e-4aa8-9fc5-325012fcb597",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
