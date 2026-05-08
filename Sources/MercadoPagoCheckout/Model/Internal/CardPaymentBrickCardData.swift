@@ -45,8 +45,8 @@ struct CardPaymentBrickCardData: Equatable {
 
         struct InstallmentTranslations: Equatable {
             let headerTitle: String
-            let interestFreeLabel: String
             let totalLabel: String
+            let payButtonLabel: String
         }
     }
 

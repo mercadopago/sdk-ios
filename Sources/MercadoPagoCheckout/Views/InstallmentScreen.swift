@@ -15,7 +15,7 @@ protocol InstallmentInteractionStyle {
     var listItemStyle: MPListItemStyle { get }
     var listItemTrailingStyle: MPListItemTrailingStyle? { get }
 
-    func footerButtonData(onContinue: @escaping () -> Void) -> MPFixedFooterButtonData?
+    func footerButtonData(_ label: String, onContinue: @escaping () -> Void) -> MPFixedFooterButtonData?
 
     func selectionBinding(
         for quota: CardPaymentBrickCardData.Installment.Quota,
@@ -35,8 +35,8 @@ struct RadioButtonInstallmentStyle: InstallmentInteractionStyle {
         nil
     }
 
-    func footerButtonData(onContinue: @escaping () -> Void) -> MPFixedFooterButtonData? {
-        .init(text: "text", icon: .padlockClose, onClick: onContinue)
+    func footerButtonData(_ label: String, onContinue: @escaping () -> Void) -> MPFixedFooterButtonData? {
+        .init(text: label, icon: .padlockClose, onClick: onContinue)
     }
 
     func selectionBinding(
@@ -60,7 +60,7 @@ struct ChevronInstallmentStyle: InstallmentInteractionStyle {
         .textIcon(Image(systemName: "chevron.right"))
     }
 
-    func footerButtonData(onContinue _: @escaping () -> Void) -> MPFixedFooterButtonData? {
+    func footerButtonData(_: String, onContinue _: @escaping () -> Void) -> MPFixedFooterButtonData? {
         nil
     }
 
@@ -182,7 +182,7 @@ struct InstallmentScreen: View {
             title: self.viewModel.totalLabel,
             amount: self.viewModel.selectedTotalAmount(self.selectedQuota),
             subtitle: self.viewModel.footerDescription(),
-            buttonData: self.style.footerButtonData(onContinue: self.onContinue)
+            buttonData: self.style.footerButtonData(self.viewModel.payButtonLabel, onContinue: self.onContinue)
         )
     }
 
@@ -257,8 +257,9 @@ struct InstallmentScreen: View {
                 ],
                 translations: .init(
                     headerTitle: "Escolha o parcelamento",
-                    interestFreeLabel: "Sem acréscimo",
-                    totalLabel: "Total"
+
+                    totalLabel: "Total",
+                    payButtonLabel: "Pagar!"
                 )
             ),
             cardDisplayInfo: .init(

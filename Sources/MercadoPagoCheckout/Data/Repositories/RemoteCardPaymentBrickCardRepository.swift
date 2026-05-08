@@ -84,8 +84,8 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
             },
             translations: CardPaymentBrickCardData.Installment.InstallmentTranslations(
                 headerTitle: translations.header.title,
-                interestFreeLabel: translations.interestFreeLabel,
-                totalLabel: translations.totalLabel
+                totalLabel: translations.totalLabel,
+                payButtonLabel: translations.payButtonLabel
             )
         )
     }

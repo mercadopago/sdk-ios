@@ -26,6 +26,10 @@ final class InstallmentsScreenViewModel: ObservableObject {
         self.installmentsData.installment.translations.totalLabel
     }
 
+    var payButtonLabel: String {
+        self.installmentsData.installment.translations.payButtonLabel
+    }
+
     var quotas: [CardPaymentBrickCardData.Installment.Quota] {
         self.installmentsData.installment.quotas
     }

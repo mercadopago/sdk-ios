@@ -80,7 +80,7 @@ final class InstallmentsViewTests: XCTestCase {
             ],
             translations: .init(
                 headerTitle: "Escolha o parcelamento",
-                interestFreeLabel: "Sem acréscimo",
+
                 totalLabel: "Total"
             )
         ),

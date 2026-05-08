@@ -43,7 +43,7 @@ struct CardFormBrick: View {
             installment: .init(
                 selectionType: String(),
                 quotas: [],
-                translations: .init(headerTitle: String(), interestFreeLabel: String(), totalLabel: String())
+                translations: .init(headerTitle: String(), totalLabel: String(), payButtonLabel: String())
             ),
             cardDisplayInfo: .init(issuerName: String(), paymentTypeId: String(), lastFourDigits: String())
         ))

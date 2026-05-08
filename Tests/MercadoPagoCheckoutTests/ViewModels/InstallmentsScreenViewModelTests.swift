@@ -118,7 +118,7 @@ extension CardPaymentBrickCardData.Installment {
         ],
         translations: .init(
             headerTitle: "Escolha o parcelamento",
-            interestFreeLabel: "Sem acréscimo",
+
             totalLabel: "Total"
         )
     )

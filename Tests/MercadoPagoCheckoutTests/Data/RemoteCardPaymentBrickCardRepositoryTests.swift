@@ -127,7 +127,7 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
                     "header": {
                         "title": "Escolha o parcelamento"
                     },
-                    "interest_free_label": "Sem acréscimo",
+
                     "total_label": "Total"
                 }
             },
@@ -285,7 +285,6 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(result.installment?.translations.headerTitle, "Escolha o parcelamento")
-        XCTAssertEqual(result.installment?.translations.interestFreeLabel, "Sem acréscimo")
         XCTAssertEqual(result.installment?.translations.totalLabel, "Total")
     }
 
