@@ -10,8 +10,14 @@ struct MPInstallmentsData: Equatable {
 
 extension MPInstallmentsData {
     static var empty: MPInstallmentsData {
-        MPInstallmentsData(
-            installment: .init(selectionType: String(), quotas: [], translations: .init(headerTitle: String(), totalLabel: String(), payButtonLabel: String())),
+        let translations = CardPaymentBrickCardData.Installment.InstallmentTranslations(
+            headerTitle: String(), totalLabel: String(), payButtonLabel: String()
+        )
+        let installment = CardPaymentBrickCardData.Installment(
+            selectionType: String(), quotas: [], translations: translations
+        )
+        return MPInstallmentsData(
+            installment: installment,
             cardDisplayInfo: .init(issuerName: String(), paymentTypeId: String(), lastFourDigits: String())
         )
     }
