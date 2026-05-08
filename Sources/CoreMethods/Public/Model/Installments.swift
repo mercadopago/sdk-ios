@@ -16,7 +16,9 @@ public struct Installment: Sendable, Equatable {
     public let merchantAccountId: String
     public let payerCosts: [PayerCost]
     public let agreements: [Agreement]
-    
+    // TODO: Need to update with BFF
+    public let interactionMode: String?
+
     package init(
         paymentMethodId: String,
         paymentTypeId: String,
@@ -25,7 +27,8 @@ public struct Installment: Sendable, Equatable {
         processingMode: String,
         merchantAccountId: String,
         payerCosts: [PayerCost],
-        agreements: [Agreement]
+        agreements: [Agreement],
+        interactionMode: String? = nil
     ) {
         self.paymentMethodId = paymentMethodId
         self.paymentTypeId = paymentTypeId
@@ -35,13 +38,14 @@ public struct Installment: Sendable, Equatable {
         self.merchantAccountId = merchantAccountId
         self.payerCosts = payerCosts
         self.agreements = agreements
+        self.interactionMode = interactionMode
     }
 
     public struct Issuer: Sendable, Equatable {
         public let id: String
         public let thumbnail: String
         public let name: String?
-        
+
         package init(
             id: String,
             thumbnail: String,
@@ -66,7 +70,7 @@ public struct Installment: Sendable, Equatable {
         public let reimbursementRate: Double
         public let labels: [String]
         public let paymentMethodOptionId: String
-        
+
         package init(
             id: Int,
             installments: Int,
@@ -99,7 +103,7 @@ public struct Installment: Sendable, Equatable {
     public struct Agreement: Sendable, Equatable {
         public let merchantAccounts: [MerchantAccount]
         public let timeFrame: TimeFrame
-        
+
         package init(merchantAccounts: [MerchantAccount], timeFrame: TimeFrame) {
             self.merchantAccounts = merchantAccounts
             self.timeFrame = timeFrame
@@ -108,7 +112,7 @@ public struct Installment: Sendable, Equatable {
         public struct MerchantAccount: Sendable, Equatable {
             public let id: String
             public let paymentMethodOptionId: String
-            
+
             package init(id: String, paymentMethodOptionId: String) {
                 self.id = id
                 self.paymentMethodOptionId = paymentMethodOptionId
@@ -118,7 +122,7 @@ public struct Installment: Sendable, Equatable {
         public struct TimeFrame: Sendable, Equatable {
             public let startDate: String
             public let endDate: String
-            
+
             package init(startDate: String, endDate: String) {
                 self.startDate = startDate
                 self.endDate = endDate

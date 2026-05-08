@@ -115,7 +115,6 @@ struct CardFormBrick: View {
                 self.route = .reviewAndConfirm
             }
         )
-        .listItemStyle(.radioButton)
     }
 
     private func navigationLinks() -> some View {

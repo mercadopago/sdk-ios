@@ -130,7 +130,17 @@ package struct MPFooter: View {
                     await buttonData.onClick()
                 }
             } label: {
-                Text(buttonData.text)
+                HStack(spacing: self.theme.spacings.xmicro) {
+                    if let icon = buttonData.icon {
+                        MPIcon(
+                            source: .asset(name: icon.assetName),
+                            size: .medium,
+                            color: .inverse,
+                            isDecorative: true
+                        )
+                    }
+                    Text(buttonData.text)
+                }
             }
             .mpButtonStyle(variant: buttonData.style)
             .onDisappear {

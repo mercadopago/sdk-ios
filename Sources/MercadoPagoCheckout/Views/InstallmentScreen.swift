@@ -10,6 +10,125 @@ import MPComponents
 import MPFoundation
 import SwiftUI
 
+// MARK: - Interaction Style Protocol
+
+protocol InstallmentInteractionStyle {
+    var listItemStyle: MPListItemStyle { get }
+    var listItemTrailingStyle: MPListItemTrailingStyle? { get }
+
+    func footerButtonData(onContinue: @escaping () -> Void) -> MPFixedFooterButtonData?
+
+    func selectionBinding(
+        for payerCost: Installment.PayerCost,
+        selected: Binding<Installment.PayerCost?>,
+        onContinue: @escaping () -> Void
+    ) -> Binding<Bool>
+}
+
+// MARK: - Concrete Styles
+
+struct RadioButtonInstallmentStyle: InstallmentInteractionStyle {
+    var listItemStyle: MPListItemStyle {
+        .radioButton
+    }
+
+    var listItemTrailingStyle: MPListItemTrailingStyle? {
+        nil
+    }
+
+    func footerButtonData(onContinue: @escaping () -> Void) -> MPFixedFooterButtonData? {
+        .init(text: "text", icon: .padlockClose, onClick: onContinue)
+    }
+
+    func selectionBinding(
+        for payerCost: Installment.PayerCost,
+        selected: Binding<Installment.PayerCost?>,
+        onContinue _: @escaping () -> Void
+    ) -> Binding<Bool> {
+        Binding(
+            get: { selected.wrappedValue == payerCost },
+            set: { if $0 { selected.wrappedValue = payerCost } }
+        )
+    }
+}
+
+struct ChevronInstallmentStyle: InstallmentInteractionStyle {
+    var listItemStyle: MPListItemStyle {
+        .chevron
+    }
+
+    var listItemTrailingStyle: MPListItemTrailingStyle? {
+        .textIcon(Image(systemName: "chevron.right"))
+    }
+
+    func footerButtonData(onContinue _: @escaping () -> Void) -> MPFixedFooterButtonData? {
+        nil
+    }
+
+    func selectionBinding(
+        for _: Installment.PayerCost,
+        selected _: Binding<Installment.PayerCost?>,
+        onContinue: @escaping () -> Void
+    ) -> Binding<Bool> {
+        Binding(
+            get: { false },
+            set: { if $0 { onContinue() } }
+        )
+    }
+}
+
+// MARK: - Style Convenience Extensions
+
+extension InstallmentInteractionStyle where Self == RadioButtonInstallmentStyle {
+    static var radioButton: RadioButtonInstallmentStyle {
+        .init()
+    }
+}
+
+extension InstallmentInteractionStyle where Self == ChevronInstallmentStyle {
+    static var chevron: ChevronInstallmentStyle {
+        .init()
+    }
+}
+
+// MARK: - Installment Extension for Style Resolution
+
+extension Installment {
+    /// Resolves the interaction style based on the `interactionMode` returned by the backend.
+    ///
+    /// This computed property reads the `interactionMode` value and returns the appropriate style.
+    /// If `interactionMode` is `nil` or unknown, returns the default style (RadioButton).
+    ///
+    /// Example usage:
+    /// ```swift
+    /// let installment = Installment(..., interactionMode: "chevron")
+    /// let style = installment.resolvedInteractionStyle // ChevronInstallmentStyle
+    /// ```
+    var resolvedInteractionStyle: any InstallmentInteractionStyle {
+        switch self.interactionMode?.lowercased() {
+        case "chevron":
+            return ChevronInstallmentStyle()
+        case "radio_button", nil:
+            return RadioButtonInstallmentStyle()
+        default:
+            return RadioButtonInstallmentStyle()
+        }
+    }
+}
+
+// MARK: - InstallmentScreen
+
+/// Helper extension to conditionally apply trailing style
+extension View {
+    func listItemTrailingStyleIfPresent(_ style: MPListItemTrailingStyle?) -> AnyView {
+        if let style {
+            return AnyView(self.listItemTrailingStyle(style))
+        } else {
+            return AnyView(self)
+        }
+    }
+}
+
 struct InstallmentScreen: View {
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.presentationMode) var presentationMode
@@ -17,6 +136,7 @@ struct InstallmentScreen: View {
     @ObservedObject private var viewModel: InstallmentsScreenViewModel
     @State var selectedPayerCost: Installment.PayerCost?
 
+    private let style: any InstallmentInteractionStyle
     private let onBack: () -> Void
     private let onContinue: () -> Void
     @Binding private var paymentData: MPPaymentData
@@ -24,11 +144,13 @@ struct InstallmentScreen: View {
     init(
         paymentData: Binding<MPPaymentData>,
         installments: Installment,
+        style: (any InstallmentInteractionStyle)? = nil,
         onBack: @escaping () -> Void,
-        onContinue: @escaping () -> Void
+        onContinue: @escaping () -> Void = {}
     ) {
         self._paymentData = paymentData
         self.viewModel = InstallmentsScreenViewModel(installments: installments)
+        self.style = style ?? installments.resolvedInteractionStyle
         self.onBack = onBack
         self.onContinue = onContinue
     }
@@ -41,47 +163,75 @@ struct InstallmentScreen: View {
             },
             content: {
                 ForEach(self.viewModel.payerCosts) { payerCost in
-                    MPListItem(
-                        isSelected: self.bindingForPayerCost(payerCost),
-                        contentInfo: .init(
-                            title: self.viewModel.formatInstallmentLabel(for: payerCost),
-                            description: nil
-                        ),
-                        trailing: MPListItemTrailing(
-                            text: self.viewModel.formatInterestLabel(for: payerCost),
-                            color: self.viewModel.findInterestLabelColor(for: payerCost)
-                        )
-                    )
+                    self.listItem(for: payerCost)
                 }
             },
             footer: {
-                MPFooter(
-                    title: MPStrings.Common.total,
-                    amount: self.viewModel.selectedTotalAmount(self.selectedPayerCost),
-                    subtitle: self.viewModel.formatFooterDescription()
-                )
+                self.footer
             }
         )
     }
 
+    // MARK: - Computed Properties
+
+    private func listItem(for payerCost: Installment.PayerCost) -> AnyView {
+        MPListItem(
+            isSelected: self.bindingForPayerCost(payerCost),
+            contentInfo: .init(
+                title: self.viewModel.formatInstallmentLabel(for: payerCost),
+                description: nil
+            ),
+            trailing: MPListItemTrailing(
+                text: self.viewModel.formatInterestLabel(for: payerCost),
+                color: self.viewModel.findInterestLabelColor(for: payerCost)
+            )
+        )
+        .listItemStyle(self.style.listItemStyle)
+        .listItemTrailingStyleIfPresent(self.style.listItemTrailingStyle)
+    }
+
+    private var footer: some View {
+        MPFooter(
+            title: MPStrings.Common.total,
+            amount: self.viewModel.selectedTotalAmount(self.selectedPayerCost),
+            subtitle: self.viewModel.formatFooterDescription(),
+            buttonData: self.style.footerButtonData(onContinue: self.onContinue)
+        )
+    }
+
+    // MARK: - Helper Methods
+
     private func bindingForPayerCost(_ payerCost: Installment.PayerCost) -> Binding<Bool> {
-        Binding(
-            get: { self.selectedPayerCost == payerCost },
-            set: { if $0 { self.selectedPayerCost = payerCost } }
+        self.style.selectionBinding(
+            for: payerCost,
+            selected: self.$selectedPayerCost,
+            onContinue: self.onContinue
         )
     }
 }
 
-#Preview {
+// MARK: - Previews
+
+#Preview("Radio Button") {
     InstallmentScreen(
         paymentData: .constant(
             MPPaymentData(transactionAmount: 100)
         ),
         installments: InstallmentMock.visa,
-        onBack: {},
-        onContinue: {}
+        style: .radioButton,
+        onBack: {}
     )
-    .listItemStyle(.radioButton)
+}
+
+#Preview("Chevron") {
+    InstallmentScreen(
+        paymentData: .constant(
+            MPPaymentData(transactionAmount: 100)
+        ),
+        installments: InstallmentMock.visa,
+        style: .chevron,
+        onBack: {}
+    )
 }
 
 #if DEBUG
