@@ -37,10 +37,20 @@ struct CardPaymentBrickCardResponse: Codable {
         struct QuotaData: Codable {
             let installments: Int
             let installmentAmount: Double
+            let totalAmount: Double
+            let primaryLabel: String
+            let secondaryLabel: String
+            let state: String
+            let tertiaryLabel: String?
 
             enum CodingKeys: String, CodingKey {
                 case installments
                 case installmentAmount = "installment_amount"
+                case totalAmount = "total_amount"
+                case primaryLabel = "primary_label"
+                case secondaryLabel = "secondary_label"
+                case state
+                case tertiaryLabel = "tertiary_label"
             }
         }
     }

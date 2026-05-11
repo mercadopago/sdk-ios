@@ -39,8 +39,26 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
     private func makeValidResponseData(includeInstallment: Bool = true, includeSecurityCode: Bool = true) -> Data {
         let installmentJSON = includeInstallment ? """
         "installment": {
-            "selection_type": "radio",
-            "quotas": [{ "installments": 3, "installment_amount": 100.0 }]
+            "selection_type": "radio_button",
+            "quotas": [
+                {
+                    "installments": 3,
+                    "installment_amount": 33.34,
+                    "total_amount": 100.00,
+                    "primary_label": "3x R$ 33,34",
+                    "secondary_label": "Sem juros",
+                    "state": "success",
+                    "tertiary_label": "CFT: 12,5%  TEA: 18,5%"
+                },
+                {
+                    "installments": 1,
+                    "installment_amount": 100.00,
+                    "total_amount": 100.00,
+                    "primary_label": "1x R$ 100,00",
+                    "secondary_label": "A vista",
+                    "state": "none"
+                }
+            ]
         },
         """ : ""
 
@@ -107,12 +125,11 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
                 },
                 "installments": {
                     "header": {
-                        "chevron": "Escolha o parcelamento",
-                        "radio": "Escolha o parcelamento",
                         "title": "Escolha o parcelamento"
                     },
-                    "interest_free_label": "Sem acréscimo",
-                    "total_label": "Total"
+
+                    "total_label": "Total",
+                    "pay_button_label": "Pagar"
                 }
             },
             \(installmentJSON)
@@ -196,7 +213,7 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
         let result = try await sut.repository.fetchCard(params: self.makeParams())
 
         // Assert
-        XCTAssertEqual(result.installment?.selectionType, "radio")
+        XCTAssertEqual(result.installment?.selectionType, "radio_button")
     }
 
     func testFetchCard_whenSuccess_mapsInstallmentQuotas() async throws {
@@ -209,9 +226,67 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
         let result = try await sut.repository.fetchCard(params: self.makeParams())
 
         // Assert
-        XCTAssertEqual(result.installment?.quotas.count, 1)
+        XCTAssertEqual(result.installment?.quotas.count, 2)
         XCTAssertEqual(result.installment?.quotas.first?.installments, 3)
-        XCTAssertEqual(result.installment?.quotas.first?.installmentAmount, 100.0)
+        XCTAssertEqual(result.installment?.quotas.first?.installmentAmount, 33.34)
+    }
+
+    func testFetchCard_whenSuccess_mapsQuotaNewFields() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchCard(params: self.makeParams())
+
+        // Assert
+        let firstQuota = result.installment?.quotas.first
+        XCTAssertEqual(firstQuota?.totalAmount, 100.00)
+        XCTAssertEqual(firstQuota?.primaryLabel, "3x R$ 33,34")
+        XCTAssertEqual(firstQuota?.secondaryLabel, "Sem juros")
+        XCTAssertEqual(firstQuota?.state, .success)
+        XCTAssertEqual(firstQuota?.tertiaryLabel, "CFT: 12,5%  TEA: 18,5%")
+    }
+
+    func testFetchCard_whenSuccess_mapsQuotaStateNone() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchCard(params: self.makeParams())
+
+        // Assert — second quota has state "none"
+        XCTAssertEqual(result.installment?.quotas.last?.state, CardPaymentBrickCardData.Installment.QuotaState.none)
+    }
+
+    func testFetchCard_whenSuccess_mapsQuotaTertiaryLabelAbsent() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchCard(params: self.makeParams())
+
+        // Assert — second quota has no tertiary_label
+        XCTAssertNil(result.installment?.quotas.last?.tertiaryLabel)
+    }
+
+    func testFetchCard_whenSuccess_mapsInstallmentTranslations() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchCard(params: self.makeParams())
+
+        // Assert
+        XCTAssertEqual(result.installment?.translations.headerTitle, "Escolha o parcelamento")
+        XCTAssertEqual(result.installment?.translations.totalLabel, "Total")
     }
 
     func testFetchCard_whenInstallmentAbsent_returnsNilInstallment() async throws {

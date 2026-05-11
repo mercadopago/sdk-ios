@@ -5,7 +5,6 @@
 //  Created by Danielle Nozaki Ogawa on 28/01/26.
 //
 
-@testable import CoreMethods
 @testable import MercadoPagoCheckout
 import SnapshotTesting
 import SwiftUI
@@ -15,9 +14,10 @@ import XCTest
 final class InstallmentsViewTests: XCTestCase {
     func test_installmentScreen_radioButton() {
         var paymentData = MPPaymentData(transactionAmount: 1000, token: "")
+        var installmentsData = Self.validMPInstallmentsData
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
-            installments: Self.validInstallments,
+            installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
             style: .radioButton,
             onBack: {}
         )
@@ -30,9 +30,10 @@ final class InstallmentsViewTests: XCTestCase {
 
     func test_installmentScreen_chevron() {
         var paymentData = MPPaymentData(transactionAmount: 1000, token: "")
+        var installmentsData = Self.validMPInstallmentsData
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
-            installments: Self.validInstallments,
+            installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
             style: .chevron,
             onBack: {}
         )
@@ -45,41 +46,48 @@ final class InstallmentsViewTests: XCTestCase {
 
     // MARK: - Fixture
 
-    private static let validInstallments = Installment(
-        paymentMethodId: "visa",
-        paymentTypeId: "credit_card",
-        thumbnail: "https://example.com/visa.png",
-        issuer: Installment.Issuer(id: "25", thumbnail: "https://example.com/visa.png", name: "Mercado Pago"),
-        processingMode: "aggregator",
-        merchantAccountId: "",
-        payerCosts: [
-            InstallmentsViewTests.makePayerCost(id: 1, installments: 1, installmentAmount: 1000.0, totalAmount: 1000.0),
-            InstallmentsViewTests.makePayerCost(id: 2, installments: 2, installmentAmount: 548.2, installmentRate: 9.64, totalAmount: 1096.4),
-            InstallmentsViewTests.makePayerCost(id: 3, installments: 3, installmentAmount: 370.77, installmentRate: 11.23, totalAmount: 1112.3)
-        ],
-        agreements: []
-    )
-
-    private static func makePayerCost(
-        id: Int,
-        installments: Int,
-        installmentAmount: Double,
-        installmentRate: Double = 0.0,
-        totalAmount: Double
-    ) -> Installment.PayerCost {
-        Installment.PayerCost(
-            id: id,
-            installments: installments,
-            installmentAmount: installmentAmount,
-            installmentRate: installmentRate,
-            installmentRateCollector: ["MERCADOPAGO"],
-            totalAmount: totalAmount,
-            minAllowedAmount: 0.5,
-            maxAllowedAmount: 60000.0,
-            discountRate: 0.0,
-            reimbursementRate: 0.0,
-            labels: [],
-            paymentMethodOptionId: "test-\(id)"
+    private static let validMPInstallmentsData = MPInstallmentsData(
+        installment: .init(
+            selectionType: "radio_button",
+            quotas: [
+                .init(
+                    installments: 1,
+                    installmentAmount: 1000.0,
+                    totalAmount: 1000.0,
+                    primaryLabel: "1x R$ 1.000,00",
+                    secondaryLabel: "À vista",
+                    state: .none,
+                    tertiaryLabel: nil
+                ),
+                .init(
+                    installments: 2,
+                    installmentAmount: 548.2,
+                    totalAmount: 1096.4,
+                    primaryLabel: "2x R$ 548,20",
+                    secondaryLabel: "R$ 1.096,40",
+                    state: .none,
+                    tertiaryLabel: nil
+                ),
+                .init(
+                    installments: 3,
+                    installmentAmount: 370.77,
+                    totalAmount: 1000.0,
+                    primaryLabel: "3x R$ 370,77",
+                    secondaryLabel: "Sem juros",
+                    state: .success,
+                    tertiaryLabel: nil
+                )
+            ],
+            translations: .init(
+                headerTitle: "Escolha o parcelamento",
+                totalLabel: "Total",
+                payButtonLabel: "Pagar"
+            )
+        ),
+        cardDisplayInfo: .init(
+            issuerName: "Bradesco",
+            paymentTypeId: "credit_card",
+            lastFourDigits: "1234"
         )
-    }
+    )
 }

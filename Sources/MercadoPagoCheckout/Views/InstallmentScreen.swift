@@ -5,7 +5,6 @@
 //  Created by Guilherme Prata Costa on 14/11/25.
 //
 
-import CoreMethods
 import MPComponents
 import MPFoundation
 import SwiftUI
@@ -16,11 +15,11 @@ protocol InstallmentInteractionStyle {
     var listItemStyle: MPListItemStyle { get }
     var listItemTrailingStyle: MPListItemTrailingStyle? { get }
 
-    func footerButtonData(onContinue: @escaping () -> Void) -> MPFixedFooterButtonData?
+    func footerButtonData(_ label: String, onContinue: @escaping () -> Void) -> MPFixedFooterButtonData?
 
     func selectionBinding(
-        for payerCost: Installment.PayerCost,
-        selected: Binding<Installment.PayerCost?>,
+        for quota: CardPaymentBrickCardData.Installment.Quota,
+        selected: Binding<CardPaymentBrickCardData.Installment.Quota?>,
         onContinue: @escaping () -> Void
     ) -> Binding<Bool>
 }
@@ -36,18 +35,18 @@ struct RadioButtonInstallmentStyle: InstallmentInteractionStyle {
         nil
     }
 
-    func footerButtonData(onContinue: @escaping () -> Void) -> MPFixedFooterButtonData? {
-        .init(text: "text", icon: .padlockClose, onClick: onContinue)
+    func footerButtonData(_ label: String, onContinue: @escaping () -> Void) -> MPFixedFooterButtonData? {
+        .init(text: label, icon: .padlockClose, onClick: onContinue)
     }
 
     func selectionBinding(
-        for payerCost: Installment.PayerCost,
-        selected: Binding<Installment.PayerCost?>,
+        for quota: CardPaymentBrickCardData.Installment.Quota,
+        selected: Binding<CardPaymentBrickCardData.Installment.Quota?>,
         onContinue _: @escaping () -> Void
     ) -> Binding<Bool> {
         Binding(
-            get: { selected.wrappedValue == payerCost },
-            set: { if $0 { selected.wrappedValue = payerCost } }
+            get: { selected.wrappedValue == quota },
+            set: { if $0 { selected.wrappedValue = quota } }
         )
     }
 }
@@ -61,13 +60,13 @@ struct ChevronInstallmentStyle: InstallmentInteractionStyle {
         .textIcon(Image(systemName: "chevron.right"))
     }
 
-    func footerButtonData(onContinue _: @escaping () -> Void) -> MPFixedFooterButtonData? {
+    func footerButtonData(_: String, onContinue _: @escaping () -> Void) -> MPFixedFooterButtonData? {
         nil
     }
 
     func selectionBinding(
-        for _: Installment.PayerCost,
-        selected _: Binding<Installment.PayerCost?>,
+        for _: CardPaymentBrickCardData.Installment.Quota,
+        selected _: Binding<CardPaymentBrickCardData.Installment.Quota?>,
         onContinue: @escaping () -> Void
     ) -> Binding<Bool> {
         Binding(
@@ -93,23 +92,11 @@ extension InstallmentInteractionStyle where Self == ChevronInstallmentStyle {
 
 // MARK: - Installment Extension for Style Resolution
 
-extension Installment {
-    /// Resolves the interaction style based on the `interactionMode` returned by the backend.
-    ///
-    /// This computed property reads the `interactionMode` value and returns the appropriate style.
-    /// If `interactionMode` is `nil` or unknown, returns the default style (RadioButton).
-    ///
-    /// Example usage:
-    /// ```swift
-    /// let installment = Installment(..., interactionMode: "chevron")
-    /// let style = installment.resolvedInteractionStyle // ChevronInstallmentStyle
-    /// ```
+extension CardPaymentBrickCardData.Installment {
     var resolvedInteractionStyle: any InstallmentInteractionStyle {
-        switch self.interactionMode?.lowercased() {
+        switch self.selectionType.lowercased() {
         case "chevron":
             return ChevronInstallmentStyle()
-        case "radio_button", nil:
-            return RadioButtonInstallmentStyle()
         default:
             return RadioButtonInstallmentStyle()
         }
@@ -134,7 +121,7 @@ struct InstallmentScreen: View {
     @Environment(\.presentationMode) var presentationMode
 
     @ObservedObject private var viewModel: InstallmentsScreenViewModel
-    @State var selectedPayerCost: Installment.PayerCost?
+    @State var selectedQuota: CardPaymentBrickCardData.Installment.Quota?
 
     private let style: any InstallmentInteractionStyle
     private let onBack: () -> Void
@@ -143,27 +130,27 @@ struct InstallmentScreen: View {
 
     init(
         paymentData: Binding<MPPaymentData>,
-        installments: Installment,
+        installmentsData: Binding<MPInstallmentsData>,
         style: (any InstallmentInteractionStyle)? = nil,
         onBack: @escaping () -> Void,
         onContinue: @escaping () -> Void = {}
     ) {
         self._paymentData = paymentData
-        self.viewModel = InstallmentsScreenViewModel(installments: installments)
-        self.style = style ?? installments.resolvedInteractionStyle
+        self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData)
+        self.style = style ?? installmentsData.wrappedValue.installment.resolvedInteractionStyle
         self.onBack = onBack
         self.onContinue = onContinue
     }
 
     var body: some View {
         MPHeader(
-            title: MPStrings.Installments.title,
+            title: self.viewModel.headerTitle,
             onBack: {
                 self.presentationMode.wrappedValue.dismiss()
             },
             content: {
-                ForEach(self.viewModel.payerCosts) { payerCost in
-                    self.listItem(for: payerCost)
+                ForEach(self.viewModel.quotas) { quota in
+                    self.listItem(for: quota)
                 }
             },
             footer: {
@@ -174,16 +161,13 @@ struct InstallmentScreen: View {
 
     // MARK: - Computed Properties
 
-    private func listItem(for payerCost: Installment.PayerCost) -> AnyView {
+    private func listItem(for quota: CardPaymentBrickCardData.Installment.Quota) -> AnyView {
         MPListItem(
-            isSelected: self.bindingForPayerCost(payerCost),
-            contentInfo: .init(
-                title: self.viewModel.formatInstallmentLabel(for: payerCost),
-                description: nil
-            ),
+            isSelected: self.bindingForQuota(quota),
+            contentInfo: self.viewModel.contentInfo(for: quota),
             trailing: MPListItemTrailing(
-                text: self.viewModel.formatInterestLabel(for: payerCost),
-                color: self.viewModel.findInterestLabelColor(for: payerCost)
+                text: quota.secondaryLabel,
+                color: self.viewModel.color(for: quota)
             )
         )
         .listItemStyle(self.style.listItemStyle)
@@ -192,19 +176,19 @@ struct InstallmentScreen: View {
 
     private var footer: some View {
         MPFooter(
-            title: MPStrings.Common.total,
-            amount: self.viewModel.selectedTotalAmount(self.selectedPayerCost),
-            subtitle: self.viewModel.formatFooterDescription(),
-            buttonData: self.style.footerButtonData(onContinue: self.onContinue)
+            title: self.viewModel.totalLabel,
+            amount: self.viewModel.selectedTotalAmount(self.selectedQuota),
+            subtitle: self.viewModel.footerDescription(),
+            buttonData: self.style.footerButtonData(self.viewModel.payButtonLabel, onContinue: self.onContinue)
         )
     }
 
     // MARK: - Helper Methods
 
-    private func bindingForPayerCost(_ payerCost: Installment.PayerCost) -> Binding<Bool> {
+    private func bindingForQuota(_ quota: CardPaymentBrickCardData.Installment.Quota) -> Binding<Bool> {
         self.style.selectionBinding(
-            for: payerCost,
-            selected: self.$selectedPayerCost,
+            for: quota,
+            selected: self.$selectedQuota,
             onContinue: self.onContinue
         )
     }
@@ -217,7 +201,7 @@ struct InstallmentScreen: View {
         paymentData: .constant(
             MPPaymentData(transactionAmount: 100)
         ),
-        installments: InstallmentMock.visa,
+        installmentsData: .constant(InstallmentMock.visa),
         style: .radioButton,
         onBack: {}
     )
@@ -228,7 +212,7 @@ struct InstallmentScreen: View {
         paymentData: .constant(
             MPPaymentData(transactionAmount: 100)
         ),
-        installments: InstallmentMock.visa,
+        installmentsData: .constant(InstallmentMock.visa),
         style: .chevron,
         onBack: {}
     )
@@ -236,55 +220,50 @@ struct InstallmentScreen: View {
 
 #if DEBUG
     enum InstallmentMock {
-        static let visa = Installment(
-            paymentMethodId: "visa",
-            paymentTypeId: "credit_card",
-            thumbnail: "https://http2.mlstatic.com/storage/mobile-on-demand-resources/image/cho_off-visa_mdpi",
-            issuer: Installment.Issuer(
-                id: "25",
-                thumbnail: "https://http2.mlstatic.com/storage/mobile-on-demand-resources/image/cho_off-visa_mdpi",
-                name: "Tarjeta de crédito Mercado Pago"
-            ),
-            processingMode: "aggregator",
-            merchantAccountId: "",
-            payerCosts: [
-                Installment.PayerCost(
-                    id: 1, installments: 1, installmentAmount: 1000.0, installmentRate: 0.0,
-                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1000.0,
-                    minAllowedAmount: 0.5, maxAllowedAmount: 60000.0,
-                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                    paymentMethodOptionId: ""
-                ),
-                Installment.PayerCost(
-                    id: 2, installments: 2, installmentAmount: 500, installmentRate: 0,
-                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1096.4,
-                    minAllowedAmount: 10.0, maxAllowedAmount: 60000.0,
-                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                    paymentMethodOptionId: ""
-                ),
-                Installment.PayerCost(
-                    id: 3, installments: 3, installmentAmount: 370.77, installmentRate: 11.23,
-                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1112.3,
-                    minAllowedAmount: 15.0, maxAllowedAmount: 60000.0,
-                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                    paymentMethodOptionId: ""
-                ),
-                Installment.PayerCost(
-                    id: 4, installments: 4, installmentAmount: 278.4, installmentRate: 11.36,
-                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1113.6,
-                    minAllowedAmount: 20.0, maxAllowedAmount: 60000.0,
-                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                    paymentMethodOptionId: ""
-                ),
-                Installment.PayerCost(
-                    id: 5, installments: 5, installmentAmount: 228.62, installmentRate: 14.31,
-                    installmentRateCollector: ["MERCADOPAGO"], totalAmount: 1143.1,
-                    minAllowedAmount: 25.0, maxAllowedAmount: 60000.0,
-                    discountRate: 0.0, reimbursementRate: 0.0, labels: [],
-                    paymentMethodOptionId: ""
+        static let visa = MPInstallmentsData(
+            installment: .init(
+                selectionType: "radio_button",
+                quotas: [
+                    .init(
+                        installments: 1,
+                        installmentAmount: 1000.0,
+                        totalAmount: 1000.0,
+                        primaryLabel: "1x R$ 1.000,00",
+                        secondaryLabel: "À vista",
+                        state: .none,
+                        tertiaryLabel: nil
+                    ),
+                    .init(
+                        installments: 3,
+                        installmentAmount: 333.34,
+                        totalAmount: 1000.0,
+                        primaryLabel: "3x R$ 333,34",
+                        secondaryLabel: "Sem juros",
+                        state: .success,
+                        tertiaryLabel: nil
+                    ),
+                    .init(
+                        installments: 6,
+                        installmentAmount: 175.0,
+                        totalAmount: 1050.0,
+                        primaryLabel: "6x R$ 175,00",
+                        secondaryLabel: "R$ 1.050,00",
+                        state: .none,
+                        tertiaryLabel: "CFT: 12,5%  TEA: 18,5%"
+                    )
+                ],
+                translations: .init(
+                    headerTitle: "Escolha o parcelamento",
+
+                    totalLabel: "Total",
+                    payButtonLabel: "Pagar!"
                 )
-            ],
-            agreements: []
+            ),
+            cardDisplayInfo: .init(
+                issuerName: "Santander",
+                paymentTypeId: "credit_card",
+                lastFourDigits: "1234"
+            )
         )
     }
 #endif

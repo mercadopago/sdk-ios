@@ -62,18 +62,16 @@ struct CardFormTranslationsResponse: Codable {
 
     struct InstallmentsTranslationsData: Codable {
         let header: HeaderData
-        let interestFreeLabel: String
         let totalLabel: String
+        let payButtonLabel: String
 
         enum CodingKeys: String, CodingKey {
             case header
-            case interestFreeLabel = "interest_free_label"
             case totalLabel = "total_label"
+            case payButtonLabel = "pay_button_label"
         }
 
         struct HeaderData: Codable {
-            let chevron: String
-            let radio: String
             let title: String
         }
     }

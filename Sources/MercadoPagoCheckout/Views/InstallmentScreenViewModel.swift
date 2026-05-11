@@ -5,76 +5,70 @@
 //  Created by Danielle Nozaki Ogawa on 28/01/26.
 //
 
-import CoreMethods
 import MPComponents
 import MPFoundation
 import SwiftUI
 
 final class InstallmentsScreenViewModel: ObservableObject {
-    private(set) var payerCosts: [Installment.PayerCost] = []
-    private let installment: Installment?
+    @Binding var installmentsData: MPInstallmentsData
 
-    init(installments: Installment) {
-        self.installment = installments
-        self.payerCosts = self.installment?.payerCosts ?? []
+    init(installmentsData: Binding<MPInstallmentsData>) {
+        self._installmentsData = installmentsData
     }
 
-    // MARK: - Formatted strings
+    // MARK: - Computed Properties
 
-    func formatInstallmentLabel(for payerCost: Installment.PayerCost) -> String {
-        "\(payerCost.installments)x \(MPStrings.formatPrice(payerCost.installmentAmount))"
+    var headerTitle: String {
+        self.installmentsData.installment.translations.headerTitle
     }
 
-    func formatInterestLabel(for payerCost: Installment.PayerCost) -> String {
-        if payerCost.installments == 1 {
-            return String()
-        } else {
-            return payerCost.installmentRate == 0 ?
-                MPStrings.Installments.interestFree :
-                MPStrings.formatPrice(payerCost.totalAmount)
-        }
+    var totalLabel: String {
+        self.installmentsData.installment.translations.totalLabel
     }
 
-    func findInterestLabelColor(for payerCost: Installment.PayerCost) -> TextStyleColorType? {
-        return payerCost.installmentRate == 0 ? .feedbackPositive : nil
+    var payButtonLabel: String {
+        self.installmentsData.installment.translations.payButtonLabel
+    }
+
+    var quotas: [CardPaymentBrickCardData.Installment.Quota] {
+        self.installmentsData.installment.quotas
     }
 
     // MARK: - Footer
 
-    func selectedTotalAmount(_ selected: Installment.PayerCost?) -> MPAmountData {
-        let value = selected?.totalAmount ?? self.payerCosts.first?.installmentAmount ?? 0
+    func selectedTotalAmount(_ selected: CardPaymentBrickCardData.Installment.Quota?) -> MPAmountData {
+        let value = selected?.totalAmount ?? self.quotas.first?.totalAmount ?? 0
         return MPAmountData(from: value)
     }
 
-    func formatFooterDescription() -> String {
-        guard
-            let issuerName = installment?.issuer.name,
-            let type = installment?.paymentTypeId
-        else {
-            return String()
-        }
+    func color(for quota: CardPaymentBrickCardData.Installment.Quota) -> TextStyleColorType? {
+        quota.state == .success ? .feedbackPositive : nil
+    }
 
-        return self.getSavedCardName(
-            issuerName: issuerName,
-            paymentTypeLabel: MPFormatIssuerName.formattedPaymentType(type),
-            lastDigits: "1234"
+    func primaryLabelComponents(_ label: String) -> (title: String, decimalSuffix: String?) {
+        guard
+            let commaIndex = label.lastIndex(of: ","),
+            label.distance(from: commaIndex, to: label.endIndex) == 3
+        else { return (label, nil) }
+
+        let decimalPart = label[label.index(after: commaIndex)...]
+        return (String(label[..<commaIndex]), String(decimalPart))
+    }
+
+    func contentInfo(for quota: CardPaymentBrickCardData.Installment.Quota) -> MPListItemContentInfo {
+        let components = self.primaryLabelComponents(quota.primaryLabel)
+        return .init(
+            title: components.title,
+            titleDecimalSuffix: components.decimalSuffix,
+            description: quota.tertiaryLabel
         )
     }
 
-    func getSavedCardName(
-        issuerName: String,
-        paymentTypeLabel: String,
-        lastDigits: String,
-        isMercadoPagoCard: Bool = false
-    ) -> String {
-        let normalizedIssuerName = MPFormatIssuerName.applyCapitalizationRules(
-            MPFormatIssuerName.cleanIssuerName(issuerName)
+    func footerDescription() -> String {
+        let info = self.installmentsData.cardDisplayInfo
+        let issuerName = MPFormatIssuerName.applyCapitalizationRules(
+            MPFormatIssuerName.cleanIssuerName(info.issuerName ?? String())
         )
-
-        if isMercadoPagoCard {
-            return "\(normalizedIssuerName) \(paymentTypeLabel)"
-        }
-
-        return "\(normalizedIssuerName) \(paymentTypeLabel) **** \(lastDigits)"
+        return "\(issuerName) **** \(info.lastFourDigits)"
     }
 }

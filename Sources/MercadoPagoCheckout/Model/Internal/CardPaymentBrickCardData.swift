@@ -15,10 +15,38 @@ struct CardPaymentBrickCardData: Equatable {
     struct Installment: Equatable {
         let selectionType: String
         let quotas: [Quota]
+        let translations: InstallmentTranslations
 
-        struct Quota: Equatable {
+        struct Quota: Equatable, Identifiable {
+            var id: Int {
+                self.installments
+            }
+
             let installments: Int
             let installmentAmount: Double
+            let totalAmount: Double
+            let primaryLabel: String
+            let secondaryLabel: String
+            let state: QuotaState
+            let tertiaryLabel: String?
+        }
+
+        enum QuotaState: Equatable {
+            case success
+            case none
+
+            init(_ rawValue: String) {
+                switch rawValue {
+                case "success": self = .success
+                default: self = .none
+                }
+            }
+        }
+
+        struct InstallmentTranslations: Equatable {
+            let headerTitle: String
+            let totalLabel: String
+            let payButtonLabel: String
         }
     }
 
