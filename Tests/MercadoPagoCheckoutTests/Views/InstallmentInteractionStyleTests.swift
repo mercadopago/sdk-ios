@@ -1,5 +1,5 @@
 //
-//  InstallmentsScreenViewTests.swift
+//  InstallmentInteractionStyleTests.swift
 //  MercadoPagoSDK
 //
 
@@ -8,7 +8,7 @@
 import SwiftUI
 import XCTest
 
-final class InstallmentsScreenViewTests: XCTestCase {
+final class InstallmentInteractionStyleTests: XCTestCase {
     // MARK: - RadioButtonInstallmentStyle: footerButtonData
 
     func test_radioButton_footerButtonData_shouldReturnNonNilButtonData() {
