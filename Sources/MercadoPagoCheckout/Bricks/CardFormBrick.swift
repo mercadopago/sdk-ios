@@ -118,7 +118,12 @@ struct CardFormBrick: View {
             onBack: {
                 self.presentationMode.wrappedValue.dismiss()
             },
-            onContinue: {
+            onFinish: { paymentData in
+                self.paymentData = paymentData
+                self.completeCheckout()
+            },
+            onContinue: { paymentData in
+                self.paymentData = paymentData
                 self.route = .reviewAndConfirm
             }
         )

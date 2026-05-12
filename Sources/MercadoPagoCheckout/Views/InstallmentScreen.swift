@@ -125,7 +125,8 @@ struct InstallmentScreen: View {
 
     private let style: any InstallmentInteractionStyle
     private let onBack: () -> Void
-    private let onContinue: () -> Void
+    private let onFinish: (MPPaymentData) -> Void
+    private let onContinue: (MPPaymentData) -> Void
     @Binding private var paymentData: MPPaymentData
 
     init(
@@ -133,12 +134,14 @@ struct InstallmentScreen: View {
         installmentsData: Binding<MPInstallmentsData>,
         style: (any InstallmentInteractionStyle)? = nil,
         onBack: @escaping () -> Void,
-        onContinue: @escaping () -> Void = {}
+        onFinish: @escaping (MPPaymentData) -> Void = { _ in },
+        onContinue: @escaping (MPPaymentData) -> Void = { _ in }
     ) {
         self._paymentData = paymentData
         self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData)
         self.style = style ?? installmentsData.wrappedValue.installment.resolvedInteractionStyle
         self.onBack = onBack
+        self.onFinish = onFinish
         self.onContinue = onContinue
     }
 
@@ -179,8 +182,18 @@ struct InstallmentScreen: View {
             title: self.viewModel.totalLabel,
             amount: self.viewModel.selectedTotalAmount(self.selectedQuota),
             subtitle: self.viewModel.footerDescription(),
-            buttonData: self.style.footerButtonData(self.viewModel.payButtonLabel, onContinue: self.onContinue)
+            buttonData: self.style.footerButtonData(
+                self.viewModel.payButtonLabel,
+                onContinue: {
+                    self.finishWithSelectedQuota()
+                }
+            )
         )
+    }
+
+    private func finishWithSelectedQuota() {
+        self.paymentData.installment = self.selectedQuota?.installments
+        self.onFinish(self.paymentData)
     }
 
     // MARK: - Helper Methods
@@ -189,8 +202,15 @@ struct InstallmentScreen: View {
         self.style.selectionBinding(
             for: quota,
             selected: self.$selectedQuota,
-            onContinue: self.onContinue
+            onContinue: {
+                self.continueWithSelectedQuota(for: quota)
+            }
         )
+    }
+
+    private func continueWithSelectedQuota(for installment: CardPaymentBrickCardData.Installment.Quota) {
+        self.paymentData.installment = installment.installments
+        self.onContinue(self.paymentData)
     }
 }
 
