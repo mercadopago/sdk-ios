@@ -116,7 +116,10 @@ struct CardFormBrick: View {
             paymentData: self.$paymentData,
             installmentsData: self.$installmentsData,
             onBack: {
-                self.presentationMode.wrappedValue.dismiss()
+                self.route = nil
+            },
+            onDismiss: {
+                self.cancelCheckout(context: .installments)
             },
             onFinish: { paymentData in
                 self.paymentData = paymentData
