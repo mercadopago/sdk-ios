@@ -89,17 +89,26 @@ struct CardFormBrick: View {
             viewModel: viewModel,
             onBack: { context in
                 viewModel.cancel(context: context, reason: .backButton)
-                self.cancelCheckout(context: .cardForm(context))
+                let updatedContext = CardFormUserCancelledContext(
+                    fields: context.fields,
+                    installmentsWasPresented: self.brickViewModel.installmentsWasPresented
+                )
+                self.cancelCheckout(context: .cardForm(updatedContext))
             },
             onDismiss: { context in
                 viewModel.cancel(context: context, reason: .dismissedScreen)
+                let updatedContext = CardFormUserCancelledContext(
+                    fields: context.fields,
+                    installmentsWasPresented: self.brickViewModel.installmentsWasPresented
+                )
                 self.route = nil
-                self.onResult(.userCancelled(.cardForm(context)))
+                self.onResult(.userCancelled(.cardForm(updatedContext)))
             },
             onSuccess: { paymentData, installmentsData in
                 self.paymentData = paymentData
                 if let installmentsData {
                     self.installmentsData = installmentsData
+                    self.brickViewModel.markInstallmentsPresented()
                     self.route = .installments
                 } else {
                     self.completeCheckout()

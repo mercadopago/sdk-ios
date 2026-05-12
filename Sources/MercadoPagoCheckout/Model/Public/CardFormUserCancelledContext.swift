@@ -7,9 +7,12 @@
 public struct CardFormUserCancelledContext: Sendable, Equatable {
     /// The state of each field at the time of cancellation.
     public let fields: [FieldState]
+    /// Whether the installments screen was presented before the user cancelled.
+    public let installmentsWasPresented: Bool
 
-    public init(fields: [FieldState]) {
+    public init(fields: [FieldState], installmentsWasPresented: Bool = false) {
         self.fields = fields
+        self.installmentsWasPresented = installmentsWasPresented
     }
 }
 
