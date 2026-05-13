@@ -12,17 +12,15 @@ import XCTest
 final class CardFormRulesTests: XCTestCase {
     // MARK: - Default Validation Data Helpers
 
-    private static func defaultCardNumberValidation() -> CardFormTexts.CardNumberField.Validation {
+    private static func defaultCardNumberValidation() -> CardFormFields.CardNumberField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.CardNumber.errorEmpty,
             errorIncomplete: MPStrings.CardForm.CardNumber.errorIncomplete,
-            errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid,
-            errorMethodNotAllowed: MPStrings.CardForm.CardNumber.errorMethodNotAllowed(brand: "%@"),
-            errorTypeNotAllowed: MPStrings.CardForm.CardNumber.errorTypeNotAllowed(cardType: "%@")
+            errorInvalid: MPStrings.CardForm.CardNumber.errorInvalid
         )
     }
 
-    private static func defaultCardHolderValidation() -> CardFormTexts.CardHolderField.Validation {
+    private static func defaultCardHolderValidation() -> CardFormFields.CardHolderField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.CardHolder.errorEmpty,
             errorIncomplete: MPStrings.CardForm.CardHolder.errorIncomplete,
@@ -30,7 +28,7 @@ final class CardFormRulesTests: XCTestCase {
         )
     }
 
-    private static func defaultExpirationValidation() -> CardFormTexts.ExpirationField.Validation {
+    private static func defaultExpirationValidation() -> CardFormFields.ExpirationField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.Expiration.errorEmpty,
             errorIncomplete: MPStrings.CardForm.Expiration.errorIncomplete,
@@ -38,14 +36,15 @@ final class CardFormRulesTests: XCTestCase {
         )
     }
 
-    private static func defaultCVVValidation() -> CardFormTexts.CVVField.Validation {
+    private static func defaultCVVValidation() -> CardFormFields.CVVField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.CVV.errorEmpty,
-            errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete
+            errorIncomplete: MPStrings.CardForm.CVV.errorIncomplete,
+            errorInvalid: ""
         )
     }
 
-    private static func defaultDocumentValidation() -> CardFormTexts.DocumentField.Validation {
+    private static func defaultDocumentValidation() -> CardFormFields.DocumentField.Validation {
         .init(
             errorEmpty: MPStrings.CardForm.Document.errorEmpty,
             errorIncomplete: MPStrings.CardForm.Document.errorIncomplete,
@@ -105,7 +104,7 @@ final class CardFormRulesTests: XCTestCase {
     func test_cardNumberRule_whenPaymentTypeNotAllowedCredit_shouldReturnTypeNotAllowedError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.credit)))
+        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed("credit_card")))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
@@ -117,7 +116,7 @@ final class CardFormRulesTests: XCTestCase {
     func test_cardNumberRule_whenPaymentTypeNotAllowedDebit_shouldReturnTypeNotAllowedError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.debit)))
+        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed("debit_card")))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
@@ -129,7 +128,7 @@ final class CardFormRulesTests: XCTestCase {
     func test_cardNumberRule_whenPaymentTypeNotAllowedPrepaid_shouldReturnTypeNotAllowedError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(.prepaid)))
+        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed("prepaid_card")))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
@@ -141,7 +140,7 @@ final class CardFormRulesTests: XCTestCase {
     func test_cardNumberRule_whenPaymentTypeNotAllowedNil_shouldReturnInvalidError() {
         // Arrange
         var rule = CardNumberRule(validation: Self.defaultCardNumberValidation())
-        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed(nil)))
+        rule.apply(.cardNumberExternalError(.paymentTypeNotAllowed("")))
 
         // Act
         let result = rule.validate("4111 1111 1111 1111")
@@ -487,12 +486,10 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardNumberRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.CardNumberField.Validation(
+        let customValidation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
-            errorInvalid: "CUSTOM_INVALID",
-            errorMethodNotAllowed: "CUSTOM_EXCLUSION %@",
-            errorTypeNotAllowed: "CUSTOM_TYPE %@"
+            errorInvalid: "CUSTOM_INVALID"
         )
         let rule = CardNumberRule(validation: customValidation)
 
@@ -510,7 +507,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardHolderRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.CardHolderField.Validation(
+        let customValidation = CardFormFields.CardHolderField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
             errorInvalid: "CUSTOM_FORMAT"
@@ -529,7 +526,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_expirationDateRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.ExpirationField.Validation(
+        let customValidation = CardFormFields.ExpirationField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
             errorInvalid: "CUSTOM_INVALID"
@@ -548,9 +545,10 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_securityCodeRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.CVVField.Validation(
+        let customValidation = CardFormFields.CVVField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
-            errorIncomplete: "CUSTOM_INCOMPLETE"
+            errorIncomplete: "CUSTOM_INCOMPLETE",
+            errorInvalid: ""
         )
         let rule = SecurityCodeRule(validation: customValidation)
 
@@ -563,7 +561,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_documentRule_usesCustomValidationTexts() {
         // Arrange
-        let customValidation = CardFormTexts.DocumentField.Validation(
+        let customValidation = CardFormFields.DocumentField.Validation(
             errorEmpty: "CUSTOM_EMPTY",
             errorIncomplete: "CUSTOM_INCOMPLETE",
             errorInvalid: "CUSTOM_INVALID"

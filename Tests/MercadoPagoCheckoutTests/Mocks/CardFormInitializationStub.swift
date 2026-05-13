@@ -11,7 +11,7 @@
 // MARK: - Input (CardFormInitializationInput - Repository → UseCase)
 
 enum CardFormInitializationInputStub {
-    static func makeDefaultFields() -> CardFormTexts.Fields {
+    static func makeDefaultFields() -> CardFormFields.Fields {
         .init(
             cardNumber: .init(
                 label: "Card number",
@@ -19,10 +19,9 @@ enum CardFormInitializationInputStub {
                 validation: .init(
                     errorEmpty: "Enter a card number",
                     errorIncomplete: "Card number is incomplete",
-                    errorInvalid: "Card number is invalid",
-                    errorMethodNotAllowed: "%@ is not accepted",
-                    errorTypeNotAllowed: "%@ cards are not accepted"
-                )
+                    errorInvalid: "Card number is invalid"
+                ),
+                config: .init(type: "number", length: .init(min: 13, max: 19))
             ),
             cardHolder: .init(
                 label: "Cardholder name",
@@ -32,7 +31,8 @@ enum CardFormInitializationInputStub {
                     errorEmpty: "Enter a name",
                     errorIncomplete: "Name is too short",
                     errorInvalid: "Invalid characters"
-                )
+                ),
+                config: .init(type: "string", length: .init(min: 2, max: 26))
             ),
             expiration: .init(
                 label: "Expiration",
@@ -41,16 +41,19 @@ enum CardFormInitializationInputStub {
                     errorEmpty: "Enter expiration",
                     errorIncomplete: "Expiration incomplete",
                     errorInvalid: "Expiration invalid"
-                )
+                ),
+                config: .init(type: "number", length: .init(min: 4, max: 4))
             ),
             cvv: .init(
                 label: "Security code",
-                placeholderDefault: "123",
-                placeholderAmex: "1234",
+                placeholder: "123",
+                tooltip: "",
                 validation: .init(
                     errorEmpty: "Enter security code",
-                    errorIncomplete: "Security code incomplete"
-                )
+                    errorIncomplete: "Security code incomplete",
+                    errorInvalid: "Security code invalid"
+                ),
+                config: .init(type: "number", length: .init(min: 3, max: 4))
             ),
             issuer: .init(
                 label: "Issuer",
@@ -81,7 +84,7 @@ enum CardFormInitializationOutputStub {
         )
     }
 
-    static func makeDefaultFields() -> CardFormTexts.Fields {
+    static func makeDefaultFields() -> CardFormFields.Fields {
         .init(
             cardNumber: .init(
                 label: "Card number",
@@ -89,10 +92,9 @@ enum CardFormInitializationOutputStub {
                 validation: .init(
                     errorEmpty: "Enter a card number",
                     errorIncomplete: "Card number is incomplete",
-                    errorInvalid: "Card number is invalid",
-                    errorMethodNotAllowed: "%@ is not accepted",
-                    errorTypeNotAllowed: "%@ cards are not accepted"
-                )
+                    errorInvalid: "Card number is invalid"
+                ),
+                config: .init(type: "number", length: .init(min: 13, max: 19))
             ),
             cardHolder: .init(
                 label: "Cardholder name",
@@ -102,7 +104,8 @@ enum CardFormInitializationOutputStub {
                     errorEmpty: "Enter a name",
                     errorIncomplete: "Name is too short",
                     errorInvalid: "Invalid characters"
-                )
+                ),
+                config: .init(type: "string", length: .init(min: 2, max: 26))
             ),
             expiration: .init(
                 label: "Expiration",
@@ -111,16 +114,19 @@ enum CardFormInitializationOutputStub {
                     errorEmpty: "Enter expiration",
                     errorIncomplete: "Expiration incomplete",
                     errorInvalid: "Expiration invalid"
-                )
+                ),
+                config: .init(type: "number", length: .init(min: 4, max: 4))
             ),
             cvv: .init(
                 label: "Security code",
-                placeholderDefault: "123",
-                placeholderAmex: "1234",
+                placeholder: "123",
+                tooltip: "",
                 validation: .init(
                     errorEmpty: "Enter security code",
-                    errorIncomplete: "Security code incomplete"
-                )
+                    errorIncomplete: "Security code incomplete",
+                    errorInvalid: "Security code invalid"
+                ),
+                config: .init(type: "number", length: .init(min: 3, max: 4))
             ),
             issuer: .init(
                 label: "Issuer",

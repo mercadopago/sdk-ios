@@ -12,14 +12,15 @@ import XCTest
 final class CardFormValidateTests: XCTestCase {
     // MARK: - Fixtures
 
-    private static func cvvValidation() -> CardFormTexts.CVVField.Validation {
+    private static func cvvValidation() -> CardFormFields.CVVField.Validation {
         .init(
             errorEmpty: "cvv.empty",
-            errorIncomplete: "cvv.incomplete"
+            errorIncomplete: "cvv.incomplete",
+            errorInvalid: "cvv.invalid"
         )
     }
 
-    private static func cardHolderValidation() -> CardFormTexts.CardHolderField.Validation {
+    private static func cardHolderValidation() -> CardFormFields.CardHolderField.Validation {
         .init(
             errorEmpty: "holder.empty",
             errorIncomplete: "holder.incomplete",
@@ -27,7 +28,7 @@ final class CardFormValidateTests: XCTestCase {
         )
     }
 
-    private static func expirationValidation() -> CardFormTexts.ExpirationField.Validation {
+    private static func expirationValidation() -> CardFormFields.ExpirationField.Validation {
         .init(
             errorEmpty: "exp.empty",
             errorIncomplete: "exp.incomplete",
@@ -131,12 +132,10 @@ final class CardFormValidateTests: XCTestCase {
 
     func test_liveErrorMessages_whenCardNumberInvalidLuhnAtMaxLength_shouldPopulate() {
         // Arrange
-        let validation = CardFormTexts.CardNumberField.Validation(
+        let validation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "num.empty",
             errorIncomplete: "num.incomplete",
-            errorInvalid: "num.invalid",
-            errorMethodNotAllowed: "num.method %@",
-            errorTypeNotAllowed: "num.type %@"
+            errorInvalid: "num.invalid"
         )
         var rule = CardNumberRule(validation: validation)
         rule.apply(.cardNumberRange(min: 16, max: 16))
@@ -151,12 +150,10 @@ final class CardFormValidateTests: XCTestCase {
 
     func test_liveErrorMessages_whenCardNumberBelowMaxLength_shouldBeEmpty() {
         // Arrange
-        let validation = CardFormTexts.CardNumberField.Validation(
+        let validation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "num.empty",
             errorIncomplete: "num.incomplete",
-            errorInvalid: "num.invalid",
-            errorMethodNotAllowed: "num.method %@",
-            errorTypeNotAllowed: "num.type %@"
+            errorInvalid: "num.invalid"
         )
         var rule = CardNumberRule(validation: validation)
         rule.apply(.cardNumberRange(min: 16, max: 16))
@@ -184,12 +181,10 @@ final class CardFormValidateTests: XCTestCase {
 
     func test_projectedValue_shouldExcludeLiveErrors() {
         // Arrange .
-        let validation = CardFormTexts.CardNumberField.Validation(
+        let validation = CardFormFields.CardNumberField.Validation(
             errorEmpty: "num.empty",
             errorIncomplete: "num.incomplete",
-            errorInvalid: "num.invalid",
-            errorMethodNotAllowed: "num.method %@",
-            errorTypeNotAllowed: "num.type %@"
+            errorInvalid: "num.invalid"
         )
 
         // Act

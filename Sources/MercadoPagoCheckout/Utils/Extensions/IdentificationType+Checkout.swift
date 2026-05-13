@@ -6,27 +6,24 @@
 //
 
 import CoreMethods
+import MPComponents
 import SwiftUI
 
+extension IdentificationType: MPBottomSheetListOption {
+    package var displayName: String { name }
+}
+
 extension IdentificationType {
-    func getPlaceholder() -> String {
-        switch id {
-        case "CPF": return "999.999.999-99"
-        case "CNPJ": return "99.999.999/9999-99"
-        default: return ""
-        }
+    func getPlaceholder() -> String? {
+        return placeholder
     }
 
-    func getFormat() -> String {
-        switch id {
-        case "CPF": return "###.###.###-##"
-        case "CNPJ": return type == "string" ? "AA.AAA.AAA/AAAA-##" : "##.###.###/####-##"
-        default: return ""
-        }
+    func getFormat() -> String? {
+        return mask
     }
 
     func getKeyboardType() -> UIKeyboardType {
-        switch type {
+        switch type.lowercased() {
         case "number": return .numberPad
         case "string": return .default
         default: return .default
