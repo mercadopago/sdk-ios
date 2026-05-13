@@ -928,7 +928,7 @@ final class CardFormViewModelTests: XCTestCase {
         )
 
         // Assert
-        XCTAssertEqual(capturedPaymentData?.payer?.documentType, IdentificationTypeStub.cpf.type)
+        XCTAssertEqual(capturedPaymentData?.payer?.documentType, IdentificationTypeStub.cpf.id)
         XCTAssertEqual(capturedPaymentData?.payer?.documentNumber, "12345678900")
     }
 
