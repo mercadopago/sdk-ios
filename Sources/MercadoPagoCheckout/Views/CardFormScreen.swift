@@ -266,7 +266,10 @@ struct CardFormScreen: View {
     private func dropdownDocument() -> some View {
         HStack(spacing: 0) {
             self.documentLabel()
-                .onTapGesture { self.isDocumentSheetPresented = true }
+                .onTapGesture {
+                    self.isCardNumberFocused = false
+                    self.isDocumentSheetPresented = true
+                }
                 .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
 
             Rectangle()

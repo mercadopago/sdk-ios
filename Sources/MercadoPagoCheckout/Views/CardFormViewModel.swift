@@ -263,7 +263,7 @@ final class CardFormViewModel: ObservableObject {
         var payer: MPPaymentData.Payer? {
             guard let selectTypeDocument else { return nil }
             return .init(
-                documentType: selectTypeDocument.type,
+                documentType: selectTypeDocument.id,
                 documentNumber: cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
             )
         }
