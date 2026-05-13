@@ -10,4 +10,5 @@
 public enum UserCancelledContext: Sendable, Equatable {
     /// The user cancelled during the card form flow.
     case cardForm(CardFormUserCancelledContext)
+    case installments
 }

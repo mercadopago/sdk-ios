@@ -19,6 +19,7 @@ final class CardFormBrickViewModel: ObservableObject {
     // MARK: - Published State
 
     @Published private(set) var screenState: ScreenState = .loading
+    @Published private(set) var installmentsWasPresented = false
 
     // MARK: - Dependencies
 
@@ -39,6 +40,10 @@ final class CardFormBrickViewModel: ObservableObject {
         self.appearance = appearance
         self.initializeUseCase = initializeUseCase
         self.analytics = analytics
+    }
+
+    func markInstallmentsPresented() {
+        self.installmentsWasPresented = true
     }
 
     // MARK: - Initialization

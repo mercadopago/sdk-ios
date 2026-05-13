@@ -19,7 +19,8 @@ final class InstallmentsViewTests: XCTestCase {
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
             style: .radioButton,
-            onBack: {}
+            onBack: {},
+            onDismiss: {}
         )
 
         assertSnapshot(
@@ -35,7 +36,8 @@ final class InstallmentsViewTests: XCTestCase {
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
             style: .chevron,
-            onBack: {}
+            onBack: {},
+            onDismiss: {}
         )
 
         assertSnapshot(
