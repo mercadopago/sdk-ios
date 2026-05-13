@@ -27,17 +27,17 @@ struct MPBottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ backgroundVC: UIViewController, context: Context) {
+        context.coordinator.height = self.height
         if self.isPresented.wrappedValue {
             if let existing = context.coordinator.presentedController as? MPAutoUpdateHostingController<MPBottomSheetContent<Content>>,
-               backgroundVC.presentedViewController === existing {
+               !existing.isBeingDismissed {
                 existing.rootView = self.makeSheetContent()
                 return
             }
-            guard backgroundVC.presentedViewController == nil else { return }
+            guard context.coordinator.presentedController == nil else { return }
             self.presentSheet(from: backgroundVC, context: context)
         } else {
-            if let presented = backgroundVC.presentedViewController,
-               presented === context.coordinator.presentedController,
+            if let presented = context.coordinator.presentedController,
                !presented.isBeingDismissed {
                 presented.dismiss(animated: true)
             }
@@ -61,10 +61,13 @@ struct MPBottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
         hostingVC.transitioningDelegate = context.coordinator
         context.coordinator.presentedController = hostingVC
 
-        DispatchQueue.main.async {
-            guard backgroundVC.view.window != nil,
-                  backgroundVC.presentedViewController == nil else { return }
-            backgroundVC.present(hostingVC, animated: true)
+        Task { @MainActor in
+            guard
+                let presenter = backgroundVC.view.window?.topMostViewController,
+                presenter.presentedViewController == nil else {
+                return
+            }
+            presenter.present(hostingVC, animated: true)
         }
     }
 
@@ -72,7 +75,7 @@ struct MPBottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
 
     final class Coordinator: NSObject, UIViewControllerTransitioningDelegate, UIAdaptivePresentationControllerDelegate {
         let isPresented: Binding<Bool>
-        let height: CGFloat?
+        var height: CGFloat?
         weak var presentedController: UIViewController?
 
         init(_ isPresented: Binding<Bool>, height: CGFloat?) {
@@ -109,5 +112,17 @@ struct MPBottomSheetPresenter<Content: View>: UIViewControllerRepresentable {
         func animationController(forDismissed _: UIViewController) -> UIViewControllerAnimatedTransitioning? {
             MPSheetTransitionAnimator(isPresenting: false)
         }
+    }
+}
+
+// MARK: - UIWindow helper
+
+private extension UIWindow {
+    var topMostViewController: UIViewController? {
+        var current = rootViewController
+        while let presented = current?.presentedViewController {
+            current = presented
+        }
+        return current
     }
 }
