@@ -111,9 +111,9 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
         }
         .accessibility(label: Text(MPStrings.Common.Accessibility.TextField.moreInfo))
         .buttonStyle(.plain)
-        .popover(isPresented: self.$isPopoverPresented) {
+        .mpTooltip(config: MPDefaultTooltipConfig(side: .top), isPresented: self.$isPopoverPresented) {
             Text(textPopover)
-                .textStyle(.bodyMedium(colorType: .secondary))
+                .textStyle(.smallMedium(colorType: .inverted))
         }
     }
 
