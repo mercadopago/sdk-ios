@@ -1,0 +1,23 @@
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  664946dfcb7db0df 27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "31ce5c8438561c17b80cbb1842546779587fd0ce",
+  "prompts": {
+    "664946dfcb7db0df": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a7043c9-b65b-4ab7-be07-98a0cf6a8ea1",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 42,
+      "total_deletions": 4,
+      "accepted_lines": 39,
+      "overriden_lines": 0
+    }
+  }
+}

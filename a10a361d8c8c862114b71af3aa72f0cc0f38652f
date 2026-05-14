@@ -1,0 +1,25 @@
+Sources/CoreMethods/CoreMethods.swift
+  931db6eb709b48cf 41-42,53,59,85,96,214,273,283,307,345,392,452-453,466
+Tests/CoreMethodsTests/CoreMethodsTest.swift
+  931db6eb709b48cf 210,217,251,276,305,375
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "a10a361d8c8c862114b71af3aa72f0cc0f38652f",
+  "prompts": {
+    "931db6eb709b48cf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b83abfc-63b6-467b-a29c-8eefc2f55250",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 2539,
+      "total_deletions": 2396,
+      "accepted_lines": 2708,
+      "overriden_lines": 0
+    }
+  }
+}

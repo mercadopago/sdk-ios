@@ -1,0 +1,35 @@
+CONTRIBUTING.md
+  931db6eb709b48cf 1-191
+SECURITY.md
+  931db6eb709b48cf 1-74
+CODE_OF_CONDUCT.md
+  931db6eb709b48cf 1-41
+.github/pull_request_template.md
+  931db6eb709b48cf 3-4,7,10-18,20-22,27
+.github/ISSUE_TEMPLATE/bug_report.md
+  931db6eb709b48cf 1-41
+.github/ISSUE_TEMPLATE/feature_request.md
+  931db6eb709b48cf 1-25
+CODING_GUIDELINES.md
+  931db6eb709b48cf 1-140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "ada9c71d056b6ae18f2606d6a8d6c468fb20a623",
+  "prompts": {
+    "931db6eb709b48cf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b83abfc-63b6-467b-a29c-8eefc2f55250",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 2173,
+      "total_deletions": 17,
+      "accepted_lines": 2173,
+      "overriden_lines": 0
+    }
+  }
+}

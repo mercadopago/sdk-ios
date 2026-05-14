@@ -1,0 +1,31 @@
+Tests/CoreMethodsTests/UI/SecurityCodeValidationTests.swift
+  d92e94d89bbc928a 1-11,13-18,20-23,25-28,30-35,37-41,43-47,49-53
+Tests/CoreMethodsTests/UI/ExpirationDateValidationTests.swift
+  d92e94d89bbc928a 1-11,13-18,20-24,26-32,34-38,40-46,48-52,54-58,60-66,68-72,74-78,80-84,86-89
+Tests/CoreMethodsTests/Data/Mappers/PaymentMethodMapperTests.swift
+  d92e94d89bbc928a 1-11,13-16,18-27,29-42,44-59,61-71,73-83,85-98,100-120,122-133,135-188
+Tests/CoreMethodsTests/UI/CardNumberValidationTests.swift
+  d92e94d89bbc928a 1-72
+Tests/CoreMethodsTests/Data/Mappers/InstallmentsMapperTests.swift
+  d92e94d89bbc928a 1-11,13-16,18-30,32-43,45-53,55-71,73-77,79-85,87-98,100-119,122-147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "346201d6004f8b5d2c1889159c90a0338ae3705f",
+  "prompts": {
+    "d92e94d89bbc928a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fe3662fd-ca54-4c20-97d1-b034a4183b41",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 809,
+      "total_deletions": 49,
+      "accepted_lines": 509,
+      "overriden_lines": 40
+    }
+  }
+}

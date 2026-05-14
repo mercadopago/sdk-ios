@@ -1,0 +1,21 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "77545eeb26aadd52c7f144357bdf65287c5a0cee",
+  "prompts": {
+    "908af645856eaea3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "acd91fa4-9f76-45e5-a5b0-e1984bb7468b",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 905,
+      "total_deletions": 7,
+      "accepted_lines": 0,
+      "overriden_lines": 1
+    }
+  }
+}

@@ -1,0 +1,22 @@
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_337aea31e8f27a::t_7861c76cea4480 42
+Sources/MercadoPagoCheckout/Domain/Model/MPInstallmentsData.swift
+  s_337aea31e8f27a::t_86b9716b32a396 11
+  s_337aea31e8f27a::t_0d51ad769dc698 10,12-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "f5f94c1634db91c53dcd05312cb710443bcb0545",
+  "prompts": {},
+  "sessions": {
+    "s_337aea31e8f27a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "24e30131-148e-4aa8-9fc5-325012fcb597",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
