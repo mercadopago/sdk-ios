@@ -79,7 +79,8 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
                     primaryLabel: $0.primaryLabel,
                     secondaryLabel: $0.secondaryLabel,
                     state: .init($0.state),
-                    tertiaryLabel: $0.tertiaryLabel
+                    tertiaryLabel: $0.tertiaryLabel,
+                    accessibilityLabel: $0.accessibilityLabel
                 )
             },
             translations: CardPaymentBrickCardData.Installment.InstallmentTranslations(

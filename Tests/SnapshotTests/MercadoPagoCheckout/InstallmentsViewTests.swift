@@ -59,7 +59,8 @@ final class InstallmentsViewTests: XCTestCase {
                     primaryLabel: "1x R$ 1.000,00",
                     secondaryLabel: "À vista",
                     state: .none,
-                    tertiaryLabel: nil
+                    tertiaryLabel: nil,
+                    accessibilityLabel: nil
                 ),
                 .init(
                     installments: 2,
@@ -68,7 +69,8 @@ final class InstallmentsViewTests: XCTestCase {
                     primaryLabel: "2x R$ 548,20",
                     secondaryLabel: "R$ 1.096,40",
                     state: .none,
-                    tertiaryLabel: nil
+                    tertiaryLabel: nil,
+                    accessibilityLabel: nil
                 ),
                 .init(
                     installments: 3,
@@ -77,7 +79,8 @@ final class InstallmentsViewTests: XCTestCase {
                     primaryLabel: "3x R$ 370,77",
                     secondaryLabel: "Sem juros",
                     state: .success,
-                    tertiaryLabel: nil
+                    tertiaryLabel: nil,
+                    accessibilityLabel: nil
                 )
             ],
             translations: .init(

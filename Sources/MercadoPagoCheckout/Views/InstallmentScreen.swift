@@ -174,16 +174,21 @@ struct InstallmentScreen: View {
     // MARK: - Computed Properties
 
     private func listItem(for quota: CardPaymentBrickCardData.Installment.Quota) -> AnyView {
-        MPListItem(
-            isSelected: self.bindingForQuota(quota),
-            contentInfo: self.viewModel.contentInfo(for: quota),
-            trailing: MPListItemTrailing(
-                text: quota.secondaryLabel,
-                color: self.viewModel.color(for: quota)
+        AnyView(
+            MPListItem(
+                isSelected: self.bindingForQuota(quota),
+                contentInfo: self.viewModel.contentInfo(for: quota),
+                trailing: MPListItemTrailing(
+                    text: quota.secondaryLabel,
+                    color: self.viewModel.color(for: quota)
+                )
             )
+            .listItemStyle(self.style.listItemStyle)
+            .listItemTrailingStyleIfPresent(self.style.listItemTrailingStyle)
+            .accessibilityElement(children: .ignore)
+            .accessibility(addTraits: .isButton)
+            .accessibility(label: quota.accessibilityLabel.map(Text.init) ?? Text(quota.primaryLabel))
         )
-        .listItemStyle(self.style.listItemStyle)
-        .listItemTrailingStyleIfPresent(self.style.listItemTrailingStyle)
     }
 
     private var footer: some View {
@@ -269,7 +274,8 @@ struct InstallmentScreen: View {
                         primaryLabel: "1x R$ 1.000,00",
                         secondaryLabel: "À vista",
                         state: .none,
-                        tertiaryLabel: nil
+                        tertiaryLabel: nil,
+                        accessibilityLabel: nil
                     ),
                     .init(
                         installments: 3,
@@ -278,7 +284,8 @@ struct InstallmentScreen: View {
                         primaryLabel: "3x R$ 333,34",
                         secondaryLabel: "Sem juros",
                         state: .success,
-                        tertiaryLabel: nil
+                        tertiaryLabel: nil,
+                        accessibilityLabel: nil
                     ),
                     .init(
                         installments: 6,
@@ -287,7 +294,8 @@ struct InstallmentScreen: View {
                         primaryLabel: "6x R$ 175,00",
                         secondaryLabel: "R$ 1.050,00",
                         state: .none,
-                        tertiaryLabel: "CFT: 12,5%  TEA: 18,5%"
+                        tertiaryLabel: "CFT: 12,5%  TEA: 18,5%",
+                        accessibilityLabel: nil
                     )
                 ],
                 translations: .init(

@@ -133,7 +133,8 @@ extension CardPaymentBrickCardData.Installment.Quota {
         primaryLabel: String = "1x R$ 1.000,00",
         secondaryLabel: String = "À vista",
         state: CardPaymentBrickCardData.Installment.QuotaState = .none,
-        tertiaryLabel: String? = nil
+        tertiaryLabel: String? = nil,
+        accessibilityLabel: String? = nil
     ) -> CardPaymentBrickCardData.Installment.Quota {
         .init(
             installments: installments,
@@ -142,7 +143,8 @@ extension CardPaymentBrickCardData.Installment.Quota {
             primaryLabel: primaryLabel,
             secondaryLabel: secondaryLabel,
             state: state,
-            tertiaryLabel: tertiaryLabel
+            tertiaryLabel: tertiaryLabel,
+            accessibilityLabel: accessibilityLabel
         )
     }
 }
