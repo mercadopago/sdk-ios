@@ -1,0 +1,19 @@
+Tests/MercadoPagoCheckoutTests/ViewModels/InstallmentsScreenViewModelTests.swift
+  s_53e2dedc18b155::t_c0b7e29703caee 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "aa81caa193662d8db3a3c05807fa34959da5524a",
+  "prompts": {},
+  "sessions": {
+    "s_53e2dedc18b155": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03956c7f-1f9e-4ea6-ac89-d53c8ac84b56",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
