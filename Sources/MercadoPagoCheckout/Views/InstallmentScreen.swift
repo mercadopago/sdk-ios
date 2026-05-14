@@ -141,6 +141,7 @@ struct InstallmentScreen: View {
         onContinue: @escaping (MPPaymentData) -> Void = { _ in }
     ) {
         self._paymentData = paymentData
+        self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.quotas.first)
         self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData)
         self.style = style ?? installmentsData.wrappedValue.installment.resolvedInteractionStyle
         self.onBack = onBack
@@ -292,9 +293,9 @@ struct InstallmentScreen: View {
                 ],
                 translations: .init(
                     headerTitle: "Escolha o parcelamento",
-
                     totalLabel: "Total",
-                    payButtonLabel: "Pagar!"
+                    payButtonLabel: "Pagar!",
+                    currencySymbol: "R$"
                 )
             ),
             cardDisplayInfo: .init(

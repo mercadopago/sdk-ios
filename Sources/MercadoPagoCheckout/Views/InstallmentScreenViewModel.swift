@@ -38,7 +38,7 @@ final class InstallmentsScreenViewModel: ObservableObject {
 
     func selectedTotalAmount(_ selected: CardPaymentBrickCardData.Installment.Quota?) -> MPAmountData {
         let value = selected?.totalAmount ?? self.quotas.first?.totalAmount ?? 0
-        return MPAmountData(from: value)
+        return MPAmountData(from: value, currencySymbol: self.installmentsData.installment.translations.currencySymbol)
     }
 
     func color(for quota: CardPaymentBrickCardData.Installment.Quota) -> TextStyleColorType? {

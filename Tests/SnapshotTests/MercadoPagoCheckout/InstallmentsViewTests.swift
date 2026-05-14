@@ -83,7 +83,8 @@ final class InstallmentsViewTests: XCTestCase {
             translations: .init(
                 headerTitle: "Escolha o parcelamento",
                 totalLabel: "Total",
-                payButtonLabel: "Pagar"
+                payButtonLabel: "Pagar",
+                currencySymbol: "R$"
             )
         ),
         cardDisplayInfo: .init(

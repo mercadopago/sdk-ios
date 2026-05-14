@@ -89,6 +89,7 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
             "translations": {
                 "card_form_title": "Dados do cartão",
                 "card_form_footer_button_label": "Pagar",
+                "currency_symbol": "R$",
                 "card_number": {
                     "label": "Número do cartão",
                     "placeholder": "1234 1234 1234 1234",
@@ -127,7 +128,6 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
                     "header": {
                         "title": "Escolha o parcelamento"
                     },
-
                     "total_label": "Total",
                     "pay_button_label": "Pagar"
                 }
@@ -287,6 +287,19 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
         // Assert
         XCTAssertEqual(result.installment?.translations.headerTitle, "Escolha o parcelamento")
         XCTAssertEqual(result.installment?.translations.totalLabel, "Total")
+    }
+
+    func testFetchCard_whenSuccess_mapsInstallmentCurrencySymbol() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchCard(params: self.makeParams())
+
+        // Assert
+        XCTAssertEqual(result.installment?.translations.currencySymbol, "R$")
     }
 
     func testFetchCard_whenInstallmentAbsent_returnsNilInstallment() async throws {

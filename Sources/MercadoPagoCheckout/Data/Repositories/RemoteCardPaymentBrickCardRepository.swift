@@ -34,7 +34,8 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
             installment: response.installment.map {
                 self.mapInstallment(
                     $0,
-                    translations: response.translations.installments
+                    translations: response.translations.installments,
+                    currencySymbol: response.translations.currencySymbol
                 )
             },
             paymentMethods: response.paymentMethods.map { self.mapPaymentMethod($0) }
@@ -67,7 +68,8 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
 
     private func mapInstallment(
         _ data: CardPaymentBrickCardResponse.InstallmentData,
-        translations: CardFormTranslationsResponse.InstallmentsTranslationsData
+        translations: CardFormTranslationsResponse.InstallmentsTranslationsData,
+        currencySymbol: String
     ) -> CardPaymentBrickCardData.Installment {
         return CardPaymentBrickCardData.Installment(
             selectionType: data.selectionType,
@@ -85,7 +87,8 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
             translations: CardPaymentBrickCardData.Installment.InstallmentTranslations(
                 headerTitle: translations.header.title,
                 totalLabel: translations.totalLabel,
-                payButtonLabel: translations.payButtonLabel
+                payButtonLabel: translations.payButtonLabel,
+                currencySymbol: currencySymbol
             )
         )
     }

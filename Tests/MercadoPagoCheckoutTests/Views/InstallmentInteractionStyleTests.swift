@@ -279,7 +279,8 @@ private extension CardPaymentBrickCardData.Installment {
         translations: InstallmentTranslations = .init(
             headerTitle: String(),
             totalLabel: String(),
-            payButtonLabel: String()
+            payButtonLabel: String(),
+            currencySymbol: String()
         )
     ) -> CardPaymentBrickCardData.Installment {
         .init(selectionType: selectionType, quotas: quotas, translations: translations)

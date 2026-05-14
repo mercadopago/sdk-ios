@@ -11,7 +11,7 @@ struct MPInstallmentsData: Equatable {
 extension MPInstallmentsData {
     static var empty: MPInstallmentsData {
         let translations = CardPaymentBrickCardData.Installment.InstallmentTranslations(
-            headerTitle: String(), totalLabel: String(), payButtonLabel: String()
+            headerTitle: String(), totalLabel: String(), payButtonLabel: String(), currencySymbol: String()
         )
         let installment = CardPaymentBrickCardData.Installment(
             selectionType: String(), quotas: [], translations: translations
