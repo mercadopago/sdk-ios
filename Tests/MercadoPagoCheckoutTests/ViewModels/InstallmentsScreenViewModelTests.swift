@@ -22,7 +22,7 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
         let result = sut.selectedTotalAmount(nil)
 
         // Assert
-        XCTAssertEqual(MPAmountData(from: 1000.0), result)
+        XCTAssertEqual(MPAmountData(from: 1000.0, currencySymbol: "R$"), result)
     }
 
     func test_selectedTotalAmount_whenSelected_shouldReturnSelectedTotalAmount() {
@@ -34,7 +34,29 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
         let result = sut.selectedTotalAmount(selectedQuota)
 
         // Assert
-        XCTAssertEqual(MPAmountData(from: 1221.1), result)
+        XCTAssertEqual(MPAmountData(from: 1221.1, currencySymbol: "R$"), result)
+    }
+
+    func test_selectedTotalAmount_shouldUseCurrencySymbolFromTranslations() {
+        // Arrange
+        let translations = CardPaymentBrickCardData.Installment.InstallmentTranslations(
+            headerTitle: String(),
+            totalLabel: String(),
+            payButtonLabel: String(),
+            currencySymbol: "$"
+        )
+        let installment = CardPaymentBrickCardData.Installment(
+            selectionType: "radio_button",
+            quotas: [.make(totalAmount: 500.0)],
+            translations: translations
+        )
+        let sut = self.makeSUT(installmentsData: .init(installment: installment, cardDisplayInfo: .make()))
+
+        // Act
+        let result = sut.selectedTotalAmount(nil)
+
+        // Assert
+        XCTAssertEqual(result.currencySymbol, "$")
     }
 
     // MARK: - color(for:)
@@ -120,7 +142,8 @@ extension CardPaymentBrickCardData.Installment {
         translations: .init(
             headerTitle: "Escolha o parcelamento",
             totalLabel: "Total",
-            payButtonLabel: "Pagar"
+            payButtonLabel: "Pagar",
+            currencySymbol: "R$"
         )
     )
 }

@@ -48,6 +48,7 @@ struct CardPaymentBrickCardData: Equatable {
             let headerTitle: String
             let totalLabel: String
             let payButtonLabel: String
+            let currencySymbol: String
         }
     }
 

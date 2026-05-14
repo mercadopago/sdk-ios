@@ -39,6 +39,10 @@ package struct MPAmountData: Equatable {
     /// // → currencySymbol: "R$", integerPart: "1.250", decimalPart: "99"
     /// ```
     package init(from value: Double) {
+        self.init(from: value, currencySymbol: MPStrings.Common.currency)
+    }
+
+    package init(from value: Double, currencySymbol: String) {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
@@ -48,7 +52,7 @@ package struct MPAmountData: Equatable {
         let separator = formatter.decimalSeparator ?? ","
         let parts = formatted.components(separatedBy: separator)
 
-        self.currencySymbol = MPStrings.Common.currency
+        self.currencySymbol = currencySymbol
         self.integerPart = parts.first ?? formatted
         self.decimalPart = parts.count > 1 ? parts[1] : "00"
     }

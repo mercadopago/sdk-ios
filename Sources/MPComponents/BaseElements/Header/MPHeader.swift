@@ -41,6 +41,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
 
     private let title: String
     private let onBack: () -> Void
+    private let autoScrollToFooter: Bool
     private let trailingActions: TrailingActions
     private let content: Content
     private let footer: Footer
@@ -91,12 +92,14 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     package init(
         title: String,
         onBack: @escaping () -> Void = {},
+        autoScrollToFooter: Bool = false,
         @ViewBuilder trailingActions: () -> TrailingActions = { EmptyView() },
         @ViewBuilder footer: () -> Footer = { EmptyView() },
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.onBack = onBack
+        self.autoScrollToFooter = autoScrollToFooter
         self.trailingActions = trailingActions()
         self.footer = footer()
         self.content = content()
@@ -226,7 +229,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
                 alignment: .bottom
             )
             .onChange(of: self.actualFooterHeight) { newHeight in
-                guard newHeight > 0 else { return }
+                guard newHeight > 0, self.autoScrollToFooter else { return }
                 withAnimation(.easeOut(duration: 0.25)) {
                     proxy.scrollTo("footerPadding", anchor: .bottom)
                 }
@@ -286,12 +289,14 @@ extension MPHeader where TrailingActions == EmptyView {
     package init(
         title: String,
         onBack: @escaping () -> Void = {},
+        autoScrollToFooter: Bool = false,
         @ViewBuilder content: () -> Content,
         @ViewBuilder footer: () -> Footer
     ) {
         self.init(
             title: title,
             onBack: onBack,
+            autoScrollToFooter: autoScrollToFooter,
             trailingActions: { EmptyView() },
             footer: footer,
             content: content
