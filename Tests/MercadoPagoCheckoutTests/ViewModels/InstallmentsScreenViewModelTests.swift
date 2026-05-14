@@ -22,7 +22,7 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
         let result = sut.selectedTotalAmount(nil)
 
         // Assert
-        XCTAssertEqual(MPAmountData(from: 1000.0), result)
+        XCTAssertEqual(MPAmountData(from: 1000.0, currencySymbol: "R$"), result)
     }
 
     func test_selectedTotalAmount_whenSelected_shouldReturnSelectedTotalAmount() {
