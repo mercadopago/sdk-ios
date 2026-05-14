@@ -1,0 +1,49 @@
+Sources/MercadoPagoCheckout/Data/Model/CardFormTranslationsResponse.swift
+  s_53e2dedc18b155::t_8598ad2ce252da 25
+  s_53e2dedc18b155::t_d99994daf6468b 14
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  s_53e2dedc18b155::t_de7ad6d6d386b4 86-87
+Sources/MercadoPagoCheckout/Domain/Model/MPInstallmentsData.swift
+  s_53e2dedc18b155::t_efbd7119f306b0 14
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_53e2dedc18b155::t_bf0680fdd7a98d 297-298
+Sources/MercadoPagoCheckout/Views/InstallmentScreenViewModel.swift
+  s_53e2dedc18b155::t_e1f9284204b437 41
+Tests/MercadoPagoCheckoutTests/ViewModels/InstallmentsScreenViewModelTests.swift
+  s_53e2dedc18b155::t_c9fbd9369430f6 42-45,48-53
+  ai_agent 46,59
+  s_53e2dedc18b155::t_a75d5974062ec4 37-41,47,54-58
+  s_53e2dedc18b155::t_459bd647a16656 145-146
+Tests/MercadoPagoCheckoutTests/Views/InstallmentInteractionStyleTests.swift
+  s_53e2dedc18b155::t_09eef4a821fb06 282-283
+Sources/MercadoPagoCheckout/Data/Repositories/RemoteCardPaymentBrickCardRepository.swift
+  s_53e2dedc18b155::t_5fab73cc7e6a4d 37
+  s_53e2dedc18b155::t_43a51b1d3a0f79 71-72,91
+  s_53e2dedc18b155::t_d0659d8aa0866e 90
+  s_53e2dedc18b155::t_48093468ae2b25 38
+Tests/MercadoPagoCheckoutTests/Data/RemoteCardFormInitializationRepositoryTests.swift
+  s_53e2dedc18b155::t_7a6eeb33de1153 47
+Tests/MercadoPagoCheckoutTests/Data/RemoteCardPaymentBrickCardRepositoryTests.swift
+  s_53e2dedc18b155::t_4d94ccb326cc8d 292-304
+  s_53e2dedc18b155::t_9420c2d2e9d016 92
+Sources/MercadoPagoCheckout/Model/Internal/CardPaymentBrickCardData.swift
+  s_53e2dedc18b155::t_920fc046a58562 50
+Sources/MPComponents/BaseElements/Footer/MPAmountData.swift
+  s_53e2dedc18b155::t_a3465656813b4c 42-45,55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "b8751d3a14c7196f58566988d5d329f4774aafa0",
+  "prompts": {},
+  "sessions": {
+    "s_53e2dedc18b155": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03956c7f-1f9e-4ea6-ac89-d53c8ac84b56",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
