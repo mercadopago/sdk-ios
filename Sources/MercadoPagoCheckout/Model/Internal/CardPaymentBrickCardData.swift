@@ -29,6 +29,7 @@ struct CardPaymentBrickCardData: Equatable {
             let secondaryLabel: String
             let state: QuotaState
             let tertiaryLabel: String?
+            let accessibilityLabel: String?
         }
 
         enum QuotaState: Equatable {

@@ -48,7 +48,8 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
                     "primary_label": "3x R$ 33,34",
                     "secondary_label": "Sem juros",
                     "state": "success",
-                    "tertiary_label": "CFT: 12,5%  TEA: 18,5%"
+                    "tertiary_label": "CFT: 12,5%  TEA: 18,5%",
+                    "accessibility_label": "3 parcelas de R$ 33,34, sem acréscimo"
                 },
                 {
                     "installments": 1,
@@ -273,6 +274,32 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
 
         // Assert — second quota has no tertiary_label
         XCTAssertNil(result.installment?.quotas.last?.tertiaryLabel)
+    }
+
+    func testFetchCard_whenSuccess_mapsQuotaAccessibilityLabel() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchCard(params: self.makeParams())
+
+        // Assert
+        XCTAssertEqual(result.installment?.quotas.first?.accessibilityLabel, "3 parcelas de R$ 33,34, sem acréscimo")
+    }
+
+    func testFetchCard_whenSuccess_mapsQuotaAccessibilityLabelAbsent() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchCard(params: self.makeParams())
+
+        // Assert — second quota has no accessibility_label
+        XCTAssertNil(result.installment?.quotas.last?.accessibilityLabel)
     }
 
     func testFetchCard_whenSuccess_mapsInstallmentTranslations() async throws {

@@ -42,6 +42,7 @@ struct CardPaymentBrickCardResponse: Codable {
             let secondaryLabel: String
             let state: String
             let tertiaryLabel: String?
+            let accessibilityLabel: String?
 
             enum CodingKeys: String, CodingKey {
                 case installments
@@ -51,6 +52,7 @@ struct CardPaymentBrickCardResponse: Codable {
                 case secondaryLabel = "secondary_label"
                 case state
                 case tertiaryLabel = "tertiary_label"
+                case accessibilityLabel = "accessibility_label"
             }
         }
     }
