@@ -1,0 +1,35 @@
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_53e2dedc18b155::t_54adaf13c3cc1d 188-189
+  s_53e2dedc18b155::t_69f8a667ad55c8 190
+  s_53e2dedc18b155::t_82d3068f0d6bc1 177-184,186-187
+  s_53e2dedc18b155::t_b5444f06fffc83 277-278,287-288,297-298
+Sources/MercadoPagoCheckout/Data/Repositories/RemoteCardPaymentBrickCardRepository.swift
+  s_53e2dedc18b155::t_f28d3bd284c835 82-83
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  s_53e2dedc18b155::t_81a309e8de0e08 62-63,72-73,82-83
+Sources/MercadoPagoCheckout/Data/Model/CardPaymentBrickCardResponse.swift
+  s_53e2dedc18b155::t_292e66a963d576 45,55
+Sources/MercadoPagoCheckout/Model/Internal/CardPaymentBrickCardData.swift
+  s_53e2dedc18b155::t_a30239931b27c7 32
+Tests/MercadoPagoCheckoutTests/Data/RemoteCardPaymentBrickCardRepositoryTests.swift
+  s_53e2dedc18b155::t_8bd87d832a5800 51-52
+  s_53e2dedc18b155::t_dcebe6bdc7ecfa 279-304
+Tests/MercadoPagoCheckoutTests/ViewModels/InstallmentsScreenViewModelTests.swift
+  s_53e2dedc18b155::t_43ed4b3709c842 136-137,146-147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "85200cedb68bfcd881b0deb3c50b9180095a702f",
+  "prompts": {},
+  "sessions": {
+    "s_53e2dedc18b155": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03956c7f-1f9e-4ea6-ac89-d53c8ac84b56",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
