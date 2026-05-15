@@ -111,7 +111,8 @@ struct CardFormScreen: View {
                         liveErrorMessage: self.cardForm.cardNumberLiveErrors,
                         keyboard: .numberPad,
                         onEditingChanged: { isEditing in
-                            if !isEditing, self.editedFields.contains(.cardNumber) || !self.cardForm.$cardNumber.isEmpty {
+                            if !isEditing, !self.didTapBack,
+                               self.editedFields.contains(.cardNumber) || !self.cardForm.$cardNumber.isEmpty {
                                 self.viewModel.cardNumberEditingEnded(isValid: self.cardForm.$cardNumber.isEmpty)
                             }
                         },
