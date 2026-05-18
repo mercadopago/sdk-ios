@@ -15,6 +15,7 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
         // Arrange
         let sut = InstallmentInitializeEventData(
             checkoutType: "card_payment_brick",
+            paymentMethodId: "visa",
             paymentType: "credit_card",
             selectionType: "radio_button",
             quotasCount: 6,
@@ -26,6 +27,7 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(dict["checkout_type"] as? String, "card_payment_brick")
+        XCTAssertEqual(dict["payment_method_id"] as? String, "visa")
         XCTAssertEqual(dict["payment_type"] as? String, "credit_card")
         XCTAssertEqual(dict["selection_type"] as? String, "radio_button")
         XCTAssertEqual(dict["quotas_count"] as? Int, 6)
@@ -36,6 +38,7 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
         // Arrange
         let sut = InstallmentInitializeEventData(
             checkoutType: "card_payment_brick",
+            paymentMethodId: "master",
             paymentType: "debit_card",
             selectionType: "chevron",
             quotasCount: 3,
@@ -47,6 +50,7 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
 
         // Assert
         XCTAssertNil(dict["transaction_amount"])
+        XCTAssertEqual(dict["payment_method_id"] as? String, "master")
         XCTAssertEqual(dict["payment_type"] as? String, "debit_card")
         XCTAssertEqual(dict["quotas_count"] as? Int, 3)
     }
@@ -55,6 +59,7 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
         // Arrange
         let sut = InstallmentInitializeEventData(
             checkoutType: "card_payment_brick",
+            paymentMethodId: "visa",
             paymentType: "credit_card",
             selectionType: "chevron",
             quotasCount: 4,

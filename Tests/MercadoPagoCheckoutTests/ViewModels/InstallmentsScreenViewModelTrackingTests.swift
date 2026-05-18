@@ -40,7 +40,7 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.trackInitialize(transactionAmount: nil)
+        sut.viewModel.trackInitialize(transactionAmount: nil, paymentMethodId: "visa")
         await sut.analytics.mock.waitForSend()
 
         // Assert
@@ -54,13 +54,14 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
         let sut = self.makeSUT(checkoutType: "card_payment_brick")
 
         // Act
-        sut.viewModel.trackInitialize(transactionAmount: 500.0)
+        sut.viewModel.trackInitialize(transactionAmount: 500.0, paymentMethodId: "visa")
         await sut.analytics.mock.waitForSend()
 
         // Assert
         let messages = await sut.analytics.mock.getMessages()
         XCTAssertTrue(messages.contains(.setEventData([
             "checkout_type": "card_payment_brick",
+            "payment_method_id": "visa",
             "payment_type": "credit_card",
             "selection_type": "radio_button",
             "quotas_count": 3,
@@ -73,7 +74,7 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.trackInitialize(transactionAmount: nil)
+        sut.viewModel.trackInitialize(transactionAmount: nil, paymentMethodId: "visa")
         await sut.analytics.mock.waitForSend()
 
         // Assert
