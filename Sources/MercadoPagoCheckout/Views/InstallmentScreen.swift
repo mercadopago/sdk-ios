@@ -14,6 +14,7 @@ import SwiftUI
 protocol InstallmentInteractionStyle {
     var listItemStyle: MPListItemStyle { get }
     var listItemTrailingStyle: MPListItemTrailingStyle? { get }
+    var sendsSelectionEvent: Bool { get }
 
     func footerButtonData(_ label: String, onContinue: @escaping () -> Void) -> MPFixedFooterButtonData?
 
@@ -33,6 +34,10 @@ struct RadioButtonInstallmentStyle: InstallmentInteractionStyle {
 
     var listItemTrailingStyle: MPListItemTrailingStyle? {
         nil
+    }
+
+    var sendsSelectionEvent: Bool {
+        true
     }
 
     func footerButtonData(_ label: String, onContinue: @escaping () -> Void) -> MPFixedFooterButtonData? {
@@ -58,6 +63,10 @@ struct ChevronInstallmentStyle: InstallmentInteractionStyle {
 
     var listItemTrailingStyle: MPListItemTrailingStyle? {
         .textIcon(Image(systemName: "chevron.right"))
+    }
+
+    var sendsSelectionEvent: Bool {
+        false
     }
 
     func footerButtonData(_: String, onContinue _: @escaping () -> Void) -> MPFixedFooterButtonData? {
@@ -224,12 +233,18 @@ struct InstallmentScreen: View {
     // MARK: - Helper Methods
 
     private func bindingForQuota(_ quota: CardPaymentBrickCardData.Installment.Quota) -> Binding<Bool> {
-        self.style.selectionBinding(
+        let inner = self.style.selectionBinding(
             for: quota,
             selected: self.$selectedQuota,
             onContinue: {
-                self.viewModel.trackSelected(quota)
                 self.continueWithSelectedQuota(for: quota)
+            }
+        )
+        return Binding(
+            get: { inner.wrappedValue },
+            set: { newValue in
+                if newValue, self.style.sendsSelectionEvent { self.viewModel.trackSelected(quota) }
+                inner.wrappedValue = newValue
             }
         )
     }
