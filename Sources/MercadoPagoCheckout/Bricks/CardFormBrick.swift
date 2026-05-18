@@ -124,6 +124,7 @@ struct CardFormBrick: View {
         InstallmentScreen(
             paymentData: self.$paymentData,
             installmentsData: self.$installmentsData,
+            checkoutType: self.configuration.type.analyticsValue,
             onBack: {
                 self.route = nil
             },

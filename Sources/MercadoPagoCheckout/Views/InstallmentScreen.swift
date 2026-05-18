@@ -134,6 +134,7 @@ struct InstallmentScreen: View {
     init(
         paymentData: Binding<MPPaymentData>,
         installmentsData: Binding<MPInstallmentsData>,
+        checkoutType: String,
         style: (any InstallmentInteractionStyle)? = nil,
         onBack: @escaping () -> Void,
         onDismiss: @escaping () -> Void,
@@ -142,7 +143,7 @@ struct InstallmentScreen: View {
     ) {
         self._paymentData = paymentData
         self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.quotas.first)
-        self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData)
+        self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData, checkoutType: checkoutType)
         self.style = style ?? installmentsData.wrappedValue.installment.resolvedInteractionStyle
         self.onBack = onBack
         self.onDismiss = onDismiss
@@ -165,8 +166,12 @@ struct InstallmentScreen: View {
                 self.footer
             }
         )
+        .onAppear {
+            self.viewModel.trackInitialize(transactionAmount: self.paymentData.transactionAmount)
+        }
         .onDisappear {
             if !self.hasHandledDismiss {
+                self.viewModel.trackCanceledError(errorType: "user_dismissed")
                 self.onDismiss()
             }
         }
@@ -208,6 +213,7 @@ struct InstallmentScreen: View {
 
     private func finishWithSelectedQuota() {
         self.hasHandledDismiss = true
+        self.viewModel.trackSubmit(self.selectedQuota)
         self.paymentData.installment = self.selectedQuota?.installments
         self.onFinish(self.paymentData)
     }
@@ -219,6 +225,7 @@ struct InstallmentScreen: View {
             for: quota,
             selected: self.$selectedQuota,
             onContinue: {
+                self.viewModel.trackSelected(quota)
                 self.continueWithSelectedQuota(for: quota)
             }
         )
@@ -226,12 +233,14 @@ struct InstallmentScreen: View {
 
     private func continueWithSelectedQuota(for installment: CardPaymentBrickCardData.Installment.Quota) {
         self.hasHandledDismiss = true
+        self.viewModel.trackSubmit(installment)
         self.paymentData.installment = installment.installments
         self.onContinue(self.paymentData)
     }
 
     private func handleBack() {
         self.hasHandledDismiss = true
+        self.viewModel.trackCanceledError(errorType: "back_pressed")
         self.onBack()
     }
 }
@@ -244,6 +253,7 @@ struct InstallmentScreen: View {
             MPPaymentData(transactionAmount: 100)
         ),
         installmentsData: .constant(InstallmentMock.visa),
+        checkoutType: "",
         style: .radioButton,
         onBack: {},
         onDismiss: {}
@@ -256,6 +266,7 @@ struct InstallmentScreen: View {
             MPPaymentData(transactionAmount: 100)
         ),
         installmentsData: .constant(InstallmentMock.visa),
+        checkoutType: "",
         style: .chevron,
         onBack: {},
         onDismiss: {}
