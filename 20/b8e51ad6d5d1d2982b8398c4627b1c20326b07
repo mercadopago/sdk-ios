@@ -1,0 +1,57 @@
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_80dd745668009a::t_172131f49e61da 169-171
+  s_80dd745668009a::t_a8338d185f04db 256,269
+  s_80dd745668009a::t_476d8b567e3403 174
+  s_80dd745668009a::t_0cbece053fdb30 216
+  s_80dd745668009a::t_8f3456df68e440 137,146
+  s_80dd745668009a::t_563369b8b923ef 236
+  s_80dd745668009a::t_587f04009040dc 228
+  s_80dd745668009a::t_a4f5ab3ccc239d 243
+Sources/MercadoPagoCheckout/Domain/Analytics/InstallmentSelectedEventData.swift
+  s_80dd745668009a::t_adfda979faef10 1-9
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  s_80dd745668009a::t_8064b8ac07b652 39
+  s_80dd745668009a::t_2551e6ea2ce3a8 21
+Sources/MercadoPagoCheckout/Domain/Analytics/InstallmentAnalyticsPath.swift
+  s_80dd745668009a::t_ec9427577adca3 1-2,4-6
+  s_80dd745668009a::t_d610562c80fe0f 3
+Sources/MercadoPagoCheckout/Views/InstallmentScreenViewModel.swift
+  s_80dd745668009a::t_61e1e6c719457e 93,106-114,129-130
+  s_80dd745668009a::t_f45de87c8caa51 8,10,14,18-26,28-29,87-92,94-105,117-128,131-143
+  s_80dd745668009a::t_cf437c40487ead 115-116
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_80dd745668009a::t_ed31bd5607eada 127
+Tests/MercadoPagoCheckoutTests/ViewModels/InstallmentsScreenViewModelTests.swift
+  s_80dd745668009a::t_36d19b28e02cf8 122-125
+  s_80dd745668009a::t_88bd12d5bff183 14
+Sources/MercadoPagoCheckout/Domain/Analytics/InstallmentCanceledErrorEventData.swift
+  s_80dd745668009a::t_b1c289ab1d1f90 1-6,8-9
+  s_80dd745668009a::t_efa318d9bbcfab 7
+Sources/MercadoPagoCheckout/Domain/Analytics/InstallmentSubmitEventData.swift
+  s_80dd745668009a::t_519a2e60b1acfb 1-15
+Sources/MercadoPagoCheckout/Domain/Analytics/InstallmentInitializeEventData.swift
+  s_80dd745668009a::t_9b836600bb6631 1-4,6-12,14-20
+  s_80dd745668009a::t_0e5cf52c495f4c 5,13
+Tests/MercadoPagoCheckoutTests/Domain/Analytics/InstallmentAnalyticsEventDataTests.swift
+  s_80dd745668009a::t_d5c24040fbe244 18,29,39,50,58,71,73,75,84,86,93,96,98,100-103,110-112,115,117-119,127-128,131-132,134,136,143,146,148,155
+  s_80dd745668009a::t_8a4475bd249646 1-17,19-28,30-38,40-49,51-57,59-70,72,74,76-83,85,87-92,94-95,97,99,104-109,113-114,116,120-126,129-130,133,135,137-142,144-145,147,149-154,156-157
+Tests/MercadoPagoCheckoutTests/ViewModels/InstallmentsScreenViewModelTrackingTests.swift
+  s_80dd745668009a::t_ad5368d09fbc9c 52,64,90-120,171,180,185,193,198,206,208,211,213-216,218,220-229
+  s_80dd745668009a::t_6ae6089462a164 1-51,53-63,65-81,83-89,121-170,172-179,181-184,186-192,194-197,199-205,207,209-210,212,217,219,230-231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "20b8e51ad6d5d1d2982b8398c4627b1c20326b07",
+  "prompts": {},
+  "sessions": {
+    "s_80dd745668009a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4aa039e2-3584-4d8b-8be8-db235181f435",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
