@@ -184,6 +184,7 @@ final class CardFormViewModel: ObservableObject {
         self.cardData = nil
         self.cardAcceptanceError = nil
         self.binNetworkError = nil
+        self.showSnackbar = false
 
         guard let bin else { return }
 
@@ -228,6 +229,7 @@ final class CardFormViewModel: ObservableObject {
             guard let code = error.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.init),
                   CheckoutAPIErrorCode.binValidation.contains(code) else {
                 self.binNetworkError = error
+                if error.isRetriable { self.showSnackbar = true }
                 return
             }
             switch code {
