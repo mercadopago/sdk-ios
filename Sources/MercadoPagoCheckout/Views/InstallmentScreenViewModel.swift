@@ -5,15 +5,28 @@
 //  Created by Danielle Nozaki Ogawa on 28/01/26.
 //
 
+import MPAnalytics
 import MPComponents
+import MPCore
 import MPFoundation
 import SwiftUI
 
+@MainActor
 final class InstallmentsScreenViewModel: ObservableObject {
     @Binding var installmentsData: MPInstallmentsData
 
-    init(installmentsData: Binding<MPInstallmentsData>) {
+    private let checkoutType: String
+    private let analytics: AnalyticsInterface
+    private var analyticsTask: Task<Void, Never>?
+
+    init(
+        installmentsData: Binding<MPInstallmentsData>,
+        checkoutType: String,
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
+    ) {
         self._installmentsData = installmentsData
+        self.checkoutType = checkoutType
+        self.analytics = analytics
     }
 
     // MARK: - Computed Properties
@@ -70,5 +83,64 @@ final class InstallmentsScreenViewModel: ObservableObject {
             MPFormatIssuerName.cleanIssuerName(info.issuerName ?? String())
         )
         return "\(issuerName) **** \(info.lastFourDigits)"
+    }
+
+    // MARK: - Analytics
+
+    func trackInitialize(transactionAmount: Double?, paymentMethodId: String) {
+        let eventData = InstallmentInitializeEventData(
+            checkoutType: self.checkoutType,
+            paymentMethodId: paymentMethodId,
+            paymentType: self.installmentsData.cardDisplayInfo.paymentTypeId,
+            selectionType: self.installmentsData.installment.selectionType,
+            quotasCount: self.installmentsData.installment.quotas.count,
+            transactionAmount: transactionAmount
+        )
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(InstallmentAnalyticsPath.initialize)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    func trackSelected(_ quota: CardPaymentBrickCardData.Installment.Quota) {
+        let eventData = InstallmentSelectedEventData(installments: quota.installments)
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(InstallmentAnalyticsPath.selected)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    func trackSubmit(_ quota: CardPaymentBrickCardData.Installment.Quota?) {
+        guard let quota else { return }
+        let eventData = InstallmentSubmitEventData(
+            installments: quota.installments,
+            installmentAmount: quota.installmentAmount,
+            totalAmount: quota.totalAmount
+        )
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(InstallmentAnalyticsPath.submit)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    func trackCanceledError(errorType: String) {
+        let eventData = InstallmentCanceledErrorEventData(errorType: errorType)
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(InstallmentAnalyticsPath.userCanceledError)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func enqueueAnalytics(_ block: @escaping @Sendable () async -> Void) {
+        let previous = self.analyticsTask
+        self.analyticsTask = Task {
+            await previous?.value
+            await block()
+        }
     }
 }

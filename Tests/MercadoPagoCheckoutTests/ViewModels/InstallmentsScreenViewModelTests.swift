@@ -11,6 +11,7 @@
 import SwiftUI
 import XCTest
 
+@MainActor
 final class InstallmentsScreenViewModelTests: XCTestCase {
     // MARK: - selectedTotalAmount
 
@@ -118,7 +119,10 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
         installmentsData: MPInstallmentsData = .validMPInstallmentsData
     ) -> InstallmentsScreenViewModel {
         var data = installmentsData
-        return InstallmentsScreenViewModel(installmentsData: Binding(get: { data }, set: { data = $0 }))
+        return InstallmentsScreenViewModel(
+            installmentsData: Binding(get: { data }, set: { data = $0 }),
+            checkoutType: "card_payment_brick"
+        )
     }
 }
 

@@ -14,6 +14,7 @@ import SwiftUI
 protocol InstallmentInteractionStyle {
     var listItemStyle: MPListItemStyle { get }
     var listItemTrailingStyle: MPListItemTrailingStyle? { get }
+    var sendsSelectionEvent: Bool { get }
 
     func footerButtonData(_ label: String, onContinue: @escaping () -> Void) -> MPFixedFooterButtonData?
 
@@ -33,6 +34,10 @@ struct RadioButtonInstallmentStyle: InstallmentInteractionStyle {
 
     var listItemTrailingStyle: MPListItemTrailingStyle? {
         nil
+    }
+
+    var sendsSelectionEvent: Bool {
+        true
     }
 
     func footerButtonData(_ label: String, onContinue: @escaping () -> Void) -> MPFixedFooterButtonData? {
@@ -58,6 +63,10 @@ struct ChevronInstallmentStyle: InstallmentInteractionStyle {
 
     var listItemTrailingStyle: MPListItemTrailingStyle? {
         .textIcon(Image(systemName: "chevron.right"))
+    }
+
+    var sendsSelectionEvent: Bool {
+        false
     }
 
     func footerButtonData(_: String, onContinue _: @escaping () -> Void) -> MPFixedFooterButtonData? {
@@ -134,6 +143,7 @@ struct InstallmentScreen: View {
     init(
         paymentData: Binding<MPPaymentData>,
         installmentsData: Binding<MPInstallmentsData>,
+        checkoutType: String,
         style: (any InstallmentInteractionStyle)? = nil,
         onBack: @escaping () -> Void,
         onDismiss: @escaping () -> Void,
@@ -142,7 +152,7 @@ struct InstallmentScreen: View {
     ) {
         self._paymentData = paymentData
         self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.quotas.first)
-        self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData)
+        self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData, checkoutType: checkoutType)
         self.style = style ?? installmentsData.wrappedValue.installment.resolvedInteractionStyle
         self.onBack = onBack
         self.onDismiss = onDismiss
@@ -165,8 +175,15 @@ struct InstallmentScreen: View {
                 self.footer
             }
         )
+        .onAppear {
+            self.viewModel.trackInitialize(
+                transactionAmount: self.paymentData.transactionAmount,
+                paymentMethodId: self.paymentData.paymentMethodId
+            )
+        }
         .onDisappear {
             if !self.hasHandledDismiss {
+                self.viewModel.trackCanceledError(errorType: "user_dismissed")
                 self.onDismiss()
             }
         }
@@ -208,6 +225,7 @@ struct InstallmentScreen: View {
 
     private func finishWithSelectedQuota() {
         self.hasHandledDismiss = true
+        self.viewModel.trackSubmit(self.selectedQuota)
         self.paymentData.installment = self.selectedQuota?.installments
         self.onFinish(self.paymentData)
     }
@@ -215,23 +233,32 @@ struct InstallmentScreen: View {
     // MARK: - Helper Methods
 
     private func bindingForQuota(_ quota: CardPaymentBrickCardData.Installment.Quota) -> Binding<Bool> {
-        self.style.selectionBinding(
+        let inner = self.style.selectionBinding(
             for: quota,
             selected: self.$selectedQuota,
             onContinue: {
                 self.continueWithSelectedQuota(for: quota)
             }
         )
+        return Binding(
+            get: { inner.wrappedValue },
+            set: { newValue in
+                if newValue, self.style.sendsSelectionEvent { self.viewModel.trackSelected(quota) }
+                inner.wrappedValue = newValue
+            }
+        )
     }
 
     private func continueWithSelectedQuota(for installment: CardPaymentBrickCardData.Installment.Quota) {
         self.hasHandledDismiss = true
+        self.viewModel.trackSubmit(installment)
         self.paymentData.installment = installment.installments
         self.onContinue(self.paymentData)
     }
 
     private func handleBack() {
         self.hasHandledDismiss = true
+        self.viewModel.trackCanceledError(errorType: "back_pressed")
         self.onBack()
     }
 }
@@ -244,6 +271,7 @@ struct InstallmentScreen: View {
             MPPaymentData(transactionAmount: 100)
         ),
         installmentsData: .constant(InstallmentMock.visa),
+        checkoutType: "",
         style: .radioButton,
         onBack: {},
         onDismiss: {}
@@ -256,6 +284,7 @@ struct InstallmentScreen: View {
             MPPaymentData(transactionAmount: 100)
         ),
         installmentsData: .constant(InstallmentMock.visa),
+        checkoutType: "",
         style: .chevron,
         onBack: {},
         onDismiss: {}

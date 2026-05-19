@@ -18,6 +18,7 @@ final class InstallmentsViewTests: XCTestCase {
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
+            checkoutType: "",
             style: .radioButton,
             onBack: {},
             onDismiss: {}
@@ -35,6 +36,7 @@ final class InstallmentsViewTests: XCTestCase {
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
             installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
+            checkoutType: "",
             style: .chevron,
             onBack: {},
             onDismiss: {}
