@@ -1,0 +1,27 @@
+Tests/MercadoPagoCheckoutTests/Domain/Analytics/InstallmentAnalyticsEventDataTests.swift
+  s_95c81c6de819fb::t_30e5bc0089f47f 45
+Tests/MercadoPagoCheckoutTests/ViewModels/InstallmentsScreenViewModelTrackingTests.swift
+  s_95c81c6de819fb::t_30e5bc0089f47f 43
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_95c81c6de819fb::t_30e5bc0089f47f 179-184
+Sources/MercadoPagoCheckout/Views/InstallmentScreenViewModel.swift
+  s_95c81c6de819fb::t_30e5bc0089f47f 90
+Sources/MercadoPagoCheckout/Domain/Analytics/InstallmentInitializeEventData.swift
+  s_95c81c6de819fb::t_30e5bc0089f47f 9,12,17-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "d634b98be0ca7844625e912ef62815ec44a5dd6a",
+  "prompts": {},
+  "sessions": {
+    "s_95c81c6de819fb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5c464ecf-e645-46d2-9942-ddb204709dc4",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
