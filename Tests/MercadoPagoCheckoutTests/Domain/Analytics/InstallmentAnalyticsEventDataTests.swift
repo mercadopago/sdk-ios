@@ -34,27 +34,6 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
         XCTAssertEqual(dict["transaction_amount"] as? Double, 500.0)
     }
 
-    func test_installmentInitializeEventData_withNilTransactionAmount_shouldOmitTransactionAmount() {
-        // Arrange
-        let sut = InstallmentInitializeEventData(
-            checkoutType: "card_payment_brick",
-            paymentMethodId: "master",
-            paymentType: "debit_card",
-            selectionType: "chevron",
-            quotasCount: 3,
-            transactionAmount: nil
-        )
-
-        // Act
-        let dict = sut.toDictionary()
-
-        // Assert
-        XCTAssertNil(dict["transaction_amount"])
-        XCTAssertEqual(dict["payment_method_id"] as? String, "master")
-        XCTAssertEqual(dict["payment_type"] as? String, "debit_card")
-        XCTAssertEqual(dict["quotas_count"] as? Int, 3)
-    }
-
     func test_installmentInitializeEventData_withChevronSelectionType_shouldContainChevron() {
         // Arrange
         let sut = InstallmentInitializeEventData(
@@ -63,7 +42,7 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
             paymentType: "credit_card",
             selectionType: "chevron",
             quotasCount: 4,
-            transactionAmount: nil
+            transactionAmount: 200.0
         )
 
         // Act

@@ -176,10 +176,12 @@ struct InstallmentScreen: View {
             }
         )
         .onAppear {
-            self.viewModel.trackInitialize(
-                transactionAmount: self.paymentData.transactionAmount,
-                paymentMethodId: self.paymentData.paymentMethodId
-            )
+            if let transactionAmount = paymentData.transactionAmount {
+                self.viewModel.trackInitialize(
+                    transactionAmount: transactionAmount,
+                    paymentMethodId: self.paymentData.paymentMethodId
+                )
+            }
         }
         .onDisappear {
             if !self.hasHandledDismiss {
