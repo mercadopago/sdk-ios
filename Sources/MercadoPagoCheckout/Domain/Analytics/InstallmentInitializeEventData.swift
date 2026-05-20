@@ -6,17 +6,16 @@ struct InstallmentInitializeEventData: AnalyticsEventData {
     let paymentType: String
     let selectionType: String
     let quotasCount: Int
-    let transactionAmount: Double?
+    let transactionAmount: Double
 
     func toDictionary() -> [String: any Sendable] {
-        var dict: [String: any Sendable] = [
+        return [
             "checkout_type": self.checkoutType,
             "payment_method_id": self.paymentMethodId,
             "payment_type": self.paymentType,
             "selection_type": self.selectionType,
-            "quotas_count": self.quotasCount
+            "quotas_count": self.quotasCount,
+            "transaction_amount": self.transactionAmount
         ]
-        if let transactionAmount { dict["transaction_amount"] = transactionAmount }
-        return dict
     }
 }
