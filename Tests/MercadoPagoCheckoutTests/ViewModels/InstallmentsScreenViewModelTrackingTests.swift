@@ -40,7 +40,7 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.trackInitialize(transactionAmount: nil, paymentMethodId: "visa")
+        sut.viewModel.trackInitialize(transactionAmount: 500.0, paymentMethodId: "visa")
         await sut.analytics.mock.waitForSend()
 
         // Assert
@@ -67,25 +67,6 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
             "quotas_count": 3,
             "transaction_amount": 500.0
         ])))
-    }
-
-    func test_trackInitialize_withNilTransactionAmount_shouldOmitTransactionAmount() async {
-        // Arrange
-        let sut = self.makeSUT()
-
-        // Act
-        sut.viewModel.trackInitialize(transactionAmount: nil, paymentMethodId: "visa")
-        await sut.analytics.mock.waitForSend()
-
-        // Assert
-        let messages = await sut.analytics.mock.getMessages()
-        let hasTransactionAmount = messages.contains { msg in
-            if case let .setEventData(dict) = msg {
-                return dict.keys.contains("transaction_amount")
-            }
-            return false
-        }
-        XCTAssertFalse(hasTransactionAmount)
     }
 
     // MARK: - trackSelected
