@@ -73,11 +73,11 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
         XCTAssertEqual(dict["payment_type"] as? String, "credit_card")
     }
 
-    func test_cardFormSubmitEventData_toDictionary_withNilOptionals_shouldOmitOptionalKeys() {
+    func test_cardFormSubmitEventData_toDictionary_withNilPaymentType_shouldOmitPaymentType() {
         // Arrange
         let sut = CardFormSubmitEventData(
             cardBrand: "master",
-            transactionAmount: nil,
+            transactionAmount: 0,
             issuer: "Itaú",
             paymentType: nil
         )
@@ -87,8 +87,8 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(dict["card_brand"] as? String, "master")
+        XCTAssertEqual(dict["transaction_amount"] as? Double, 0)
         XCTAssertEqual(dict["issuer"] as? String, "Itaú")
-        XCTAssertNil(dict["transaction_amount"])
         XCTAssertNil(dict["payment_type"])
     }
 
