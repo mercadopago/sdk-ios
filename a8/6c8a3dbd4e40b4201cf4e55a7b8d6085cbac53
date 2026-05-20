@@ -1,0 +1,23 @@
+Sources/MercadoPagoCheckout/Views/CardFormViewModel.swift
+  s_95c81c6de819fb::t_0a2f39e85fa464 346
+Tests/MercadoPagoCheckoutTests/Domain/Analytics/CardFormAnalyticsEventDataTests.swift
+  s_95c81c6de819fb::t_0a2f39e85fa464 76,80,90
+Sources/MercadoPagoCheckout/Domain/Analytics/CardFormSubmitEventData.swift
+  s_95c81c6de819fb::t_0a2f39e85fa464 5,12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "a86c8a3dbd4e40b4201cf4e55a7b8d6085cbac53",
+  "prompts": {},
+  "sessions": {
+    "s_95c81c6de819fb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5c464ecf-e645-46d2-9942-ddb204709dc4",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
