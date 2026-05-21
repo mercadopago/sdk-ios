@@ -69,13 +69,13 @@ final class MPIconThumbnailFlagSnapshotTests: XCTestCase {
         )
     }
 
-    /// Integração com MPListItem usando imagens reais
+    /// Integração com MPListItem usando imagens reais — estilo default + chevron accent
     func test_thumbnailFlag_inListItem() {
         FontName.registerCustomFonts()
 
-        let visa = self.fetchImage(url: PaymentURL.visa)
-        let master = self.fetchImage(url: PaymentURL.mastercard)
-        let mp = self.fetchImage(url: PaymentURL.mercadoPago)
+        let visa = self.scaledImage(self.fetchImage(url: PaymentURL.visa))
+        let master = self.scaledImage(self.fetchImage(url: PaymentURL.mastercard))
+        let mp = self.scaledImage(self.fetchImage(url: PaymentURL.mercadoPago))
 
         let view = self.createTestView {
             VStack(spacing: 0) {
@@ -85,29 +85,40 @@ final class MPIconThumbnailFlagSnapshotTests: XCTestCase {
                 )
                 MPListItem(
                     leading: .image(Image(uiImage: visa)),
-                    contentInfo: .init(title: "Visa •••• 1234", description: "Crédito")
+                    contentInfo: .init(title: "Banco •••• 1234", description: "Visa Crédito")
                 )
                 MPListItem(
                     leading: .image(Image(uiImage: master)),
-                    contentInfo: .init(title: "Mastercard •••• 5678", description: "Débito")
+                    contentInfo: .init(title: "Banco •••• 5678", description: "Mastercard Débito")
                 )
                 MPListItem(
                     leading: .thumbnail(nil),
                     contentInfo: .init(title: "Pix")
                 )
             }
-            .listItemStyle(.pick)
+            .listItemStyle(.default)
             .listItemTrailingStyle(.textIcon(Image(systemName: "chevron.right")))
         }
 
         assertSnapshot(
             of: UIHostingController(rootView: view),
-            as: .image(precision: 0.95, size: CGSize(width: 360, height: 240)),
+            as: .image(precision: 0.95, size: CGSize(width: 360, height: 280)),
             named: "thumbnailFlag_inListItem"
         )
     }
 
     // MARK: - Helpers
+
+    /// Redimensiona e aplica corner radius 8 para renderizar como thumbnail 44×32
+    private func scaledImage(_ source: UIImage) -> UIImage {
+        let size = CGSize(width: 88, height: 64) // 44×32 @2x
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            let path = UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 16)
+            path.addClip()
+            source.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
 
     private func fetchImage(url: URL?) -> UIImage {
         guard let url else { return UIImage(systemName: "photo")! }
