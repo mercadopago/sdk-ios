@@ -34,7 +34,7 @@ package struct MPThumbnailFlagIconStyle: MPIconStyle {
                     .resizable()
                     .scaledToFit()
             default:
-                Color.gray.opacity(0.1)
+                self.theme.colors.icon.primary.opacity(0.1)
             }
 
         case let .system(name):
