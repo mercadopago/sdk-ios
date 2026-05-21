@@ -33,21 +33,20 @@ package struct MPThumbnailFlagIconStyle: MPIconStyle {
                 image
                     .resizable()
                     .scaledToFit()
-            // .foregroundColor(theme.colors.icon.primary)
             default:
                 Color.gray.opacity(0.1)
             }
+
         case let .system(name):
             Image(systemName: name)
                 .resizable()
                 .scaledToFit()
-        // .foregroundColor(theme.colors.icon.primary)
+
         case let .asset(name):
             Image(name, bundle: .bundleMP)
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-            // .foregroundColor(theme.colors.icon.primary)
         }
     }
 }
