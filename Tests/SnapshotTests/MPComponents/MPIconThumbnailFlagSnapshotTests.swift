@@ -40,7 +40,7 @@ final class MPIconThumbnailFlagSnapshotTests: XCTestCase {
 
         assertSnapshot(
             of: UIHostingController(rootView: view),
-            as: .image(precision: 0.95, size: CGSize(width: 260, height: 80)),
+            as: .image(precision: 0.95, size: CGSize(width: 400, height: 140)),
             named: "thumbnailFlag_localSources"
         )
     }
@@ -64,7 +64,7 @@ final class MPIconThumbnailFlagSnapshotTests: XCTestCase {
 
         assertSnapshot(
             of: UIHostingController(rootView: view),
-            as: .image(precision: 0.95, size: CGSize(width: 220, height: 80)),
+            as: .image(precision: 0.95, size: CGSize(width: 400, height: 140)),
             named: "thumbnailFlag_paymentMethodImages"
         )
     }
@@ -102,7 +102,7 @@ final class MPIconThumbnailFlagSnapshotTests: XCTestCase {
 
         assertSnapshot(
             of: UIHostingController(rootView: view),
-            as: .image(precision: 0.95, size: CGSize(width: 360, height: 280)),
+            as: .image(precision: 0.95, size: CGSize(width: 400, height: 480)),
             named: "thumbnailFlag_inListItem"
         )
     }
