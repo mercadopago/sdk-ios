@@ -115,7 +115,9 @@ package struct MPListItem: View {
     struct MPListItemView: View {
         @State private var selectedIndex: Int? = 0
 
-        private let visaURL = URL(string: "https://http2.mlstatic.com/storage/mobile-on-demand-resources//image/cho_off-add-card_xxxhdpi")
+        private let mercadopago = URL(string: "https://http2.mlstatic.com/storage/mobile-on-demand-resources//image/cho_off-mercadopago_xxxhdpi")
+
+        private let visaURL = URL(string: "https://http2.mlstatic.com/storage/mobile-on-demand-resources//image/cho_off-visa_xxxhdpi")
 
         public init() {}
 
@@ -123,9 +125,20 @@ package struct MPListItem: View {
             VStack(spacing: 16) {
                 VStack(spacing: 8) {
                     MPListItem(
+                        leading: .thumbnail(self.mercadopago),
+                        contentInfo: .init(
+                            title: "Saldo em conta ou cartões salvos"
+                        ),
+                        trailing: .init(text: "")
+                    )
+
+                    MPListItem(
                         leading: .thumbnail(self.visaURL),
-                        contentInfo: .init(title: "Default style 111", description: "Text-only trailing 11"),
-                        trailing: .init(text: "$ 500.00")
+                        contentInfo: .init(
+                            title: "Banco •••• 1234",
+                            description: "Visa Crédito"
+                        ),
+                        trailing: .init(text: "")
                     )
 
                     MPListItem(
@@ -158,6 +171,11 @@ package struct MPListItem: View {
                     )
                 }
             }
+            .listItemTrailingStyle(
+                .textIcon(
+                    Image(systemName: "chevron.right")
+                )
+            )
             .padding()
         }
 
