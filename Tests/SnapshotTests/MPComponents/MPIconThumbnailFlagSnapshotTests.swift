@@ -81,19 +81,23 @@ final class MPIconThumbnailFlagSnapshotTests: XCTestCase {
             VStack(spacing: 0) {
                 MPListItem(
                     leading: .image(Image(uiImage: mp)),
-                    contentInfo: .init(title: "Saldo em conta ou cartões salvos")
+                    contentInfo: .init(title: "Saldo em conta ou cartões salvos"),
+                    trailing: .init(text: "")
                 )
                 MPListItem(
                     leading: .image(Image(uiImage: visa)),
-                    contentInfo: .init(title: "Banco •••• 1234", description: "Visa Crédito")
+                    contentInfo: .init(title: "Banco •••• 1234", description: "Visa Crédito"),
+                    trailing: .init(text: "")
                 )
                 MPListItem(
                     leading: .image(Image(uiImage: master)),
-                    contentInfo: .init(title: "Banco •••• 5678", description: "Mastercard Débito")
+                    contentInfo: .init(title: "Banco •••• 5678", description: "Mastercard Débito"),
+                    trailing: .init(text: "")
                 )
                 MPListItem(
                     leading: .thumbnail(nil),
-                    contentInfo: .init(title: "Pix")
+                    contentInfo: .init(title: "Pix"),
+                    trailing: .init(text: "")
                 )
             }
             .listItemStyle(.default)
