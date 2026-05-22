@@ -30,6 +30,6 @@ extension MercadoPagoCheckout {
     }
 
     struct SavedCardConfiguration: CheckoutTypeConfiguration {
-        var amount: Double = 0
+        var amount: Double = .zero
     }
 }
