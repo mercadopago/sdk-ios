@@ -5,8 +5,8 @@
 //  Created by Guilherme Prata Costa on 24/02/26.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 package struct MPListRowPickStyle: MPListItemStyle {
     package var id: UUID = .init()
@@ -19,12 +19,12 @@ package struct MPListRowPickStyle: MPListItemStyle {
         let isSelected = configuration.isSelected == true
         let hasDescription = configuration.description != nil
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: theme.spacings.xtiny) {
-            if let leftImage = configuration.leftImage {
-                leftImage
+        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xtiny) {
+            if let leading = configuration.leading {
+                leading
             }
 
-            VStack(alignment: .leading, spacing: theme.spacings.xnano) {
+            VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {
                 if let header = configuration.header { header }
                 if let title = configuration.title {
                     title
@@ -39,23 +39,23 @@ package struct MPListRowPickStyle: MPListItemStyle {
                 trailing
             }
         }
-        .padding(.horizontal, theme.spacings.micro)
-        .padding(.vertical, theme.spacings.xtiny)
+        .padding(.horizontal, self.theme.spacings.micro)
+        .padding(.vertical, self.theme.spacings.xtiny)
         .background(
             configuration.isPressed
-                ? theme.colors.surface.active
-                : (isSelected ? theme.colors.fill.accentQuiet : Color.clear)
+                ? self.theme.colors.surface.active
+                : (isSelected ? self.theme.colors.fill.accentQuiet : Color.clear)
         )
-        .cornerRadius(theme.borderRadius.small)
+        .cornerRadius(self.theme.borderRadius.small)
         .overlay(
             HStack {
-                RoundedRectangle(cornerRadius: theme.borderWidth.large / 2)
-                    .fill(isSelected ? theme.colors.fill.accentLoud : Color.clear)
-                    .frame(width: theme.borderWidth.medium)
-                    .padding(.vertical, theme.spacings.xmicro)
+                RoundedRectangle(cornerRadius: self.theme.borderWidth.large / 2)
+                    .fill(isSelected ? self.theme.colors.fill.accentLoud : Color.clear)
+                    .frame(width: self.theme.borderWidth.medium)
+                    .padding(.vertical, self.theme.spacings.xmicro)
                 Spacer()
             }
-            .padding(.leading, theme.spacings.nano)
+            .padding(.leading, self.theme.spacings.nano)
         )
     }
 }
