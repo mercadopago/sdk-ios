@@ -30,158 +30,158 @@ public enum MercadoPagoUserInterfaceStyle: Sendable {
 // MARK: - Color Protocols
 
 public protocol MPBackgroundColors: Sendable {
-    var primary: Color { get }
-    var secondary: Color { get }
+    var primary: Color { get set }
+    var secondary: Color { get set }
 }
 
 public protocol MPFillColors: Sendable {
-    var primary: Color { get }
-    var secondary: Color { get }
-    var inverse: Color { get }
-    var disabled: Color { get }
-    var accentLoud: Color { get }
-    var accentQuiet: Color { get }
-    var defaultOnScroll: Color { get }
+    var primary: Color { get set }
+    var secondary: Color { get set }
+    var inverse: Color { get set }
+    var disabled: Color { get set }
+    var accentLoud: Color { get set }
+    var accentQuiet: Color { get set }
+    var defaultOnScroll: Color { get set }
 }
 
 public protocol MPTextColorTokens: Sendable {
-    var primary: Color { get }
-    var secondary: Color { get }
-    var accent: Color { get }
-    var inverse: Color { get }
-    var disabled: Color { get }
-    var linkIdle: Color { get }
-    var linkActive: Color { get }
+    var primary: Color { get set }
+    var secondary: Color { get set }
+    var accent: Color { get set }
+    var inverse: Color { get set }
+    var disabled: Color { get set }
+    var linkIdle: Color { get set }
+    var linkActive: Color { get set }
 }
 
 public protocol MPInteractiveColors: Sendable {
     // Fill
-    var fillLoudIdle: Color { get }
-    var fillLoudHover: Color { get }
-    var fillLoudActive: Color { get }
-    var fillQuietIdle: Color { get }
-    var fillQuietHover: Color { get }
-    var fillQuietActive: Color { get }
-    var fillMuteIdle: Color { get }
-    var fillMuteHover: Color { get }
-    var fillMuteActive: Color { get }
+    var fillLoudIdle: Color { get set }
+    var fillLoudHover: Color { get set }
+    var fillLoudActive: Color { get set }
+    var fillQuietIdle: Color { get set }
+    var fillQuietHover: Color { get set }
+    var fillQuietActive: Color { get set }
+    var fillMuteIdle: Color { get set }
+    var fillMuteHover: Color { get set }
+    var fillMuteActive: Color { get set }
 
     // Border
-    var borderIdle: Color { get }
-    var borderActive: Color { get }
+    var borderIdle: Color { get set }
+    var borderActive: Color { get set }
 
     // Icon
-    var iconIdle: Color { get }
-    var iconActive: Color { get }
-    var iconIdleAccent: Color { get }
-    var iconActiveAccent: Color { get }
+    var iconIdle: Color { get set }
+    var iconActive: Color { get set }
+    var iconIdleAccent: Color { get set }
+    var iconActiveAccent: Color { get set }
 }
 
 public protocol MPFeedbackColorTokens: Sendable {
     // Fill
-    var fillPositiveLoud: Color { get }
-    var fillPositiveQuiet: Color { get }
-    var fillNegativeLoud: Color { get }
-    var fillNegativeQuiet: Color { get }
-    var fillCautionLoud: Color { get }
-    var fillCautionQuiet: Color { get }
-    var fillInformativeLoud: Color { get }
-    var fillInformativeQuiet: Color { get }
+    var fillPositiveLoud: Color { get set }
+    var fillPositiveQuiet: Color { get set }
+    var fillNegativeLoud: Color { get set }
+    var fillNegativeQuiet: Color { get set }
+    var fillCautionLoud: Color { get set }
+    var fillCautionQuiet: Color { get set }
+    var fillInformativeLoud: Color { get set }
+    var fillInformativeQuiet: Color { get set }
 
     // Text
-    var textPositiveLoud: Color { get }
-    var textNegativeLoud: Color { get }
-    var textCautionLoud: Color { get }
-    var textInformativeLoud: Color { get }
+    var textPositiveLoud: Color { get set }
+    var textNegativeLoud: Color { get set }
+    var textCautionLoud: Color { get set }
+    var textInformativeLoud: Color { get set }
 
     // Border
-    var borderPositiveLoud: Color { get }
-    var borderNegativeLoud: Color { get }
-    var borderCautionLoud: Color { get }
-    var borderInformativeLoud: Color { get }
+    var borderPositiveLoud: Color { get set }
+    var borderNegativeLoud: Color { get set }
+    var borderCautionLoud: Color { get set }
+    var borderInformativeLoud: Color { get set }
 }
 
 public protocol MPBorderColorTokens: Sendable {
-    var primary: Color { get }
-    var accent: Color { get }
-    var inverse: Color { get }
-    var disabled: Color { get }
+    var primary: Color { get set }
+    var accent: Color { get set }
+    var inverse: Color { get set }
+    var disabled: Color { get set }
 }
 
 public protocol MPSurfaceColors: Sendable {
-    var idle: Color { get }
-    var active: Color { get }
-    var disabled: Color { get }
+    var idle: Color { get set }
+    var active: Color { get set }
+    var disabled: Color { get set }
 }
 
 public protocol MPIconColors: Sendable {
-    var primary: Color { get }
-    var secondary: Color { get }
-    var accent: Color { get }
-    var inverse: Color { get }
-    var disabled: Color { get }
+    var primary: Color { get set }
+    var secondary: Color { get set }
+    var accent: Color { get set }
+    var inverse: Color { get set }
+    var disabled: Color { get set }
 }
 
 public protocol MPSelectedColors: Sendable {
-    var fillIdle: Color { get }
-    var fillActive: Color { get }
-    var fillDisabled: Color { get }
+    var fillIdle: Color { get set }
+    var fillActive: Color { get set }
+    var fillDisabled: Color { get set }
 }
 
 // MARK: - Color Definitions
 
 public protocol MPColors: Sendable {
-    var background: MPBackgroundColors { get }
-    var fill: MPFillColors { get }
-    var text: MPTextColorTokens { get }
-    var border: MPBorderColorTokens { get }
-    var surface: MPSurfaceColors { get }
-    var icon: MPIconColors { get }
-    var interactive: MPInteractiveColors { get }
-    var feedback: MPFeedbackColorTokens { get }
-    var selected: MPSelectedColors { get }
+    var background: MPBackgroundColors { get set }
+    var fill: MPFillColors { get set }
+    var text: MPTextColorTokens { get set }
+    var border: MPBorderColorTokens { get set }
+    var surface: MPSurfaceColors { get set }
+    var icon: MPIconColors { get set }
+    var interactive: MPInteractiveColors { get set }
+    var feedback: MPFeedbackColorTokens { get set }
+    var selected: MPSelectedColors { get set }
 }
 
 // MARK: - Spacing Definitions
 
 public protocol MPSpacings: Sendable {
-    var none: CGFloat { get }
-    var pico: CGFloat { get }
-    var xnano: CGFloat { get }
-    var nano: CGFloat { get }
-    var xmicro: CGFloat { get }
-    var micro: CGFloat { get }
-    var xtiny: CGFloat { get }
-    var tiny: CGFloat { get }
-    var xsmall: CGFloat { get }
-    var small: CGFloat { get }
-    var medium: CGFloat { get }
-    var large: CGFloat { get }
-    var xlarge: CGFloat { get }
-    var huge: CGFloat { get }
+    var none: CGFloat { get set }
+    var pico: CGFloat { get set }
+    var xnano: CGFloat { get set }
+    var nano: CGFloat { get set }
+    var xmicro: CGFloat { get set }
+    var micro: CGFloat { get set }
+    var xtiny: CGFloat { get set }
+    var tiny: CGFloat { get set }
+    var xsmall: CGFloat { get set }
+    var small: CGFloat { get set }
+    var medium: CGFloat { get set }
+    var large: CGFloat { get set }
+    var xlarge: CGFloat { get set }
+    var huge: CGFloat { get set }
 }
 
 // MARK: - Border Radius Definitions
 
 public protocol MPBorderRadius: Sendable {
-    var none: CGFloat { get }
-    var tiny: CGFloat { get }
-    var xsmall: CGFloat { get }
-    var small: CGFloat { get }
-    var medium: CGFloat { get }
-    var large: CGFloat { get }
-    var xlarge: CGFloat { get }
-    var full: CGFloat { get }
+    var none: CGFloat { get set }
+    var tiny: CGFloat { get set }
+    var xsmall: CGFloat { get set }
+    var small: CGFloat { get set }
+    var medium: CGFloat { get set }
+    var large: CGFloat { get set }
+    var xlarge: CGFloat { get set }
+    var full: CGFloat { get set }
 }
 
 // MARK: - Border Width Definitions
 
 public protocol MPBorderWidth: Sendable {
-    var none: CGFloat { get }
-    var small: CGFloat { get }
-    var medium: CGFloat { get }
-    var large: CGFloat { get }
-    var xlarge: CGFloat { get }
+    var none: CGFloat { get set }
+    var small: CGFloat { get set }
+    var medium: CGFloat { get set }
+    var large: CGFloat { get set }
+    var xlarge: CGFloat { get set }
 }
 
 public struct MPHeadingStyle: Sendable {
