@@ -9,11 +9,25 @@ import SwiftUI
 // MARK: - MPLightTheme Implementation
 
 public struct MPLightTheme: MPTheme {
-    public var colors: MPColors
-    public var spacings: MPSpacings
-    public var borderRadius: MPBorderRadius
-    public var borderWidth: MPBorderWidth
-    public var typography: MPTypography
+    public var colors: MPColors {
+        didSet { self.buildComponents() }
+    }
+
+    public var spacings: MPSpacings {
+        didSet { self.buildComponents() }
+    }
+
+    public var borderRadius: MPBorderRadius {
+        didSet { self.buildComponents() }
+    }
+
+    public var borderWidth: MPBorderWidth {
+        didSet { self.buildComponents() }
+    }
+
+    public var typography: MPTypography {
+        didSet { self.buildComponents() }
+    }
 
     // Component Appearances
     public var buttons: MPButtons
@@ -45,6 +59,22 @@ public struct MPLightTheme: MPTheme {
         self.borderWidth = LightBorderWidth()
         self.typography = LightTypography()
 
+        self.buttons = MPButtons(
+            colors: self.colors,
+            radios: self.borderRadius,
+            spacings: self.spacings,
+            typography: self.typography
+        )
+        self.textFields = MPTextFields(
+            colors: self.colors,
+            borderRadius: self.borderRadius,
+            borderWidth: self.borderWidth,
+            spacings: self.spacings,
+            typography: self.typography
+        )
+    }
+
+    private mutating func buildComponents() {
         self.buttons = MPButtons(
             colors: self.colors,
             radios: self.borderRadius,
