@@ -22,7 +22,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
         let repository = MockCardFormInitializationRepository()
         let useCase = InitializeCardFormUseCase(repository: repository)
         let configuration = MercadoPagoCheckout.CheckoutConfiguration(
-            type: .cardForm(cardFormConfiguration: .init()),
+            type: .saveCard,
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
         let viewModel = CardFormBrickViewModel(configuration: configuration, initializeUseCase: useCase)

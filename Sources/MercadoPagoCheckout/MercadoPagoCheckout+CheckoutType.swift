@@ -12,18 +12,22 @@ public extension MercadoPagoCheckout {
         /// A card-based payment form.
         ///
         /// - Parameter cardFormConfiguration: Configuration values for the card form, such as amount and payer.
-        case cardForm(cardFormConfiguration: CardFormConfiguration)
+        case cardTransaction(order: Order)
+        case saveCard
 
         var configuration: CheckoutTypeConfiguration {
             switch self {
-            case let .cardForm(cardFormConfiguration):
+            case let .cardTransaction(cardFormConfiguration):
                 return cardFormConfiguration
+            case .saveCard:
+                return SavedCardConfiguration()
             }
         }
 
         var analyticsValue: String {
             switch self {
-            case .cardForm: return "card_form"
+            case .cardTransaction: return "card_transaction"
+            case .saveCard: return "save_card"
             }
         }
     }

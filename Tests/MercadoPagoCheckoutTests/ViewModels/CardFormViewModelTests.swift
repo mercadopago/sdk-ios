@@ -183,7 +183,7 @@ final class CardFormViewModelTests: XCTestCase {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
         let configuration = MercadoPagoCheckout.CheckoutConfiguration(
-            type: .cardForm(cardFormConfiguration: .init()),
+            type: .saveCard,
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
         let initResult = CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
@@ -200,7 +200,7 @@ final class CardFormViewModelTests: XCTestCase {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
         let configuration = MercadoPagoCheckout.CheckoutConfiguration(
-            type: .cardForm(cardFormConfiguration: .init(amount: amount)),
+            type: .cardTransaction(order: .init(amount: amount, payer: .init(email: ""))),
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
         let initResult = CardFormInitializationOutputStub.make(identificationTypes: [])
