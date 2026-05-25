@@ -45,12 +45,10 @@ final class CardFormBrickViewModel: ObservableObject {
 
     func load() async throws(MercadoPagoCheckoutError) {
         guard case .loading = self.screenState else { return }
-        let config = self.extractCardFormConfig()
         do {
             let result = try await withRetry {
                 try await self.initializeUseCase.execute(
-                    config: config,
-                    checkoutType: self.configuration.type.analyticsValue
+                    checkoutType: self.configuration.type
                 )
             }
             let viewModel = CardFormViewModel(
@@ -72,15 +70,6 @@ final class CardFormBrickViewModel: ObservableObject {
             self.trackInitializeError(checkoutError)
             throw checkoutError
         }
-    }
-
-    // MARK: - Private
-
-    private func extractCardFormConfig() -> MercadoPagoCheckout.CardFormConfiguration {
-        if case let .cardForm(config) = configuration.type {
-            return config
-        }
-        return MercadoPagoCheckout.CardFormConfiguration()
     }
 
     // MARK: - Analytics
