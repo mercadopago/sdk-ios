@@ -19,12 +19,15 @@ struct InitializeCardFormUseCase {
     /// Fetches initialization data from the repository,
     /// then applies business rules (button selection, custom text overrides).
     func execute(
-        config: MercadoPagoCheckout.CardFormConfiguration,
-        checkoutType: String
+        checkoutType: MercadoPagoCheckout.CheckoutType
     ) async throws(MercadoPagoCheckoutError) -> CardFormInitializationOutput {
         do {
-            let data = try await repository.fetchInitialization(amount: config.amount, checkoutType: checkoutType)
-            return self.mapToResult(data: data, config: config)
+            let data = try await repository.fetchInitialization(
+                amount: checkoutType.configuration.amount,
+                checkoutType: checkoutType.analyticsValue
+            )
+
+            return self.mapToResult(data: data)
         } catch let error as APIClientError {
             if case let .apiError(response) = error,
                let errorCode = response.errorCode,
@@ -45,8 +48,7 @@ struct InitializeCardFormUseCase {
     // MARK: - Business Rules
 
     private func mapToResult(
-        data: CardFormInitializationInput,
-        config _: MercadoPagoCheckout.CardFormConfiguration
+        data: CardFormInitializationInput
     ) -> CardFormInitializationOutput {
         let fields = data.fields
 

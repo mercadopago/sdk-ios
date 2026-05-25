@@ -135,8 +135,11 @@ final class CardFormViewModel: ObservableObject {
     // MARK: - Footer
 
     func footerAmount() -> MPAmountData? {
-        guard let amount = configuration.type.configuration.amount else { return nil }
-        return MPAmountData(from: amount)
+        if self.configuration.type.configuration.amount == .zero {
+            return nil
+        }
+
+        return MPAmountData(from: self.configuration.type.configuration.amount)
     }
 
     // MARK: - Card Token

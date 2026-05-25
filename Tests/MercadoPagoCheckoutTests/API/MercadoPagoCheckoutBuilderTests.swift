@@ -20,8 +20,8 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
     func test_init_shouldStoreCheckoutTypeAndAppearance() {
         // Arrange
         let appearance = MercadoPagoCheckout.CheckoutAppearance()
-        let checkoutType: MercadoPagoCheckout.CheckoutType = .cardForm(
-            cardFormConfiguration: .init(amount: 100.0)
+        let checkoutType: MercadoPagoCheckout.CheckoutType = .cardTransaction(
+            order: .init(amount: 100.0, payer: .init(email: "test@mercadopago.com"))
         )
 
         // Act
@@ -31,7 +31,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         ).build()
 
         // Assert
-        if case let .cardForm(cardFormConfiguration) = checkout.configuration.type {
+        if case let .cardTransaction(cardFormConfiguration) = checkout.configuration.type {
             XCTAssertEqual(cardFormConfiguration.amount, 100.0)
         } else {
             XCTFail("Expected .cardForm checkout type")
@@ -41,7 +41,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
     func test_build_withoutSettingPaymentMethods_shouldUseDefaults() {
         // Arrange / Act
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 50.0)),
+            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mercadopago.com"))),
             checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
         ).build()
 
@@ -60,7 +60,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
         // Act
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 100.0)),
+            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mercadopago.com"))),
             checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
         )
         .setPaymentMethods(customMethods)
@@ -79,7 +79,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
     func test_setPaymentMethods_withoutArgument_shouldResetToDefaults() {
         // Arrange -- first override, then reset
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 100.0)),
+            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mercadopago.com"))),
             checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
         )
         builder.setPaymentMethods([.card(allowedTypes: [.credit])])
@@ -95,7 +95,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
     func test_setPaymentMethods_shouldBeDiscardableAndReturnSameBuilder() {
         // Arrange
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 100.0)),
+            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mercadopago.com"))),
             checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
         )
 
@@ -110,16 +110,16 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_build_shouldPropagateCheckoutTypeToConfiguration() {
         // Arrange
-        let config = MercadoPagoCheckout.CardFormConfiguration(amount: 77.5)
+        let config = MercadoPagoCheckout.Order(amount: 77.5, payer: .init(email: "test@mercadopago.com"))
 
         // Act
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: config),
+            checkoutType: .cardTransaction(order: config),
             checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
         ).build()
 
         // Assert
-        if case let .cardForm(cardFormConfiguration) = checkout.configuration.type {
+        if case let .cardTransaction(cardFormConfiguration) = checkout.configuration.type {
             XCTAssertEqual(cardFormConfiguration.amount, 77.5)
         } else {
             XCTFail("Expected .cardForm")

@@ -20,7 +20,7 @@ struct CardFormBrick: View {
     private var configuration: MercadoPagoCheckout.CheckoutConfiguration
     private let themeDark: MPTheme
     private let themeLight: MPTheme
-    private let transactionAmount: Double?
+    private let transactionAmount: Double
 
     private let onResult: (MercadoPagoCheckoutResult) -> Void
 
