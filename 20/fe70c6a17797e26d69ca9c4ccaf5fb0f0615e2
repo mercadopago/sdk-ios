@@ -1,0 +1,19 @@
+Sources/MPComponents/BaseElements/Footer/MPFooterStyle.swift
+  s_2b26426b597aeb::t_20b753a6761c72 17,19,28,30-31,38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "20fe70c6a17797e26d69ca9c4ccaf5fb0f0615e2",
+  "prompts": {},
+  "sessions": {
+    "s_2b26426b597aeb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cc49a411-3b4f-431e-b6e3-ca51971d5a83",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
