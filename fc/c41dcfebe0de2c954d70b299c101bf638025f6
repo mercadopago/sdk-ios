@@ -1,0 +1,37 @@
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTests.swift
+  s_c8a469093425aa::t_65766cb4cb8959 15,24,28-31
+Tests/MercadoPagoCheckoutTests/Models/MPPaymentDataTests.swift
+  s_c8a469093425aa::t_79b19296bf282c 12,14-21,24-33,36-39,42-45,48,50-68,75,77-78,82-85,92-98,100,102-105,107,109-120
+Tests/MercadoPagoCheckoutTests/UseCases/InitializeCardFormUseCaseTests.swift
+  s_c8a469093425aa::t_a31868da8474fd 40
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTrackingTests.swift
+  s_c8a469093425aa::t_915852a34f98b6 99,104
+  s_c8a469093425aa::t_db4751f85e2351 286,339,440
+  s_c8a469093425aa::t_7e9006e64a87f9 17
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTrackingTests.swift
+  s_c8a469093425aa::t_78da97eec22334 16,24,29,33
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTests.swift
+  s_c8a469093425aa::t_be6599c5174135 197,202,211,214,219
+  s_c8a469093425aa::t_2c49ad7e9d7e6e 766,771,776,781-805
+  s_c8a469093425aa::t_893f9ec79b89ff 171-176
+  s_c8a469093425aa::t_ac9d9fefeea5a5 818,836,841,855,875,896,919,938,948-949,955,960,966-968,971-973,976,987-990,1000,1005,1011-1013,1023,1028,1034-1035
+  s_c8a469093425aa::t_391bd3853d7778 20-26
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutBuilderTests.swift
+  s_c8a469093425aa::t_1eedfe0015f552 15-17,20,22,24-25,28-29,31,35,37-38,41-44,47-48,53-54,68,70-71,76-79,84-85,91,93,95-96,99-100,103-139
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "fcc41dcfebe0de2c954d70b299c101bf638025f6",
+  "prompts": {},
+  "sessions": {
+    "s_c8a469093425aa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "219060c3-0ebb-4525-88f0-6f5842b5c64c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
