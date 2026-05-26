@@ -14,38 +14,28 @@ package protocol MPFooterStyle: StyleProtocol, Identifiable where Configuration 
 package struct MPDefaultFooterStyle: MPFooterStyle {
     package var id: UUID = .init()
 
+    @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.mpHeaderIsScrollable) private var isScrollable: Bool
+    @State private var isKeyboardVisible = false
 
     package init() {}
 
     @MainActor
     package func makeBody(configuration: MPFooterStyleConfiguration) -> some View {
-        FooterContent(configuration: configuration, isScrollable: self.isScrollable)
-    }
-}
-
-private struct FooterContent: View {
-    let configuration: MPFooterStyleConfiguration
-    let isScrollable: Bool
-
-    @Environment(\.checkoutTheme) var theme: MPTheme
-    @State private var isKeyboardVisible = false
-
-    var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: self.theme.spacings.xmicro) {
                 if !self.isKeyboardVisible {
-                    self.configuration.summaryLine
+                    configuration.summaryLine
 
-                    if self.configuration.hasDescription {
-                        self.configuration.descriptionLine
+                    if configuration.hasDescription {
+                        configuration.descriptionLine
                     }
                 }
 
                 if let button = configuration.button {
                     button
                         .mpButtonStyle(variant: .loud)
-                        .padding(.top, (!self.isKeyboardVisible && self.configuration.hasDescription) ? self.theme.spacings.micro : 0)
+                        .padding(.top, (!self.isKeyboardVisible && configuration.hasDescription) ? self.theme.spacings.micro : 0)
                         .padding(.bottom, self.theme.spacings.xtiny)
                 }
             }
