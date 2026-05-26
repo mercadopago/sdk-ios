@@ -8,6 +8,8 @@
 @testable import MercadoPagoCheckout
 import XCTest
 
+private typealias CardBrand = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CardBrand
+
 /// The `CardBrand` type has two mappings that must stay in sync:
 /// `init(paymentMethodId:)` decodes the backend identifier into a case, and
 /// the `paymentMethodId` property encodes it back. Both directions are
