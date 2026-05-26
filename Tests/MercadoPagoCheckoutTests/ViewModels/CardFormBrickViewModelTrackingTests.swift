@@ -13,7 +13,7 @@ final class CardFormBrickViewModelTrackingTests: XCTestCase {
     // MARK: - Types
 
     typealias SUT = (
-        viewModel: CardFormBrickViewModel,
+        viewModel: CardFormBrickViewModel<MPPaymentData.CardSave>,
         repository: MockCardFormInitializationRepository,
         analytics: MockAnalytics
     )
@@ -21,16 +21,16 @@ final class CardFormBrickViewModelTrackingTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSUT(
-        appearance: MercadoPagoCheckout.CheckoutAppearance = MercadoPagoCheckout.CheckoutAppearance()
+        appearance: MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutAppearance = .init()
     ) -> SUT {
         let repository = MockCardFormInitializationRepository()
         let useCase = InitializeCardFormUseCase(repository: repository)
         let analytics = MockAnalytics()
-        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
+        let configuration = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutConfiguration(
             type: .saveCard,
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
-        let viewModel = CardFormBrickViewModel(
+        let viewModel = CardFormBrickViewModel<MPPaymentData.CardSave>(
             configuration: configuration,
             appearance: appearance,
             initializeUseCase: useCase,

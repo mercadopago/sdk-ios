@@ -14,7 +14,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     // MARK: - Types
 
     typealias SUT = (
-        viewModel: CardFormViewModel,
+        viewModel: CardFormViewModel<MPPaymentData.CardSave>,
         service: MockCheckoutService,
         repository: MockCardPaymentBrickCardRepository,
         analytics: MockAnalytics
@@ -96,12 +96,12 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
         let analytics = MockAnalytics()
-        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
+        let configuration = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutConfiguration(
             type: .saveCard,
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
         let initResult = CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
-        let viewModel = CardFormViewModel(
+        let viewModel = CardFormViewModel<MPPaymentData.CardSave>(
             configuration: configuration,
             initResult: initResult,
             service: service,
@@ -283,7 +283,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         // Act
         await sut.viewModel.submitCardData(
             cardForm: CardFormDataStub.valid,
-            transactionAmount: nil,
+            transactionAmount: .zero,
             onSuccess: { _ in },
             onFailure: { _ in }
         )
@@ -336,7 +336,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         // Act
         await sut.viewModel.submitCardData(
             cardForm: CardFormDataStub.valid,
-            transactionAmount: nil,
+            transactionAmount: .zero,
             onSuccess: { _ in },
             onFailure: { _ in }
         )
@@ -437,7 +437,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
 
         await sut.viewModel.submitCardData(
             cardForm: CardFormDataStub.valid,
-            transactionAmount: nil,
+            transactionAmount: .zero,
             onSuccess: { _ in },
             onFailure: { _ in }
         )
