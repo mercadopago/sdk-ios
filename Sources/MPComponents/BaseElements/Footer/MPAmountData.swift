@@ -52,8 +52,9 @@ package struct MPAmountData: Equatable {
         let separator = formatter.decimalSeparator ?? ","
         let parts = formatted.components(separatedBy: separator)
 
+        let decimal = parts.count > 1 ? parts[1] : "00"
         self.currencySymbol = currencySymbol
         self.integerPart = parts.first ?? formatted
-        self.decimalPart = parts.count > 1 ? parts[1] : "00"
+        self.decimalPart = decimal == "00" ? "" : decimal
     }
 }

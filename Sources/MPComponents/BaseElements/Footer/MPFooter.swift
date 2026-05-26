@@ -161,20 +161,26 @@ package struct MPFooter: View {
                     .textStyle(.largeEmphasis())
                     .foregroundColor(self.theme.colors.text.primary)
                     .lineLimit(1)
-                VStack(alignment: .leading) {
-                    Text(amount.decimalPart)
-                        .textStyle(.smallMediumEmphasis())
-                        .foregroundColor(self.theme.colors.text.primary)
-                        .lineLimit(1)
-                    Spacer()
+                if !amount.decimalPart.isEmpty {
+                    VStack(alignment: .leading) {
+                        Text(amount.decimalPart)
+                            .textStyle(.smallMediumEmphasis())
+                            .foregroundColor(self.theme.colors.text.primary)
+                            .lineLimit(1)
+                        Spacer()
+                    }
+                    .fixedSize()
                 }
-                .fixedSize()
             }
         }
     }
 
     private func createAccessibilityLabel() -> String {
-        return "\(self.title) \(self.amount?.currencySymbol ?? "") \(self.amount?.integerPart ?? ""), \(self.amount?.decimalPart ?? "")"
+        guard let amount else { return self.title }
+        if amount.decimalPart.isEmpty {
+            return "\(self.title) \(amount.currencySymbol) \(amount.integerPart)"
+        }
+        return "\(self.title) \(amount.currencySymbol) \(amount.integerPart), \(amount.decimalPart)"
     }
 }
 
