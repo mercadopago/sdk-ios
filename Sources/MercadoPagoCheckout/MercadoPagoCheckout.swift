@@ -15,18 +15,23 @@ import UIKit
 // ``Builder`` to assemble an instance fluently, then present it via SwiftUI,
 // UIKit modal, or a `UINavigationController` push.
 //
+// The generic parameter `T` represents the concrete ``MPPaymentData`` variant produced by the
+// flow. It is inferred from the ``CheckoutType`` passed to the ``Builder``, so the
+// ``MercadoPagoCheckoutResult`` delivered to the callback carries the concrete subtype directly.
+//
 // ## Usage
 //
 // ```swift
 // let checkout = MercadoPagoCheckout.Builder(
-//     checkoutType: .cardForm(cardFormConfiguration: .init(amount: 99.90)),
+//     checkoutType: .cardTransaction(order: .init(amount: 99.90, payer: .init(email: "..."))),
 //     checkoutAppearance: .init()
 // )
-// .setPaymentMethod([.card(cardTypes: [.credit, .debit]), .pix])
+// .setPaymentMethods([.card(allowedTypes: [.credit, .debit])])
 // .build()
 //
 // // SwiftUI
 // checkout.show { result in
+//     // result: MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>
 //     print(result)
 // }
 //
@@ -36,7 +41,7 @@ import UIKit
 // }
 // ```
 
-public struct MercadoPagoCheckout: Sendable, Identifiable {
+public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable {
     /// A unique identifier for this checkout instance.
     public let id = UUID()
 
@@ -67,9 +72,9 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     @MainActor
     @ViewBuilder
     public func show(
-        onResult: @escaping (MercadoPagoCheckoutResult) -> Void
+        onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) -> some View {
-        CardFormBrick(
+        CardFormBrick<T>(
             configuration: self.configuration,
             appearance: self.theme,
             onResult: onResult
@@ -88,9 +93,9 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     public func present(
         from viewController: UIViewController,
         animated: Bool = true,
-        onResult: @escaping (MercadoPagoCheckoutResult) -> Void
+        onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) {
-        let cardFormBrick = CardFormBrick(
+        let cardFormBrick = CardFormBrick<T>(
             configuration: configuration,
             appearance: theme,
             onResult: onResult
@@ -113,9 +118,9 @@ public struct MercadoPagoCheckout: Sendable, Identifiable {
     public func push(
         to navigationController: UINavigationController,
         animated: Bool = true,
-        onResult: @escaping (MercadoPagoCheckoutResult) -> Void
+        onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) {
-        let cardFormBrick = CardFormBrick(
+        let cardFormBrick = CardFormBrick<T>(
             configuration: configuration,
             appearance: theme,
             onResult: onResult

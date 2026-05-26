@@ -7,7 +7,7 @@
 
 public extension MercadoPagoCheckout {
     /// Information about the payer initiating the checkout.
-    struct Payer: Sendable {
+    struct Payer: Sendable, Decodable {
         /// The payer's email address.
         public var email: String
 

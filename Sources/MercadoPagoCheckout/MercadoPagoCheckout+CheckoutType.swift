@@ -7,28 +7,54 @@
 
 public extension MercadoPagoCheckout {
     /// The type of checkout experience to launch.
-    // swiftformat:disable:next redundantSendable
-    enum CheckoutType: Sendable {
-        /// A card-based payment form.
-        ///
-        /// - Parameter cardFormConfiguration: Configuration values for the card form, such as amount and payer.
-        case cardTransaction(order: Order)
-        case saveCard
+    ///
+    /// `CheckoutType` is parameterized by the outer ``MercadoPagoCheckout`` generic `T`, which
+    /// represents the concrete ``MPPaymentData`` variant produced by the flow. Each factory
+    /// is constrained so that:
+    /// - ``cardTransaction(order:)`` is only available when `T == MPPaymentData.CardTransaction`
+    /// - ``saveCard`` is only available when `T == MPPaymentData.CardSave`
+    ///
+    /// This propagates the concrete payment data type all the way through to
+    /// ``MercadoPagoCheckoutResult`` at the call site.
+    struct CheckoutType: Sendable {
+        enum Kind: Sendable {
+            case cardTransaction(Order)
+            case saveCard
+        }
 
-        var configuration: CheckoutTypeConfiguration {
-            switch self {
-            case let .cardTransaction(cardFormConfiguration):
-                return cardFormConfiguration
-            case .saveCard:
-                return SavedCardConfiguration()
+        let kind: Kind
+
+        var configuration: any CheckoutTypeConfiguration {
+            switch self.kind {
+            case let .cardTransaction(order): return order
+            case .saveCard: return SavedCardConfiguration()
             }
         }
 
         var analyticsValue: String {
-            switch self {
+            switch self.kind {
             case .cardTransaction: return "card_transaction"
             case .saveCard: return "save_card"
             }
         }
+    }
+}
+
+public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.CardTransaction {
+    /// A card-based payment form that produces a ``MPPaymentData/CardTransaction``.
+    ///
+    /// - Parameter order: Configuration values for the transaction, such as amount and payer.
+    static func cardTransaction(
+        order: MercadoPagoCheckout<MPPaymentData.CardTransaction>.Order
+    ) -> MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutType {
+        .init(kind: .cardTransaction(order))
+    }
+}
+
+public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.CardSave {
+    /// A flow that saves a card without performing a transaction; produces a
+    /// ``MPPaymentData/CardSave`` carrying the token.
+    static var saveCard: MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType {
+        .init(kind: .saveCard)
     }
 }
