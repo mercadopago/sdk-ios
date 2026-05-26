@@ -746,7 +746,7 @@ final class CardFormViewModelTests: XCTestCase {
         let sut = self.makeSUTWithAmount(500.0)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.footerAmount(), MPAmountData(from: 500.0))
+        XCTAssertEqual(sut.viewModel.footerAmount(), MPAmountData(from: 500.0, currencySymbol: "R$"))
     }
 
     // MARK: - submitCardData

@@ -75,6 +75,7 @@ final class CardFormViewModel: ObservableObject {
     private var paymentMethodTask: Task<Void, Never>?
     private let fields: CardFormFields.Fields
     private var analyticsTask: Task<Void, Never>?
+    private var currencySymbol: String
 
     // MARK: - Init
 
@@ -91,6 +92,7 @@ final class CardFormViewModel: ObservableObject {
         self.fields = initResult.fields
         self.analytics = analytics
         self.identificationTypes = initResult.identificationTypes
+        self.currencySymbol = initResult.currencySymbol
         _selectTypeDocument = Published(wrappedValue: initResult.identificationTypes.first)
 
         self.cardNumberFormatter = CardNumberFormatter(
@@ -136,7 +138,7 @@ final class CardFormViewModel: ObservableObject {
 
     func footerAmount() -> MPAmountData? {
         guard let amount = configuration.type.configuration.amount else { return nil }
-        return MPAmountData(from: amount)
+        return MPAmountData(from: amount, currencySymbol: self.currencySymbol)
     }
 
     // MARK: - Card Token

@@ -66,11 +66,10 @@ struct CardFormScreen: View {
                 self.didTapBack = true
                 self.onBack(self.cardForm.cancelledFormContext)
             },
-            autoScrollToFooter: true,
             footer: {
                 MPFooter(
                     title: MPStrings.Common.total,
-                    amount: nil,
+                    amount: self.viewModel.footerAmount(),
                     buttonData: .init(
                         text: self.initResult.button,
                         onClick: {
