@@ -1,0 +1,50 @@
+Sources/MercadoPagoCheckout/Views/CardFormScreen.swift
+  s_c8a469093425aa::t_bd4ff3df4344d1 42
+  s_c8a469093425aa::t_6d3284314e6451 14
+  s_c8a469093425aa::t_b4258d17978cdf 39
+  s_c8a469093425aa::t_207f7aa4b33710 11,18
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+PaymentMethod.swift
+  s_c8a469093425aa::t_0ca2dbe0d0f4fd 21
+  s_c8a469093425aa::t_051c5dbded8f25 31,33-34,38-39
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+Builder.swift
+  s_c8a469093425aa::t_70f9c67ba1bc30 11-13,17,20,23,55-56
+Sources/MercadoPagoCheckout/Bricks/CardFormBrickViewModel.swift
+  s_c8a469093425aa::t_11aab1c09fadff 13,16,25-26,33-34,54
+  s_c8a469093425aa::t_4dab35c70da6f4 82-83
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_c8a469093425aa::t_3622f5e2218cca 10,17,25,30,32-34,41,43,101-104,114,145-155,157
+  s_c8a469093425aa::t_b1d5049be72798 18,20,44,86
+Sources/MercadoPagoCheckout/MercadoPagoCheckout.swift
+  s_c8a469093425aa::t_eebc6000a01d2f 18-21,26,29,34,44,75,77,96,98,121,123
+Sources/MercadoPagoCheckout/Model/Public/MPPaymentData.swift
+  s_c8a469093425aa::t_65143356c7943b 9-22,28-37,40,47-57,63-66
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_c8a469093425aa::t_5cb1f79635e308 22,25
+  s_c8a469093425aa::t_d55140e4ae330f 78-83
+Sources/MercadoPagoCheckout/Model/Public/MercadoPagoCheckoutResult.swift
+  s_c8a469093425aa::t_43ca6cfff01089 2,9-15
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CheckoutType.swift
+  s_c8a469093425aa::t_7860b1c255f899 10-25,27-30,35,42-58
+Sources/MercadoPagoCheckout/Views/CardFormViewModel.swift
+  s_c8a469093425aa::t_9d7e7a9cc03b18 14,17,82,338
+  s_c8a469093425aa::t_9894ae283a55d2 256-257
+  s_c8a469093425aa::t_364b2f1b775c42 263,267,274,295-323,326-327,335-337,339-352,354-355,358-362,403,405,408
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CardFormConfiguration.swift
+  s_c8a469093425aa::t_017d705ed255bf 8-11,13,15,32-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "9a40e39f570fa6cbabeea7575657b4d3e06a16ea",
+  "prompts": {},
+  "sessions": {
+    "s_c8a469093425aa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "219060c3-0ebb-4525-88f0-6f5842b5c64c",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
