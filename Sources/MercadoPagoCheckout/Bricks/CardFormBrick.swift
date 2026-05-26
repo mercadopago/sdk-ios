@@ -7,38 +7,41 @@
 import MPComponents
 import SwiftUI
 
-struct CardFormBrick: View {
+struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private enum Route: Hashable {
         case installments
         case reviewAndConfirm
     }
 
     @State private var route: Route?
-    @State private var paymentData: MPPaymentData
-    @ObservedObject private var brickViewModel: CardFormBrickViewModel
+    @State private var cardTransactionData: MPPaymentData.CardTransaction
+    @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
-    private var configuration: MercadoPagoCheckout.CheckoutConfiguration
+    private var configuration: MercadoPagoCheckout<T>.CheckoutConfiguration
     private let themeDark: MPTheme
     private let themeLight: MPTheme
     private let transactionAmount: Double
 
-    private let onResult: (MercadoPagoCheckoutResult) -> Void
+    private let onResult: (MercadoPagoCheckoutResult<T>) -> Void
 
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.checkoutTheme) private var theme: MPTheme
 
+    @MainActor
     init(
-        configuration: MercadoPagoCheckout.CheckoutConfiguration,
-        appearance: MercadoPagoCheckout.CheckoutAppearance,
-        onResult: @escaping (MercadoPagoCheckoutResult) -> Void
+        configuration: MercadoPagoCheckout<T>.CheckoutConfiguration,
+        appearance: MercadoPagoCheckout<T>.CheckoutAppearance,
+        onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) {
         self.onResult = onResult
         self.themeDark = appearance.themeConfiguration.dark
         self.themeLight = appearance.themeConfiguration.light
         self.transactionAmount = configuration.type.configuration.amount
         self.configuration = configuration
-        self._paymentData = State(initialValue: MPPaymentData(transactionAmount: self.transactionAmount))
-        self.brickViewModel = CardFormBrickViewModel(configuration: configuration, appearance: appearance)
+        self._cardTransactionData = State(
+            initialValue: .init()
+        )
+        self.brickViewModel = CardFormBrickViewModel<T>(configuration: configuration, appearance: appearance)
     }
 
     var body: some View {
@@ -80,7 +83,7 @@ struct CardFormBrick: View {
         }
     }
 
-    private func cardFormScreen(initResult: CardFormInitializationOutput, viewModel: CardFormViewModel) -> some View {
+    private func cardFormScreen(initResult: CardFormInitializationOutput, viewModel: CardFormViewModel<T>) -> some View {
         CardFormScreen(
             initResult: initResult,
             transactionAmount: self.transactionAmount,
@@ -95,8 +98,10 @@ struct CardFormBrick: View {
                 self.onResult(.userCancelled(.cardForm(context)))
             },
             onSuccess: { paymentData in
-                self.paymentData = paymentData
-                self.completeCheckout()
+                if let transaction = paymentData as? MPPaymentData.CardTransaction {
+                    self.cardTransactionData = transaction
+                }
+                self.completeCheckout(with: paymentData)
             },
             onFailure: { error in
                 self.fail(error)
@@ -106,7 +111,7 @@ struct CardFormBrick: View {
 
     private func installmentScreen() -> some View {
         InstallmentScreen(
-            paymentData: self.$paymentData,
+            paymentData: self.$cardTransactionData,
             installments: InstallmentMock.visa,
             onBack: {
                 self.presentationMode.wrappedValue.dismiss()
@@ -137,9 +142,19 @@ struct CardFormBrick: View {
         self.presentationMode.wrappedValue.dismiss()
     }
 
-    private func completeCheckout() {
+    /// Emits the final success result.
+    ///
+    /// The SDK guarantees by construction that the variant of `paymentData` matches `T`
+    /// (a `cardTransaction` ``CheckoutType`` always yields a ``MPPaymentData/CardTransaction``;
+    /// `saveCard` always yields a ``MPPaymentData/CardSave``). The forced cast is the iOS
+    /// equivalent of Android's `@Suppress("UNCHECKED_CAST")`.
+    private func completeCheckout(with paymentData: any MPPaymentData.Kind) {
+        guard let typed = paymentData as? T else {
+            assertionFailure("CardFormBrick received \(type(of: paymentData)) but was configured for \(T.self).")
+            return
+        }
         self.route = nil
-        self.onResult(.success(self.paymentData))
+        self.onResult(.success(typed))
         self.presentationMode.wrappedValue.dismiss()
     }
 

@@ -5,14 +5,14 @@
 //  Created by Danielle Nozaki Ogawa on 20/02/26.
 //
 
-extension MercadoPagoCheckout {
-    public protocol CheckoutTypeConfiguration: Sendable {
-        /// The transaction amount to be charged.
-        var amount: Double { get }
-    }
+protocol CheckoutTypeConfiguration: Sendable {
+    /// The transaction amount to be charged.
+    var amount: Double { get }
+}
 
+public extension MercadoPagoCheckout {
     /// Configuration specific to the checkout experience.
-    public struct Order: CheckoutTypeConfiguration {
+    struct Order: CheckoutTypeConfiguration {
         /// The transaction amount to be charged. Optional; when `nil` the amount is determined server-side.
         public var amount: Double
         /// Payer information pre-filled in the form. Optional.
@@ -29,7 +29,9 @@ extension MercadoPagoCheckout {
         }
     }
 
-    struct SavedCardConfiguration: CheckoutTypeConfiguration {
-        var amount: Double = .zero
+    internal struct SavedCardConfiguration: CheckoutTypeConfiguration {
+        public var amount: Double = .zero
+
+        init() {}
     }
 }
