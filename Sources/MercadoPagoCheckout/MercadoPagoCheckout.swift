@@ -46,19 +46,19 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
     public let id = UUID()
 
     /// The visual appearance applied to the checkout flow.
-    var theme: CheckoutAppearance
+    var theme: MPCheckoutAppearance
     /// The behavioral configuration for the checkout flow.
-    var configuration: CheckoutConfiguration
+    var configuration: MPCheckoutConfiguration<T>
 
     /// Creates a `MercadoPagoCheckout` with explicit theme and configuration values.
     ///
     /// Prefer using ``Builder`` for a more ergonomic construction experience.
     ///
     /// - Parameters:
-    ///   - theme: The visual appearance for the checkout. Defaults to a default ``CheckoutAppearance``.
+    ///   - theme: The visual appearance for the checkout. Defaults to a default ``MPCheckoutAppearance``.
     ///   - checkoutConfiguration: The behavioral configuration.
     @MainActor
-    init(theme: CheckoutAppearance = CheckoutAppearance(), configuration: CheckoutConfiguration) {
+    init(theme: MPCheckoutAppearance = MPCheckoutAppearance(), configuration: MPCheckoutConfiguration<T>) {
         self.theme = theme
         self.configuration = configuration
     }
@@ -127,80 +127,5 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
         )
         let hostingController = UIHostingController(rootView: cardFormBrick)
         navigationController.pushViewController(hostingController, animated: animated)
-    }
-}
-
-public extension MercadoPagoCheckout {
-    /// Behavioral configuration for the checkout flow.
-    ///
-    /// Defines the checkout experience
-    struct CheckoutConfiguration: Sendable {
-        /// The type of checkout experience to present.
-        public var type: CheckoutType
-        /// The payment methods available during the checkout flow.
-        public var paymentMethod: [PaymentMethod]
-
-        /// Creates a new checkout configuration.
-        ///
-        /// - Parameters:
-        ///   - checkoutType: The type of checkout experience to present.
-        ///   - paymentMethod: The payment methods available to the user.
-        public init(type: CheckoutType, paymentMethod: [PaymentMethod]) {
-            self.type = type
-            self.paymentMethod = paymentMethod
-        }
-    }
-
-    /// Theme configuration for the checkout flow.
-    ///
-    /// Holds the ``MPTheme`` instances used in light and dark modes.
-    struct MercadoPagoThemeConfiguration: Sendable {
-        /// The theme applied when the interface is in light mode.
-        public var light: MPTheme
-
-        /// The theme applied when the interface is in dark mode.
-        public var dark: MPTheme
-
-        /// Creates a new theme configuration.
-        ///
-        /// - Parameters:
-        ///   - light: The theme for light mode. Defaults to `MPLightTheme` when `nil`.
-        ///   - dark: The theme for dark mode. Defaults to `MPLightTheme` when `nil`.
-        @MainActor
-        public init(
-            light: MPTheme? = nil,
-            dark: MPTheme? = nil
-        ) {
-            self.light = light ?? MPLightTheme()
-            self.dark = dark ?? MPLightTheme()
-        }
-    }
-
-    /// Visual appearance settings for the checkout flow.
-    ///
-    /// Controls which color scheme is applied and provides the theme configuration
-    /// for light and dark modes via ``MercadoPagoThemeConfiguration``.
-    struct CheckoutAppearance: Sendable {
-        /// The preferred user interface style for the checkout flow.
-        ///
-        /// Defaults to `.automatic`, which follows the device setting.
-        public var style: MercadoPagoUserInterfaceStyle
-
-        /// The theme configuration holding light and dark mode themes.
-        public var themeConfiguration: MercadoPagoThemeConfiguration
-
-        /// Creates a new appearance configuration.
-        ///
-        /// - Parameters:
-        ///   - style: The preferred user interface style. Defaults to `.automatic`.
-        ///   - theme: The theme configuration for light and dark modes.
-        @MainActor
-        public init(
-            style: MercadoPagoUserInterfaceStyle = .automatic,
-            theme: MercadoPagoThemeConfiguration = MercadoPagoThemeConfiguration()
-        ) {
-            self.style = style
-            self.themeConfiguration = theme
-        }
     }
 }

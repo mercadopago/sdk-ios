@@ -14,7 +14,7 @@ import SwiftUI
 final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Dependencies
 
-    private let configuration: MercadoPagoCheckout<T>.CheckoutConfiguration
+    private let configuration: MPCheckoutConfiguration<T>
     private let service: CheckoutServiceProtocol
     private let fetchCardUseCase: FetchCardPaymentBrickCardUseCase
     private let analytics: AnalyticsInterface
@@ -79,7 +79,7 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Init
 
     init(
-        configuration: MercadoPagoCheckout<T>.CheckoutConfiguration,
+        configuration: MPCheckoutConfiguration<T>,
         initResult: CardFormInitializationOutput,
         service: CheckoutServiceProtocol = CheckoutService(),
         fetchCardUseCase: FetchCardPaymentBrickCardUseCase = FetchCardPaymentBrickCardUseCase(),
@@ -369,7 +369,7 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     // MARK: - Analytics
 
-    func cancel(context _: CardFormUserCancelledContext, reason: CardFormCancelReason) {
+    func cancel(context _: MPCardFormUserCancelledContext, reason: CardFormCancelReason) {
         self.isCancelling = true
         let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)
         self.enqueueAnalytics { [analytics = self.analytics] in

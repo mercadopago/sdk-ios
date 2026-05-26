@@ -194,7 +194,7 @@ final class CardFormViewModelTests: XCTestCase {
     ) -> SUT {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
-        let configuration = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutConfiguration(
+        let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
@@ -211,7 +211,7 @@ final class CardFormViewModelTests: XCTestCase {
     private func makeSUTWithAmount(_ amount: Double) -> TransactionSUT {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
-        let configuration = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutConfiguration(
+        let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
             type: .cardTransaction(order: .init(amount: amount, payer: .init(email: ""))),
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )

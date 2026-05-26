@@ -67,7 +67,7 @@ final class CardFormDataTests: XCTestCase {
 
     //
     // Covers the private field state-machine — how each validation error maps
-    // to the public `CardFormUserCancelledContext.FieldState.State` cases
+    // to the public `MPCardFormUserCancelledContext.FieldState.State` cases
     // (.valid/.empty/.incomplete/.invalid/.cardBrandNotAccepted/.cardTypeNotAccepted).
     // This is the state the SDK reports to the seller on cancel, so drift
     // here is a silent regression in seller-visible behavior.

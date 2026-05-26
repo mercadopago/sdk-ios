@@ -22,16 +22,16 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let configuration: MercadoPagoCheckout<T>.CheckoutConfiguration
-    private let appearance: MercadoPagoCheckout<T>.CheckoutAppearance
+    private let configuration: MPCheckoutConfiguration<T>
+    private let appearance: MPCheckoutAppearance
     private let initializeUseCase: InitializeCardFormUseCase
     private let analytics: AnalyticsInterface
 
     // MARK: - Init
 
     init(
-        configuration: MercadoPagoCheckout<T>.CheckoutConfiguration,
-        appearance: MercadoPagoCheckout<T>.CheckoutAppearance = MercadoPagoCheckout<T>.CheckoutAppearance(),
+        configuration: MPCheckoutConfiguration<T>,
+        appearance: MPCheckoutAppearance = MPCheckoutAppearance(),
         initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase(),
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {

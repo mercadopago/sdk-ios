@@ -8,9 +8,9 @@
 @testable import MercadoPagoCheckout
 import XCTest
 
-private typealias PaymentMethod = MercadoPagoCheckout<MPPaymentData.CardTransaction>.PaymentMethod
-private typealias CardType = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CardType
-private typealias CardBrand = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CardBrand
+private typealias PaymentMethod = MPPaymentMethod
+private typealias CardType = MPCardType
+private typealias CardBrand = MPCardBrand
 
 /// Covers `PaymentMethod.defaults`, the `.card` associated values, and the
 /// per-element extensions `acceptedPaymentTypeIds` / `acceptedPaymentMethodIds` that

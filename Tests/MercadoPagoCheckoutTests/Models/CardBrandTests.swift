@@ -8,7 +8,7 @@
 @testable import MercadoPagoCheckout
 import XCTest
 
-private typealias CardBrand = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CardBrand
+private typealias CardBrand = MPCardBrand
 
 final class CardBrandTests: XCTestCase {
     private static let brandIdentifierTable: [(CardBrand, String)] = [

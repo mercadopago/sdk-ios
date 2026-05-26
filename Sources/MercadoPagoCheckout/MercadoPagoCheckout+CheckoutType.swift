@@ -18,7 +18,7 @@ public extension MercadoPagoCheckout {
     /// ``MercadoPagoCheckoutResult`` at the call site.
     struct CheckoutType: Sendable {
         enum Kind: Sendable {
-            case cardTransaction(Order)
+            case cardTransaction(MPOrder)
             case saveCard
         }
 
@@ -45,7 +45,7 @@ public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.CardT
     ///
     /// - Parameter order: Configuration values for the transaction, such as amount and payer.
     static func cardTransaction(
-        order: MercadoPagoCheckout<MPPaymentData.CardTransaction>.Order
+        order: MPOrder
     ) -> MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutType {
         .init(kind: .cardTransaction(order))
     }

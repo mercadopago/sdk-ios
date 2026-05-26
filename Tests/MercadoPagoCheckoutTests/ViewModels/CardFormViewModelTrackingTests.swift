@@ -96,7 +96,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
         let analytics = MockAnalytics()
-        let configuration = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutConfiguration(
+        let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
@@ -206,7 +206,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []), reason: .backButton)
+        sut.viewModel.cancel(context: MPCardFormUserCancelledContext(fields: []), reason: .backButton)
         await sut.analytics.mock.waitForSend()
 
         // Assert
@@ -220,7 +220,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []), reason: .backButton)
+        sut.viewModel.cancel(context: MPCardFormUserCancelledContext(fields: []), reason: .backButton)
         await sut.analytics.mock.waitForSend()
 
         // Assert
@@ -233,7 +233,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Act
-        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []), reason: .dismissedScreen)
+        sut.viewModel.cancel(context: MPCardFormUserCancelledContext(fields: []), reason: .dismissedScreen)
         await sut.analytics.mock.waitForSend()
 
         // Assert
@@ -413,7 +413,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let sut = self.makeSUT()
 
         // Act — cancel blocks isCancelling so only cancel track fires
-        sut.viewModel.cancel(context: CardFormUserCancelledContext(fields: []), reason: .backButton)
+        sut.viewModel.cancel(context: MPCardFormUserCancelledContext(fields: []), reason: .backButton)
         sut.viewModel.trackInputValidation(field: .cardNumber, isValid: true)
 
         await sut.analytics.mock.waitForSend()

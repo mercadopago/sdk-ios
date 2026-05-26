@@ -9,8 +9,8 @@ import MPComponents
 import SwiftUI
 
 struct CardFormScreen<T: MPPaymentData.Kind>: View {
-    private let onBack: (CardFormUserCancelledContext) -> Void
-    private let onDismiss: (CardFormUserCancelledContext) -> Void
+    private let onBack: (MPCardFormUserCancelledContext) -> Void
+    private let onDismiss: (MPCardFormUserCancelledContext) -> Void
     private let onSuccess: (any MPPaymentData.Kind) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double
@@ -37,8 +37,8 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
         initResult: CardFormInitializationOutput,
         transactionAmount: Double,
         viewModel: CardFormViewModel<T>,
-        onBack: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
-        onDismiss: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
+        onBack: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
+        onDismiss: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
         onSuccess: @escaping (any MPPaymentData.Kind) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
