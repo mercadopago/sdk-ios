@@ -26,7 +26,7 @@ package struct MPAmountData: Equatable {
     package init(currencySymbol: String, integerPart: String, decimalPart: String) {
         self.currencySymbol = currencySymbol
         self.integerPart = integerPart
-        self.decimalPart = decimalPart
+        self.decimalPart = decimalPart == "00" ? "" : decimalPart
     }
 
     /// Creates an `MPAmountData` by splitting a `Double` amount into its display parts.
