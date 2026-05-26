@@ -60,7 +60,7 @@ final class MPPaymentDataTests: XCTestCase {
         XCTAssertEqual(data.installment, 3)
         XCTAssertEqual(data.paymentMethodId, "visa")
         XCTAssertEqual(data.paymentTypeId, "credit_card")
-        XCTAssertNil(data.issuerId)
+        XCTAssertEqual(data.issuerId, "")
         XCTAssertNil(data.payer)
     }
 
