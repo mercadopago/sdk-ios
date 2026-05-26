@@ -1,0 +1,34 @@
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPaymentMethodTests.swift
+  s_c8a469093425aa::t_211c65210cb2b6 11-14,16,23,33,39-40,46,50,56,61,67,74,78,84,88,94
+Tests/MercadoPagoCheckoutTests/Models/CardBrandTests.swift
+  s_c8a469093425aa::t_50912106ae0c04 14,46,56,61,67
+Tests/MercadoPagoCheckoutTests/Domain/Analytics/CardFormAnalyticsEventDataTests.swift
+  s_c8a469093425aa::t_d3bb1d9ec0a34c 237,245
+  s_c8a469093425aa::t_9081305ae8ea0b 11-12
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  s_c8a469093425aa::t_31340e749b6c1f 17
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPayerTests.swift
+  s_c8a469093425aa::t_85f816531c6af2 11-12
+  s_c8a469093425aa::t_ea24821bf4b261 18,25
+Tests/MercadoPagoCheckoutTests/Rules/CardFormRulesTests.swift
+  s_c8a469093425aa::t_27ebfaf92744c2 382,390,398,406,414,422-423
+  s_c8a469093425aa::t_7d0ef057158050 12-13
+Tests/MercadoPagoCheckoutTests/Models/MPPaymentDataTests.swift
+  s_c8a469093425aa::t_fd198ff86af61b 63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "dfdccaad67b039212b77dc236fb50173f51c11f0",
+  "prompts": {},
+  "sessions": {
+    "s_c8a469093425aa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "219060c3-0ebb-4525-88f0-6f5842b5c64c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
