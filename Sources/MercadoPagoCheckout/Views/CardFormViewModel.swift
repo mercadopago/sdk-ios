@@ -332,7 +332,6 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
-            print(self.cardData?.paymentMethods)
 
             let paymentData: any MPPaymentData.Kind
             switch self.configuration.type.kind {
@@ -351,7 +350,7 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
             case .saveCard:
                 let save = try self.buildCardSave(cardToken: cardToken, cardFormData: cardForm)
-                let paymentMethod = self.cardData?.paymentMethods.first
+
                 self.trackSubmit(
                     paymentMethodId: save.paymentMethodId,
                     paymentTypeId: save.paymentTypeId,
