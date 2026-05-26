@@ -14,48 +14,61 @@ package protocol MPFooterStyle: StyleProtocol, Identifiable where Configuration 
 package struct MPDefaultFooterStyle: MPFooterStyle {
     package var id: UUID = .init()
 
-    @Environment(\.checkoutTheme) var theme: MPTheme
-    @Environment(\.isEnabled) private var isEnabled: Bool
     @Environment(\.mpHeaderIsScrollable) private var isScrollable: Bool
 
     package init() {}
 
     @MainActor
     package func makeBody(configuration: MPFooterStyleConfiguration) -> some View {
-        if self.isEnabled {
-            VStack(spacing: 0) {
-                // Content area
-                VStack(spacing: self.theme.spacings.xmicro) {
-                    // Summary line
-                    configuration.summaryLine
+        FooterContent(configuration: configuration, isScrollable: self.isScrollable)
+    }
+}
 
-                    // Description line (if present)
-                    if configuration.hasDescription {
-                        configuration.descriptionLine
-                    }
+private struct FooterContent: View {
+    let configuration: MPFooterStyleConfiguration
+    let isScrollable: Bool
 
-                    if let button = configuration.button {
-                        button
-                            .mpButtonStyle(variant: .loud)
-                            .padding(.top, configuration.hasDescription ? self.theme.spacings.micro : 0)
-                            .padding(.bottom, self.theme.spacings.xtiny)
+    @Environment(\.checkoutTheme) var theme: MPTheme
+    @State private var isKeyboardVisible = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: self.theme.spacings.xmicro) {
+                if !self.isKeyboardVisible {
+                    self.configuration.summaryLine
+
+                    if self.configuration.hasDescription {
+                        self.configuration.descriptionLine
                     }
                 }
-                .padding(.horizontal, self.theme.spacings.xtiny)
-                .padding(.top, self.theme.spacings.xtiny)
-                .background(self.theme.colors.background.primary)
-                .background(
-                    self.theme.colors.background.primary
-                        .shadow(
-                            color: self.isScrollable ? Color.black.opacity(0.1) : .clear,
-                            radius: 4, x: 0, y: -2
-                        )
-                        .mask(
-                            Rectangle()
-                                .padding(.top, -20)
-                        )
-                )
+
+                if let button = configuration.button {
+                    button
+                        .mpButtonStyle(variant: .loud)
+                        .padding(.top, (!self.isKeyboardVisible && self.configuration.hasDescription) ? self.theme.spacings.micro : 0)
+                        .padding(.bottom, self.theme.spacings.xtiny)
+                }
             }
+            .padding(.horizontal, self.theme.spacings.xtiny)
+            .padding(.top, self.theme.spacings.xtiny)
+            .background(self.theme.colors.background.primary)
+            .background(
+                self.theme.colors.background.primary
+                    .shadow(
+                        color: self.isScrollable ? Color.black.opacity(0.1) : .clear,
+                        radius: 4, x: 0, y: -2
+                    )
+                    .mask(
+                        Rectangle()
+                            .padding(.top, -20)
+                    )
+            )
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            self.isKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            self.isKeyboardVisible = false
         }
     }
 }

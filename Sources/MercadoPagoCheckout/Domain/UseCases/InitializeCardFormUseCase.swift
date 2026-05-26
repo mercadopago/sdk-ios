@@ -53,6 +53,7 @@ struct InitializeCardFormUseCase {
         return CardFormInitializationOutput(
             title: data.title,
             button: data.buttonLabel,
+            currencySymbol: data.currencySymbol,
             fields: .init(
                 cardNumber: .init(
                     label: fields.cardNumber.label,
