@@ -1,0 +1,20 @@
+Tests/SnapshotTests/MPComponents/MPSkeletonSnapshotTests.swift
+  s_81d467ff3b2e3b::t_9d81e220ae07a1 1-5,8-16,18-27,29-38,40-51,53-74,76-79,81-107,109-123
+  ai_agent 6-7,17,28,39,52,75,80,108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "ef65af9909e1a4e362ba30b7efa6aea1441b12fb",
+  "prompts": {},
+  "sessions": {
+    "s_81d467ff3b2e3b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12371568-6b44-4a38-9bb8-75d0a0f518f7",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
