@@ -40,12 +40,12 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
         XCTAssertEqual(
             checkout.configuration.paymentMethod.count,
-            MercadoPagoCheckout<MPPaymentData.CardTransaction>.PaymentMethod.defaults.count
+            MPPaymentMethod.defaults.count
         )
     }
 
     func test_cardTransaction_setPaymentMethods_shouldReplaceDefaults() {
-        let customMethods: [MercadoPagoCheckout<MPPaymentData.CardTransaction>.PaymentMethod] = [
+        let customMethods: [MPPaymentMethod] = [
             .card(allowedTypes: [.credit], allowedBrands: [.visa])
         ]
 
@@ -75,7 +75,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
         XCTAssertEqual(
             checkout.configuration.paymentMethod.count,
-            MercadoPagoCheckout<MPPaymentData.CardTransaction>.PaymentMethod.defaults.count
+            MPPaymentMethod.defaults.count
         )
     }
 
@@ -109,7 +109,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
         XCTAssertEqual(
             checkout.configuration.paymentMethod.count,
-            MercadoPagoCheckout<MPPaymentData.CardSave>.PaymentMethod.defaults.count
+            MPPaymentMethod.defaults.count
         )
     }
 

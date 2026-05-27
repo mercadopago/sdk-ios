@@ -1,5 +1,5 @@
 //
-//  UserCancelledContext.swift
+//  MPUserCancelledContext.swift
 //  MercadoPagoSDK
 //
 
@@ -7,7 +7,7 @@
 ///
 /// Each case corresponds to a specific checkout flow and carries
 /// the field states captured at the moment of cancellation.
-public enum UserCancelledContext: Sendable, Equatable {
+public enum MPUserCancelledContext: Sendable, Equatable {
     /// The user cancelled during the card form flow.
-    case cardForm(CardFormUserCancelledContext)
+    case cardForm(MPCardFormUserCancelledContext)
 }

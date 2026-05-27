@@ -8,7 +8,7 @@ import Foundation
 @testable import MPFoundation
 import XCTest
 
-private typealias CheckoutAppearance = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutAppearance
+private typealias CheckoutAppearance = MPCheckoutAppearance
 
 @MainActor
 final class CardFormAnalyticsEventDataTests: XCTestCase {

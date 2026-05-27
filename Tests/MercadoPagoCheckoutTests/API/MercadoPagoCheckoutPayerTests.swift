@@ -8,7 +8,7 @@
 @testable import MercadoPagoCheckout
 import XCTest
 
-private typealias Payer = MercadoPagoCheckout<MPPaymentData.CardTransaction>.Payer
+private typealias Payer = MPPayer
 
 /// Thin struct, but it's public API — verify the public init stores the email
 /// so a future Codable / stored-property addition doesn't silently break

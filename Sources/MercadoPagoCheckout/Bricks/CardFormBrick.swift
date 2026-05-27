@@ -17,7 +17,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var cardTransactionData: MPPaymentData.CardTransaction
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
-    private var configuration: MercadoPagoCheckout<T>.CheckoutConfiguration
+    private var configuration: MPCheckoutConfiguration<T>
     private let themeDark: MPTheme
     private let themeLight: MPTheme
     private let transactionAmount: Double
@@ -29,8 +29,8 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
 
     @MainActor
     init(
-        configuration: MercadoPagoCheckout<T>.CheckoutConfiguration,
-        appearance: MercadoPagoCheckout<T>.CheckoutAppearance,
+        configuration: MPCheckoutConfiguration<T>,
+        appearance: MPCheckoutAppearance,
         onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) {
         self.onResult = onResult
@@ -136,7 +136,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         }
     }
 
-    private func cancelCheckout(context: UserCancelledContext) {
+    private func cancelCheckout(context: MPUserCancelledContext) {
         self.route = nil
         self.onResult(.userCancelled(context))
         self.presentationMode.wrappedValue.dismiss()

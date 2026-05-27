@@ -9,7 +9,7 @@
 @testable import MPFoundation
 import XCTest
 
-private typealias CardType = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CardType
+private typealias CardType = MPCardType
 
 final class CardFormRulesTests: XCTestCase {
     // MARK: - Default Validation Data Helpers

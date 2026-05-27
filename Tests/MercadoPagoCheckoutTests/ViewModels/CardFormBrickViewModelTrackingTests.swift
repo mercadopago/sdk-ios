@@ -21,12 +21,12 @@ final class CardFormBrickViewModelTrackingTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSUT(
-        appearance: MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutAppearance = .init()
+        appearance: MPCheckoutAppearance = .init()
     ) -> SUT {
         let repository = MockCardFormInitializationRepository()
         let useCase = InitializeCardFormUseCase(repository: repository)
         let analytics = MockAnalytics()
-        let configuration = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutConfiguration(
+        let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
