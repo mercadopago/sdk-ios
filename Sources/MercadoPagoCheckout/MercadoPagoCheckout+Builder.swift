@@ -8,17 +8,19 @@
 public extension MercadoPagoCheckout {
     /// A fluent builder for constructing a ``MercadoPagoCheckout`` instance.
     ///
-    /// Use `Builder` to configure the checkout step-by-step before calling ``build()``.
+    /// The generic parameter `T` of the enclosing ``MercadoPagoCheckout`` is inferred from
+    /// the ``CheckoutType`` passed to ``init(checkoutType:checkoutAppearance:)``, so the
+    /// type flows naturally into ``MercadoPagoCheckoutResult``.
     ///
     /// ```swift
     /// let checkout = MercadoPagoCheckout.Builder(
-    ///     checkoutType: .cardForm(cardFormConfiguration: .init(amount: 150.0)),
+    ///     checkoutType: .cardTransaction(order: .init(amount: 150.0, payer: .init(email: "..."))),
     ///     checkoutAppearance: .init()
     /// )
-    /// .setPaymentMethod([.card(cardTypes: [.credit]), .pix])
+    /// .setPaymentMethods([.card(allowedTypes: [.credit])])
     /// .build()
     /// ```
-    class Builder {
+    final class Builder {
         private var checkoutType: CheckoutType
         private var checkoutAppearance: CheckoutAppearance
         private var paymentMethods: [PaymentMethod]
@@ -50,8 +52,8 @@ public extension MercadoPagoCheckout {
         ///
         /// - Returns: A fully configured `MercadoPagoCheckout` ready to be presented.
         @MainActor
-        public func build() -> MercadoPagoCheckout {
-            MercadoPagoCheckout(
+        public func build() -> MercadoPagoCheckout<T> {
+            MercadoPagoCheckout<T>(
                 theme: self.checkoutAppearance,
                 configuration: .init(
                     type: self.checkoutType,

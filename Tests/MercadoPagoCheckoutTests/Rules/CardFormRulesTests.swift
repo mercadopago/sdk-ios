@@ -9,6 +9,8 @@
 @testable import MPFoundation
 import XCTest
 
+private typealias CardType = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CardType
+
 final class CardFormRulesTests: XCTestCase {
     // MARK: - Default Validation Data Helpers
 
@@ -377,7 +379,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardType_initFromCreditPaymentTypeId_shouldReturnCredit() {
         // Act
-        let type_ = MercadoPagoCheckout.CardType(paymentTypeId: "credit_card")
+        let type_ = CardType(paymentTypeId: "credit_card")
 
         // Assert
         XCTAssertEqual(type_, .credit)
@@ -385,7 +387,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardType_initFromDebitPaymentTypeId_shouldReturnDebit() {
         // Act
-        let type_ = MercadoPagoCheckout.CardType(paymentTypeId: "debit_card")
+        let type_ = CardType(paymentTypeId: "debit_card")
 
         // Assert
         XCTAssertEqual(type_, .debit)
@@ -393,7 +395,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardType_initFromPrepaidPaymentTypeId_shouldReturnPrepaid() {
         // Act
-        let type_ = MercadoPagoCheckout.CardType(paymentTypeId: "prepaid_card")
+        let type_ = CardType(paymentTypeId: "prepaid_card")
 
         // Assert
         XCTAssertEqual(type_, .prepaid)
@@ -401,7 +403,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardType_initFromUnknownPaymentTypeId_shouldReturnNil() {
         // Act
-        let type_ = MercadoPagoCheckout.CardType(paymentTypeId: "unknown_type")
+        let type_ = CardType(paymentTypeId: "unknown_type")
 
         // Assert
         XCTAssertNil(type_)
@@ -409,7 +411,7 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardType_initFromNilPaymentTypeId_shouldReturnNil() {
         // Act
-        let type_ = MercadoPagoCheckout.CardType(paymentTypeId: nil)
+        let type_ = CardType(paymentTypeId: nil)
 
         // Assert
         XCTAssertNil(type_)
@@ -417,8 +419,8 @@ final class CardFormRulesTests: XCTestCase {
 
     func test_cardType_paymentTypeIdRoundtrip_shouldMatchOriginal() {
         // Arrange / Act / Assert
-        for cardType in [MercadoPagoCheckout.CardType.credit, .debit, .prepaid] {
-            let roundtripped = MercadoPagoCheckout.CardType(paymentTypeId: cardType.paymentTypeId)
+        for cardType in [CardType.credit, .debit, .prepaid] {
+            let roundtripped = CardType(paymentTypeId: cardType.paymentTypeId)
             XCTAssertEqual(roundtripped, cardType)
         }
     }

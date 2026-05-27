@@ -10,10 +10,10 @@ import MPCore
 import MPFoundation
 
 @MainActor
-final class CardFormBrickViewModel: ObservableObject {
+final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     enum ScreenState {
         case loading
-        case ready(CardFormInitializationOutput, CardFormViewModel)
+        case ready(CardFormInitializationOutput, CardFormViewModel<T>)
     }
 
     // MARK: - Published State
@@ -22,16 +22,16 @@ final class CardFormBrickViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
-    private let appearance: MercadoPagoCheckout.CheckoutAppearance
+    private let configuration: MercadoPagoCheckout<T>.CheckoutConfiguration
+    private let appearance: MercadoPagoCheckout<T>.CheckoutAppearance
     private let initializeUseCase: InitializeCardFormUseCase
     private let analytics: AnalyticsInterface
 
     // MARK: - Init
 
     init(
-        configuration: MercadoPagoCheckout.CheckoutConfiguration,
-        appearance: MercadoPagoCheckout.CheckoutAppearance = MercadoPagoCheckout.CheckoutAppearance(),
+        configuration: MercadoPagoCheckout<T>.CheckoutConfiguration,
+        appearance: MercadoPagoCheckout<T>.CheckoutAppearance = MercadoPagoCheckout<T>.CheckoutAppearance(),
         initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase(),
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
@@ -51,7 +51,7 @@ final class CardFormBrickViewModel: ObservableObject {
                     checkoutType: self.configuration.type
                 )
             }
-            let viewModel = CardFormViewModel(
+            let viewModel = CardFormViewModel<T>(
                 configuration: self.configuration,
                 initResult: result,
                 analytics: self.analytics
@@ -79,8 +79,8 @@ final class CardFormBrickViewModel: ObservableObject {
             checkoutType: self.configuration.type.analyticsValue,
             appearance: self.appearance.style.analyticsValue,
             sellerCustomization: self.appearance.sellerCustomization,
-            allowedPaymentTypes: self.configuration.paymentMethod.acceptedPaymentTypeIds,
-            allowedPaymentMethods: self.configuration.paymentMethod.acceptedPaymentMethodIds
+            allowedPaymentTypes: self.configuration.paymentMethod.flatMap(\.acceptedPaymentTypeIds),
+            allowedPaymentMethods: self.configuration.paymentMethod.flatMap(\.acceptedPaymentMethodIds)
         )
 
         let analytics = self.analytics
