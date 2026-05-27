@@ -1,0 +1,9 @@
+Sources/MercadoPagoCheckout/MPCheckoutConfiguration.swift
+  ai_agent 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6855cd7d0ad1a049d3af2446f0205e47fd213bc4",
+  "prompts": {}
+}
