@@ -45,7 +45,7 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
 
         // Assert
         let messages = await sut.analytics.mock.getMessages()
-        XCTAssertTrue(messages.contains(.track(path: InstallmentAnalyticsPath.initialize)))
+        XCTAssertTrue(messages.contains(.trackView(InstallmentAnalyticsPath.initialize)))
         XCTAssertTrue(messages.contains(.send))
     }
 
