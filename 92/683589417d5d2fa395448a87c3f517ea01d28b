@@ -1,0 +1,71 @@
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutBuilderTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 15-17,20,22,24-25,28-29,31,35,37-38,41-44,47-48,53-54,68,70-71,76-79,84-85,91,93,95-96,99-100,103-139
+Tests/MercadoPagoCheckoutTests/Models/CardBrandTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 11-12,14,46,56,61,67
+Sources/MercadoPagoCheckout/Model/Public/MPPaymentData.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 9-57,63-66
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 10,17-18,20,25,30,32-34,41-44,86,101-104,114,145-155,157
+Sources/MercadoPagoCheckout/Bricks/CardFormBrickViewModel.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 13,16,25-26,33-34,54,82-83
+Sources/MercadoPagoCheckout/Views/CardFormScreen.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 11,14,16,18,38-39,42
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CardFormConfiguration.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 8-11,13,15,32-35
+Sources/MercadoPagoCheckout/Domain/UseCases/InitializeCardFormUseCase.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 22
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 22,25,78-83
+Tests/MercadoPagoCheckoutTests/Domain/Analytics/CardFormAnalyticsEventDataTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 11-12,237,245
+Sources/MercadoPagoCheckout/Views/CardFormViewModel.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 14,17,82,256-257,263-264,267-268,274,295-323,326-327,335-361,402,404,407
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+PaymentMethod.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 21,31,33-34,38-39
+Sources/MercadoPagoCheckout/MercadoPagoCheckout.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 18-21,26,29,34,44,75,77,96,98,121,123
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPaymentMethodTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 11-14,16,23,33,39-40,46,50,56,61,67,74,78,84,88,94
+Tests/MercadoPagoCheckoutTests/Rules/CardFormRulesTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 12-13,382,390,398,406,414,422-423
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPayerTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 11-12,18,25
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 15,24,28-31
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTrackingTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 16,24,29,33
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 17
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+Builder.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 11-13,17,20,23,55-56
+Sources/MercadoPagoCheckout/Model/Public/MercadoPagoCheckoutResult.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 2,9-15
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTrackingTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 17,99,104,286,339,440
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CheckoutType.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 10-25,27-30,35,42-58
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+Payer.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 10
+Tests/MercadoPagoCheckoutTests/Models/MPPaymentDataTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 12,14-21,24-33,36-39,42-45,48,50-68,75,77-78,82-85,92-98,100,102-105,107,109-120
+Tests/MercadoPagoCheckoutTests/UseCases/InitializeCardFormUseCaseTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 40
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 20-26,171-176,197,202,211,214,219,766,771,776,781-805,818,836,841,855,875,896,919,938,948-949,955,960,966-968,971-973,976,987-990,1000,1005,1011-1013,1023,1028,1034-1035
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "92683589417d5d2fa395448a87c3f517ea01d28b",
+  "prompts": {},
+  "sessions": {
+    "s_66d45d8fb12c20": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ed614a3e-e8b3-4555-a651-082b7a128c67",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
