@@ -98,7 +98,7 @@ final class InstallmentsScreenViewModel: ObservableObject {
         )
         let analytics = self.analytics
         Task(priority: .low) {
-            await analytics.trackEvent(InstallmentAnalyticsPath.initialize)
+            await analytics.trackView(InstallmentAnalyticsPath.initialize)
                 .setEventData(eventData)
                 .send()
         }
