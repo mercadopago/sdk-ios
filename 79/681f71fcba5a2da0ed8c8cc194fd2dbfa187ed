@@ -1,0 +1,19 @@
+Sources/MercadoPagoCheckout/Bricks/PaymentBrickViewModel.swift
+  s_717f58445e754f::t_e1f772ad20298a 28-29,38-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "79681f71fcba5a2da0ed8c8cc194fd2dbfa187ed",
+  "prompts": {},
+  "sessions": {
+    "s_717f58445e754f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5e209826-a41e-4e13-838c-936ff3f6bf41",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
