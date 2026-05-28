@@ -1,11 +1,22 @@
-Sources/MercadoPagoCheckout/MPPaymentMethod.swift
-  ai_agent 20-25,31-32,38-39
 Sources/MercadoPagoCheckout/MercadoPagoCheckout+Builder.swift
-  ai_agent 36
+  s_66d45d8fb12c20::t_181b2c555246a3 11-13,17,23,53-54
+  s_66d45d8fb12c20::t_3435f797807c86 25,33
+Sources/MercadoPagoCheckout/MPPaymentMethod.swift
+  ai_agent 2,10-11,14-15,18-19,22,24
 ---
 {
   "schema_version": "authorship/3.0.0",
   "git_ai_version": "1.5.2",
   "base_commit_sha": "b2242a97bffc8d5d1dea4d704b9ab3166a4b05ba",
-  "prompts": {}
+  "prompts": {},
+  "sessions": {
+    "s_66d45d8fb12c20": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ed614a3e-e8b3-4555-a651-082b7a128c67",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
 }

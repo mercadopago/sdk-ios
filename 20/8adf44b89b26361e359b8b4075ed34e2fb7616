@@ -1,6 +1,5 @@
 Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutBuilderTests.swift
-  s_32abd524879270::t_740fedb176340f 108,114-121
-  s_32abd524879270::t_23d430f14c5ed3 35,41-48
+  s_66d45d8fb12c20::t_181b2c555246a3 16-17,20,22,24-25,28-29,31,37-38,57-58,74-75,86-87,95,97,99-100,103-104,107,109-113,122-147
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -8,13 +7,13 @@ Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutBuilderTests.swift
   "base_commit_sha": "208adf44b89b26361e359b8b4075ed34e2fb7616",
   "prompts": {},
   "sessions": {
-    "s_32abd524879270": {
+    "s_66d45d8fb12c20": {
       "agent_id": {
         "tool": "claude",
-        "id": "7a90a049-81ff-4cc4-a006-eb5f617bd3a1",
-        "model": "claude-sonnet-4-6"
+        "id": "ed614a3e-e8b3-4555-a651-082b7a128c67",
+        "model": "claude-opus-4-7"
       },
-      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
     }
   }
 }
