@@ -10,6 +10,6 @@ struct CardPaymentBrickCardParams {
     let amount: Double?
     let checkoutType: String
     let processingMode: String
-    let allowCardTypes: [String]
-    let allowCardBrands: [String]
+    let excludedCardTypes: [String]
+    let excludedCardBrands: [String]
 }

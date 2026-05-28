@@ -79,8 +79,8 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             checkoutType: self.configuration.type.analyticsValue,
             appearance: self.appearance.style.analyticsValue,
             sellerCustomization: self.appearance.sellerCustomization,
-            allowedPaymentTypes: self.configuration.paymentMethod.flatMap(\.acceptedPaymentTypeIds),
-            allowedPaymentMethods: self.configuration.paymentMethod.flatMap(\.acceptedPaymentMethodIds)
+            excludedPaymentTypes: self.configuration.paymentMethod.excludedPaymentTypeIds,
+            excludedPaymentMethods: self.configuration.paymentMethod.excludedPaymentMethodIds
         )
 
         let analytics = self.analytics

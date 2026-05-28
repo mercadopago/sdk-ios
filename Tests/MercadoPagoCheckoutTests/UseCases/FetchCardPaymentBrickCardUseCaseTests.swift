@@ -30,8 +30,8 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
             amount: 100.0,
             checkoutType: "card_payment_brick",
             processingMode: "aggregator",
-            allowCardTypes: [],
-            allowCardBrands: []
+            excludedCardTypes: [],
+            excludedCardBrands: []
         )
     }
 

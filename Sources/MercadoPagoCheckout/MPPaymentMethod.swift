@@ -5,35 +5,38 @@
 //  Created by Danielle Nozaki Ogawa on 20/02/26.
 //
 
-/// A payment method available during the checkout flow.
-public enum MPPaymentMethod: Sendable {
+/// A payment method configuration for the checkout flow.
+public enum MPPaymentMethodConfig: Sendable {
     /// A credit, debit, or prepaid card payment.
     /// - Parameters:
-    ///   - cardTypes: The card types accepted (e.g. `.credit`, `.debit`, `.prepaid`).
-    ///   - cardBrands: The card brands accepted (e.g. `.visa`, `.mastercard`). Empty means all brands are accepted.
+    ///   - excludedTypes: The card types to exclude (e.g. `.prepaid`). Empty means all types are accepted.
+    ///   - excludedBrands: The card brands to exclude (e.g. `.amex`). Empty means all brands are accepted.
     ///   - installment: Installment options for this payment method. Defaults to ``MPInstallment/init()``.
     case card(
-        allowedTypes: [MPCardType] = MPCardType.defaults,
-        allowedBrands: [MPCardBrand] = MPCardBrand.defaults,
+        excludedTypes: [MPCardType] = [],
+        excludedBrands: [MPCardBrand] = [],
         installment: MPInstallment? = MPInstallment()
     )
-
-    /// The default set of payment methods: card (credit, debit, prepaid), Pix, and Boleto.
-    public static var defaults: [MPPaymentMethod] {
+    
+    public static var defaults: [MPPaymentMethodConfig] {
         [
-            .card(allowedTypes: MPCardType.defaults, allowedBrands: MPCardBrand.defaults)
+            .card(excludedTypes: [], excludedBrands: [])
         ]
     }
 }
 
-extension MPPaymentMethod {
-    var acceptedPaymentTypeIds: [String] {
-        guard case let .card(cardTypes, _, _) = self else { return [] }
-        return cardTypes.map(\.paymentTypeId)
+extension [MPPaymentMethodConfig] {
+    var excludedPaymentTypeIds: [String] {
+        flatMap { method -> [String] in
+            guard case let .card(excludedTypes, _, _) = method else { return [] }
+            return excludedTypes.map(\.paymentTypeId)
+        }
     }
 
-    var acceptedPaymentMethodIds: [String] {
-        guard case let .card(_, cardBrands, _) = self else { return [] }
-        return cardBrands.map(\.paymentMethodId)
+    var excludedPaymentMethodIds: [String] {
+        flatMap { method -> [String] in
+            guard case let .card(_, excludedBrands, _) = method else { return [] }
+            return excludedBrands.map(\.paymentMethodId)
+        }
     }
 }

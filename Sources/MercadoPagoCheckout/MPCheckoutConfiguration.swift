@@ -12,10 +12,10 @@
 struct MPCheckoutConfiguration<T: MPPaymentData.Kind>: Sendable {
     /// The type of checkout experience to present.
     var type: MercadoPagoCheckout<T>.CheckoutType
-    /// The payment methods available during the checkout flow.
-    var paymentMethod: [MPPaymentMethod]
+    /// The payment method  configuration for the checkout flow.
+    var paymentMethod: [MPPaymentMethodConfig]
 
-    init(type: MercadoPagoCheckout<T>.CheckoutType, paymentMethod: [MPPaymentMethod]) {
+    init(type: MercadoPagoCheckout<T>.CheckoutType, paymentMethod: [MPPaymentMethodConfig]) {
         self.type = type
         self.paymentMethod = paymentMethod
     }

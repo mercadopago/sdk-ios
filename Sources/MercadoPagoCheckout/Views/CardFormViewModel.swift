@@ -253,8 +253,8 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
             amount: self.configuration.type.configuration.amount,
             checkoutType: self.configuration.type.analyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
-            allowCardTypes: self.configuration.paymentMethod.flatMap(\.acceptedPaymentTypeIds),
-            allowCardBrands: self.configuration.paymentMethod.flatMap(\.acceptedPaymentMethodIds)
+            excludedCardTypes: self.configuration.paymentMethod.excludedPaymentTypeIds,
+            excludedCardBrands: self.configuration.paymentMethod.excludedPaymentMethodIds
         )
     }
 
