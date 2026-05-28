@@ -26,7 +26,7 @@ import UIKit
 //     checkoutType: .cardTransaction(order: .init(amount: 99.90, payer: .init(email: "..."))),
 //     checkoutAppearance: .init()
 // )
-// .setPaymentMethods([.card(allowedTypes: [.credit, .debit])])
+// .setPaymentMethodConfiguration([.card(excludedTypes: [.prepaid])])
 // .build()
 //
 // // SwiftUI

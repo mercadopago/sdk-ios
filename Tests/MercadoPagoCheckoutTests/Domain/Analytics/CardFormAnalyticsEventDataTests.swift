@@ -20,8 +20,8 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
             checkoutType: "card_form",
             appearance: "system",
             sellerCustomization: ["customized_token"],
-            allowedPaymentTypes: ["credit_card"],
-            allowedPaymentMethods: ["visa"]
+            excludedPaymentTypes: ["credit_card"],
+            excludedPaymentMethods: ["visa"]
         )
 
         // Act
@@ -31,8 +31,8 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
         XCTAssertEqual(dict["checkout_type"] as? String, "card_form")
         XCTAssertEqual(dict["appearance"] as? String, "system")
         XCTAssertEqual(dict["seller_customization"] as? [String], ["customized_token"])
-        XCTAssertEqual(dict["allowed_payment_types"] as? [String], ["credit_card"])
-        XCTAssertEqual(dict["allowed_payment_methods"] as? [String], ["visa"])
+        XCTAssertEqual(dict["excluded_payment_types"] as? [String], ["credit_card"])
+        XCTAssertEqual(dict["excluded_payment_methods"] as? [String], ["visa"])
     }
 
     func test_cardFormInitializeEventData_toDictionary_withEmptyArrays_shouldContainEmptyArrays() {
@@ -41,8 +41,8 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
             checkoutType: "card_form",
             appearance: "light",
             sellerCustomization: [],
-            allowedPaymentTypes: [],
-            allowedPaymentMethods: []
+            excludedPaymentTypes: [],
+            excludedPaymentMethods: []
         )
 
         // Act
@@ -50,8 +50,8 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(dict["seller_customization"] as? [String], [])
-        XCTAssertEqual(dict["allowed_payment_types"] as? [String], [])
-        XCTAssertEqual(dict["allowed_payment_methods"] as? [String], [])
+        XCTAssertEqual(dict["excluded_payment_types"] as? [String], [])
+        XCTAssertEqual(dict["excluded_payment_methods"] as? [String], [])
     }
 
     // MARK: - CardFormSubmitEventData

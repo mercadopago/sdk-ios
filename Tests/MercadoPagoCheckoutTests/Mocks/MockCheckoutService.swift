@@ -113,8 +113,8 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
     func fetchBinData(
         bin _: String,
         amount _: Double?,
-        acceptedPaymentTypeIds _: [String],
-        acceptedPaymentMethodIds _: [String]
+        excludedPaymentTypeIds _: [String],
+        excludedPaymentMethodIds _: [String]
     ) async throws -> CardBinData {
         self.fetchBinDataCallCount += 1
         if !self.fetchBinDataResults.isEmpty {

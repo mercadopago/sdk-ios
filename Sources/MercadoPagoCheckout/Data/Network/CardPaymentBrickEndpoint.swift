@@ -50,8 +50,12 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
                 "amount": params.amount ?? 0
             ]
 
-            result["allow_payment_types"] = params.allowCardTypes.joined(separator: ",")
-            result["allow_payment_methods"] = params.allowCardBrands.joined(separator: ",")
+            if !params.excludedCardTypes.isEmpty {
+                result["excluded_payment_types"] = params.excludedCardTypes.joined(separator: ",")
+            }
+            if !params.excludedCardBrands.isEmpty {
+                result["excluded_payment_methods"] = params.excludedCardBrands.joined(separator: ",")
+            }
             return result
         }
     }

@@ -17,17 +17,15 @@ public extension MercadoPagoCheckout {
     ///     checkoutType: .cardTransaction(order: .init(amount: 150.0, payer: .init(email: "..."))),
     ///     checkoutAppearance: .init()
     /// )
-    /// .setPaymentMethods([.card(allowedTypes: [.credit])])
+    /// .setPaymentMethodConfiguration([.card(excludedTypes: [.prepaid])])
     /// .build()
     /// ```
     final class Builder {
         private var checkoutType: CheckoutType
         private var checkoutAppearance: MPCheckoutAppearance
-        private var paymentMethods: [MPPaymentMethod]
+        private var paymentMethodConfigs: [MPPaymentMethodConfig]
 
         /// Creates a new builder with the required checkout type and appearance.
-        ///
-        /// Payment methods default to ``MPPaymentMethod/defaults``.
         ///
         /// - Parameters:
         ///   - checkoutType: The type of checkout experience to present.
@@ -35,16 +33,16 @@ public extension MercadoPagoCheckout {
         public init(checkoutType: CheckoutType, checkoutAppearance: MPCheckoutAppearance) {
             self.checkoutType = checkoutType
             self.checkoutAppearance = checkoutAppearance
-            self.paymentMethods = MPPaymentMethod.defaults
+            self.paymentMethodConfigs = MPPaymentMethodConfig.defaults
         }
 
-        /// Sets the payment methods available during the checkout flow.
+        /// Sets the payment method exclusion configuration for the checkout flow.
         ///
-        /// - Parameter paymentMethods: The payment methods to enable. Defaults to ``MPPaymentMethod/defaults``.
+        /// - Parameter paymentMethodConfigs: The payment method configurations to apply. Defaults to `[]` (no exclusions).
         /// - Returns: The builder instance for chaining.
         @discardableResult
-        public func setPaymentMethods(_ paymentMethods: [MPPaymentMethod] = MPPaymentMethod.defaults) -> Builder {
-            self.paymentMethods = paymentMethods
+        public func setPaymentMethodConfiguration(_ paymentMethodConfigs: [MPPaymentMethodConfig] = []) -> Builder {
+            self.paymentMethodConfigs = paymentMethodConfigs
             return self
         }
 
@@ -57,7 +55,7 @@ public extension MercadoPagoCheckout {
                 theme: self.checkoutAppearance,
                 configuration: .init(
                     type: self.checkoutType,
-                    paymentMethod: self.paymentMethods
+                    paymentMethod: self.paymentMethodConfigs
                 )
             )
         }

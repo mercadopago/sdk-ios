@@ -8,90 +8,95 @@
 @testable import MercadoPagoCheckout
 import XCTest
 
-private typealias PaymentMethod = MPPaymentMethod
+private typealias PaymentMethodConfig = MPPaymentMethodConfig
 private typealias CardType = MPCardType
 private typealias CardBrand = MPCardBrand
 
-/// Covers `PaymentMethod.defaults`, the `.card` associated values, and the
-/// per-element extensions `acceptedPaymentTypeIds` / `acceptedPaymentMethodIds` that
+/// Covers `MPPaymentMethodConfig.card` associated values and the
+/// array extensions `excludedPaymentTypeIds` / `excludedPaymentMethodIds` that
 /// feed the BIN fetch request. A drift here silently changes which card
-/// brands/types reach the backend.
+/// brands/types are excluded from the backend request.
 final class MercadoPagoCheckoutPaymentMethodTests: XCTestCase {
-    // MARK: - .defaults
+    // MARK: - Default card (no exclusions)
 
-    func test_defaults_shouldExposeASingleCardEntry() {
-        let defaults = PaymentMethod.defaults
-
-        XCTAssertEqual(defaults.count, 1)
-        guard case .card = defaults[0] else {
-            XCTFail("Expected .card in defaults[0]")
-            return
-        }
-    }
-
-    func test_defaults_cardEntry_shouldIncludeAllDefaultTypesAndBrands() {
-        let defaults = PaymentMethod.defaults
-        guard case let .card(types, brands, _) = defaults[0] else {
+    func test_cardWithNoArguments_shouldHaveEmptyExclusions() {
+        guard case let .card(types, brands, _) = PaymentMethodConfig.card() else {
             XCTFail("Expected .card")
             return
         }
 
-        XCTAssertEqual(types, CardType.defaults)
-        XCTAssertEqual(brands, CardBrand.defaults)
+        XCTAssertEqual(types, [])
+        XCTAssertEqual(brands, [])
     }
 
-    // MARK: - acceptedPaymentTypeIds
+    // MARK: - excludedPaymentTypeIds
 
-    func test_acceptedPaymentTypeIds_shouldFlattenAllCardTypes() {
-        let methods: [PaymentMethod] = [
-            .card(allowedTypes: [.credit, .debit], allowedBrands: [.visa])
+    func test_excludedPaymentTypeIds_shouldFlattenExcludedCardTypes() {
+        let config: [PaymentMethodConfig] = [
+            .card(excludedTypes: [.credit, .debit], excludedBrands: [])
         ]
 
-        let ids = methods.flatMap(\.acceptedPaymentTypeIds)
+        let ids = config.excludedPaymentTypeIds
 
         XCTAssertEqual(ids, ["credit_card", "debit_card"])
     }
 
-    func test_acceptedPaymentTypeIds_forMultipleCardEntries_shouldConcatenate() {
-        let methods: [PaymentMethod] = [
-            .card(allowedTypes: [.credit], allowedBrands: [.visa]),
-            .card(allowedTypes: [.debit], allowedBrands: [.master])
+    func test_excludedPaymentTypeIds_forMultipleCardEntries_shouldConcatenate() {
+        let config: [PaymentMethodConfig] = [
+            .card(excludedTypes: [.credit], excludedBrands: []),
+            .card(excludedTypes: [.debit], excludedBrands: [])
         ]
 
-        let ids = methods.flatMap(\.acceptedPaymentTypeIds)
+        let ids = config.excludedPaymentTypeIds
 
         XCTAssertEqual(ids, ["credit_card", "debit_card"])
     }
 
-    func test_acceptedPaymentTypeIds_whenEmptyList_shouldReturnEmpty() {
-        let ids = [PaymentMethod]().flatMap(\.acceptedPaymentTypeIds)
+    func test_excludedPaymentTypeIds_whenEmptyList_shouldReturnEmpty() {
+        let ids = [PaymentMethodConfig]().excludedPaymentTypeIds
         XCTAssertEqual(ids, [])
     }
 
-    // MARK: - acceptedPaymentMethodIds
+    func test_excludedPaymentTypeIds_whenNoExclusions_shouldReturnEmpty() {
+        let config: [PaymentMethodConfig] = [.card()]
 
-    func test_acceptedPaymentMethodIds_shouldFlattenAllBrands() {
-        let methods: [PaymentMethod] = [
-            .card(allowedTypes: [.credit], allowedBrands: [.visa, .master, .amex])
+        let ids = config.excludedPaymentTypeIds
+
+        XCTAssertEqual(ids, [])
+    }
+
+    // MARK: - excludedPaymentMethodIds
+
+    func test_excludedPaymentMethodIds_shouldFlattenExcludedBrands() {
+        let config: [PaymentMethodConfig] = [
+            .card(excludedTypes: [], excludedBrands: [.visa, .master, .amex])
         ]
 
-        let ids = methods.flatMap(\.acceptedPaymentMethodIds)
+        let ids = config.excludedPaymentMethodIds
 
         XCTAssertEqual(ids, ["visa", "master", "amex"])
     }
 
-    func test_acceptedPaymentMethodIds_withCustomBrand_shouldPreserveIdentifier() {
-        let methods: [PaymentMethod] = [
-            .card(allowedTypes: [.credit], allowedBrands: [.custom("sodexo_refeicao")])
+    func test_excludedPaymentMethodIds_withCustomBrand_shouldPreserveIdentifier() {
+        let config: [PaymentMethodConfig] = [
+            .card(excludedTypes: [], excludedBrands: [.custom("sodexo_refeicao")])
         ]
 
-        let ids = methods.flatMap(\.acceptedPaymentMethodIds)
+        let ids = config.excludedPaymentMethodIds
 
         XCTAssertEqual(ids, ["sodexo_refeicao"])
     }
 
-    func test_acceptedPaymentMethodIds_whenEmptyList_shouldReturnEmpty() {
-        let ids = [PaymentMethod]().flatMap(\.acceptedPaymentMethodIds)
+    func test_excludedPaymentMethodIds_whenEmptyList_shouldReturnEmpty() {
+        let ids = [PaymentMethodConfig]().excludedPaymentMethodIds
+        XCTAssertEqual(ids, [])
+    }
+
+    func test_excludedPaymentMethodIds_whenNoExclusions_shouldReturnEmpty() {
+        let config: [PaymentMethodConfig] = [.card()]
+
+        let ids = config.excludedPaymentMethodIds
+
         XCTAssertEqual(ids, [])
     }
 }

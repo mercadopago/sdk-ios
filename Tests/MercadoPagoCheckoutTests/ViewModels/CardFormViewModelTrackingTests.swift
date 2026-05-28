@@ -98,7 +98,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let analytics = MockAnalytics()
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
-            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
+            paymentMethod: [.card()]
         )
         let initResult = CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
         let viewModel = CardFormViewModel<MPPaymentData.CardSave>(

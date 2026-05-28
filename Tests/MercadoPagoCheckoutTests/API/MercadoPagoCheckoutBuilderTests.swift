@@ -10,9 +10,9 @@ import XCTest
 
 /// The `Builder` is the only ergonomic entry point for constructing a
 /// `MercadoPagoCheckout` — consumers of the SDK go through it. Tests below
-/// assert the stored fields and the default payment methods so a silent
-/// regression (e.g. `.defaults` becoming empty) fails here rather than in
-/// production. The generic T parameter is also exercised to confirm that
+/// assert the stored fields and the default payment method configuration so a
+/// silent regression (e.g. configuration not persisting) fails here rather than
+/// in production. The generic T parameter is also exercised to confirm that
 /// `.cardTransaction` produces `MercadoPagoCheckout<CardTransaction>` and
 /// `.saveCard` produces `MercadoPagoCheckout<CardSave>`.
 @MainActor
@@ -32,28 +32,32 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         }
     }
 
-    func test_cardTransaction_build_withoutSettingPaymentMethods_shouldUseDefaults() {
+    func test_build_withoutSettingPaymentMethodConfiguration_shouldHaveDefaultConfiguration() {
         let checkout = MercadoPagoCheckout.Builder(
             checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         ).build()
 
-        XCTAssertEqual(
-            checkout.configuration.paymentMethod.count,
-            MPPaymentMethod.defaults.count
-        )
+        XCTAssertEqual(checkout.configuration.paymentMethod.count, 1)
+        if case let .card(excludedTypes, excludedBrands, installment) = checkout.configuration.paymentMethod[0] {
+            XCTAssertTrue(excludedTypes.isEmpty)
+            XCTAssertTrue(excludedBrands.isEmpty)
+            XCTAssertNotNil(installment)
+        } else {
+            XCTFail("Expected .card payment method config")
+        }
     }
 
-    func test_cardTransaction_setPaymentMethods_shouldReplaceDefaults() {
-        let customMethods: [MPPaymentMethod] = [
-            .card(allowedTypes: [.credit], allowedBrands: [.visa])
+    func test_setPaymentMethodConfiguration_shouldStoreConfiguration() {
+        let customConfig: [MPPaymentMethodConfig] = [
+            .card(excludedTypes: [.credit], excludedBrands: [.visa])
         ]
 
         let checkout = MercadoPagoCheckout.Builder(
             checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         )
-        .setPaymentMethods(customMethods)
+        .setPaymentMethodConfiguration(customConfig)
         .build()
 
         XCTAssertEqual(checkout.configuration.paymentMethod.count, 1)
@@ -61,30 +65,30 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
             XCTAssertEqual(types, [.credit])
             XCTAssertEqual(brands, [.visa])
         } else {
-            XCTFail("Expected .card payment method")
+            XCTFail("Expected .card payment method config")
         }
     }
 
-    func test_cardTransaction_setPaymentMethods_withoutArgument_shouldResetToDefaults() {
+    func test_setPaymentMethodConfiguration_withNoArgument_shouldResetToEmpty() {
         let builder = MercadoPagoCheckout.Builder(
             checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         )
-        builder.setPaymentMethods([.card(allowedTypes: [.credit])])
-        let checkout = builder.setPaymentMethods().build()
+        builder.setPaymentMethodConfiguration([.card(excludedTypes: [.credit])])
 
-        XCTAssertEqual(
-            checkout.configuration.paymentMethod.count,
-            MPPaymentMethod.defaults.count
-        )
+        let checkout = builder.setPaymentMethodConfiguration().build()
+
+        XCTAssertEqual(checkout.configuration.paymentMethod.count, 0)
     }
 
-    func test_setPaymentMethods_shouldBeDiscardableAndReturnSameBuilder() {
+    func test_setPaymentMethodConfiguration_shouldBeDiscardableAndReturnSameBuilder() {
         let builder = MercadoPagoCheckout.Builder(
             checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         )
-        let chained = builder.setPaymentMethods([.card(allowedTypes: [.credit])])
+
+        let chained = builder.setPaymentMethodConfiguration([.card(excludedTypes: [.credit])])
+
         XCTAssertTrue(chained === builder)
     }
 
@@ -101,16 +105,20 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         }
     }
 
-    func test_saveCard_build_withoutSettingPaymentMethods_shouldUseDefaults() {
+    func test_saveCard_build_withoutSettingPaymentMethodConfiguration_shouldHaveDefaultConfiguration() {
         let checkout = MercadoPagoCheckout.Builder(
             checkoutType: .saveCard,
             checkoutAppearance: .init()
         ).build()
 
-        XCTAssertEqual(
-            checkout.configuration.paymentMethod.count,
-            MPPaymentMethod.defaults.count
-        )
+        XCTAssertEqual(checkout.configuration.paymentMethod.count, 1)
+        if case let .card(excludedTypes, excludedBrands, installment) = checkout.configuration.paymentMethod[0] {
+            XCTAssertTrue(excludedTypes.isEmpty)
+            XCTAssertTrue(excludedBrands.isEmpty)
+            XCTAssertNotNil(installment)
+        } else {
+            XCTFail("Expected .card payment method config")
+        }
     }
 
     // MARK: - CheckoutType type-safety

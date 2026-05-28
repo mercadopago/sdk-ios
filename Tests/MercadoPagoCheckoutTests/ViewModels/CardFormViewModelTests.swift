@@ -196,7 +196,7 @@ final class CardFormViewModelTests: XCTestCase {
         let repository = MockCardPaymentBrickCardRepository()
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
-            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
+            paymentMethod: [.card()]
         )
         let initResult = CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
         let viewModel = CardFormViewModel<MPPaymentData.CardSave>(
@@ -213,7 +213,7 @@ final class CardFormViewModelTests: XCTestCase {
         let repository = MockCardPaymentBrickCardRepository()
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
             type: .cardTransaction(order: .init(amount: amount, payer: .init(email: ""))),
-            paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
+            paymentMethod: [.card()]
         )
         let initResult = CardFormInitializationOutputStub.make(identificationTypes: [])
         let viewModel = CardFormViewModel<MPPaymentData.CardTransaction>(

@@ -31,8 +31,8 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
             amount: 300.0,
             checkoutType: "card_payment_brick",
             processingMode: "aggregator",
-            allowCardTypes: [],
-            allowCardBrands: []
+            excludedCardTypes: [],
+            excludedCardBrands: []
         )
     }
 
