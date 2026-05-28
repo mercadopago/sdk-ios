@@ -1,14 +1,12 @@
 //
-//  MPListRowRadioStyle.swift
+//  MPListRowChevronStyle.swift
 //  MPComponents
-//
-//  Created by Guilherme Prata Costa on 24/02/26.
 //
 
 import MPFoundation
 import SwiftUI
 
-package struct MPListRowRadioStyle: MPListItemStyle {
+package struct MPListRowChevronStyle: MPListItemStyle {
     package var id: UUID = .init()
     @Environment(\.checkoutTheme) var theme: MPTheme
 
@@ -18,8 +16,10 @@ package struct MPListRowRadioStyle: MPListItemStyle {
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let hasDescription = configuration.description != nil
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.micro) {
-            self.radioToggle(isSelected: configuration.isSelected)
+        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xmicro) {
+            if let leftImage = configuration.leftImage {
+                leftImage
+            }
 
             VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {
                 if let header = configuration.header { header }
@@ -40,13 +40,5 @@ package struct MPListRowRadioStyle: MPListItemStyle {
         .padding(.vertical, self.theme.spacings.xtiny)
         .background(configuration.isPressed ? self.theme.colors.surface.active : Color.clear)
         .cornerRadius(self.theme.borderRadius.small)
-    }
-
-    private func radioToggle(isSelected: Bool) -> some View {
-        Toggle(isOn: .constant(isSelected)) { EmptyView() }
-            .toggleStyle(MPRadioButtonToggleStyle())
-            .labelsHidden()
-            .fixedSize()
-            .allowsHitTesting(false)
     }
 }

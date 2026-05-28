@@ -15,6 +15,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
 
     @State private var route: Route?
     @State private var cardTransactionData: MPPaymentData.CardTransaction
+    @State private var installmentsData: MPInstallmentsData
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
     private var configuration: MPCheckoutConfiguration<T>
@@ -41,6 +42,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         self._cardTransactionData = State(
             initialValue: .init()
         )
+        self._installmentsData = State(initialValue: .empty)
         self.brickViewModel = CardFormBrickViewModel<T>(configuration: configuration, appearance: appearance)
     }
 
@@ -90,18 +92,32 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             viewModel: viewModel,
             onBack: { context in
                 viewModel.cancel(context: context, reason: .backButton)
-                self.cancelCheckout(context: .cardForm(context))
+                let updatedContext = MPCardFormUserCancelledContext(
+                    fields: context.fields,
+                    installmentsWasPresented: self.brickViewModel.installmentsWasPresented
+                )
+                self.cancelCheckout(context: .cardForm(updatedContext))
             },
             onDismiss: { context in
                 viewModel.cancel(context: context, reason: .dismissedScreen)
+                let updatedContext = MPCardFormUserCancelledContext(
+                    fields: context.fields,
+                    installmentsWasPresented: self.brickViewModel.installmentsWasPresented
+                )
                 self.route = nil
-                self.onResult(.userCancelled(.cardForm(context)))
+                self.onResult(.userCancelled(.cardForm(updatedContext)))
             },
-            onSuccess: { paymentData in
+            onSuccess: { paymentData, installmentsData in
                 if let transaction = paymentData as? MPPaymentData.CardTransaction {
                     self.cardTransactionData = transaction
                 }
-                self.completeCheckout(with: paymentData)
+                if let installmentsData {
+                    self.installmentsData = installmentsData
+                    self.brickViewModel.markInstallmentsPresented()
+                    self.route = .installments
+                } else {
+                    self.completeCheckout(with: paymentData)
+                }
             },
             onFailure: { error in
                 self.fail(error)
@@ -112,15 +128,27 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private func installmentScreen() -> some View {
         InstallmentScreen(
             paymentData: self.$cardTransactionData,
-            installments: InstallmentMock.visa,
+            installmentsData: self.$installmentsData,
+            checkoutType: self.configuration.type.analyticsValue,
             onBack: {
-                self.presentationMode.wrappedValue.dismiss()
+                self.route = nil
             },
-            onContinue: {
-                self.route = .reviewAndConfirm
+            onDismiss: {
+                self.cancelCheckout(context: .installments)
+            },
+            onFinish: { paymentData in
+                if let paymentData = paymentData as? MPPaymentData.CardTransaction {
+                    self.cardTransactionData = paymentData
+                    self.completeCheckout(with: paymentData)
+                }
+            },
+            onContinue: { paymentData in
+                if let paymentData = paymentData as? MPPaymentData.CardTransaction  {
+                    self.cardTransactionData = paymentData
+                    self.route = .reviewAndConfirm
+                }
             }
         )
-        .listItemStyle(.radioButton)
     }
 
     private func navigationLinks() -> some View {

@@ -96,6 +96,7 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
         sut.repository.mockData = CardFormInitializationInput(
             title: "Header",
             buttonLabel: "Guardar",
+            currencySymbol: "R$",
             fields: CardFormInitializationInputStub.makeDefaultFields(),
             identificationTypes: []
         )

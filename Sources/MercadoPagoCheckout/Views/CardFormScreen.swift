@@ -11,7 +11,7 @@ import SwiftUI
 struct CardFormScreen<T: MPPaymentData.Kind>: View {
     private let onBack: (MPCardFormUserCancelledContext) -> Void
     private let onDismiss: (MPCardFormUserCancelledContext) -> Void
-    private let onSuccess: (any MPPaymentData.Kind) -> Void
+    private let onSuccess: (any MPPaymentData.Kind, MPInstallmentsData?) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
     private let transactionAmount: Double
 
@@ -39,7 +39,7 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
         viewModel: CardFormViewModel<T>,
         onBack: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
         onDismiss: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
-        onSuccess: @escaping (any MPPaymentData.Kind) -> Void = { _ in },
+        onSuccess: @escaping (any MPPaymentData.Kind, MPInstallmentsData?) -> Void = { _, _  in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self.onBack = onBack
@@ -69,7 +69,7 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
             footer: {
                 MPFooter(
                     title: MPStrings.Common.total,
-                    amount: nil,
+                    amount: self.viewModel.footerAmount(),
                     buttonData: .init(
                         text: self.initResult.button,
                         onClick: {
@@ -78,7 +78,7 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
                                 transactionAmount: self.transactionAmount,
                                 onSuccess: {
                                     self.didComplete = true
-                                    self.onSuccess($0)
+                                    self.onSuccess($0, self.makeInstallmentsData())
                                 },
                                 onFailure: {
                                     self.didComplete = true
@@ -293,5 +293,20 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
         guard let identificationType else { return }
         self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
         self.cardForm.setDocumentType(isNumeric: identificationType.type != "string")
+    }
+
+    private func makeInstallmentsData() -> MPInstallmentsData? {
+        guard
+            let installment = self.viewModel.cardData?.installment,
+            let method = self.viewModel.cardData?.paymentMethods.first
+        else { return nil }
+
+        let lastFourDigits = String(self.cardForm.cardNumber.filter(\.isNumber).suffix(4))
+        let cardDisplayInfo = CardDisplayInfo(
+            issuerName: method.issuers.first?.name ?? String(),
+            paymentTypeId: method.paymentTypeId,
+            lastFourDigits: lastFourDigits
+        )
+        return MPInstallmentsData(installment: installment, cardDisplayInfo: cardDisplayInfo)
     }
 }
