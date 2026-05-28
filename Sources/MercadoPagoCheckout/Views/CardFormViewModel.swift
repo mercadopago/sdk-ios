@@ -357,6 +357,9 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
                     transactionAmount: transactionAmount
                 )
                 paymentData = save
+
+            default:
+                paymentData = MPPaymentData.PaymentTransaction(transactionAmount: transactionAmount, token: cardToken.token)
             }
 
             onSuccess(paymentData)
@@ -399,7 +402,7 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
     }
 
-    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Double?) {
+    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Double) {
         let eventData = CardFormSubmitEventData(
             cardBrand: paymentMethodId,
             transactionAmount: transactionAmount,

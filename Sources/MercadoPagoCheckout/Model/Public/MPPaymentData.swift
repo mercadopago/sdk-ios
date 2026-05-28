@@ -56,6 +56,14 @@ public enum MPPaymentData {
         }
     }
 
+    public struct PaymentTransaction: Kind, Equatable, Codable, Sendable {
+        public var orderId = ""
+        public var orderStatus = ""
+        public var transactionAmount: Double
+
+        var token = ""
+    }
+
     public struct Payer: Equatable, Codable, Sendable {
         public var documentType: String
         public var documentNumber: String

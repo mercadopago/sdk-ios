@@ -13,11 +13,13 @@ public extension MercadoPagoCheckout {
     /// is constrained so that:
     /// - ``cardTransaction(order:)`` is only available when `T == MPPaymentData.CardTransaction`
     /// - ``saveCard`` is only available when `T == MPPaymentData.CardSave`
+    /// - ``payment(configuration:)`` is only available when `T == MPPaymentData.PaymentTransaction`
     ///
     /// This propagates the concrete payment data type all the way through to
     /// ``MercadoPagoCheckoutResult`` at the call site.
     struct CheckoutType: Sendable {
         enum Kind: Sendable {
+            case payment(MPPaymentSelectionConfiguration)
             case cardTransaction(MPOrder)
             case saveCard
         }
@@ -28,6 +30,7 @@ public extension MercadoPagoCheckout {
             switch self.kind {
             case let .cardTransaction(order): return order
             case .saveCard: return SavedCardConfiguration()
+            case let .payment(config): return config
             }
         }
 
@@ -35,6 +38,7 @@ public extension MercadoPagoCheckout {
             switch self.kind {
             case .cardTransaction: return "card_transaction"
             case .saveCard: return "save_card"
+            case .payment: return "payment"
             }
         }
     }
@@ -56,5 +60,16 @@ public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.CardS
     /// ``MPPaymentData/CardSave`` carrying the token.
     static var saveCard: MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType {
         .init(kind: .saveCard)
+    }
+}
+
+public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.PaymentTransaction {
+    /// A payment selection flow that produces a ``MPPaymentData/PaymentTransaction``.
+    ///
+    /// - Parameter configuration: Configuration values for the payment selection, such as amount and payer.
+    static func payment(
+        configuration: MPPaymentSelectionConfiguration
+    ) -> MercadoPagoCheckout<MPPaymentData.PaymentTransaction>.CheckoutType {
+        .init(kind: .payment(configuration))
     }
 }
