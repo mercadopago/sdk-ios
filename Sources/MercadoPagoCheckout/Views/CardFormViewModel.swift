@@ -11,10 +11,10 @@ import MPCore
 import SwiftUI
 
 @MainActor
-final class CardFormViewModel: ObservableObject {
+final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Dependencies
 
-    private let configuration: MercadoPagoCheckout.CheckoutConfiguration
+    private let configuration: MPCheckoutConfiguration<T>
     private let service: CheckoutServiceProtocol
     private let fetchCardUseCase: FetchCardPaymentBrickCardUseCase
     private let analytics: AnalyticsInterface
@@ -79,7 +79,7 @@ final class CardFormViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        configuration: MercadoPagoCheckout.CheckoutConfiguration,
+        configuration: MPCheckoutConfiguration<T>,
         initResult: CardFormInitializationOutput,
         service: CheckoutServiceProtocol = CheckoutService(),
         fetchCardUseCase: FetchCardPaymentBrickCardUseCase = FetchCardPaymentBrickCardUseCase(),
@@ -135,8 +135,11 @@ final class CardFormViewModel: ObservableObject {
     // MARK: - Footer
 
     func footerAmount() -> MPAmountData? {
-        guard let amount = configuration.type.configuration.amount else { return nil }
-        return MPAmountData(from: amount)
+        if self.configuration.type.configuration.amount == .zero {
+            return nil
+        }
+
+        return MPAmountData(from: self.configuration.type.configuration.amount)
     }
 
     // MARK: - Card Token
@@ -184,6 +187,7 @@ final class CardFormViewModel: ObservableObject {
         self.cardData = nil
         self.cardAcceptanceError = nil
         self.binNetworkError = nil
+        self.showSnackbar = false
 
         guard let bin else { return }
 
@@ -228,6 +232,7 @@ final class CardFormViewModel: ObservableObject {
             guard let code = error.serviceError?.errorCode.flatMap(CheckoutAPIErrorCode.init),
                   CheckoutAPIErrorCode.binValidation.contains(code) else {
                 self.binNetworkError = error
+                if error.isRetriable { self.showSnackbar = true }
                 return
             }
             switch code {
@@ -248,25 +253,25 @@ final class CardFormViewModel: ObservableObject {
             amount: self.configuration.type.configuration.amount,
             checkoutType: self.configuration.type.analyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
-            allowCardTypes: self.configuration.paymentMethod.acceptedPaymentTypeIds,
-            allowCardBrands: self.configuration.paymentMethod.acceptedPaymentMethodIds
+            allowCardTypes: self.configuration.paymentMethod.flatMap(\.acceptedPaymentTypeIds),
+            allowCardBrands: self.configuration.paymentMethod.flatMap(\.acceptedPaymentMethodIds)
         )
     }
 
     // MARK: - Payment Data
 
-    private func createPaymentData(
-        _ amount: Double?,
+    private func buildCardTransaction(
+        amount: Double,
         cardToken: CardToken,
         cardFormData: CardFormData
-    ) throws(MercadoPagoCheckoutError) -> MPPaymentData {
-        var payer: MPPaymentData.Payer? {
+    ) throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
+        let payer: MPPaymentData.Payer? = {
             guard let selectTypeDocument else { return nil }
             return .init(
                 documentType: selectTypeDocument.id,
                 documentNumber: cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
             )
-        }
+        }()
 
         guard let paymentMethod = cardData?.paymentMethods.first else {
             throw MercadoPagoCheckoutError(
@@ -287,10 +292,39 @@ final class CardFormViewModel: ObservableObject {
         )
     }
 
+    private func buildCardSave(
+        cardToken: CardToken,
+        cardFormData: CardFormData
+    ) throws(MercadoPagoCheckoutError) -> MPPaymentData.CardSave {
+        let payer: MPPaymentData.Payer? = {
+            guard let selectTypeDocument else { return nil }
+            return .init(
+                documentType: selectTypeDocument.id,
+                documentNumber: cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
+            )
+        }()
+
+        guard let paymentMethod = cardData?.paymentMethods.first else {
+            throw MercadoPagoCheckoutError(
+                code: .unknown,
+                localizedDescription: "Couldn't create payment data: card data is missing",
+                location: .paymentMethods
+            )
+        }
+
+        return .init(
+            token: cardToken.token,
+            paymentMethodId: paymentMethod.id,
+            paymentTypeId: paymentMethod.paymentTypeId,
+            issuerId: paymentMethod.issuers.first?.id,
+            payer: payer
+        )
+    }
+
     func submitCardData(
         cardForm: CardFormData,
-        transactionAmount: Double?,
-        onSuccess: (MPPaymentData) -> Void,
+        transactionAmount: Double,
+        onSuccess: (any MPPaymentData.Kind) -> Void,
         onFailure: (MercadoPagoCheckoutError) -> Void
     ) async {
         self.isTokenizing = true
@@ -298,8 +332,33 @@ final class CardFormViewModel: ObservableObject {
 
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
-            let paymentData = try self.createPaymentData(transactionAmount, cardToken: cardToken, cardFormData: cardForm)
-            self.trackSubmit(paymentData: paymentData, transactionAmount: transactionAmount)
+
+            let paymentData: any MPPaymentData.Kind
+            switch self.configuration.type.kind {
+            case .cardTransaction:
+                let transaction = try self.buildCardTransaction(
+                    amount: transactionAmount,
+                    cardToken: cardToken,
+                    cardFormData: cardForm
+                )
+                self.trackSubmit(
+                    paymentMethodId: transaction.paymentMethodId,
+                    paymentTypeId: transaction.paymentTypeId,
+                    transactionAmount: transactionAmount
+                )
+                paymentData = transaction
+
+            case .saveCard:
+                let save = try self.buildCardSave(cardToken: cardToken, cardFormData: cardForm)
+
+                self.trackSubmit(
+                    paymentMethodId: save.paymentMethodId,
+                    paymentTypeId: save.paymentTypeId,
+                    transactionAmount: transactionAmount
+                )
+                paymentData = save
+            }
+
             onSuccess(paymentData)
         } catch {
             guard !Task.isCancelled else { return }
@@ -310,7 +369,7 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Analytics
 
-    func cancel(context _: CardFormUserCancelledContext, reason: CardFormCancelReason) {
+    func cancel(context _: MPCardFormUserCancelledContext, reason: CardFormCancelReason) {
         self.isCancelling = true
         let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)
         self.enqueueAnalytics { [analytics = self.analytics] in
@@ -340,12 +399,12 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
-    private func trackSubmit(paymentData: MPPaymentData, transactionAmount: Double?) {
+    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Double?) {
         let eventData = CardFormSubmitEventData(
-            cardBrand: paymentData.paymentMethodId ?? "",
+            cardBrand: paymentMethodId,
             transactionAmount: transactionAmount ?? 0,
             issuer: self.cardData?.paymentMethods.first?.issuers.first?.name ?? "",
-            paymentType: paymentData.paymentTypeId
+            paymentType: paymentTypeId
         )
         self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.submit)

@@ -36,9 +36,9 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
     }
 
     private func makeConfig(
-        amount: Double? = nil
-    ) -> MercadoPagoCheckout.CardFormConfiguration {
-        MercadoPagoCheckout.CardFormConfiguration(amount: amount)
+        amount _: Double = .zero
+    ) -> MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType {
+        return .saveCard
     }
 
     // MARK: - Success Cases
@@ -49,7 +49,7 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
             identificationTypes: [Self.stubIdentificationType]
         )
 
-        let result = try await sut.useCase.execute(config: self.makeConfig(), checkoutType: "card_form")
+        let result = try await sut.useCase.execute(checkoutType: self.makeConfig())
 
         XCTAssertEqual(result.identificationTypes.count, 1)
         XCTAssertEqual(result.identificationTypes.first?.id, "CPF")
@@ -61,7 +61,7 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
 
     func testExecute_noCustomization_returnsDefaults() async throws {
         let sut = self.makeSUT()
-        let result = try await sut.useCase.execute(config: self.makeConfig(), checkoutType: "card_form")
+        let result = try await sut.useCase.execute(checkoutType: self.makeConfig())
         let defaultFields = CardFormInitializationOutputStub.makeDefaultFields()
 
         XCTAssertEqual(result.title, "Default Header")
@@ -83,7 +83,7 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
 
     func testExecute_noCvvCustom_preservesPlaceholder() async throws {
         let sut = self.makeSUT()
-        let result = try await sut.useCase.execute(config: self.makeConfig(), checkoutType: "card_form")
+        let result = try await sut.useCase.execute(checkoutType: self.makeConfig())
         let defaultFields = CardFormInitializationOutputStub.makeDefaultFields()
 
         XCTAssertEqual(result.fields.cvv.placeholder, defaultFields.cvv.placeholder)
@@ -100,7 +100,7 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
             identificationTypes: []
         )
 
-        let result = try await sut.useCase.execute(config: self.makeConfig(), checkoutType: "card_form")
+        let result = try await sut.useCase.execute(checkoutType: self.makeConfig())
 
         XCTAssertEqual(result.button, "Guardar")
     }
@@ -112,7 +112,7 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
         sut.repository.shouldThrow = true
 
         do {
-            _ = try await sut.useCase.execute(config: self.makeConfig(), checkoutType: "card_form")
+            _ = try await sut.useCase.execute(checkoutType: self.makeConfig())
             XCTFail("Expected repository error to propagate")
         } catch let error as MercadoPagoCheckoutError {
             XCTAssertEqual(error.code, .unknown)

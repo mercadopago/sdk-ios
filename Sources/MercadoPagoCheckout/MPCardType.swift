@@ -1,25 +1,25 @@
 //
-//  MercadoPagoCheckout + CardType.swift
+//  MPCardType.swift
 //  MercadoPagoSDK
 //
 //  Created by Danielle Nozaki Ogawa on 20/02/26.
 //
 
-public extension MercadoPagoCheckout {
-    /// The card network or product type accepted by a payment method.
-    public enum CardType: Sendable {
-        /// A credit card.
-        case credit
-        /// A debit card.
-        case debit
-        /// A prepaid card.
-        case prepaid
-        
-        public static var defaults: [CardType] { [.credit, .debit, .prepaid] }
+/// The card network or product type accepted by a payment method.
+public enum MPCardType: Sendable {
+    /// A credit card.
+    case credit
+    /// A debit card.
+    case debit
+    /// A prepaid card.
+    case prepaid
+
+    public static var defaults: [MPCardType] {
+        [.credit, .debit, .prepaid]
     }
 }
 
-extension MercadoPagoCheckout.CardType: Equatable {
+extension MPCardType: Equatable {
     var paymentTypeId: String {
         switch self {
         case .credit: return "credit_card"

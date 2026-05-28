@@ -19,10 +19,10 @@ struct InstallmentScreen: View {
 
     private let onBack: () -> Void
     private let onContinue: () -> Void
-    @Binding private var paymentData: MPPaymentData
+    @Binding private var paymentData: MPPaymentData.CardTransaction
 
     init(
-        paymentData: Binding<MPPaymentData>,
+        paymentData: Binding<MPPaymentData.CardTransaction>,
         installments: Installment,
         onBack: @escaping () -> Void,
         onContinue: @escaping () -> Void
@@ -75,7 +75,12 @@ struct InstallmentScreen: View {
 #Preview {
     InstallmentScreen(
         paymentData: .constant(
-            MPPaymentData(transactionAmount: 100)
+            MPPaymentData.CardTransaction(
+                transactionAmount: 100,
+                token: "",
+                paymentMethodId: "",
+                paymentTypeId: ""
+            )
         ),
         installments: InstallmentMock.visa,
         onBack: {},

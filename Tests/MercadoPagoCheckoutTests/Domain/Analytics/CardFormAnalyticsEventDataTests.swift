@@ -8,6 +8,8 @@ import Foundation
 @testable import MPFoundation
 import XCTest
 
+private typealias CheckoutAppearance = MPCheckoutAppearance
+
 @MainActor
 final class CardFormAnalyticsEventDataTests: XCTestCase {
     // MARK: - CardFormInitializeEventData
@@ -232,7 +234,7 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
 
     func test_checkoutAppearance_defaultTheme_hasCustomTheme_shouldBeFalse() {
         // Arrange
-        let appearance = MercadoPagoCheckout.CheckoutAppearance()
+        let appearance = CheckoutAppearance()
 
         // Assert
         XCTAssertFalse(appearance.hasCustomTheme)
@@ -240,7 +242,7 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
 
     func test_checkoutAppearance_defaultTheme_sellerCustomization_shouldBeEmpty() {
         // Arrange
-        let appearance = MercadoPagoCheckout.CheckoutAppearance()
+        let appearance = CheckoutAppearance()
 
         // Assert
         XCTAssertEqual(appearance.sellerCustomization, [])

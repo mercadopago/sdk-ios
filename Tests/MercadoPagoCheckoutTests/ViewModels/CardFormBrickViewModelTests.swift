@@ -12,7 +12,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
     // MARK: - Types
 
     typealias SUT = (
-        viewModel: CardFormBrickViewModel,
+        viewModel: CardFormBrickViewModel<MPPaymentData.CardSave>,
         repository: MockCardFormInitializationRepository
     )
 
@@ -21,11 +21,14 @@ final class CardFormBrickViewModelTests: XCTestCase {
     private func makeSUT() -> SUT {
         let repository = MockCardFormInitializationRepository()
         let useCase = InitializeCardFormUseCase(repository: repository)
-        let configuration = MercadoPagoCheckout.CheckoutConfiguration(
-            type: .cardForm(cardFormConfiguration: .init()),
+        let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
+            type: .saveCard,
             paymentMethod: [.card(allowedTypes: [.credit, .debit, .prepaid])]
         )
-        let viewModel = CardFormBrickViewModel(configuration: configuration, initializeUseCase: useCase)
+        let viewModel = CardFormBrickViewModel<MPPaymentData.CardSave>(
+            configuration: configuration,
+            initializeUseCase: useCase
+        )
         return (viewModel, repository)
     }
 

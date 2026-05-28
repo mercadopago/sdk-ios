@@ -8,14 +8,14 @@ import CoreMethods
 import MPComponents
 import SwiftUI
 
-struct CardFormScreen: View {
-    private let onBack: (CardFormUserCancelledContext) -> Void
-    private let onDismiss: (CardFormUserCancelledContext) -> Void
-    private let onSuccess: (MPPaymentData) -> Void
+struct CardFormScreen<T: MPPaymentData.Kind>: View {
+    private let onBack: (MPCardFormUserCancelledContext) -> Void
+    private let onDismiss: (MPCardFormUserCancelledContext) -> Void
+    private let onSuccess: (any MPPaymentData.Kind) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
-    private let transactionAmount: Double?
+    private let transactionAmount: Double
 
-    @ObservedObject private var viewModel: CardFormViewModel
+    @ObservedObject private var viewModel: CardFormViewModel<T>
     private let initResult: CardFormInitializationOutput
 
     // MARK: States View
@@ -35,11 +35,11 @@ struct CardFormScreen: View {
 
     init(
         initResult: CardFormInitializationOutput,
-        transactionAmount: Double?,
-        viewModel: CardFormViewModel,
-        onBack: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
-        onDismiss: @escaping (CardFormUserCancelledContext) -> Void = { _ in },
-        onSuccess: @escaping (MPPaymentData) -> Void = { _ in },
+        transactionAmount: Double,
+        viewModel: CardFormViewModel<T>,
+        onBack: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
+        onDismiss: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
+        onSuccess: @escaping (any MPPaymentData.Kind) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self.onBack = onBack
@@ -111,7 +111,8 @@ struct CardFormScreen: View {
                         liveErrorMessage: self.cardForm.cardNumberLiveErrors,
                         keyboard: .numberPad,
                         onEditingChanged: { isEditing in
-                            if !isEditing, self.editedFields.contains(.cardNumber) || !self.cardForm.$cardNumber.isEmpty {
+                            if !isEditing, !self.didTapBack,
+                               self.editedFields.contains(.cardNumber) || !self.cardForm.$cardNumber.isEmpty {
                                 self.viewModel.cardNumberEditingEnded(isValid: self.cardForm.$cardNumber.isEmpty)
                             }
                         },

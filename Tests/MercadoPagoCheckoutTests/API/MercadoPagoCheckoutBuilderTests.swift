@@ -12,61 +12,50 @@ import XCTest
 /// `MercadoPagoCheckout` — consumers of the SDK go through it. Tests below
 /// assert the stored fields and the default payment methods so a silent
 /// regression (e.g. `.defaults` becoming empty) fails here rather than in
-/// production.
+/// production. The generic T parameter is also exercised to confirm that
+/// `.cardTransaction` produces `MercadoPagoCheckout<CardTransaction>` and
+/// `.saveCard` produces `MercadoPagoCheckout<CardSave>`.
 @MainActor
 final class MercadoPagoCheckoutBuilderTests: XCTestCase {
-    // MARK: - Init + defaults
+    // MARK: - cardTransaction flow
 
-    func test_init_shouldStoreCheckoutTypeAndAppearance() {
-        // Arrange
-        let appearance = MercadoPagoCheckout.CheckoutAppearance()
-        let checkoutType: MercadoPagoCheckout.CheckoutType = .cardForm(
-            cardFormConfiguration: .init(amount: 100.0)
-        )
-
-        // Act
+    func test_cardTransaction_init_shouldStoreAmountInCheckoutType() {
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: checkoutType,
-            checkoutAppearance: appearance
+            checkoutType: .cardTransaction(order: .init(amount: 100.0, payer: .init(email: "test@mp.com"))),
+            checkoutAppearance: .init()
         ).build()
 
-        // Assert
-        if case let .cardForm(cardFormConfiguration) = checkout.configuration.type {
-            XCTAssertEqual(cardFormConfiguration.amount, 100.0)
+        if case let .cardTransaction(order) = checkout.configuration.type.kind {
+            XCTAssertEqual(order.amount, 100.0)
         } else {
-            XCTFail("Expected .cardForm checkout type")
+            XCTFail("Expected .cardTransaction kind")
         }
     }
 
-    func test_build_withoutSettingPaymentMethods_shouldUseDefaults() {
-        // Arrange / Act
+    func test_cardTransaction_build_withoutSettingPaymentMethods_shouldUseDefaults() {
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 50.0)),
-            checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
+            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"))),
+            checkoutAppearance: .init()
         ).build()
 
-        // Assert -- default is the same list exposed by PaymentMethod.defaults
-        let expectedCount = MercadoPagoCheckout.PaymentMethod.defaults.count
-        XCTAssertEqual(checkout.configuration.paymentMethod.count, expectedCount)
+        XCTAssertEqual(
+            checkout.configuration.paymentMethod.count,
+            MPPaymentMethod.defaults.count
+        )
     }
 
-    // MARK: - setPaymentMethods chaining
-
-    func test_setPaymentMethods_shouldReplaceDefaults() {
-        // Arrange -- custom list with only credit card
-        let customMethods: [MercadoPagoCheckout.PaymentMethod] = [
+    func test_cardTransaction_setPaymentMethods_shouldReplaceDefaults() {
+        let customMethods: [MPPaymentMethod] = [
             .card(allowedTypes: [.credit], allowedBrands: [.visa])
         ]
 
-        // Act
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 100.0)),
-            checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
+            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"))),
+            checkoutAppearance: .init()
         )
         .setPaymentMethods(customMethods)
         .build()
 
-        // Assert
         XCTAssertEqual(checkout.configuration.paymentMethod.count, 1)
         if case let .card(types, brands, _) = checkout.configuration.paymentMethod[0] {
             XCTAssertEqual(types, [.credit])
@@ -76,53 +65,77 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         }
     }
 
-    func test_setPaymentMethods_withoutArgument_shouldResetToDefaults() {
-        // Arrange -- first override, then reset
+    func test_cardTransaction_setPaymentMethods_withoutArgument_shouldResetToDefaults() {
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 100.0)),
-            checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
+            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"))),
+            checkoutAppearance: .init()
         )
         builder.setPaymentMethods([.card(allowedTypes: [.credit])])
-
-        // Act -- reset via default argument
         let checkout = builder.setPaymentMethods().build()
 
-        // Assert
-        let expectedCount = MercadoPagoCheckout.PaymentMethod.defaults.count
-        XCTAssertEqual(checkout.configuration.paymentMethod.count, expectedCount)
+        XCTAssertEqual(
+            checkout.configuration.paymentMethod.count,
+            MPPaymentMethod.defaults.count
+        )
     }
 
     func test_setPaymentMethods_shouldBeDiscardableAndReturnSameBuilder() {
-        // Arrange
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: .init(amount: 100.0)),
-            checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
+            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"))),
+            checkoutAppearance: .init()
         )
-
-        // Act -- return value is the same reference, enabling chaining
         let chained = builder.setPaymentMethods([.card(allowedTypes: [.credit])])
-
-        // Assert
         XCTAssertTrue(chained === builder)
     }
 
-    // MARK: - Payment method identity in configuration
+    // MARK: - saveCard flow
 
-    func test_build_shouldPropagateCheckoutTypeToConfiguration() {
-        // Arrange
-        let config = MercadoPagoCheckout.CardFormConfiguration(amount: 77.5)
-
-        // Act
+    func test_saveCard_build_kindIsSaveCard() {
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardForm(cardFormConfiguration: config),
-            checkoutAppearance: MercadoPagoCheckout.CheckoutAppearance()
+            checkoutType: .saveCard,
+            checkoutAppearance: .init()
         ).build()
 
-        // Assert
-        if case let .cardForm(cardFormConfiguration) = checkout.configuration.type {
-            XCTAssertEqual(cardFormConfiguration.amount, 77.5)
-        } else {
-            XCTFail("Expected .cardForm")
+        if case .saveCard = checkout.configuration.type.kind {} else {
+            XCTFail("Expected .saveCard kind")
         }
+    }
+
+    func test_saveCard_build_withoutSettingPaymentMethods_shouldUseDefaults() {
+        let checkout = MercadoPagoCheckout.Builder(
+            checkoutType: .saveCard,
+            checkoutAppearance: .init()
+        ).build()
+
+        XCTAssertEqual(
+            checkout.configuration.paymentMethod.count,
+            MPPaymentMethod.defaults.count
+        )
+    }
+
+    // MARK: - CheckoutType type-safety
+
+    func test_cardTransaction_checkoutType_analyticsValue() {
+        let checkoutType = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutType.cardTransaction(
+            order: .init(amount: 10.0, payer: .init(email: "a@b.com"))
+        )
+        XCTAssertEqual(checkoutType.analyticsValue, "card_transaction")
+    }
+
+    func test_saveCard_checkoutType_analyticsValue() {
+        let checkoutType = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType.saveCard
+        XCTAssertEqual(checkoutType.analyticsValue, "save_card")
+    }
+
+    func test_cardTransaction_checkoutType_configurationAmount() {
+        let checkoutType = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutType.cardTransaction(
+            order: .init(amount: 77.5, payer: .init(email: "test@mp.com"))
+        )
+        XCTAssertEqual(checkoutType.configuration.amount, 77.5)
+    }
+
+    func test_saveCard_checkoutType_configurationAmountIsZero() {
+        let checkoutType = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType.saveCard
+        XCTAssertEqual(checkoutType.configuration.amount, .zero)
     }
 }

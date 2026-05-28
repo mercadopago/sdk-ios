@@ -1,0 +1,97 @@
+//
+//  MPCardBrand.swift
+//  MercadoPagoSDK
+//
+//  Created by Danielle Nozaki Ogawa on 26/02/26.
+//
+
+/// Defines the card brand/network accepted during the checkout flow.
+///
+/// Use predefined brands like `.visa` or `.mastercard`, or create a custom one
+/// with `.custom("brand_id")` for card networks not explicitly listed.
+public enum MPCardBrand: Sendable, Equatable {
+    /// Visa card network.
+    case visa
+    /// Mastercard network.
+    case master
+    /// American Express card network.
+    case amex
+    /// Elo card network (Brazil).
+    case elo
+    /// Hipercard network (Brazil).
+    case hipercard
+    /// Diners Club card network.
+    case diners
+    /// Discover card network.
+    case discover
+    /// Japan Credit Bureau card network.
+    case jcb
+    /// Maestro debit card network.
+    case maestro
+    /// UnionPay card network (China).
+    case unionPay
+    /// Cabal card network (Argentina).
+    case cabal
+    /// Naranja card network (Argentina).
+    case naranja
+    /// A custom card brand not explicitly listed.
+    ///
+    /// - Parameter id: The payment method identifier for the card brand.
+    case custom(String)
+
+    /// All predefined card brands.
+    public static var defaults: [MPCardBrand] {
+        [
+            .visa,
+            .master,
+            .amex,
+            .elo,
+            .hipercard,
+            .diners,
+            .discover,
+            .jcb,
+            .maestro,
+            .unionPay,
+            .cabal,
+            .naranja
+        ]
+    }
+}
+
+extension MPCardBrand {
+    init(paymentMethodId: String) {
+        switch paymentMethodId {
+        case "visa": self = .visa
+        case "master": self = .master
+        case "amex": self = .amex
+        case "elo": self = .elo
+        case "hipercard": self = .hipercard
+        case "diners": self = .diners
+        case "discover": self = .discover
+        case "jcb": self = .jcb
+        case "maestro": self = .maestro
+        case "unionpay": self = .unionPay
+        case "cabal": self = .cabal
+        case "naranja": self = .naranja
+        default: self = .custom(paymentMethodId)
+        }
+    }
+
+    var paymentMethodId: String {
+        switch self {
+        case .visa: return "visa"
+        case .master: return "master"
+        case .amex: return "amex"
+        case .elo: return "elo"
+        case .hipercard: return "hipercard"
+        case .diners: return "diners"
+        case .discover: return "discover"
+        case .jcb: return "jcb"
+        case .maestro: return "maestro"
+        case .unionPay: return "unionpay"
+        case .cabal: return "cabal"
+        case .naranja: return "naranja"
+        case let .custom(id): return id
+        }
+    }
+}

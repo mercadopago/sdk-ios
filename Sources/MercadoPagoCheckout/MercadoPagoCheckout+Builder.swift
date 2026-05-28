@@ -8,40 +8,42 @@
 public extension MercadoPagoCheckout {
     /// A fluent builder for constructing a ``MercadoPagoCheckout`` instance.
     ///
-    /// Use `Builder` to configure the checkout step-by-step before calling ``build()``.
+    /// The generic parameter `T` of the enclosing ``MercadoPagoCheckout`` is inferred from
+    /// the ``CheckoutType`` passed to ``init(checkoutType:checkoutAppearance:)``, so the
+    /// type flows naturally into ``MercadoPagoCheckoutResult``.
     ///
     /// ```swift
     /// let checkout = MercadoPagoCheckout.Builder(
-    ///     checkoutType: .cardForm(cardFormConfiguration: .init(amount: 150.0)),
+    ///     checkoutType: .cardTransaction(order: .init(amount: 150.0, payer: .init(email: "..."))),
     ///     checkoutAppearance: .init()
     /// )
-    /// .setPaymentMethod([.card(cardTypes: [.credit]), .pix])
+    /// .setPaymentMethods([.card(allowedTypes: [.credit])])
     /// .build()
     /// ```
-    class Builder {
+    final class Builder {
         private var checkoutType: CheckoutType
-        private var checkoutAppearance: CheckoutAppearance
-        private var paymentMethods: [PaymentMethod]
+        private var checkoutAppearance: MPCheckoutAppearance
+        private var paymentMethods: [MPPaymentMethod]
 
         /// Creates a new builder with the required checkout type and appearance.
         ///
-        /// Payment methods default to ``PaymentMethod/defaults``.
+        /// Payment methods default to ``MPPaymentMethod/defaults``.
         ///
         /// - Parameters:
         ///   - checkoutType: The type of checkout experience to present.
         ///   - checkoutAppearance: The visual appearance for the checkout flow.
-        public init(checkoutType: CheckoutType, checkoutAppearance: CheckoutAppearance) {
+        public init(checkoutType: CheckoutType, checkoutAppearance: MPCheckoutAppearance) {
             self.checkoutType = checkoutType
             self.checkoutAppearance = checkoutAppearance
-            self.paymentMethods = PaymentMethod.defaults
+            self.paymentMethods = MPPaymentMethod.defaults
         }
 
         /// Sets the payment methods available during the checkout flow.
         ///
-        /// - Parameter paymentMethods: The payment methods to enable. Defaults to ``PaymentMethod/defaults``.
+        /// - Parameter paymentMethods: The payment methods to enable. Defaults to ``MPPaymentMethod/defaults``.
         /// - Returns: The builder instance for chaining.
         @discardableResult
-        public func setPaymentMethods(_ paymentMethods: [PaymentMethod] = PaymentMethod.defaults) -> Builder {
+        public func setPaymentMethods(_ paymentMethods: [MPPaymentMethod] = MPPaymentMethod.defaults) -> Builder {
             self.paymentMethods = paymentMethods
             return self
         }
@@ -50,8 +52,8 @@ public extension MercadoPagoCheckout {
         ///
         /// - Returns: A fully configured `MercadoPagoCheckout` ready to be presented.
         @MainActor
-        public func build() -> MercadoPagoCheckout {
-            MercadoPagoCheckout(
+        public func build() -> MercadoPagoCheckout<T> {
+            MercadoPagoCheckout<T>(
                 theme: self.checkoutAppearance,
                 configuration: .init(
                     type: self.checkoutType,

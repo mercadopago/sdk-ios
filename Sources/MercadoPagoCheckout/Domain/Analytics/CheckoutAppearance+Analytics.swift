@@ -13,7 +13,7 @@ extension MercadoPagoUserInterfaceStyle {
     }
 }
 
-extension MercadoPagoCheckout.CheckoutAppearance {
+extension MPCheckoutAppearance {
     var hasCustomTheme: Bool {
         !(themeConfiguration.light is MPLightTheme) || !(themeConfiguration.dark is MPLightTheme)
     }
