@@ -1,0 +1,11 @@
+Sources/MercadoPagoCheckout/MPPaymentMethod.swift
+  ai_agent 20-25,31-32,38-39
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+Builder.swift
+  ai_agent 36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b2242a97bffc8d5d1dea4d704b9ab3166a4b05ba",
+  "prompts": {}
+}
