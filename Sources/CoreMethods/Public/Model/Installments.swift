@@ -16,8 +16,6 @@ public struct Installment: Sendable, Equatable {
     public let merchantAccountId: String
     public let payerCosts: [PayerCost]
     public let agreements: [Agreement]
-    // TODO: Need to update with BFF
-    public let interactionMode: String?
 
     package init(
         paymentMethodId: String,
@@ -27,8 +25,7 @@ public struct Installment: Sendable, Equatable {
         processingMode: String,
         merchantAccountId: String,
         payerCosts: [PayerCost],
-        agreements: [Agreement],
-        interactionMode: String? = nil
+        agreements: [Agreement]
     ) {
         self.paymentMethodId = paymentMethodId
         self.paymentTypeId = paymentTypeId
@@ -38,7 +35,6 @@ public struct Installment: Sendable, Equatable {
         self.merchantAccountId = merchantAccountId
         self.payerCosts = payerCosts
         self.agreements = agreements
-        self.interactionMode = interactionMode
     }
 
     public struct Issuer: Sendable, Equatable {

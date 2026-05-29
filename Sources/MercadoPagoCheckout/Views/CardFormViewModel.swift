@@ -264,15 +264,16 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private func buildCardPaymentBrickCardParams(bin: String) -> CardPaymentBrickCardParams {
+        let installment = self.configuration.paymentMethod.installmentConfig
         return CardPaymentBrickCardParams(
             bin: bin,
             amount: self.config.amount,
             checkoutType: self.config.checkoutTypeAnalyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
-            excludedCardTypes: self.config.excludedPaymentTypeIds,
-            excludedCardBrands: self.config.excludedPaymentMethodIds,
-            maxInstallments: self.config.maxInstallments,
-            minInstallments: self.config.minInstallments
+            excludedCardTypes: self.configuration.paymentMethod.excludedPaymentTypeIds,
+            excludedCardBrands: self.configuration.paymentMethod.excludedPaymentMethodIds,
+            maxInstallments: installment?.maxInstallments,
+            minInstallments: installment?.minInstallments
         )
     }
 
