@@ -28,6 +28,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Published State
 
     @Published private(set) var screenState: ScreenState = .loading
+    @Published private(set) var installmentsWasPresented = false
 
     // MARK: - Dependencies
 
@@ -50,6 +51,10 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.analytics = analytics
     }
 
+    func markInstallmentsPresented() {
+        self.installmentsWasPresented = true
+    }
+
     // MARK: - Initialization
 
     func load() async throws(MercadoPagoCheckoutError) {
@@ -67,7 +72,9 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 checkoutTypeAnalyticsValue: self.configuration.type.analyticsValue,
                 excludedPaymentTypeIds: self.configuration.paymentMethod.excludedPaymentTypeIds,
                 excludedPaymentMethodIds: self.configuration.paymentMethod.excludedPaymentMethodIds,
-                initResult: result
+                initResult: result,
+                minInstallments: self.configuration.paymentMethod.installmentConfig?.minInstallments,
+                maxInstallments: self.configuration.paymentMethod.installmentConfig?.maxInstallments
             )
 
             let viewModel = CardFormViewModel(

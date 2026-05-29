@@ -128,6 +128,7 @@ package enum TextStyleCase: String, CaseIterable, Identifiable {
 
     case large
     case largeEmphasis
+    case largeSemibold
 
     case bodyMediumTitle
     case bodyMedium
@@ -159,6 +160,8 @@ package enum TextStyleCase: String, CaseIterable, Identifiable {
             theme.typography.body.large.default.toFont()
         case .largeEmphasis:
             theme.typography.body.large.emphasis.toFont()
+        case .largeSemibold:
+            theme.typography.body.large.semibold.toFont()
         case .bodyMediumTitle:
             theme.typography.body.medium.title.toFont()
         case .bodyMedium:
@@ -206,6 +209,10 @@ package extension TextStyle where Self == BaseTextStyle {
 
     static func largeEmphasis(colorType: TextStyleColorType = .primary) -> Self {
         Self(styleCase: .largeEmphasis, colorType: colorType)
+    }
+
+    static func largeSemibold(colorType: TextStyleColorType = .primary) -> Self {
+        Self(styleCase: .largeSemibold, colorType: colorType)
     }
 
     /// A medium-sized, semibold body text style.
