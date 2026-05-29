@@ -1,0 +1,23 @@
+Sources/MercadoPagoCheckout/Bricks/PaymentBrickViewModel.swift
+  s_6f94599486104f::t_47bf0a5c0665de 47-48
+Sources/MercadoPagoCheckout/MPOrder.swift
+  s_6f94599486104f::t_4a3c2d6646f6ab 35-36,39
+  s_6f94599486104f::t_f93a632c237230 13-34,37-38,40-46,48,50-51,54-56,59,63-64
+  s_6f94599486104f::t_1789ee36c027ce 49,57,65-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "af4d7e7b26bfd8078bca9aab6b5e00ae15733c4f",
+  "prompts": {},
+  "sessions": {
+    "s_6f94599486104f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3ea268e3-ca96-4b8c-9fd8-55b005d76f1b",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
