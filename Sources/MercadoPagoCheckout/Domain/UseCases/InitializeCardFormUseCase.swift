@@ -19,11 +19,12 @@ struct InitializeCardFormUseCase {
     /// Fetches initialization data from the repository,
     /// then applies business rules (button selection, custom text overrides).
     func execute(
+        amount: Double,
         checkoutType: MercadoPagoCheckout<some MPPaymentData.Kind>.CheckoutType
     ) async throws(MercadoPagoCheckoutError) -> CardFormInitializationOutput {
         do {
             let data = try await repository.fetchInitialization(
-                amount: checkoutType.configuration.amount,
+                amount: amount,
                 checkoutType: checkoutType.analyticsValue
             )
 

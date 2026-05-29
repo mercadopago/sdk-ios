@@ -13,7 +13,16 @@ import MPFoundation
 final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     enum ScreenState {
         case loading
-        case ready(CardFormInitializationOutput, CardFormViewModel<T>)
+        case ready(CardFormInitializationOutput, CardFormViewModel)
+    }
+
+    private var transactionAmount: Double {
+        switch self.configuration.type.kind {
+        case .saveCard:
+            return .zero
+        case let .cardTransaction(order):
+            return order.amount
+        }
     }
 
     // MARK: - Published State
@@ -48,12 +57,21 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         do {
             let result = try await withRetry {
                 try await self.initializeUseCase.execute(
+                    amount: self.transactionAmount,
                     checkoutType: self.configuration.type
                 )
             }
-            let viewModel = CardFormViewModel<T>(
-                configuration: self.configuration,
-                initResult: result,
+
+            let configuration = CardFormViewModel.Configuration(
+                amount: self.transactionAmount,
+                checkoutTypeAnalyticsValue: self.configuration.type.analyticsValue,
+                excludedPaymentTypeIds: self.configuration.paymentMethod.excludedPaymentTypeIds,
+                excludedPaymentMethodIds: self.configuration.paymentMethod.excludedPaymentMethodIds,
+                initResult: result
+            )
+
+            let viewModel = CardFormViewModel(
+                config: configuration,
                 analytics: self.analytics
             )
             self.screenState = .ready(result, viewModel)
@@ -69,6 +87,36 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             )
             self.trackInitializeError(checkoutError)
             throw checkoutError
+        }
+    }
+
+    // MARK: - Payment Data Mapping
+
+    func buildPaymentData(from output: CardFormOutput) -> T? {
+        let payer = output.payer.map {
+            MPPaymentData.Payer(documentType: $0.documentType, documentNumber: $0.documentNumber)
+        }
+
+        switch self.configuration.type.kind {
+        case let .cardTransaction(order):
+            return MPPaymentData.CardTransaction(
+                transactionAmount: order.amount,
+                token: output.token,
+                installment: 1,
+                paymentMethodId: output.paymentMethodId,
+                paymentTypeId: output.paymentTypeId,
+                issuerId: output.issuerId,
+                payer: payer
+            ) as? T
+
+        case .saveCard:
+            return MPPaymentData.CardSave(
+                token: output.token,
+                paymentMethodId: output.paymentMethodId,
+                paymentTypeId: output.paymentTypeId,
+                issuerId: output.issuerId,
+                payer: payer
+            ) as? T
         }
     }
 

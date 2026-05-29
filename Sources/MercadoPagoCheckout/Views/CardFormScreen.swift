@@ -8,15 +8,13 @@ import CoreMethods
 import MPComponents
 import SwiftUI
 
-struct CardFormScreen<T: MPPaymentData.Kind>: View {
+struct CardFormScreen: View {
     private let onBack: (MPCardFormUserCancelledContext) -> Void
     private let onDismiss: (MPCardFormUserCancelledContext) -> Void
-    private let onSuccess: (any MPPaymentData.Kind) -> Void
+    private let onSuccess: (CardFormOutput) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
-    private let transactionAmount: Double
 
-    @ObservedObject private var viewModel: CardFormViewModel<T>
-    private let initResult: CardFormInitializationOutput
+    @ObservedObject private var viewModel: CardFormViewModel
 
     // MARK: States View
 
@@ -34,24 +32,20 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
     @Environment(\.checkoutTheme) var theme: MPTheme
 
     init(
-        initResult: CardFormInitializationOutput,
-        transactionAmount: Double,
-        viewModel: CardFormViewModel<T>,
+        viewModel: CardFormViewModel,
         onBack: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
         onDismiss: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
-        onSuccess: @escaping (any MPPaymentData.Kind) -> Void = { _ in },
+        onSuccess: @escaping (CardFormOutput) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self.onBack = onBack
         self.onDismiss = onDismiss
         self.onSuccess = onSuccess
         self.onFailure = onFailure
-        self.transactionAmount = transactionAmount
-        self.initResult = initResult
 
         self._viewModel = ObservedObject(wrappedValue: viewModel)
 
-        var formData = CardFormData(fields: initResult.fields)
+        var formData = CardFormData(fields: viewModel.initResult.fields)
         if let firstType = viewModel.selectTypeDocument {
             formData.setDocumentLength(firstType.minLenght, firstType.maxLenght)
             formData.setDocumentType(isNumeric: firstType.type != "string")
@@ -61,7 +55,7 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
 
     var body: some View {
         MPHeader(
-            title: self.initResult.title,
+            title: self.viewModel.initResult.title,
             onBack: {
                 self.didTapBack = true
                 self.onBack(self.cardForm.cancelledFormContext)
@@ -71,11 +65,10 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
                     title: MPStrings.Common.total,
                     amount: nil,
                     buttonData: .init(
-                        text: self.initResult.button,
+                        text: self.viewModel.initResult.button,
                         onClick: {
                             await self.viewModel.submitCardData(
                                 cardForm: self.cardForm,
-                                transactionAmount: self.transactionAmount,
                                 onSuccess: {
                                     self.didComplete = true
                                     self.onSuccess($0)
@@ -92,7 +85,7 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
                 .disabled(
                     !self.cardForm.isFormValid(
                         isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory,
-                        isDocumentRequired: !self.initResult.identificationTypes.isEmpty
+                        isDocumentRequired: !self.viewModel.initResult.identificationTypes.isEmpty
                     )
                 )
                 .background(
@@ -105,8 +98,8 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
                 VStack(spacing: self.theme.spacings.xsmall) {
                     MPTextField(
                         text: self.$cardForm.cardNumber,
-                        label: self.initResult.fields.cardNumber.label,
-                        placeholder: self.initResult.fields.cardNumber.placeholder,
+                        label: self.viewModel.initResult.fields.cardNumber.label,
+                        placeholder: self.viewModel.initResult.fields.cardNumber.placeholder,
                         errorMessage: self.cardForm.$cardNumber,
                         liveErrorMessage: self.cardForm.cardNumberLiveErrors,
                         keyboard: .numberPad,
@@ -122,11 +115,11 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
 
                     MPTextField(
                         text: self.$cardForm.cardHolder,
-                        label: self.initResult.fields.cardHolder.label,
-                        placeholder: self.initResult.fields.cardHolder.placeholder,
-                        helperText: self.initResult.fields.cardHolder.helperText,
+                        label: self.viewModel.initResult.fields.cardHolder.label,
+                        placeholder: self.viewModel.initResult.fields.cardHolder.placeholder,
+                        helperText: self.viewModel.initResult.fields.cardHolder.helperText,
                         errorMessage: self.cardForm.$cardHolder,
-                        keyboard: self.initResult.fields.cardHolder.config.getKeyboardType(),
+                        keyboard: self.viewModel.initResult.fields.cardHolder.config.getKeyboardType(),
                         onEditingChanged: { isEditing in
                             if !isEditing, self.editedFields.contains(.cardHolder) || !self.cardForm.$cardHolder.isEmpty {
                                 self.viewModel.trackInputValidation(
@@ -139,10 +132,10 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
 
                     MPTextField(
                         text: self.$cardForm.expirationDate,
-                        label: self.initResult.fields.expiration.label,
-                        placeholder: self.initResult.fields.expiration.placeholder,
+                        label: self.viewModel.initResult.fields.expiration.label,
+                        placeholder: self.viewModel.initResult.fields.expiration.placeholder,
                         errorMessage: self.cardForm.$expirationDate,
-                        keyboard: self.initResult.fields.expiration.config.getKeyboardType(),
+                        keyboard: self.viewModel.initResult.fields.expiration.config.getKeyboardType(),
                         onEditingChanged: { isEditing in
                             if !isEditing, self.editedFields.contains(.expirationDate) || !self.cardForm.$expirationDate.isEmpty {
                                 self.viewModel.trackInputValidation(
@@ -157,10 +150,10 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
                     if self.viewModel.isSecurityCodeMandatory {
                         MPTextField(
                             text: self.$cardForm.securityCode,
-                            label: self.initResult.fields.cvv.label,
+                            label: self.viewModel.initResult.fields.cvv.label,
                             placeholder: self.viewModel.cvvPlaceholder,
                             errorMessage: self.cardForm.$securityCode,
-                            keyboard: self.initResult.fields.expiration.config.getKeyboardType(),
+                            keyboard: self.viewModel.initResult.fields.expiration.config.getKeyboardType(),
                             onEditingChanged: { isEditing in
                                 if !isEditing, self.editedFields.contains(.securityCode) || !self.cardForm.$securityCode.isEmpty {
                                     self.viewModel.trackInputValidation(
@@ -174,10 +167,10 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
                         )
                     }
 
-                    if !self.initResult.identificationTypes.isEmpty {
+                    if !self.viewModel.initResult.identificationTypes.isEmpty {
                         MPTextField(
                             text: self.$cardForm.documentHolder,
-                            label: self.initResult.fields.document.label,
+                            label: self.viewModel.initResult.fields.document.label,
                             placeholder: self.viewModel.selectTypeDocument?.getPlaceholder(),
                             errorMessage: self.cardForm.$documentHolder,
                             liveErrorMessage: self.cardForm.documentHolderLiveErrors,
@@ -242,7 +235,7 @@ struct CardFormScreen<T: MPPaymentData.Kind>: View {
         }
         .mpBottomSheet(
             isPresented: self.$isDocumentSheetPresented,
-            title: self.initResult.fields.document.label,
+            title: self.viewModel.initResult.fields.document.label,
             options: self.viewModel.identificationTypes,
             selected: self.$viewModel.selectTypeDocument
         )

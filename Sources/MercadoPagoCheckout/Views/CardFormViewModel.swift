@@ -11,10 +11,18 @@ import MPCore
 import SwiftUI
 
 @MainActor
-final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
+final class CardFormViewModel: ObservableObject {
+    struct Configuration {
+        let amount: Double
+        let checkoutTypeAnalyticsValue: String
+        let excludedPaymentTypeIds: [String]
+        let excludedPaymentMethodIds: [String]
+        let initResult: CardFormInitializationOutput
+    }
+
     // MARK: - Dependencies
 
-    private let configuration: MPCheckoutConfiguration<T>
+    private let config: CardFormViewModel.Configuration
     private let service: CheckoutServiceProtocol
     private let fetchCardUseCase: FetchCardPaymentBrickCardUseCase
     private let analytics: AnalyticsInterface
@@ -68,6 +76,10 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.binNetworkError?.isRetriable ?? false
     }
 
+    var initResult: CardFormInitializationOutput {
+        self.config.initResult
+    }
+
     // MARK: - Private
 
     private var isCancelling = false
@@ -79,28 +91,27 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Init
 
     init(
-        configuration: MPCheckoutConfiguration<T>,
-        initResult: CardFormInitializationOutput,
+        config: Configuration,
         service: CheckoutServiceProtocol = CheckoutService(),
         fetchCardUseCase: FetchCardPaymentBrickCardUseCase = FetchCardPaymentBrickCardUseCase(),
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
-        self.configuration = configuration
+        self.config = config
         self.service = service
         self.fetchCardUseCase = fetchCardUseCase
-        self.fields = initResult.fields
+        self.fields = config.initResult.fields
         self.analytics = analytics
-        self.identificationTypes = initResult.identificationTypes
-        _selectTypeDocument = Published(wrappedValue: initResult.identificationTypes.first)
+        self.identificationTypes = config.initResult.identificationTypes
+        _selectTypeDocument = Published(wrappedValue: config.initResult.identificationTypes.first)
 
         self.cardNumberFormatter = CardNumberFormatter(
-            maxLength: initResult.fields.cardNumber.config.length.max,
-            mask: initResult.fields.cardNumber.config.mask
+            maxLength: config.initResult.fields.cardNumber.config.length.max,
+            mask: config.initResult.fields.cardNumber.config.mask
         )
-        self.expirationDateFormatter = ExpirationDateFormatter(maxLength: initResult.fields.expiration.config.length.max)
-        self.securityCodeFormatter = SecurityCodeFormatter(maxLength: initResult.fields.cvv.config.length.max)
+        self.expirationDateFormatter = ExpirationDateFormatter(maxLength: config.initResult.fields.expiration.config.length.max)
+        self.securityCodeFormatter = SecurityCodeFormatter(maxLength: config.initResult.fields.cvv.config.length.max)
 
-        let firstType = initResult.identificationTypes.first
+        let firstType = config.initResult.identificationTypes.first
         self.documentFormatter = DocumentFormatter(
             mask: firstType?.getFormat() ?? String(),
             maxLength: firstType?.maxLenght ?? 20,
@@ -135,11 +146,10 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Footer
 
     func footerAmount() -> MPAmountData? {
-        if self.configuration.type.configuration.amount == .zero {
+        if self.config.amount == .zero {
             return nil
         }
-
-        return MPAmountData(from: self.configuration.type.configuration.amount)
+        return MPAmountData(from: self.config.amount)
     }
 
     // MARK: - Card Token
@@ -250,29 +260,20 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
     private func buildCardPaymentBrickCardParams(bin: String) -> CardPaymentBrickCardParams {
         CardPaymentBrickCardParams(
             bin: bin,
-            amount: self.configuration.type.configuration.amount,
-            checkoutType: self.configuration.type.analyticsValue,
+            amount: self.config.amount,
+            checkoutType: self.config.checkoutTypeAnalyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
-            excludedCardTypes: self.configuration.paymentMethod.excludedPaymentTypeIds,
-            excludedCardBrands: self.configuration.paymentMethod.excludedPaymentMethodIds
+            excludedCardTypes: self.config.excludedPaymentTypeIds,
+            excludedCardBrands: self.config.excludedPaymentMethodIds
         )
     }
 
-    // MARK: - Payment Data
+    // MARK: - Card Form Output
 
-    private func buildCardTransaction(
-        amount: Double,
+    private func buildCardFormOutput(
         cardToken: CardToken,
         cardFormData: CardFormData
-    ) throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
-        let payer: MPPaymentData.Payer? = {
-            guard let selectTypeDocument else { return nil }
-            return .init(
-                documentType: selectTypeDocument.id,
-                documentNumber: cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
-            )
-        }()
-
+    ) throws(MercadoPagoCheckoutError) -> CardFormOutput {
         guard let paymentMethod = cardData?.paymentMethods.first else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
@@ -281,38 +282,13 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
             )
         }
 
-        return .init(
-            transactionAmount: amount,
-            token: cardToken.token,
-            installment: 1,
-            paymentMethodId: paymentMethod.id,
-            paymentTypeId: paymentMethod.paymentTypeId,
-            issuerId: paymentMethod.issuers.first?.id,
-            payer: payer
-        )
-    }
-
-    private func buildCardSave(
-        cardToken: CardToken,
-        cardFormData: CardFormData
-    ) throws(MercadoPagoCheckoutError) -> MPPaymentData.CardSave {
-        let payer: MPPaymentData.Payer? = {
+        let payer: CardFormOutput.Payer? = {
             guard let selectTypeDocument else { return nil }
-            return .init(
-                documentType: selectTypeDocument.id,
-                documentNumber: cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
-            )
+            let docNumber = cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
+            return .init(documentType: selectTypeDocument.id, documentNumber: docNumber)
         }()
 
-        guard let paymentMethod = cardData?.paymentMethods.first else {
-            throw MercadoPagoCheckoutError(
-                code: .unknown,
-                localizedDescription: "Couldn't create payment data: card data is missing",
-                location: .paymentMethods
-            )
-        }
-
-        return .init(
+        return CardFormOutput(
             token: cardToken.token,
             paymentMethodId: paymentMethod.id,
             paymentTypeId: paymentMethod.paymentTypeId,
@@ -323,8 +299,7 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     func submitCardData(
         cardForm: CardFormData,
-        transactionAmount: Double,
-        onSuccess: (any MPPaymentData.Kind) -> Void,
+        onSuccess: (CardFormOutput) -> Void,
         onFailure: (MercadoPagoCheckoutError) -> Void
     ) async {
         self.isTokenizing = true
@@ -332,34 +307,15 @@ final class CardFormViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
+            let output = try self.buildCardFormOutput(cardToken: cardToken, cardFormData: cardForm)
 
-            let paymentData: any MPPaymentData.Kind
-            switch self.configuration.type.kind {
-            case .cardTransaction:
-                let transaction = try self.buildCardTransaction(
-                    amount: transactionAmount,
-                    cardToken: cardToken,
-                    cardFormData: cardForm
-                )
-                self.trackSubmit(
-                    paymentMethodId: transaction.paymentMethodId,
-                    paymentTypeId: transaction.paymentTypeId,
-                    transactionAmount: transactionAmount
-                )
-                paymentData = transaction
+            self.trackSubmit(
+                paymentMethodId: output.paymentMethodId,
+                paymentTypeId: output.paymentTypeId,
+                transactionAmount: self.config.amount
+            )
 
-            case .saveCard:
-                let save = try self.buildCardSave(cardToken: cardToken, cardFormData: cardForm)
-
-                self.trackSubmit(
-                    paymentMethodId: save.paymentMethodId,
-                    paymentTypeId: save.paymentTypeId,
-                    transactionAmount: transactionAmount
-                )
-                paymentData = save
-            }
-
-            onSuccess(paymentData)
+            onSuccess(output)
         } catch {
             guard !Task.isCancelled else { return }
             self.trackSubmitError(error)
