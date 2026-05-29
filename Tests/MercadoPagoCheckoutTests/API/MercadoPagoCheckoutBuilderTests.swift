@@ -135,15 +135,20 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         XCTAssertEqual(checkoutType.analyticsValue, "save_card")
     }
 
-    func test_cardTransaction_checkoutType_configurationAmount() {
+    func test_cardTransaction_checkoutType_carriesOrderAmount() {
         let checkoutType = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutType.cardTransaction(
             order: .init(amount: 77.5, payer: .init(email: "test@mp.com"))
         )
-        XCTAssertEqual(checkoutType.configuration.amount, 77.5)
+        guard case let .cardTransaction(order) = checkoutType.kind else {
+            return XCTFail("Expected .cardTransaction kind")
+        }
+        XCTAssertEqual(order.amount, 77.5)
     }
 
-    func test_saveCard_checkoutType_configurationAmountIsZero() {
+    func test_saveCard_checkoutType_hasSaveCardKind() {
         let checkoutType = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType.saveCard
-        XCTAssertEqual(checkoutType.configuration.amount, .zero)
+        guard case .saveCard = checkoutType.kind else {
+            return XCTFail("Expected .saveCard kind")
+        }
     }
 }

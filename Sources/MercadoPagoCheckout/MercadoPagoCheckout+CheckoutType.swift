@@ -24,13 +24,6 @@ public extension MercadoPagoCheckout {
 
         let kind: Kind
 
-        var configuration: any CheckoutTypeConfiguration {
-            switch self.kind {
-            case let .cardTransaction(order): return order
-            case .saveCard: return SavedCardConfiguration()
-            }
-        }
-
         var analyticsValue: String {
             switch self.kind {
             case .cardTransaction: return "card_transaction"

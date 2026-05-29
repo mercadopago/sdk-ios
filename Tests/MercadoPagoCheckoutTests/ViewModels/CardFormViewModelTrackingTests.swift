@@ -14,7 +14,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     // MARK: - Types
 
     typealias SUT = (
-        viewModel: CardFormViewModel<MPPaymentData.CardSave>,
+        viewModel: CardFormViewModel,
         service: MockCheckoutService,
         repository: MockCardPaymentBrickCardRepository,
         analytics: MockAnalytics
@@ -91,19 +91,21 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSUT(
+        amount: Double = .zero,
         identificationTypes: [IdentificationType] = []
     ) -> SUT {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
         let analytics = MockAnalytics()
-        let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
-            type: .saveCard,
-            paymentMethod: [.card()]
+        let config = CardFormViewModel.Configuration(
+            amount: amount,
+            checkoutTypeAnalyticsValue: "save_card",
+            excludedPaymentTypeIds: [],
+            excludedPaymentMethodIds: [],
+            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
         )
-        let initResult = CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
-        let viewModel = CardFormViewModel<MPPaymentData.CardSave>(
-            configuration: configuration,
-            initResult: initResult,
+        let viewModel = CardFormViewModel(
+            config: config,
             service: service,
             fetchCardUseCase: FetchCardPaymentBrickCardUseCase(repository: repository),
             analytics: analytics
@@ -283,7 +285,6 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         // Act
         await sut.viewModel.submitCardData(
             cardForm: CardFormDataStub.valid,
-            transactionAmount: .zero,
             onSuccess: { _ in },
             onFailure: { _ in }
         )
@@ -296,15 +297,14 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     }
 
     func test_trackSubmit_onSuccess_shouldIncludeCardBrandAndPaymentType() async {
-        // Arrange
-        let sut = self.makeSUT()
+        // Arrange — amount comes from config now, not submitCardData parameter
+        let sut = self.makeSUT(amount: 150.0)
         await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
 
         // Act
         await sut.viewModel.submitCardData(
             cardForm: CardFormDataStub.valid,
-            transactionAmount: 150.0,
             onSuccess: { _ in },
             onFailure: { _ in }
         )
@@ -336,7 +336,6 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         // Act
         await sut.viewModel.submitCardData(
             cardForm: CardFormDataStub.valid,
-            transactionAmount: .zero,
             onSuccess: { _ in },
             onFailure: { _ in }
         )
@@ -437,7 +436,6 @@ final class CardFormViewModelTrackingTests: XCTestCase {
 
         await sut.viewModel.submitCardData(
             cardForm: CardFormDataStub.valid,
-            transactionAmount: .zero,
             onSuccess: { _ in },
             onFailure: { _ in }
         )
