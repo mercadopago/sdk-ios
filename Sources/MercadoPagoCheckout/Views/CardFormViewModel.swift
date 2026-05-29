@@ -358,7 +358,7 @@ final class CardFormViewModel: ObservableObject {
     private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Double?) {
         let eventData = CardFormSubmitEventData(
             cardBrand: paymentMethodId,
-            transactionAmount: transactionAmount,
+            transactionAmount: transactionAmount ?? 0,
             issuer: self.cardData?.paymentMethods.first?.issuers.first?.name ?? "",
             paymentType: paymentTypeId
         )
