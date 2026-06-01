@@ -113,6 +113,8 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 paymentMethodId: output.paymentMethodId,
                 paymentTypeId: output.paymentTypeId,
                 issuerId: output.issuerId,
+                orderId: order.orderId,
+                orderStatus: "",
                 payer: payer
             ) as? T
 
