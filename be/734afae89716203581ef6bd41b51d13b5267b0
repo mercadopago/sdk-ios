@@ -1,0 +1,26 @@
+Tests/SnapshotTests/MercadoPagoCheckout/PaymentsScreenSnapshotTests.swift
+  s_ad4c89ba6f3782::t_e514f9cf992097 7,10,16,18-19,24-40,43-51
+  s_ad4c89ba6f3782::t_549dbeea5d5376 41-42
+  s_ad4c89ba6f3782::t_e36d7cd39619b3 1-6,8-9,11-15,17,20-23,52-53
+Tests/MercadoPagoCheckoutTests/ViewModels/PaymentBrickViewModelTests.swift
+  s_ad4c89ba6f3782::t_8b05c1573959cf 1-45,47,50-51,53,56-57
+  s_ad4c89ba6f3782::t_1b1b38abeb2a4d 46,48-49,52,54-55
+Tests/MercadoPagoCheckoutTests/ViewModels/PaymentsViewModelTests.swift
+  s_ad4c89ba6f3782::t_8173f334f41be2 1-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "be734afae89716203581ef6bd41b51d13b5267b0",
+  "prompts": {},
+  "sessions": {
+    "s_ad4c89ba6f3782": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "827204dc-0121-4dbe-aad0-187469705a13",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
