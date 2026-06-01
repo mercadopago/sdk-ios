@@ -60,7 +60,6 @@ public enum MPPaymentData {
             self.orderStatus = orderStatus
             self.payer = payer
         }
-
     }
 
     public struct Payer: Equatable, Codable, Sendable {
