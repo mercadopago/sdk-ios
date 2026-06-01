@@ -61,18 +61,6 @@ public enum MPPaymentData {
             self.payer = payer
         }
 
-        public init(from decoder: Decoder) throws {
-            let c = try decoder.container(keyedBy: CodingKeys.self)
-            transactionAmount = try c.decodeIfPresent(Double.self, forKey: .transactionAmount)
-            token = try c.decodeIfPresent(String.self, forKey: .token) ?? ""
-            installment = try c.decodeIfPresent(Int.self, forKey: .installment)
-            paymentMethodId = try c.decodeIfPresent(String.self, forKey: .paymentMethodId) ?? ""
-            paymentTypeId = try c.decodeIfPresent(String.self, forKey: .paymentTypeId) ?? ""
-            issuerId = try c.decodeIfPresent(String.self, forKey: .issuerId)
-            orderId = try c.decodeIfPresent(String.self, forKey: .orderId) ?? ""
-            orderStatus = try c.decodeIfPresent(String.self, forKey: .orderStatus) ?? ""
-            payer = try c.decodeIfPresent(Payer.self, forKey: .payer)
-        }
     }
 
     public struct Payer: Equatable, Codable, Sendable {
