@@ -1,12 +1,12 @@
 //
-//  ListItemStyle.swift
+//  MPListItemStyle.swift
 //  MPComponents
 //
 //  Created by [Your Name] on [Date].
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 package protocol MPListItemStyle: StyleProtocol, Identifiable where Configuration == MPListItemStyleConfiguration {}
 
@@ -36,12 +36,12 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
     public func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let hasDescription = configuration.description != nil
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: theme.spacings.xtiny) {
-            if let leftImage = configuration.leftImage {
-                leftImage
+        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xtiny) {
+            if let leading = configuration.leading {
+                leading
             }
 
-            VStack(alignment: .leading, spacing: theme.spacings.xnano) {
+            VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {
                 if let header = configuration.header {
                     header
                 }
@@ -60,8 +60,8 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
                 trailing
             }
         }
-        .padding(.horizontal, theme.spacings.micro)
-        .padding(.vertical, theme.spacings.xtiny)
-        .cornerRadius(theme.borderRadius.small)
+        .padding(.horizontal, self.theme.spacings.micro)
+        .padding(.vertical, self.theme.spacings.xtiny)
+        .cornerRadius(self.theme.borderRadius.small)
     }
 }

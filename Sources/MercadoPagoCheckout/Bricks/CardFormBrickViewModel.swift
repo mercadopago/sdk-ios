@@ -18,7 +18,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     private var transactionAmount: Double {
         switch self.configuration.type.kind {
-        case .saveCard:
+        case .saveCard, .payment:
             return .zero
         case let .cardTransaction(order):
             return order.amount
@@ -117,6 +117,9 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 issuerId: output.issuerId,
                 payer: payer
             ) as? T
+
+        default:
+            return nil
         }
     }
 
