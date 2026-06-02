@@ -74,20 +74,11 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
     public func show(
         onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) -> some View {
-        switch self.configuration.type.kind {
-        case .saveCard, .cardTransaction:
-            CardFormBrick<T>(
-                configuration: self.configuration,
-                appearance: self.theme,
-                onResult: onResult
-            )
-        case .payment:
-            PaymentBrick(
-                configuration: self.configuration,
-                appearance: self.theme,
-                onResult: onResult
-            )
-        }
+        CardFormBrick<T>(
+            configuration: self.configuration,
+            appearance: self.theme,
+            onResult: onResult
+        )
     }
 
     /// Presents the checkout flow modally from a UIKit view controller.
@@ -104,8 +95,12 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
         animated: Bool = true,
         onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) {
-        let rootView = self.show(onResult: onResult)
-        let hostingController = UIHostingController(rootView: rootView)
+        let cardFormBrick = CardFormBrick<T>(
+            configuration: configuration,
+            appearance: theme,
+            onResult: onResult
+        )
+        let hostingController = UIHostingController(rootView: cardFormBrick)
         hostingController.modalPresentationStyle = .fullScreen
         viewController.present(hostingController, animated: animated)
     }
@@ -125,8 +120,12 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
         animated: Bool = true,
         onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) {
-        let rootView = self.show(onResult: onResult)
-        let hostingController = UIHostingController(rootView: rootView)
+        let cardFormBrick = CardFormBrick<T>(
+            configuration: configuration,
+            appearance: theme,
+            onResult: onResult
+        )
+        let hostingController = UIHostingController(rootView: cardFormBrick)
         navigationController.pushViewController(hostingController, animated: animated)
     }
 }
