@@ -5,8 +5,8 @@
 //  Created by Guilherme Prata Costa on 24/02/26.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 // MARK: - Protocol
 
@@ -51,13 +51,13 @@ package struct MPTrailingTextIconStyle: MPListItemTrailingStyle {
 
     @MainActor
     package func makeBody(configuration: MPListItemTrailingStyleConfiguration) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: theme.spacings.xmicro) {
+        HStack(alignment: .firstTextBaseline, spacing: self.theme.spacings.xmicro) {
             if let text = configuration.text {
                 Text(text)
                     .textStyle(.bodyMedium(colorType: configuration.textColor ?? .primary))
             }
-            icon
-                .foregroundColor(theme.colors.icon.accent)
+            self.icon
+                .foregroundColor(self.theme.colors.icon.accent)
         }
     }
 }
@@ -103,7 +103,7 @@ private struct ResolvedListItemTrailingStyle<Style: MPListItemTrailingStyle>: Vi
     let configuration: Style.Configuration
 
     var body: some View {
-        style.makeBody(configuration: configuration)
+        self.style.makeBody(configuration: self.configuration)
     }
 }
 
@@ -112,7 +112,7 @@ private struct ResolvedListItemTrailingStyle<Style: MPListItemTrailingStyle>: Vi
 package extension View {
     /// Sets the trailing style for `MPListItem` views within this view.
     /// Outermost caller wins — inner modifiers are ignored if an ancestor already set a style.
-    func listItemTrailingStyle<S: MPListItemTrailingStyle>(_ style: S) -> some View {
+    func listItemTrailingStyle(_ style: some MPListItemTrailingStyle) -> some View {
         transformEnvironment(\.listItemTrailingStyle) { current in
             if current == nil {
                 current = style

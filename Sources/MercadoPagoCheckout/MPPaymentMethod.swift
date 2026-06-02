@@ -17,7 +17,7 @@ public enum MPPaymentMethodConfig: Sendable {
         excludedBrands: [MPCardBrand] = [],
         installment: MPInstallment? = MPInstallment()
     )
-    
+
     public static var defaults: [MPPaymentMethodConfig] {
         [
             .card(excludedTypes: [], excludedBrands: [])

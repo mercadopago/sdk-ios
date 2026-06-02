@@ -40,9 +40,9 @@ package struct MPListItem: View {
             isPressed: isPressed,
             isSelected: isSelected.wrappedValue,
             leading: self.leadingView,
-            title: self.titleView,
-            header: self.headerView,
-            description: self.descriptionView,
+            title: self.contentInfo.title.map { _ in self.titleView },
+            header: self.contentInfo.header.map { _ in self.headerView },
+            description: self.contentInfo.description.map { _ in self.descriptionView },
             trailing: self.trailingView
         )
 

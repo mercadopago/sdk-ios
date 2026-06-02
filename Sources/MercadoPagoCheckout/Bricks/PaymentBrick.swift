@@ -9,7 +9,7 @@ import MPFoundation
 import SwiftUI
 
 struct PaymentBrick<T: MPPaymentData.Kind>: View {
-    private enum Route: Hashable {
+    enum Route: Hashable {
         case cardForm
         case installments
         case reviewAndConfirm
@@ -19,6 +19,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     @ObservedObject private var viewModel: PaymentBrickViewModel<T>
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
+    @Environment(\.presentationMode) private var presentationMode
 
     private var configuration: MPCheckoutConfiguration<T>
     private let themeDark: MPTheme
@@ -56,11 +57,61 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                                 .size(.xlarge)
                         }
                     case .ready:
-                        PaymentsScreen()
+                        self.paymentsScreen()
                     }
+                    self.navigationLinks()
                 }
             }
             .navigationViewStyle(StackNavigationViewStyle())
+        }
+    }
+
+    private func paymentsScreen() -> some View {
+        PaymentsScreen(
+            viewModel: PaymentsViewModel(amount: self.viewModel.transactionAmount),
+            onBack: {
+                self.presentationMode.wrappedValue.dismiss()
+            },
+            onSelect: { item in
+                self.handleSelection(of: item)
+            }
+        )
+    }
+
+    // MARK: - Navigation
+
+    /// Maps the selected item's backend route to the brick's internal navigation `Route`.
+    private func handleSelection(of item: PaymentInitializationOutput.Item) {
+        switch item.route {
+        case "card_form":
+            self.route = .cardForm
+        default:
+            // TODO: Route account_money / credit_line / saved_card / pix / boleto to their
+            break
+        }
+    }
+
+    private func navigationLinks() -> some View {
+        Group {
+            NavigationLink(
+                destination: self.routeDestination(),
+                tag: Route.cardForm,
+                selection: self.$route
+            ) {
+                EmptyView()
+            }
+            .hidden()
+        }
+    }
+
+    @ViewBuilder
+    private func routeDestination() -> some View {
+        // TODO: Replace with the real destination screens (card form, installments, etc.).
+        ZStack {
+            self.theme.colors.background.primary
+                .edgesIgnoringSafeArea(.all)
+            MPProgressIndicator()
+                .size(.xlarge)
         }
     }
 }
