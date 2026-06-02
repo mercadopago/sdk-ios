@@ -16,7 +16,6 @@ public struct MPOrder: CheckoutTypeConfiguration {
     public var amount: Double
     /// Payer information pre-filled in the form. Optional.
     public var payer: MPPayer
-    
     /// The identifier of the order associated with this transaction.
     public var orderId: String
 
