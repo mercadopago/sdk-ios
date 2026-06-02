@@ -17,7 +17,7 @@ package struct MPListItemContentInfo {
     package let header: String?
     /// Supporting text displayed below the title .
     package let description: String?
-    
+
     package init(title: String? = nil, header: String? = nil, description: String? = nil) {
         self.title = title
         self.header = header

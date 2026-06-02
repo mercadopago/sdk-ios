@@ -27,7 +27,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     @Published private(set) var paymentData: MPPaymentData.PaymentTransaction?
 
-    private var transactionAmount: Double {
+    var transactionAmount: Double {
         switch self.configuration.type.kind {
         case let .payment(order):
             return order.amount
