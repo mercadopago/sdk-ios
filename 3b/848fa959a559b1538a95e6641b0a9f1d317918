@@ -1,0 +1,31 @@
+Sources/MercadoPagoCheckout/Views/EmailScreen.swift
+  s_87ff373a8d4adf::t_70a4befa8fa3c4 8-37,40-77,83-88
+  s_87ff373a8d4adf::t_be4c1b0dc0b891 78-82
+  s_87ff373a8d4adf::t_2cfe9787271fb1 38-39
+Sources/MercadoPagoCheckout/Views/EmailViewModel.swift
+  s_87ff373a8d4adf::t_9b341eb4b2f3d6 51,54
+  s_87ff373a8d4adf::t_38c8bbc8ed70b8 1-17,19-50,52-53,55-63
+Sources/MercadoPagoCheckout/Domain/Model/EmailInitializationOutput.swift
+  s_87ff373a8d4adf::t_9f868ac56a12b8 12-16
+  s_87ff373a8d4adf::t_4c67df02ce505e 1-11,17
+Sources/MercadoPagoCheckout/Bricks/PaymentBrick.swift
+  s_87ff373a8d4adf::t_e6190023639281 61
+Sources/MercadoPagoCheckout/Bricks/PaymentBrickViewModel.swift
+  s_87ff373a8d4adf::t_08fb66796bc5e9 38-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "3b848fa959a559b1538a95e6641b0a9f1d317918",
+  "prompts": {},
+  "sessions": {
+    "s_87ff373a8d4adf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1401e775-62cf-4d3c-8f8b-a2cd26af063f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
