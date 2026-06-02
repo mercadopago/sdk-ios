@@ -6,13 +6,23 @@
 //
 
 package enum Logos: Equatable {
-    package enum Feedback: String, Sendable {
+    package enum Feedback: String {
         case positive = "Feedback-Check"
         case negative = "Feedback-Minus"
         case caution = "Feedback-Caution"
         case informative = "Feedback-info"
 
-        package var assetName: String { rawValue }
+        package var assetName: String {
+            rawValue
+        }
+    }
+
+    package enum Icon: String, Equatable {
+        case padlockClose = "Padlock-Close"
+
+        package var assetName: String {
+            rawValue
+        }
     }
 
     package static let errorFilled = "Error-Filled"
