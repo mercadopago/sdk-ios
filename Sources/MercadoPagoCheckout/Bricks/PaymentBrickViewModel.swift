@@ -35,6 +35,15 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
     }
 
+    var payerEmail: String {
+        switch self.configuration.type.kind {
+        case let .payment(order), let .cardTransaction(order):
+            return order.payer?.email ?? ""
+        case .saveCard:
+            return ""
+        }
+    }
+
     init(
         configuration: MPCheckoutConfiguration<T>,
         appearance: MPCheckoutAppearance = MPCheckoutAppearance(),
@@ -47,5 +56,21 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         if case let .payment(order) = configuration.type.kind {
             self.paymentData = .init(orderId: order.orderId, transactionAmount: order.amount)
         }
+    }
+
+    func makeEmailViewModel() -> EmailViewModel {
+        EmailViewModel(
+            config: .init(
+                initResult: EmailInitializationOutput(
+                    title: "Completá el e-mail",
+                    button: "Continuar",
+                    label: "E-mail",
+                    email: self.payerEmail,
+                    placeholder: "Ejemplo: juan.perez@gmail.com",
+                    errorEmpty: "Completá este campo.",
+                    errorInvalid: "Ingresá un e-mail válido."
+                )
+            )
+        )
     }
 }
