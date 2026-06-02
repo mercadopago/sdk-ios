@@ -5,76 +5,142 @@
 //  Created by Danielle Nozaki Ogawa on 28/01/26.
 //
 
-import CoreMethods
+import MPAnalytics
 import MPComponents
+import MPCore
 import MPFoundation
 import SwiftUI
 
+@MainActor
 final class InstallmentsScreenViewModel: ObservableObject {
-    private(set) var payerCosts: [Installment.PayerCost] = []
-    private let installment: Installment?
+    @Binding var installmentsData: MPInstallmentsData
 
-    init(installments: Installment) {
-        self.installment = installments
-        self.payerCosts = self.installment?.payerCosts ?? []
+    private let checkoutType: String
+    private let analytics: AnalyticsInterface
+    private var analyticsTask: Task<Void, Never>?
+
+    init(
+        installmentsData: Binding<MPInstallmentsData>,
+        checkoutType: String,
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
+    ) {
+        self._installmentsData = installmentsData
+        self.checkoutType = checkoutType
+        self.analytics = analytics
     }
 
-    // MARK: - Formatted strings
+    // MARK: - Computed Properties
 
-    func formatInstallmentLabel(for payerCost: Installment.PayerCost) -> String {
-        "\(payerCost.installments)x \(MPStrings.formatPrice(payerCost.installmentAmount))"
+    var headerTitle: String {
+        self.installmentsData.installment.translations.headerTitle
     }
 
-    func formatInterestLabel(for payerCost: Installment.PayerCost) -> String {
-        if payerCost.installments == 1 {
-            return String()
-        } else {
-            return payerCost.installmentRate == 0 ?
-                MPStrings.Installments.interestFree :
-                MPStrings.formatPrice(payerCost.totalAmount)
-        }
+    var totalLabel: String {
+        self.installmentsData.installment.translations.totalLabel
     }
 
-    func findInterestLabelColor(for payerCost: Installment.PayerCost) -> TextStyleColorType? {
-        return payerCost.installmentRate == 0 ? .feedbackPositive : nil
+    var payButtonLabel: String {
+        self.installmentsData.installment.translations.payButtonLabel
+    }
+
+    var quotas: [CardPaymentBrickCardData.Installment.Quota] {
+        self.installmentsData.installment.quotas
     }
 
     // MARK: - Footer
 
-    func selectedTotalAmount(_ selected: Installment.PayerCost?) -> MPAmountData {
-        let value = selected?.totalAmount ?? self.payerCosts.first?.installmentAmount ?? 0
-        return MPAmountData(from: value)
+    func selectedTotalAmount(_ selected: CardPaymentBrickCardData.Installment.Quota?) -> MPAmountData {
+        let value = selected?.totalAmount ?? self.quotas.first?.totalAmount ?? 0
+        return MPAmountData(from: value, currencySymbol: self.installmentsData.installment.translations.currencySymbol)
     }
 
-    func formatFooterDescription() -> String {
+    func color(for quota: CardPaymentBrickCardData.Installment.Quota) -> TextStyleColorType? {
+        quota.state == .success ? .feedbackPositive : nil
+    }
+
+    func primaryLabelComponents(_ label: String) -> (title: String, decimalSuffix: String?) {
         guard
-            let issuerName = installment?.issuer.name,
-            let type = installment?.paymentTypeId
-        else {
-            return String()
-        }
+            let commaIndex = label.lastIndex(of: ","),
+            label.distance(from: commaIndex, to: label.endIndex) == 3
+        else { return (label, nil) }
 
-        return self.getSavedCardName(
-            issuerName: issuerName,
-            paymentTypeLabel: MPFormatIssuerName.formattedPaymentType(type),
-            lastDigits: "1234"
+        let decimalPart = label[label.index(after: commaIndex)...]
+        return (String(label[..<commaIndex]), String(decimalPart))
+    }
+
+    func contentInfo(for quota: CardPaymentBrickCardData.Installment.Quota) -> MPListItemContentInfo {
+        let components = self.primaryLabelComponents(quota.primaryLabel)
+        return .init(
+            title: components.title,
+            titleDecimalSuffix: components.decimalSuffix,
+            description: quota.tertiaryLabel
         )
     }
 
-    func getSavedCardName(
-        issuerName: String,
-        paymentTypeLabel: String,
-        lastDigits: String,
-        isMercadoPagoCard: Bool = false
-    ) -> String {
-        let normalizedIssuerName = MPFormatIssuerName.applyCapitalizationRules(
-            MPFormatIssuerName.cleanIssuerName(issuerName)
+    func footerDescription() -> String {
+        let info = self.installmentsData.cardDisplayInfo
+        let issuerName = MPFormatIssuerName.applyCapitalizationRules(
+            MPFormatIssuerName.cleanIssuerName(info.issuerName ?? String())
         )
+        return "\(issuerName) **** \(info.lastFourDigits)"
+    }
 
-        if isMercadoPagoCard {
-            return "\(normalizedIssuerName) \(paymentTypeLabel)"
+    // MARK: - Analytics
+
+    func trackInitialize(transactionAmount: Double, paymentMethodId: String) {
+        let eventData = InstallmentInitializeEventData(
+            checkoutType: self.checkoutType,
+            paymentMethodId: paymentMethodId,
+            paymentType: self.installmentsData.cardDisplayInfo.paymentTypeId,
+            selectionType: self.installmentsData.installment.selectionType,
+            quotasCount: self.installmentsData.installment.quotas.count,
+            transactionAmount: transactionAmount
+        )
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackView(InstallmentAnalyticsPath.initialize)
+                .setEventData(eventData)
+                .send()
         }
+    }
 
-        return "\(normalizedIssuerName) \(paymentTypeLabel) **** \(lastDigits)"
+    func trackSelected(_ quota: CardPaymentBrickCardData.Installment.Quota) {
+        let eventData = InstallmentSelectedEventData(installments: quota.installments)
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(InstallmentAnalyticsPath.selected)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    func trackSubmit(_ quota: CardPaymentBrickCardData.Installment.Quota?) {
+        guard let quota else { return }
+        let eventData = InstallmentSubmitEventData(
+            installments: quota.installments,
+            installmentAmount: quota.installmentAmount,
+            totalAmount: quota.totalAmount
+        )
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(InstallmentAnalyticsPath.submit)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    func trackCanceledError(errorType: String) {
+        let eventData = InstallmentCanceledErrorEventData(errorType: errorType)
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(InstallmentAnalyticsPath.userCanceledError)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func enqueueAnalytics(_ block: @escaping @Sendable () async -> Void) {
+        let previous = self.analyticsTask
+        self.analyticsTask = Task {
+            await previous?.value
+            await block()
+        }
     }
 }

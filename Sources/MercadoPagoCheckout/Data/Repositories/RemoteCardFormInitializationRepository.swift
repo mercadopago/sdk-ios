@@ -30,6 +30,7 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
         return CardFormInitializationInput(
             title: translations.cardFormTitle,
             buttonLabel: translations.cardFormFooterButtonLabel,
+            currencySymbol: translations.currencySymbol,
             fields: .init(
                 cardNumber: .init(
                     label: translations.cardNumber.label,
