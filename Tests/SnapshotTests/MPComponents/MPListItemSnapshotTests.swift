@@ -1,22 +1,23 @@
 //
-//  MPListItemSnapshotTests.swift
+//  ListItemSnapshotTests.swift
 //  MercadoPagoSDK
 //
 //  Created by Guilherme Prata Costa on 31/07/25.
 //
 
+import XCTest
+import SwiftUI
+import SnapshotTesting
 @testable import MPComponents
 @testable import MPFoundation
-import SnapshotTesting
-import SwiftUI
-import XCTest
 
 @MainActor
 final class MPListItemSnapshotTests: XCTestCase {
+
     func test_allStatesComparison() {
         FontName.registerCustomFonts()
 
-        let view = self.createTestView {
+        let view = createTestView {
             VStack(spacing: 12) {
                 self.listItem(
                     title: "Default",
@@ -61,6 +62,7 @@ final class MPListItemSnapshotTests: XCTestCase {
                     leftImageSystemName: "checkmark.seal"
                 )
 
+
                 self.listItem(
                     title: "Without chevron"
                 )
@@ -83,7 +85,7 @@ final class MPListItemSnapshotTests: XCTestCase {
     func test_pickStyle_allStatesComparison() {
         FontName.registerCustomFonts()
 
-        let view = self.createTestView {
+        let view = createTestView {
             VStack(spacing: 12) {
                 self.listItem(
                     title: "Default",
@@ -135,19 +137,17 @@ final class MPListItemSnapshotTests: XCTestCase {
         rightText: String = "",
         rightTextColor: TextStyleColorType? = nil,
         isSelected: Binding<Bool>? = nil,
-        leftImageSystemName: String? = nil,
-        leading: MPListItemLeading? = nil
+        leftImageSystemName: String? = nil
     ) -> some View {
-        let resolvedLeading: MPListItemLeading? = leading ?? leftImageSystemName.map { .image(Image(systemName: $0)) }
-        return MPListItem(
+        MPListItem(
             isSelected: isSelected ?? .constant(false),
-            leading: resolvedLeading,
+            leftImage: leftImageSystemName.map(Image.init(systemName:)),
             contentInfo: .init(title: title, header: header, description: description),
             trailing: .init(text: rightText, color: rightTextColor)
         )
     }
 
-    private func createTestView(@ViewBuilder content: @escaping () -> some View) -> some View {
+    private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
         ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             VStack(alignment: .leading, spacing: 12) {
                 content()
