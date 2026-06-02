@@ -8,29 +8,24 @@
 import MPFoundation
 import SwiftUI
 
-package enum MPListItemLeading {
-    case image(Image)
-    case thumbnail(URL?)
-}
-
 package struct MPListItem: View {
     @Environment(\.listItemStyle) private var style
     @Environment(\.listItemTrailingStyle) private var trailingStyle
     @State private var isPressed = false
 
     let isSelected: Binding<Bool>
-    let leading: MPListItemLeading?
+    let leftImage: Image?
     let contentInfo: MPListItemContentInfo
     let trailing: MPListItemTrailing?
 
     package init(
         isSelected: Binding<Bool> = .constant(false),
-        leading: MPListItemLeading? = nil,
+        leftImage: Image? = nil,
         contentInfo: MPListItemContentInfo,
         trailing: MPListItemTrailing? = nil
     ) {
         self.isSelected = isSelected
-        self.leading = leading
+        self.leftImage = leftImage
         self.contentInfo = contentInfo
         self.trailing = trailing
     }
@@ -39,7 +34,7 @@ package struct MPListItem: View {
         let configuration: MPListItemStyleConfiguration = .init(
             isPressed: isPressed,
             isSelected: isSelected.wrappedValue,
-            leading: self.leadingView,
+            leftImage: self.leftImageView,
             title: self.titleView,
             header: self.headerView,
             description: self.descriptionView,
@@ -86,16 +81,8 @@ package struct MPListItem: View {
     }
 
     @ViewBuilder
-    private var leadingView: some View {
-        switch self.leading {
-        case let .image(image):
-            image
-        case let .thumbnail(url):
-            MPIcon(source: .remote(url: url))
-                .mpIconStyle(.thumbnailFlag)
-        case .none:
-            EmptyView()
-        }
+    private var leftImageView: some View {
+        self.leftImage
     }
 
     @ViewBuilder
@@ -115,32 +102,11 @@ package struct MPListItem: View {
     struct MPListItemView: View {
         @State private var selectedIndex: Int? = 0
 
-        private let mercadopago = URL(string: "https://http2.mlstatic.com/storage/mobile-on-demand-resources//image/cho_off-mercadopago_xxxhdpi")
-
-        private let visaURL = URL(string: "https://http2.mlstatic.com/storage/mobile-on-demand-resources//image/cho_off-visa_xxxhdpi")
-
         public init() {}
 
         public var body: some View {
             VStack(spacing: 16) {
                 VStack(spacing: 8) {
-                    MPListItem(
-                        leading: .thumbnail(self.mercadopago),
-                        contentInfo: .init(
-                            title: "Saldo em conta ou cartões salvos"
-                        ),
-                        trailing: .init(text: "")
-                    )
-
-                    MPListItem(
-                        leading: .thumbnail(self.visaURL),
-                        contentInfo: .init(
-                            title: "Banco •••• 1234",
-                            description: "Visa Crédito"
-                        ),
-                        trailing: .init(text: "")
-                    )
-
                     MPListItem(
                         isSelected: self.bindingForIndex(0),
                         contentInfo: .init(title: "Title")
@@ -170,12 +136,14 @@ package struct MPListItem: View {
                         trailing: .init(text: "$ 1,000.00")
                     )
                 }
-            }
-            .listItemTrailingStyle(
-                .textIcon(
-                    Image(systemName: "chevron.right")
+
+                MPListItem(
+                    leftImage: Image(systemName: "creditcard"),
+                    contentInfo: .init(title: "Default style", description: "Text-only trailing 11"),
+                    trailing: .init(text: "$ 500.00")
                 )
-            )
+            }
+            .listItemStyle(.radioButton)
             .padding()
         }
 
