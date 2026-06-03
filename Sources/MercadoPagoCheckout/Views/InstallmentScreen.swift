@@ -179,8 +179,7 @@ struct InstallmentScreen: View {
             if let transactionAmount = paymentData.transactionAmount {
                 self.viewModel.trackInitialize(
                     transactionAmount: transactionAmount,
-                    paymentMethodId: self.paymentData.paymentMethodId,
-                    orderId: self.paymentData.orderId
+                    paymentMethodId: self.paymentData.paymentMethodId
                 )
             }
         }

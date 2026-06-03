@@ -104,7 +104,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
             excludedPaymentMethodIds: [],
             initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes),
             minInstallments: nil,
-            maxInstallments: nil,
+            maxInstallments: nil
         )
         let viewModel = CardFormViewModel(
             config: config,
