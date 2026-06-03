@@ -136,8 +136,8 @@ struct InstallmentScreen: View {
     private let style: any InstallmentInteractionStyle
     private let onBack: () -> Void
     private let onDismiss: () -> Void
-    private let onFinish: (MPPaymentData.Kind) -> Void
-    private let onContinue: (MPPaymentData.Kind) -> Void
+    private let onFinish: (InstallmentFinishContext) -> Void
+    private let onContinue: (InstallmentFinishContext) -> Void
     @Binding private var paymentData: MPPaymentData.CardTransaction
 
     init(
@@ -147,8 +147,8 @@ struct InstallmentScreen: View {
         style: (any InstallmentInteractionStyle)? = nil,
         onBack: @escaping () -> Void,
         onDismiss: @escaping () -> Void,
-        onFinish: @escaping (MPPaymentData.Kind) -> Void = { _ in },
-        onContinue: @escaping (MPPaymentData.Kind) -> Void = { _ in }
+        onFinish: @escaping (InstallmentFinishContext) -> Void = { _ in },
+        onContinue: @escaping (InstallmentFinishContext) -> Void = { _ in }
     ) {
         self._paymentData = paymentData
         self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.quotas.first)
@@ -228,8 +228,7 @@ struct InstallmentScreen: View {
     private func finishWithSelectedQuota() {
         self.hasHandledDismiss = true
         self.viewModel.trackSubmit(self.selectedQuota)
-        self.paymentData.installment = self.selectedQuota?.installments
-        self.onFinish(self.paymentData)
+        self.onFinish(InstallmentFinishContext(installments: self.selectedQuota?.installments ?? 1))
     }
 
     // MARK: - Helper Methods
@@ -254,8 +253,7 @@ struct InstallmentScreen: View {
     private func continueWithSelectedQuota(for installment: CardPaymentBrickCardData.Installment.Quota) {
         self.hasHandledDismiss = true
         self.viewModel.trackSubmit(installment)
-        self.paymentData.installment = installment.installments
-        self.onContinue(self.paymentData)
+        self.onContinue(InstallmentFinishContext(installments: installment.installments))
     }
 
     private func handleBack() {

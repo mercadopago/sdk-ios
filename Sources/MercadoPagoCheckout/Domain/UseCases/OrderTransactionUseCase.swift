@@ -8,9 +8,9 @@
 import MPCore
 
 struct OrderTransactionUseCase {
-    private let repository: RemoteOrderTransactionRepository
+    private let repository: OrderTransactionRepository
 
-    init(repository: RemoteOrderTransactionRepository = RemoteOrderTransactionRepository()) {
+    init(repository: OrderTransactionRepository = RemoteOrderTransactionRepository()) {
         self.repository = repository
     }
 
@@ -23,9 +23,9 @@ struct OrderTransactionUseCase {
         } catch let error as MercadoPagoCheckoutError {
             throw error
         } catch let error as APIClientError {
-            throw MercadoPagoCheckoutError(from: error, location: .tokenization)
+            throw MercadoPagoCheckoutError(from: error, location: .orderProcess)
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .tokenization)
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .orderProcess)
         }
     }
 }

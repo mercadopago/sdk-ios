@@ -25,21 +25,13 @@ extension OrderTransactionEndpoint: RequestEndpoint {
     var path: String {
         switch self {
         case .process(let orderId, _):
-        #if DEBUG
-            "/orders/MOCK_ORD_APPROVED/process"
-        #else
-            "/orders/\(orderId)/process"
-        #endif
+            "orders/\(orderId)/process"
         }
 
     }
     
     var baseURL: String {
-        #if DEBUG
-        "https://test--bricks-api.furyapps.io/cho-off"
-        #else
         ConstantsEndpoint.baseURLBricks
-        #endif
     }
     
     var headers: [String : String] {

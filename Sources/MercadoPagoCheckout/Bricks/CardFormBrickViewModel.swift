@@ -35,6 +35,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     private let configuration: MPCheckoutConfiguration<T>
     private let appearance: MPCheckoutAppearance
     private let initializeUseCase: InitializeCardFormUseCase
+    private let orderUseCase: OrderTransactionUseCase
     private let analytics: AnalyticsInterface
 
     // MARK: - Init
@@ -43,11 +44,13 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         configuration: MPCheckoutConfiguration<T>,
         appearance: MPCheckoutAppearance = MPCheckoutAppearance(),
         initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase(),
+        orderUseCase: OrderTransactionUseCase = OrderTransactionUseCase(),
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.configuration = configuration
         self.appearance = appearance
         self.initializeUseCase = initializeUseCase
+        self.orderUseCase = orderUseCase
         self.analytics = analytics
     }
 
@@ -96,7 +99,20 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             throw checkoutError
         }
     }
+    
+    // MARK: - Process Order
 
+    func processOrderTask(_ paymentData: MPPaymentData.CardTransaction) async throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
+        guard let params = OrderTransactionParams(cardTransaction: paymentData) else {
+            assertionFailure("processOrderTask: invalid payment data")
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "invalid payment data", location: .orderProcess)
+        }
+        let data = try await orderUseCase.execute(orderId: paymentData.orderId, params: params)
+        var updatedPaymentData = paymentData
+        updatedPaymentData.orderStatus = data.status
+        return updatedPaymentData
+    }
+    
     // MARK: - Payment Data Mapping
 
     func buildPaymentData(from output: CardFormOutput) -> T? {

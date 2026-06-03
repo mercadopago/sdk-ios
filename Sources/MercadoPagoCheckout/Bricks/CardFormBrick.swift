@@ -16,6 +16,8 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var route: Route?
     @State private var pendingResult: T?
     @State private var installmentsData: MPInstallmentsData
+    @State private var processingTask: Task<Void, Never>?
+    @State private var isProcessingOrder = false
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
     private let configuration: MPCheckoutConfiguration<T>
@@ -78,6 +80,9 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 self.fail(checkoutError)
             }
         }
+        .onDisappear {
+            self.processingTask?.cancel()
+        }
     }
 
     private func cardFormScreen(viewModel: CardFormViewModel) -> some View {
@@ -103,9 +108,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             onSuccess: { output, installmentsData in
                 self.pendingResult = self.brickViewModel.buildPaymentData(from: output)
                 if let installmentsData {
-                    self.installmentsData = installmentsData
-                    self.brickViewModel.markInstallmentsPresented()
-                    self.route = .installments
+                    self.handleInstallments(installmentsData)
                 } else {
                     self.completeCheckout()
                 }
@@ -130,15 +133,11 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             onDismiss: {
                 self.cancelCheckout(context: .installments)
             },
-            onFinish: { paymentData in
-                if let paymentData = paymentData as? MPPaymentData.CardTransaction {
-                    self.completeCheckout()
-                }
+            onFinish: { context in
+                self.completeTransactionCheckout(installments: context.installments)
             },
-            onContinue: { paymentData in
-                if let paymentData = paymentData as? MPPaymentData.CardTransaction {
-                    self.route = .reviewAndConfirm
-                }
+            onContinue: { _ in
+                self.route = .reviewAndConfirm
             }
         )
     }
@@ -146,7 +145,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private func navigationLinks() -> some View {
         Group {
             NavigationLink(
-                destination: self.installmentScreen(),
+                destination: self.installmentScreen().isLoading(self.isProcessingOrder),
                 tag: .installments,
                 selection: self.$route
             ) {
@@ -157,6 +156,16 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     }
 
     // MARK: - Navigation
+
+    private func handleInstallments(_ installmentsData: MPInstallmentsData) {
+        if installmentsData.installment.quotas.count > 1 {
+            self.installmentsData = installmentsData
+            self.brickViewModel.markInstallmentsPresented()
+            self.route = .installments
+        } else {
+            self.completeTransactionCheckout(installments: 1)
+        }
+    }
 
     private func cancelCheckout(context: MPUserCancelledContext) {
         self.route = nil
@@ -172,6 +181,32 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         self.route = nil
         self.onResult(.success(result))
         self.presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func completeTransactionCheckout(installments: Int = 1) {
+        guard var paymentData = self.pendingResult as? MPPaymentData.CardTransaction else {
+            assertionFailure("completeTransactionCheckout: invalid payment data")
+            return
+        }
+        paymentData.installment = installments
+        self.processingTask = Task {
+            self.isProcessingOrder = true
+            defer { self.isProcessingOrder = false }
+            do {
+                let updatedPaymentData = try await self.brickViewModel.processOrderTask(paymentData)
+                self.pendingResult = updatedPaymentData as? T
+                guard let result = self.pendingResult else { return }
+                self.route = nil
+                self.onResult(.success(result))
+                self.presentationMode.wrappedValue.dismiss()
+            } catch is CancellationError {
+                return
+            } catch let error as MercadoPagoCheckoutError {
+                self.fail(error)
+            } catch {
+                return
+            }
+        }
     }
 
     private func fail(_ error: MercadoPagoCheckoutError) {
