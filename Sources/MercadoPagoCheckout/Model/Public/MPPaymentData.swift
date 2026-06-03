@@ -34,6 +34,8 @@ public enum MPPaymentData {
         public var paymentTypeId: String
         public var issuerId: String?
         public var payer: Payer?
+        public var orderId: String
+        public var orderStatus: String
 
         var token: String
 
@@ -44,6 +46,8 @@ public enum MPPaymentData {
             paymentMethodId: String = "",
             paymentTypeId: String = "",
             issuerId: String? = "",
+            orderId: String = "",
+            orderStatus: String = "",
             payer: Payer? = nil
         ) {
             self.transactionAmount = transactionAmount
@@ -52,6 +56,8 @@ public enum MPPaymentData {
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
             self.issuerId = issuerId
+            self.orderId = orderId
+            self.orderStatus = orderStatus
             self.payer = payer
         }
     }

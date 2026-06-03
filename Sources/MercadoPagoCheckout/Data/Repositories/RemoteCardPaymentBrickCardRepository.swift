@@ -21,17 +21,23 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
         let response: CardPaymentBrickCardResponse = try await dependencies.networkService.request(
             CardPaymentBrickEndpoint.getCard(params: params)
         )
-        return self.map(response: response)
+        return self.map(response: response, params: params)
     }
 
     // MARK: - Mapping
 
-    private func map(response: CardPaymentBrickCardResponse) -> CardPaymentBrickCardData {
+    private func map(response: CardPaymentBrickCardResponse, params _: CardPaymentBrickCardParams) -> CardPaymentBrickCardData {
         CardPaymentBrickCardData(
             securityCodeTranslations: response.translations.securityCode.map {
                 self.mapSecurityCodeTranslations($0, response)
             },
-            installment: response.installment.map { self.mapInstallment($0) },
+            installment: response.installment.map {
+                self.mapInstallment(
+                    $0,
+                    translations: response.translations.installments,
+                    currencySymbol: response.translations.currencySymbol
+                )
+            },
             paymentMethods: response.paymentMethods.map { self.mapPaymentMethod($0) }
         )
     }
@@ -61,16 +67,30 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
     }
 
     private func mapInstallment(
-        _ data: CardPaymentBrickCardResponse.InstallmentData
+        _ data: CardPaymentBrickCardResponse.InstallmentData,
+        translations: CardFormTranslationsResponse.InstallmentsTranslationsData,
+        currencySymbol: String
     ) -> CardPaymentBrickCardData.Installment {
-        CardPaymentBrickCardData.Installment(
+        return CardPaymentBrickCardData.Installment(
             selectionType: data.selectionType,
             quotas: data.quotas.map {
                 CardPaymentBrickCardData.Installment.Quota(
                     installments: $0.installments,
-                    installmentAmount: $0.installmentAmount
+                    installmentAmount: $0.installmentAmount,
+                    totalAmount: $0.totalAmount,
+                    primaryLabel: $0.primaryLabel,
+                    secondaryLabel: $0.secondaryLabel,
+                    state: .init($0.state),
+                    tertiaryLabel: $0.tertiaryLabel,
+                    accessibilityLabel: $0.accessibilityLabel
                 )
-            }
+            },
+            translations: CardPaymentBrickCardData.Installment.InstallmentTranslations(
+                headerTitle: translations.header.title,
+                totalLabel: translations.totalLabel,
+                payButtonLabel: translations.payButtonLabel,
+                currencySymbol: currencySymbol
+            )
         )
     }
 

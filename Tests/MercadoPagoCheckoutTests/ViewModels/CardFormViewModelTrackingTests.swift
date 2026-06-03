@@ -102,7 +102,9 @@ final class CardFormViewModelTrackingTests: XCTestCase {
             checkoutTypeAnalyticsValue: "save_card",
             excludedPaymentTypeIds: [],
             excludedPaymentMethodIds: [],
-            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
+            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes),
+            minInstallments: nil,
+            maxInstallments: nil
         )
         let viewModel = CardFormViewModel(
             config: config,
