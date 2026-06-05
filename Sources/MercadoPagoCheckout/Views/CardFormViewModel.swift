@@ -153,7 +153,7 @@ final class CardFormViewModel: ObservableObject {
         guard
             self.config.amount != .zero
         else {
-            return nil 
+            return nil
         }
         return MPAmountData(from: self.config.amount, currencySymbol: self.currencySymbol)
     }
@@ -264,16 +264,15 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private func buildCardPaymentBrickCardParams(bin: String) -> CardPaymentBrickCardParams {
-        let installment = self.configuration.paymentMethod.installmentConfig
-        return CardPaymentBrickCardParams(
+        CardPaymentBrickCardParams(
             bin: bin,
             amount: self.config.amount,
             checkoutType: self.config.checkoutTypeAnalyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
-            excludedCardTypes: self.configuration.paymentMethod.excludedPaymentTypeIds,
-            excludedCardBrands: self.configuration.paymentMethod.excludedPaymentMethodIds,
-            maxInstallments: installment?.maxInstallments,
-            minInstallments: installment?.minInstallments
+            excludedCardTypes: self.config.excludedPaymentTypeIds,
+            excludedCardBrands: self.config.excludedPaymentMethodIds,
+            maxInstallments: self.config.maxInstallments,
+            minInstallments: self.config.minInstallments
         )
     }
 
@@ -331,7 +330,6 @@ final class CardFormViewModel: ObservableObject {
             onFailure(error)
         }
     }
-
 }
 
 // MARK: - Analytics
