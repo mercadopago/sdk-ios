@@ -12,4 +12,6 @@ struct CardPaymentBrickCardParams {
     let processingMode: String
     let excludedCardTypes: [String]
     let excludedCardBrands: [String]
+    let maxInstallments: Int?
+    let minInstallments: Int?
 }

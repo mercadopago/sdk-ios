@@ -10,4 +10,5 @@
 public enum MPUserCancelledContext: Sendable, Equatable {
     /// The user cancelled during the card form flow.
     case cardForm(MPCardFormUserCancelledContext)
+    case installments
 }
