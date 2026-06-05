@@ -102,23 +102,6 @@ final class InstallmentsScreenViewModel: ObservableObject {
             await analytics.trackView(InstallmentAnalyticsPath.initialize)
                 .setEventData(eventData)
                 .send()
-    }
-    // MARK: - Analytics
-
-    func trackInitialize(transactionAmount: Double, paymentMethodId: String) {
-        let eventData = InstallmentInitializeEventData(
-            checkoutType: self.checkoutType,
-            paymentMethodId: paymentMethodId,
-            paymentType: self.installmentsData.cardDisplayInfo.paymentTypeId,
-            selectionType: self.installmentsData.installment.selectionType,
-            quotasCount: self.installmentsData.installment.quotas.count,
-            transactionAmount: transactionAmount
-        )
-        let analytics = self.analytics
-        Task(priority: .low) {
-            await analytics.trackView(InstallmentAnalyticsPath.initialize)
-                .setEventData(eventData)
-                .send()
         }
     }
 

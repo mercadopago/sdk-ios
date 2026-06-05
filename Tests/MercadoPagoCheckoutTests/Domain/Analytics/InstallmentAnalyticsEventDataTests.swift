@@ -19,7 +19,8 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
             paymentType: "credit_card",
             selectionType: "radio_button",
             quotasCount: 6,
-            transactionAmount: 500.0
+            transactionAmount: 500.0,
+            orderId: "ORD01"
         )
 
         // Act
@@ -42,7 +43,8 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
             paymentType: "credit_card",
             selectionType: "chevron",
             quotasCount: 4,
-            transactionAmount: 200.0
+            transactionAmount: 200.0,
+            orderId: "NOT_APPLY"
         )
 
         // Act
