@@ -136,11 +136,8 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             onFinish: { context in
                 self.completeTransactionCheckout(installments: context.installments)
             },
-            onContinue: { paymentData in
-                if let paymentData = paymentData as? MPPaymentData.CardTransaction {
-                    self.pendingResult = paymentData as? T
-                    self.route = .reviewAndConfirm
-                }
+            onContinue: { _ in
+                self.route = .reviewAndConfirm
             }
         )
     }

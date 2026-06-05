@@ -264,7 +264,7 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private func buildCardPaymentBrickCardParams(bin: String) -> CardPaymentBrickCardParams {
-        CardPaymentBrickCardParams(
+        return CardPaymentBrickCardParams(
             bin: bin,
             amount: self.config.amount,
             checkoutType: self.config.checkoutTypeAnalyticsValue,
