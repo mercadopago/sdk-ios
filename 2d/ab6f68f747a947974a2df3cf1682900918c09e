@@ -1,0 +1,40 @@
+Sources/MercadoPagoCheckout/Bricks/CardFormBrickViewModel.swift
+  s_b88d5e8e1dc949::t_48cdfae2b48cdd 104-113
+Sources/MercadoPagoCheckout/Model/Internal/InstallmentFinishContext.swift
+  s_21895a39f5b345::t_c175debfdff9cd 1-8
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_b88d5e8e1dc949::t_c1d2e30b97f1ff 166
+  s_b88d5e8e1dc949::t_8c46725824fbd2 136-137
+  s_b88d5e8e1dc949::t_47b92f5d031dd8 186-187,191
+  s_b88d5e8e1dc949::t_ad72b662951dfa 193-208
+  s_b88d5e8e1dc949::t_38a6f4cbc42f10 139-140
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_b88d5e8e1dc949::t_90b7d78b29ecb5 150
+  s_b88d5e8e1dc949::t_a03d30008c08fc 256
+  s_b88d5e8e1dc949::t_9bc5cece36094c 139
+  s_b88d5e8e1dc949::t_46143cebb9b51c 231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2dab6f68f747a947974a2df3cf1682900918c09e",
+  "prompts": {},
+  "sessions": {
+    "s_21895a39f5b345": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b9f54091-a342-4071-957b-87ca5c6430b3",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    },
+    "s_b88d5e8e1dc949": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2da6cf79-d5b7-4291-9970-24ec5363c6be",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}
