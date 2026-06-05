@@ -153,7 +153,7 @@ final class CardFormViewModel: ObservableObject {
         guard
             self.config.amount != .zero
         else {
-            return nil 
+            return nil
         }
         return MPAmountData(from: self.config.amount, currencySymbol: self.currencySymbol)
     }
@@ -264,7 +264,7 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private func buildCardPaymentBrickCardParams(bin: String) -> CardPaymentBrickCardParams {
-        return CardPaymentBrickCardParams(
+        CardPaymentBrickCardParams(
             bin: bin,
             amount: self.config.amount,
             checkoutType: self.config.checkoutTypeAnalyticsValue,
@@ -328,7 +328,6 @@ final class CardFormViewModel: ObservableObject {
             onFailure(error)
         }
     }
-
 }
 
 // MARK: - Analytics
