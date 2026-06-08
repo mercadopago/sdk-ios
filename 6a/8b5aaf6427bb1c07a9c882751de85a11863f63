@@ -1,0 +1,31 @@
+.mirrorignore
+  s_cb9f307c492695::t_82362a800b61b2 10
+.claude/skills/saucelabs-export/SKILL.md
+  s_1683bf3b8714fc::t_e3ace333568465 1-96
+.gitignore
+  s_cb9f307c492695::t_8616645bca2d83 91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "6a8b5aaf6427bb1c07a9c882751de85a11863f63",
+  "prompts": {},
+  "sessions": {
+    "s_1683bf3b8714fc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "403825bd-5f24-4ffc-84ef-a30bdddf10f9",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    },
+    "s_cb9f307c492695": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9babb130-6c88-4047-824a-9d33d18c452f",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
