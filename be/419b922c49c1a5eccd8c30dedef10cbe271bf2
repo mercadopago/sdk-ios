@@ -1,0 +1,20 @@
+.claude/skills/saucelabs-export/SKILL.md
+  s_e5498e567e3960::t_6b03fa1787da27 19-62
+  s_e5498e567e3960::t_602a6421f949db 102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "be419b922c49c1a5eccd8c30dedef10cbe271bf2",
+  "prompts": {},
+  "sessions": {
+    "s_e5498e567e3960": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "64849f19-bfe4-4022-8f76-d8e4f0f567f5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
