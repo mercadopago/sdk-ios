@@ -266,34 +266,36 @@ struct InstallmentScreen: View {
 
 // MARK: - Previews
 
-#Preview("Radio Button") {
-    InstallmentScreen(
-        paymentData: .constant(
-            MPPaymentData.CardTransaction(
-                transactionAmount: 100,
-                token: "",
-                paymentMethodId: "",
-                paymentTypeId: ""
-            )
-        ),
-        installmentsData: .constant(InstallmentMock.visa),
-        style: .radioButton,
-        onBack: {},
-        onDismiss: {}
-    )
-}
+#if DEBUG
+    #Preview("Radio Button") {
+        InstallmentScreen(
+            paymentData: .constant(
+                MPPaymentData.CardTransaction(
+                    transactionAmount: 100,
+                    token: "",
+                    paymentMethodId: "",
+                    paymentTypeId: ""
+                )
+            ),
+            installmentsData: .constant(InstallmentMock.visa),
+            style: .radioButton,
+            onBack: {},
+            onDismiss: {}
+        )
+    }
 
-#Preview("Chevron") {
-    InstallmentScreen(
-        paymentData: .constant(
-            MPPaymentData.CardTransaction(transactionAmount: 100)
-        ),
-        installmentsData: .constant(InstallmentMock.visa),
-        style: .chevron,
-        onBack: {},
-        onDismiss: {}
-    )
-}
+    #Preview("Chevron") {
+        InstallmentScreen(
+            paymentData: .constant(
+                MPPaymentData.CardTransaction(transactionAmount: 100)
+            ),
+            installmentsData: .constant(InstallmentMock.visa),
+            style: .chevron,
+            onBack: {},
+            onDismiss: {}
+        )
+    }
+#endif
 
 #if DEBUG
     enum InstallmentMock {
