@@ -1,9 +1,6 @@
 # .mirrorignore
-# Caminhos listados aqui são removidos de todos os pushes para o repo público.
-# O workflow lê este arquivo — nenhuma alteração no workflow é necessária para novas exclusões.
+# Caminhos listados aqui sao removidos de todos os pushes para o repo publico.
+# O workflow le este arquivo - nenhuma alteracao no workflow e necessaria para novas exclusoes.
 ux-reference/
+Flowbook/
 .github/
-
-Example/Example.xcodeproj/project.pbxproj.rej
-
-Example/Sources/MainListView.swift
