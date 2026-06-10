@@ -79,4 +79,32 @@ final class CardFormBrickViewModelTests: XCTestCase {
             XCTAssertEqual(sut.repository.fetchCallCount, 2)
         }
     }
+
+    // MARK: - buildPaymentData orderId propagation
+
+    func test_buildPaymentData_cardTransaction_shouldPropagateOrderId() {
+        // Arrange
+        let order = MPOrder(amount: 100.0, payer: .init(email: "test@mp.com"), orderId: "order-42")
+        let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
+            type: .cardTransaction(order: order),
+            paymentMethod: [.card()]
+        )
+        let viewModel = CardFormBrickViewModel<MPPaymentData.CardTransaction>(
+            configuration: configuration,
+            initializeUseCase: InitializeCardFormUseCase(repository: MockCardFormInitializationRepository())
+        )
+        let output = CardFormOutput(
+            token: "token",
+            paymentMethodId: "visa",
+            paymentTypeId: "credit_card",
+            issuerId: nil,
+            payer: nil
+        )
+
+        // Act
+        let result = viewModel.buildPaymentData(from: output)
+
+        // Assert
+        XCTAssertEqual(result?.orderId, "order-42")
+    }
 }
