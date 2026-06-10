@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 16/01/25.
 //
 
+import MercadoPagoCheckout
 import SwiftUI
 import UIKit
 
@@ -22,6 +23,15 @@ struct MainListView: View {
                     }
                     Button("Card Form (SwiftUI)") {
                         self.showingCardFormSwiftUI = true
+                    }
+                }
+
+                Section("MercadoPagoCheckout") {
+                    if #available(iOS 14.0, *) {
+                        NavigationLink("Playground") {
+                            CheckoutPlaygroundView()
+                        }
+                        .accessibilityIdentifier("checkout.playground")
                     }
                 }
 
