@@ -2,12 +2,12 @@ import CoreMethods
 import SwiftUI
 
 /// CardInformationSection - CoreMethods SDK Text Field Integration Example
-/// 
+///
 /// This component demonstrates how to properly integrate CoreMethods SDK text field components:
 /// - CardNumberTextFieldView: Handles card number input with real-time validation and BIN detection
 /// - SecurityCodeTextFieldView: Manages CVV input with dynamic length based on card type
 /// - ExpirationDateTextFieldView: Handles expiration date with proper formatting and validation
-/// 
+///
 /// Key Integration Patterns:
 /// 1. Store references to text fields for accessing validation state and data
 /// 2. Use callback handlers for real-time events (BIN changes, validation, focus)
@@ -45,7 +45,7 @@ struct CardInformationSection: View {
     }
 
     /// Card Number Field with Brand Logo
-    /// 
+    ///
     /// Shows the card number input with dynamic brand logo display
     /// The logo is automatically updated when the payment method is detected
     private var cardNumberField: some View {
@@ -63,7 +63,7 @@ struct CardInformationSection: View {
     }
 
     /// CoreMethods CardNumberTextFieldView Integration
-    /// 
+    ///
     /// This is the main card number input component from CoreMethods SDK.
     /// Key features demonstrated:
     /// - Real-time BIN detection triggers payment method lookup
@@ -134,7 +134,7 @@ struct CardInformationSection: View {
     }
 
     /// Security Code and Expiration Date Fields
-    /// 
+    ///
     /// Side-by-side layout for CVV and expiration date inputs
     /// Both fields include real-time validation and proper error handling
     private var securityAndExpirationFields: some View {
@@ -192,7 +192,7 @@ struct CardInformationSection: View {
     }
 
     /// CoreMethods SecurityCodeTextFieldView Integration
-    /// 
+    ///
     /// Handles CVV/CVC input with dynamic length based on card type:
     /// - 3 digits for most cards (Visa, Mastercard, etc.)
     /// - 4 digits for American Express

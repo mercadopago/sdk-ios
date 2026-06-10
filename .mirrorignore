@@ -7,3 +7,4 @@ ux-reference/
 Example/Example.xcodeproj/project.pbxproj.rej
 
 Example/Sources/MainListView.swift
+.claude/

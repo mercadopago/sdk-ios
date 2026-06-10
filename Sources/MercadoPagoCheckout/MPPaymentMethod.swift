@@ -39,4 +39,11 @@ extension [MPPaymentMethodConfig] {
             return excludedBrands.map(\.paymentMethodId)
         }
     }
+
+    var installmentConfig: MPInstallment? {
+        for method in self {
+            if case let .card(_, _, installment) = method { return installment }
+        }
+        return nil
+    }
 }

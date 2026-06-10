@@ -180,7 +180,9 @@ final class CardFormViewModelTests: XCTestCase {
     private func makeSUT(
         amount: Double = .zero,
         checkoutTypeAnalyticsValue: String = "save_card",
-        identificationTypes: [IdentificationType] = []
+        identificationTypes: [IdentificationType] = [],
+        minInstallments: Int? = nil,
+        maxInstallments: Int? = nil
     ) -> SUT {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
@@ -189,7 +191,9 @@ final class CardFormViewModelTests: XCTestCase {
             checkoutTypeAnalyticsValue: checkoutTypeAnalyticsValue,
             excludedPaymentTypeIds: [],
             excludedPaymentMethodIds: [],
-            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
+            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes),
+            minInstallments: minInstallments,
+            maxInstallments: maxInstallments
         )
         let viewModel = CardFormViewModel(
             config: config,
@@ -736,7 +740,7 @@ final class CardFormViewModelTests: XCTestCase {
         let sut = self.makeSUTWithAmount(500.0)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.footerAmount(), MPAmountData(from: 500.0))
+        XCTAssertEqual(sut.viewModel.footerAmount(), MPAmountData(from: 500.0, currencySymbol: "R$"))
     }
 
     // MARK: - submitCardData

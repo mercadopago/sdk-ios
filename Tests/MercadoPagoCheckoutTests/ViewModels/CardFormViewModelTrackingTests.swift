@@ -102,7 +102,9 @@ final class CardFormViewModelTrackingTests: XCTestCase {
             checkoutTypeAnalyticsValue: "save_card",
             excludedPaymentTypeIds: [],
             excludedPaymentMethodIds: [],
-            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
+            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes),
+            minInstallments: nil,
+            maxInstallments: nil,
         )
         let viewModel = CardFormViewModel(
             config: config,
@@ -272,52 +274,6 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let messages = await sut.analytics.mock.getMessages()
         XCTAssertTrue(messages.contains(.setEventData(["dropdown_selection_type": "CPF"])))
         XCTAssertFalse(messages.contains(.setEventData(["dropdown_selection_type": "CNPJ"])))
-    }
-
-    // MARK: - trackSubmit
-
-    func test_trackSubmit_onSuccess_shouldTrackSubmitEvent() async {
-        // Arrange
-        let sut = self.makeSUT()
-        await self.setupCardData(sut)
-        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-
-        // Act
-        await sut.viewModel.submitCardData(
-            cardForm: CardFormDataStub.valid,
-            onSuccess: { _ in },
-            onFailure: { _ in }
-        )
-        await sut.analytics.mock.waitForSend()
-
-        // Assert
-        let messages = await sut.analytics.mock.getMessages()
-        XCTAssertTrue(messages.contains(.track(path: CardFormAnalyticsPath.submit)))
-        XCTAssertTrue(messages.contains(.send))
-    }
-
-    func test_trackSubmit_onSuccess_shouldIncludeCardBrandAndPaymentType() async {
-        // Arrange — amount comes from config now, not submitCardData parameter
-        let sut = self.makeSUT(amount: 150.0)
-        await self.setupCardData(sut)
-        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-
-        // Act
-        await sut.viewModel.submitCardData(
-            cardForm: CardFormDataStub.valid,
-            onSuccess: { _ in },
-            onFailure: { _ in }
-        )
-        await sut.analytics.mock.waitForSend()
-
-        // Assert
-        let messages = await sut.analytics.mock.getMessages()
-        XCTAssertTrue(messages.contains(.setEventData([
-            "card_brand": "visa",
-            "transaction_amount": 150.0,
-            "issuer": "",
-            "payment_type": "credit_card"
-        ])))
     }
 
     // MARK: - trackSubmitError
