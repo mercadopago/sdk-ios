@@ -1,0 +1,18 @@
+Example/Sources/MainListView.swift
+  ai_agent 67-75,82-121,123-150
+.mirrorignore
+  h_f482fc16afb55b 8-9
+Example/Example.xcodeproj/project.pbxproj
+  ai_agent 23-26,80,96-98,176-179,264,635,694-706
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "c8328bc7828aca4d3b64ea714b7eaeffceabb667",
+  "prompts": {},
+  "humans": {
+    "h_f482fc16afb55b": {
+      "author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

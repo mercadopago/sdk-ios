@@ -1,0 +1,23 @@
+Sources/MPFoundation/MPTheme.swift
+  ai_agent 59-67,70-71,74-77,82-89,92-95,98-101,105-108,112-114,118-122,126-128,134-142,148-161,167-174,180-184
+Sources/MPFoundation/Themes/LightTheme/MPLightTheme.swift
+  s_3d5e3da5522948::t_e5b498ef0261ff 76,78-81
+  ai_agent 13,16-30,77
+  s_3d5e3da5522948::t_c9415069a416bc 12,14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "5d222570a092d2e75717a82a6cd96629361aefe1",
+  "prompts": {},
+  "sessions": {
+    "s_3d5e3da5522948": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "58ef975b-8856-4be6-98f2-93a857c279b7",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

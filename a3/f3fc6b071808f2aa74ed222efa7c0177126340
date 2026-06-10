@@ -1,0 +1,19 @@
+Tests/SnapshotTests/MercadoPagoCheckout/PaymentsScreenSnapshotTests.swift
+  s_ad4c89ba6f3782::t_63750b4705412c 20-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "a3f3fc6b071808f2aa74ed222efa7c0177126340",
+  "prompts": {},
+  "sessions": {
+    "s_ad4c89ba6f3782": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "827204dc-0121-4dbe-aad0-187469705a13",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

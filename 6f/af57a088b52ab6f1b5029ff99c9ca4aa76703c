@@ -1,0 +1,25 @@
+Sources/MPComponents/BaseElements/TextField/MPTextFieldStyle.swift
+  s_6e21f707398ce5::t_94e7908968fc6f 114,116
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTests.swift
+  s_6e21f707398ce5::t_94e7908968fc6f 931
+Sources/MercadoPagoCheckout/Views/CardFormScreen.swift
+  s_6e21f707398ce5::t_94e7908968fc6f 269-272
+Sources/MercadoPagoCheckout/Views/CardFormViewModel.swift
+  s_6e21f707398ce5::t_94e7908968fc6f 266
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "6faf57a088b52ab6f1b5029ff99c9ca4aa76703c",
+  "prompts": {},
+  "sessions": {
+    "s_6e21f707398ce5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f7070fda-6b68-4d20-9e4b-c6144f252d84",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

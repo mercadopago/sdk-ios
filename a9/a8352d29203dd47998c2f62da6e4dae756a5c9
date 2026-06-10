@@ -1,0 +1,14 @@
+.mirrorignore
+  h_f482fc16afb55b 6-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "a9a8352d29203dd47998c2f62da6e4dae756a5c9",
+  "prompts": {},
+  "humans": {
+    "h_f482fc16afb55b": {
+      "author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

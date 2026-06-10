@@ -1,0 +1,20 @@
+Tests/SnapshotTests/MPComponents/MPIconThumbnailFlagSnapshotTests.swift
+  s_18364cbe8d5b34::t_dbe370f5b51049 112-115,117-122
+  s_18364cbe8d5b34::t_95d633abae0b48 72,76-78,88,92,99,105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "be683592d32dc8de0fbd55da47a9aa63cb461cbf",
+  "prompts": {},
+  "sessions": {
+    "s_18364cbe8d5b34": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "97bf809e-f1bd-4ed8-a24a-1fe07ecfae23",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

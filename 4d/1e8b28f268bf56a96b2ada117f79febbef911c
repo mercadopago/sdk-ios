@@ -1,0 +1,175 @@
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+Builder.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 11-13,17,20,23,55-56
+  s_66d45d8fb12c20::t_3435f797807c86 25-26,30,35,38,43,46
+Sources/MercadoPagoCheckout/Domain/UseCases/InitializeCardFormUseCase.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 22
+  s_91975ae62f21f4::t_c266cd0884db76 25-30,51
+.github/workflows/pr-merge-readiness.yml
+  ai_agent 1-57
+Sources/MercadoPagoCheckout/MPCardBrand.swift
+  ai_agent 2,8-37,39-40,42-57,61,64-76,82-94
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutBuilderTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 15-17,20,22,24-25,28-29,31,35,37-38,41-42,44,47,53-54,68,70-71,76-77,79,84-85,91,93,95-96,99-100,103-111,113-139
+  s_66d45d8fb12c20::t_3435f797807c86 43,48,78,112
+.github/workflows/mirror-ci-status.yml
+  ai_agent 1-91
+Sources/MercadoPagoCheckout/MPPayer.swift
+  ai_agent 2,8-11,13-17
+Sources/MercadoPagoCheckout/Views/CardFormViewModel.swift
+  s_66d45d8fb12c20::t_3435f797807c86 17,83,376
+  s_909af900e6ff7f::t_fc5a89743890ab 194,239
+  s_66d45d8fb12c20::t_181b2c555246a3 14,260-261,267-268,271-272,278,299-327,330-331,339-365,406,408-409,411
+  s_91975ae62f21f4::t_c266cd0884db76 142-145
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 141,144,273-278
+.github/workflows/pr-require-jira.yml
+  ai_agent 1-24
+Sources/MercadoPagoCheckout/Bricks/CardFormBrickViewModel.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 13,16,59,87-88
+  s_66d45d8fb12c20::t_3435f797807c86 26-27,34-35
+  s_91975ae62f21f4::t_c266cd0884db76 56
+.github/workflows/enforce-size-override-label.yml
+  ai_agent 1-27
+Sources/MercadoPagoCheckout/MPCheckoutConfiguration.swift
+  ai_agent 2,5-6,8,10-21
+.github/workflows/pr-description-check.yml
+  ai_agent 1-32
+Tests/MercadoPagoCheckoutTests/Models/CardBrandTests.swift
+  s_66d45d8fb12c20::t_3435f797807c86 11
+  s_66d45d8fb12c20::t_181b2c555246a3 12,14,46,56,61,67
+Tests/SnapshotTests/MercadoPagoCheckout/InstallmentsViewTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 16
+Tests/MercadoPagoCheckoutTests/Domain/Analytics/CardFormAnalyticsEventDataTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 12,78,82,92,237,245
+  s_66d45d8fb12c20::t_3435f797807c86 11
+Sources/MercadoPagoCheckout/Model/Public/MercadoPagoCheckoutResult.swift
+  s_66d45d8fb12c20::t_3435f797807c86 17
+  s_66d45d8fb12c20::t_181b2c555246a3 2,9-15
+Sources/MercadoPagoCheckout/Views/CardFormScreen.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 11,14,16,18,39,42
+  s_909af900e6ff7f::t_fc5a89743890ab 114-115
+  s_66d45d8fb12c20::t_3435f797807c86 12-13,40-41
+.pre-commit-config.yaml
+  s_b4d337e4ab0698::t_c0de2ea09254ab 1-16
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_91975ae62f21f4::t_c266cd0884db76 24
+  s_66d45d8fb12c20::t_181b2c555246a3 10,17,19,26,31,35,42-44,46,88,111-112,169-179,181
+  s_66d45d8fb12c20::t_3435f797807c86 21,33-34,163
+.github/workflows/mirror-pr.yml
+  ai_agent 1-245
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPayerTests.swift
+  s_66d45d8fb12c20::t_3435f797807c86 11
+  s_66d45d8fb12c20::t_181b2c555246a3 12,18,25
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CheckoutType.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 10-20,22-25,27-30,35,42-47,49-58
+  s_66d45d8fb12c20::t_3435f797807c86 21,48
+  s_91975ae62f21f4::t_c266cd0884db76 36-37
+Example/Sources/MainListView.swift
+  ai_agent 87-89,92,95,98,138-139
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 25
+  s_66d45d8fb12c20::t_181b2c555246a3 15,28-31
+  s_66d45d8fb12c20::t_3435f797807c86 24
+.gitattributes
+  ai_agent 1
+Example/Sources/ExampleApp.swift
+  ai_agent 1-33
+scripts/ux_reference/check_immutability.sh
+  ai_agent 1-25
+Sources/MercadoPagoCheckout/MercadoPagoCheckout.swift
+  s_91975ae62f21f4::t_c266cd0884db76 9,11-17,22-25,27-28,30-33,35-42,46,78-79
+  s_66d45d8fb12c20::t_181b2c555246a3 18-21,26,29,34,44,75,77,96,98,121,123
+  s_66d45d8fb12c20::t_3435f797807c86 49,51,58,61
+Tests/MercadoPagoCheckoutTests/Models/MPPaymentDataTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 12,14-21,24-33,36-39,42-45,48,50-68,75,77-78,82-85,92-98,100,102-105,107,109-120
+Gemfile
+  ai_agent 5
+Sources/MercadoPagoCheckout/MPCheckoutAppearance.swift
+  ai_agent 2,5,8-34,37-47,50-58
+Sources/MercadoPagoCheckout/Domain/Analytics/CardFormSubmitEventData.swift
+  ai_agent 5,12
+Sources/MercadoPagoCheckout/Model/Public/MPPaymentData.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 9-57,63-66
+Sources/MercadoPagoCheckout/MPPaymentMethod.swift
+  ai_agent 2,8-25,29,31-32,36-37
+Sources/MercadoPagoCheckout/Views/Fields/CardFormData.swift
+  s_66d45d8fb12c20::t_3435f797807c86 103-104,113,129,136,143,149
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPaymentMethodTests.swift
+  s_66d45d8fb12c20::t_3435f797807c86 11-13
+  s_66d45d8fb12c20::t_181b2c555246a3 14,16,23,33,39-40,46,50,56,61,67,74,78,84,88,94
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTrackingTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 30
+  s_66d45d8fb12c20::t_3435f797807c86 24,29
+  s_66d45d8fb12c20::t_181b2c555246a3 16,33
+Sources/MPFoundation/MPTheme.swift
+  ai_agent 33-34,38-44,48-54,59-67,70-71,74-77,82-89,92-95,98-101,105-108,112-114,118-122,126-128,134-142,148-161,167-174,180-184
+.mirrorignore
+  h_f482fc16afb55b 6-9
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTrackingTests.swift
+  s_66d45d8fb12c20::t_3435f797807c86 99,209,223,236,416
+  s_91975ae62f21f4::t_c266cd0884db76 100
+  s_66d45d8fb12c20::t_181b2c555246a3 17,104,286,339,440
+Tests/MercadoPagoCheckoutTests/Rules/CardFormRulesTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 13,382,390,398,406,414,422-423
+  s_66d45d8fb12c20::t_3435f797807c86 12
+CHANGELOG.md
+  ai_agent 6-7
+Sources/MPFoundation/Themes/LightTheme/MPLightTheme.swift
+  s_3d5e3da5522948::t_e5b498ef0261ff 76-81
+  s_3d5e3da5522948::t_c9415069a416bc 12-14
+ux-reference/CODEOWNERS
+  ai_agent 1
+Sources/MercadoPagoCheckout/MPInstallment.swift
+  ai_agent 2,8-13,15-22
+Tests/MercadoPagoCheckoutTests/CardFormDataTests.swift
+  s_66d45d8fb12c20::t_3435f797807c86 70
+.github/workflows/pr-size-limit.yml
+  ai_agent 1-53
+.github/workflows/sync-external-prs.yml
+  ai_agent 1-96
+Sources/MercadoPagoCheckout/MPOrder.swift
+  ai_agent 2,8-10,13-18,20-27,30-35
+Sources/MercadoPagoCheckout/Domain/Analytics/CheckoutAppearance+Analytics.swift
+  s_66d45d8fb12c20::t_3435f797807c86 16
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTests.swift
+  s_66d45d8fb12c20::t_181b2c555246a3 20-26,171-176,202,211,219,766,771,776,781-805,818,836,841,855,875,896,919,938,948-949,955,960,966-968,971-973,976,987-990,1000,1005,1011-1013,1023,1028,1034-1035
+  s_66d45d8fb12c20::t_3435f797807c86 197,214
+  s_91975ae62f21f4::t_c266cd0884db76 198,215
+Tests/MercadoPagoCheckoutTests/UseCases/InitializeCardFormUseCaseTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 39,41,52,64,86,104,116
+  s_66d45d8fb12c20::t_181b2c555246a3 40
+Example/Example.xcodeproj/project.pbxproj
+  ai_agent 13-26,79-81,85-86,88-91,93,95-98,166-179,264,635,637,654-708
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "4d1e8b28f268bf56a96b2ada117f79febbef911c",
+  "prompts": {},
+  "sessions": {
+    "s_66d45d8fb12c20": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ed614a3e-e8b3-4555-a651-082b7a128c67",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    },
+    "s_91975ae62f21f4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5de0a598-0519-4d66-9c71-1d9dddf8db1a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    },
+    "s_b4d337e4ab0698": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3642e8a6-ca5f-4dab-b6bd-c42574500f4c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Oliveira Carvalho <guilherme.ocarvalho@mercadolivre.com>"
+    }
+  }
+}

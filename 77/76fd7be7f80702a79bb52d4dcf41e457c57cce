@@ -1,0 +1,47 @@
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CheckoutType.swift
+  s_91975ae62f21f4::t_c266cd0884db76 15-16,20,22-23,29-30
+Tests/MercadoPagoCheckoutTests/UseCases/InitializeCardFormUseCaseTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 39-41,52,64,86,103,115
+Sources/MercadoPagoCheckout/MercadoPagoCheckout.swift
+  s_91975ae62f21f4::t_c266cd0884db76 9,11-37,41,73-74,148,152,178
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CardType.swift
+  s_91975ae62f21f4::t_c266cd0884db76 10,17
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CardFormConfiguration.swift
+  s_91975ae62f21f4::t_c266cd0884db76 8,10-11,13-15,17,19,24-26,31-33
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_91975ae62f21f4::t_c266cd0884db76 23
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutBuilderTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 23-24,34,44,63,82,98,113,117,122
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+Payer.swift
+  s_91975ae62f21f4::t_c266cd0884db76 10
+Sources/MercadoPagoCheckout/Bricks/CardFormBrickViewModel.swift
+  s_91975ae62f21f4::t_c266cd0884db76 51
+Sources/MercadoPagoCheckout/Domain/UseCases/InitializeCardFormUseCase.swift
+  s_91975ae62f21f4::t_c266cd0884db76 22,25-30,51
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 186,203
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 25
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTrackingTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 100
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTrackingTests.swift
+  s_91975ae62f21f4::t_c266cd0884db76 30
+Sources/MercadoPagoCheckout/Views/CardFormViewModel.swift
+  s_91975ae62f21f4::t_c266cd0884db76 138-142
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "7776fd7be7f80702a79bb52d4dcf41e457c57cce",
+  "prompts": {},
+  "sessions": {
+    "s_91975ae62f21f4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5de0a598-0519-4d66-9c71-1d9dddf8db1a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

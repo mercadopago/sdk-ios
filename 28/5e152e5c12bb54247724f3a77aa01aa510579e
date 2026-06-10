@@ -1,0 +1,55 @@
+Sources/MPComponents/BaseElements/Icon/Styles/MPThumbnailFlagIconStyle.swift
+  s_18364cbe8d5b34::t_a5979c40fc91f7 12
+  s_18364cbe8d5b34::t_db3b05f7cb23ac 13,16-18,41-43,46,48-49
+  s_18364cbe8d5b34::t_0ad74705a244d4 47
+  s_18364cbe8d5b34::t_0a6376bf2702ac 31,37
+  s_18364cbe8d5b34::t_828a3f53f0288e 1-11,14,19-20,22-29,39,51-53
+  s_18364cbe8d5b34::t_7b2c11ad58783a 15
+  s_18364cbe8d5b34::t_d87adf5de6bd2b 30
+Sources/MPComponents/BaseElements/ListItem/MPListItemStyleConfiguration.swift
+  s_18364cbe8d5b34::t_b77e7cf0ce4e6d 11,33,43,54
+Sources/MPComponents/BaseElements/Icon/MPIconStyleConfiguration.swift
+  s_18364cbe8d5b34::t_de2496530a0c3d 37
+  s_18364cbe8d5b34::t_5e4216932c09a5 38-42
+  s_18364cbe8d5b34::t_14cfc0f164a08c 11,16-18,23-24,30
+Sources/MPComponents/BaseElements/ListItem/Styles/MPListRowPickStyle.swift
+  s_18364cbe8d5b34::t_817ebe2127f8b8 23-24
+Sources/MPComponents/BaseElements/ListItem/Styles/MPListItemStyle.swift
+  s_18364cbe8d5b34::t_83a7f78c62f8e9 40-41
+Tests/SnapshotTests/MPComponents/MPListItemSnapshotTests.swift
+  s_18364cbe8d5b34::t_7049dd97783b41 138-139,141-142,144
+Sources/MPComponents/BaseElements/ListItem/MPListItem.swift
+  s_18364cbe8d5b34::t_a4a1ac11f32a1c 42
+  s_18364cbe8d5b34::t_1cffde069ec365 89,92,94-98
+  s_18364cbe8d5b34::t_51fa76b534b8b2 11-15,22,28,33
+Sources/MPComponents/BaseElements/Icon/MPIcon.swift
+  s_18364cbe8d5b34::t_959dedcaf453ac 23,29
+  s_18364cbe8d5b34::t_00b740e5bc23b6 25,27-28,96-98,100,102-105,107-108,110,112-114,116,119-120,136
+  s_18364cbe8d5b34::t_13591d0635e2a6 140,143-164
+  s_18364cbe8d5b34::t_ba9cb83f867a36 9-15,43,59,75,118
+  s_18364cbe8d5b34::t_ec204c2700c956 81,84
+  s_18364cbe8d5b34::t_d2751a3fca88da 26,85,88,91-92,95,99,111,122-135
+Sources/MPComponents/BaseElements/Icon/MPIconStyle.swift
+  s_18364cbe8d5b34::t_cd4dff832f7ec1 22,24,27-28,31-33,35-38,41-43
+  s_18364cbe8d5b34::t_88f13c4bd05d9a 82-85
+  s_18364cbe8d5b34::t_714135e8b2fad3 26
+  s_18364cbe8d5b34::t_894e4c6e80ab67 29,39,44
+Tests/SnapshotTests/MPComponents/MPIconThumbnailFlagSnapshotTests.swift
+  s_18364cbe8d5b34::t_88be3e78c89a46 1-16,18-42,44-67,69-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "285e152e5c12bb54247724f3a77aa01aa510579e",
+  "prompts": {},
+  "sessions": {
+    "s_18364cbe8d5b34": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "97bf809e-f1bd-4ed8-a24a-1fe07ecfae23",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

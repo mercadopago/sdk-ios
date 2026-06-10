@@ -1,0 +1,23 @@
+Sources/MPComponents/BaseElements/BottomSheet/MPBottomSheetContent.swift
+  s_62ae2707f11e3c::t_f52575af91c2a7 19-25
+Sources/MPComponents/BaseElements/BottomSheet/MPBottomSheetOptionsList.swift
+  s_62ae2707f11e3c::t_010f64d7007b3a 24-28
+Sources/MPComponents/BaseElements/BottomSheet/UIKit/MPBottomSheetPresenter.swift
+  s_62ae2707f11e3c::t_6730228d258ec6 30,33,37,40,64-70,78,117-126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "b269d6d73a9d3a2506c425aee1b8b1a01af4d755",
+  "prompts": {},
+  "sessions": {
+    "s_62ae2707f11e3c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "417c1db7-8ece-468e-9597-63aa29404af9",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

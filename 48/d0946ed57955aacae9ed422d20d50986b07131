@@ -1,0 +1,23 @@
+CONTRIBUTING.md
+  ebbbc4ba3850c538 66-69,103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "48d0946ed57955aacae9ed422d20d50986b07131",
+  "prompts": {
+    "ebbbc4ba3850c538": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eac374f3-6582-44bd-a18c-74e6327b0676",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 2,
+      "accepted_lines": 10264,
+      "overriden_lines": 0
+    }
+  }
+}

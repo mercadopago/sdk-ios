@@ -1,0 +1,19 @@
+Sources/MPComponents/BaseElements/ListItem/MPListItem.swift
+  s_fdd2e66d4910b7::t_518ce3993beeb8 43-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "62d5608bd9eb9a0b3618531e760c04ed9fd0536a",
+  "prompts": {},
+  "sessions": {
+    "s_fdd2e66d4910b7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44de78e5-11a6-40d1-a02d-2402480ef3f2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

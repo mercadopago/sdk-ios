@@ -1,0 +1,19 @@
+Sources/MercadoPagoCheckout/Model/Public/MPPaymentData.swift
+  s_6dea55d89b3fbc::t_edf0b5d4ad57a1 50-51,61-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "4f3298473e32fb70ef63f5052fc570e69a624be7",
+  "prompts": {},
+  "sessions": {
+    "s_6dea55d89b3fbc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f8a198c4-2a66-4886-b2b7-61109782d76c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}

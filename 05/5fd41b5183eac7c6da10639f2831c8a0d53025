@@ -1,0 +1,12 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "055fd41b5183eac7c6da10639f2831c8a0d53025",
+  "prompts": {},
+  "humans": {
+    "h_f482fc16afb55b": {
+      "author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

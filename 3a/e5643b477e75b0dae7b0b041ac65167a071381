@@ -1,0 +1,29 @@
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_1683bf3b8714fc::t_82c06c5a5a4719 269
+  s_1683bf3b8714fc::t_46aab9e48db2a9 298
+Example/Example.xcodeproj/project.pbxproj
+  s_1683bf3b8714fc::t_36db2afbbfa055 710-725
+  s_1683bf3b8714fc::t_54f94812fc145c 764
+  s_1683bf3b8714fc::t_a4eb022e37cac5 513,656-660,662
+  s_1683bf3b8714fc::t_0d5994e9f1b12c 754
+  s_1683bf3b8714fc::t_e17d2ffbfffb4f 744
+  s_1683bf3b8714fc::t_cb6746393252a7 734
+  s_1683bf3b8714fc::t_b9f676daa019d7 594-655
+  s_1683bf3b8714fc::t_535f993f596770 661,664-665
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "3ae5643b477e75b0dae7b0b041ac65167a071381",
+  "prompts": {},
+  "sessions": {
+    "s_1683bf3b8714fc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "403825bd-5f24-4ffc-84ef-a30bdddf10f9",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
