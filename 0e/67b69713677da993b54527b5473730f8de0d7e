@@ -1,0 +1,21 @@
+Sources/CoreMethods/Domain/Analytics/PaymentMethodEventData.swift
+  s_fb7fcdeeb496d4::t_9a678c97638f68 30,33-34
+Tests/CoreMethodsTests/CoreMethodsTest.swift
+  s_fb7fcdeeb496d4::t_9c3091606b632a 773,783-784
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "0e67b69713677da993b54527b5473730f8de0d7e",
+  "prompts": {},
+  "sessions": {
+    "s_fb7fcdeeb496d4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04dd1507-9cf3-4783-839a-068217f39b63",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "wimsantos_meli <william.msantos@mercadolivre.com>"
+    }
+  }
+}
