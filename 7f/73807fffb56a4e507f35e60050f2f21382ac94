@@ -1,0 +1,38 @@
+Sources/MPComponents/BaseElements/TextField/MPTextFieldStyle.swift
+  s_5733e49e93f5bb::t_c3d0fbc160cb1f 119
+  s_5733e49e93f5bb::t_11f18e3759377f 114
+  s_5733e49e93f5bb::t_00c50896520859 18
+Sources/MPComponents/BaseElements/TextField/AccessibilityIDPrefix.swift
+  s_5733e49e93f5bb::t_acf0deb2f8b25c 1-20,22-25
+  s_5733e49e93f5bb::t_362f36bb37367b 21
+Sources/MercadoPagoCheckout/Views/InstallmentScreen.swift
+  s_5733e49e93f5bb::t_af1a31263e1421 212
+Sources/MercadoPagoCheckout/Views/CardFormScreen.swift
+  s_5733e49e93f5bb::t_e58a04b018a78e 115
+  s_5733e49e93f5bb::t_3e5bb7e95cc8de 273
+  s_5733e49e93f5bb::t_45225dbb1b9770 133
+  s_5733e49e93f5bb::t_b983706340a4e3 171
+  s_5733e49e93f5bb::t_6e8fb89720b095 197
+  s_5733e49e93f5bb::t_5fd91ccf1a854d 151
+Sources/MPComponents/BaseElements/Footer/MPFooter.swift
+  s_5733e49e93f5bb::t_888937cb944b5f 146
+Sources/MPComponents/BaseElements/TextField/MPTextField.swift
+  s_5733e49e93f5bb::t_4d1e00d7e72dca 67
+  s_5733e49e93f5bb::t_9ffb084f301dd7 206
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "7f73807fffb56a4e507f35e60050f2f21382ac94",
+  "prompts": {},
+  "sessions": {
+    "s_5733e49e93f5bb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e71b7c9f-78cc-4a25-a347-babaf7c1c32f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
