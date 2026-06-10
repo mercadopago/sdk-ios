@@ -153,7 +153,7 @@ final class CardFormViewModel: ObservableObject {
         guard
             self.config.amount != .zero
         else {
-            return nil
+            return nil 
         }
         return MPAmountData(from: self.config.amount, currencySymbol: self.currencySymbol)
     }
@@ -328,6 +328,8 @@ final class CardFormViewModel: ObservableObject {
             onFailure(error)
         }
     }
+}
+
 }
 
 // MARK: - Analytics
