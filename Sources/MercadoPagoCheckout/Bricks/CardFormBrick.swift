@@ -182,32 +182,6 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         self.onResult(.success(result))
         self.presentationMode.wrappedValue.dismiss()
     }
-    
-    private func completeTransactionCheckout(installments: Int = 1) {
-        guard var paymentData = self.pendingResult as? MPPaymentData.CardTransaction else {
-            assertionFailure("completeTransactionCheckout: invalid payment data")
-            return
-        }
-        paymentData.installment = installments
-        self.processingTask = Task {
-            self.isProcessingOrder = true
-            defer { self.isProcessingOrder = false }
-            do {
-                let updatedPaymentData = try await self.brickViewModel.processOrderTask(paymentData)
-                self.pendingResult = updatedPaymentData as? T
-                guard let result = self.pendingResult else { return }
-                self.route = nil
-                self.onResult(.success(result))
-                self.presentationMode.wrappedValue.dismiss()
-            } catch is CancellationError {
-                return
-            } catch let error as MercadoPagoCheckoutError {
-                self.fail(error)
-            } catch {
-                return
-            }
-        }
-    }
 
     private func completeTransactionCheckout(installments: Int = 1) {
         guard var paymentData = self.pendingResult as? MPPaymentData.CardTransaction else {
