@@ -182,7 +182,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         self.onResult(.success(result))
         self.presentationMode.wrappedValue.dismiss()
     }
-    
+
     private func completeTransactionCheckout(installments: Int = 1) {
         guard var paymentData = self.pendingResult as? MPPaymentData.CardTransaction else {
             assertionFailure("completeTransactionCheckout: invalid payment data")
