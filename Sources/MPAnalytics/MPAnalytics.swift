@@ -302,6 +302,10 @@ package final class MPAnalytics: AnalyticsInterface {
     }
 }
 
+extension MPAnalytics {
+    package static let dataNotApply = "NOT_APPLY"
+}
+
 // MARK: - Private Helpers
 
 private extension MPAnalytics {

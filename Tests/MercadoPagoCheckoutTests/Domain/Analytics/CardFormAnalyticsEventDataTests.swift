@@ -21,7 +21,8 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
             appearance: "system",
             sellerCustomization: ["customized_token"],
             excludedPaymentTypes: ["credit_card"],
-            excludedPaymentMethods: ["visa"]
+            excludedPaymentMethods: ["visa"],
+            orderId: "ORD01"
         )
 
         // Act
@@ -42,7 +43,8 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
             appearance: "light",
             sellerCustomization: [],
             excludedPaymentTypes: [],
-            excludedPaymentMethods: []
+            excludedPaymentMethods: [],
+            orderId: "NOT_APPLY"
         )
 
         // Act

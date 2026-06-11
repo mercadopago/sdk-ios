@@ -18,6 +18,8 @@ final class CardFormViewModel: ObservableObject {
         let excludedPaymentTypeIds: [String]
         let excludedPaymentMethodIds: [String]
         let initResult: CardFormInitializationOutput
+        let minInstallments: Int?
+        let maxInstallments: Int?
     }
 
     // MARK: - Dependencies
@@ -87,6 +89,7 @@ final class CardFormViewModel: ObservableObject {
     private var paymentMethodTask: Task<Void, Never>?
     private let fields: CardFormFields.Fields
     private var analyticsTask: Task<Void, Never>?
+    private var currencySymbol: String
 
     // MARK: - Init
 
@@ -102,6 +105,7 @@ final class CardFormViewModel: ObservableObject {
         self.fields = config.initResult.fields
         self.analytics = analytics
         self.identificationTypes = config.initResult.identificationTypes
+        self.currencySymbol = config.initResult.currencySymbol
         _selectTypeDocument = Published(wrappedValue: config.initResult.identificationTypes.first)
 
         self.cardNumberFormatter = CardNumberFormatter(
@@ -146,10 +150,12 @@ final class CardFormViewModel: ObservableObject {
     // MARK: - Footer
 
     func footerAmount() -> MPAmountData? {
-        if self.config.amount == .zero {
+        guard
+            self.config.amount != .zero
+        else {
             return nil
         }
-        return MPAmountData(from: self.config.amount)
+        return MPAmountData(from: self.config.amount, currencySymbol: self.currencySymbol)
     }
 
     // MARK: - Card Token
@@ -258,13 +264,15 @@ final class CardFormViewModel: ObservableObject {
     }
 
     private func buildCardPaymentBrickCardParams(bin: String) -> CardPaymentBrickCardParams {
-        CardPaymentBrickCardParams(
+        return CardPaymentBrickCardParams(
             bin: bin,
             amount: self.config.amount,
             checkoutType: self.config.checkoutTypeAnalyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
             excludedCardTypes: self.config.excludedPaymentTypeIds,
-            excludedCardBrands: self.config.excludedPaymentMethodIds
+            excludedCardBrands: self.config.excludedPaymentMethodIds,
+            maxInstallments: self.config.maxInstallments,
+            minInstallments: self.config.minInstallments
         )
     }
 
@@ -308,13 +316,11 @@ final class CardFormViewModel: ObservableObject {
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
             let output = try self.buildCardFormOutput(cardToken: cardToken, cardFormData: cardForm)
-
             self.trackSubmit(
                 paymentMethodId: output.paymentMethodId,
                 paymentTypeId: output.paymentTypeId,
                 transactionAmount: self.config.amount
             )
-
             onSuccess(output)
         } catch {
             guard !Task.isCancelled else { return }
@@ -322,9 +328,11 @@ final class CardFormViewModel: ObservableObject {
             onFailure(error)
         }
     }
+}
 
-    // MARK: - Analytics
+// MARK: - Analytics
 
+extension CardFormViewModel {
     func cancel(context _: MPCardFormUserCancelledContext, reason: CardFormCancelReason) {
         self.isCancelling = true
         let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)

@@ -25,15 +25,26 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
     }
 
+    private var orderId: String? {
+        switch self.configuration.type.kind {
+        case .saveCard:
+            return nil
+        case let .cardTransaction(order):
+            return order.orderId
+        }
+    }
+
     // MARK: - Published State
 
     @Published private(set) var screenState: ScreenState = .loading
+    @Published private(set) var installmentsWasPresented = false
 
     // MARK: - Dependencies
 
     private let configuration: MPCheckoutConfiguration<T>
     private let appearance: MPCheckoutAppearance
     private let initializeUseCase: InitializeCardFormUseCase
+    private let orderUseCase: OrderTransactionUseCase
     private let analytics: AnalyticsInterface
 
     // MARK: - Init
@@ -42,12 +53,18 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         configuration: MPCheckoutConfiguration<T>,
         appearance: MPCheckoutAppearance = MPCheckoutAppearance(),
         initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase(),
+        orderUseCase: OrderTransactionUseCase = OrderTransactionUseCase(),
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.configuration = configuration
         self.appearance = appearance
         self.initializeUseCase = initializeUseCase
+        self.orderUseCase = orderUseCase
         self.analytics = analytics
+    }
+
+    func markInstallmentsPresented() {
+        self.installmentsWasPresented = true
     }
 
     // MARK: - Initialization
@@ -67,7 +84,9 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 checkoutTypeAnalyticsValue: self.configuration.type.analyticsValue,
                 excludedPaymentTypeIds: self.configuration.paymentMethod.excludedPaymentTypeIds,
                 excludedPaymentMethodIds: self.configuration.paymentMethod.excludedPaymentMethodIds,
-                initResult: result
+                initResult: result,
+                minInstallments: self.configuration.paymentMethod.installmentConfig?.minInstallments,
+                maxInstallments: self.configuration.paymentMethod.installmentConfig?.maxInstallments
             )
 
             let viewModel = CardFormViewModel(
@@ -90,6 +109,51 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
     }
 
+    // MARK: - Process Order
+
+    func processOrderTask(_ paymentData: MPPaymentData.CardTransaction) async throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
+        guard let params = OrderTransactionParams(cardTransaction: paymentData) else {
+            assertionFailure("processOrderTask: invalid payment data")
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "invalid payment data", location: .orderProcess)
+        }
+        do {
+            let data = try await orderUseCase.execute(orderId: paymentData.orderId, params: params)
+            var updatedPaymentData = paymentData
+            updatedPaymentData.orderStatus = data.status
+            self.trackOrderSubmit(updatedPaymentData)
+            return updatedPaymentData
+        } catch {
+            self.trackOrderError(error, orderId: paymentData.orderId)
+            throw error
+        }
+    }
+
+    private func trackOrderSubmit(_ paymentData: MPPaymentData.CardTransaction) {
+        let eventData = OrderSubmitEventData(
+            orderId: paymentData.orderId,
+            orderStatus: paymentData.orderStatus
+        )
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(OrderAnalyticsPath.orderSubmit)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackOrderError(_ error: MercadoPagoCheckoutError, orderId: String) {
+        let eventData = OrderErrorEventData(
+            errorType: error.analyticsErrorType,
+            orderId: orderId
+        )
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(OrderAnalyticsPath.orderError)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
     // MARK: - Payment Data Mapping
 
     func buildPaymentData(from output: CardFormOutput) -> T? {
@@ -106,6 +170,8 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 paymentMethodId: output.paymentMethodId,
                 paymentTypeId: output.paymentTypeId,
                 issuerId: output.issuerId,
+                orderId: order.orderId,
+                orderStatus: "",
                 payer: payer
             ) as? T
 
@@ -128,7 +194,8 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             appearance: self.appearance.style.analyticsValue,
             sellerCustomization: self.appearance.sellerCustomization,
             excludedPaymentTypes: self.configuration.paymentMethod.excludedPaymentTypeIds,
-            excludedPaymentMethods: self.configuration.paymentMethod.excludedPaymentMethodIds
+            excludedPaymentMethods: self.configuration.paymentMethod.excludedPaymentMethodIds,
+            orderId: self.orderId ?? MPAnalytics.dataNotApply
         )
 
         let analytics = self.analytics
