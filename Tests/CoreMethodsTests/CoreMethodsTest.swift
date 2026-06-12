@@ -756,6 +756,34 @@ final class CoreMethodsTests: XCTestCase {
         }
     }
 
+    func test_paymentMethodEventData_securityLength_isSentAsNumericNotString() {
+        let eventData = PaymentMethodEventData(
+            issuer: 24,
+            paymentType: "credit_card",
+            sizeSecurityCode: 3,
+            cardBrand: "master"
+        )
+
+        let dictionary = eventData.toDictionary()
+
+        XCTAssertTrue(dictionary["security_length"] is Int)
+        XCTAssertEqual(dictionary["security_length"] as? Int, 3)
+    }
+
+    func test_paymentMethodEventData_securityLength_fallsBackToZeroWhenNil() {
+        let eventData = PaymentMethodEventData(
+            issuer: 24,
+            paymentType: "credit_card",
+            sizeSecurityCode: nil,
+            cardBrand: "master"
+        )
+
+        let dictionary = eventData.toDictionary()
+
+        XCTAssertTrue(dictionary["security_length"] is Int)
+        XCTAssertEqual(dictionary["security_length"] as? Int, 0)
+    }
+
     func test_paymentMethods_whenNetworkReturnsFormattedError_shouldCallAnalyticsWithError() async {
         // Arrange
         let (sut, repository, analytics) = await self.makeSUT()
