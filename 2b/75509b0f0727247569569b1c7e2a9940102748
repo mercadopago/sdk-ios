@@ -1,0 +1,54 @@
+Tests/MercadoPagoCheckoutTests/Models/MPUserCancelledContextTests.swift
+  s_3fd61e2364f302::t_16a60973d80885 1-9,11,15,17-18,22,24-25,27,40-41,45-46,55-56,59,61-66,89-90
+  s_3fd61e2364f302::t_5c38cd1954a208 10,12-14,16,19-21,23,26,28-39,42-44,47-54,57-58,60,67-88
+Sources/MercadoPagoCheckout/Model/Public/MPCardFormUserCancelledContext.swift
+  s_3fd61e2364f302::t_d3513e1404c7b8 12-18
+  s_3fd61e2364f302::t_0fa0882f582811 6-11,20,29,31,33,44,46,50,52,54,56
+Sources/MercadoPagoCheckout/Model/Public/MPPaymentData.swift
+  s_3fd61e2364f302::t_5df3959163c1a3 16-27
+  s_3fd61e2364f302::t_ede5ff1ff4083b 61-62
+  s_3fd61e2364f302::t_a60bd96401bcbf 30,34,36-37,43-44
+  s_3fd61e2364f302::t_18caccad440148 97,99,101
+  s_3fd61e2364f302::t_d144ec82e35313 9,11-15,29,31-33,35,39-41,47,49,51,53,57-59,63,65,67,69,71,73
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_3fd61e2364f302::t_bc56983d37149b 139-140,142-144
+  s_3fd61e2364f302::t_c9436baac7d6ca 86,91
+  s_3fd61e2364f302::t_a12eace93d7ad7 165-166,170
+  s_3fd61e2364f302::t_9cfce294329100 163,167
+  s_3fd61e2364f302::t_9c1e5079b7538d 133,135,141,145-160
+Sources/MercadoPagoCheckout/Model/Public/MPUserCancelledContext.swift
+  s_3fd61e2364f302::t_d95020f78e67db 16-28
+  s_3fd61e2364f302::t_f20e8e0f3e47c6 29,31-32,34,39-45,47,52,57-66,69-75
+  s_3fd61e2364f302::t_109ad0c5d26b9e 6,8-15,30,33,35-38,46,48-51,53-56,67-68
+Sources/MercadoPagoCheckout/Model/Public/MercadoPagoCheckoutResult.swift
+  s_3fd61e2364f302::t_5d766a0edb0f4c 39-50
+  s_3fd61e2364f302::t_9fe8850193fa1b 9,11-38,52-56,58-62,64-69
+  s_3fd61e2364f302::t_2f78881dea4eff 70
+Sources/MercadoPagoCheckout/MercadoPagoCheckout.swift
+  s_3fd61e2364f302::t_935fc0cfcf9c15 11-43
+  s_3fd61e2364f302::t_42e42879f15929 44-63
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+CheckoutType.swift
+  s_3fd61e2364f302::t_27ca0d9fb72077 11-15,17-18
+Sources/MercadoPagoCheckout/Model/Public/Screen.swift
+  s_3fd61e2364f302::t_254b79705b57e6 1-5,7,16-19
+  s_3fd61e2364f302::t_172f12b96b7c54 6,8-10
+  s_3fd61e2364f302::t_d8d3dbdf0d53fe 11-15
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+Builder.swift
+  s_3fd61e2364f302::t_ae3fe44c851871 11-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "2b75509b0f0727247569569b1c7e2a9940102748",
+  "prompts": {},
+  "sessions": {
+    "s_3fd61e2364f302": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44f4592c-adfb-41a4-a5de-fe2ffceb4218",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
