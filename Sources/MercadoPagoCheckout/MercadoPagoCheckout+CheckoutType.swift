@@ -8,14 +8,14 @@
 public extension MercadoPagoCheckout {
     /// The type of checkout experience to launch.
     ///
-    /// `CheckoutType` is parameterized by the outer ``MercadoPagoCheckout`` generic `T`, which
-    /// represents the concrete ``MPPaymentData`` variant produced by the flow. Each factory
-    /// is constrained so that:
-    /// - ``cardTransaction(order:)`` is only available when `T == MPPaymentData.CardTransaction`
-    /// - ``saveCard`` is only available when `T == MPPaymentData.CardSave`
+    /// Pass one of the factory values to ``MercadoPagoCheckout/Builder`` to choose the flow:
+    /// - ``cardTransaction(order:)`` charges a card for a given order and yields an
+    ///   ``MercadoPagoCheckoutResult`` of ``MPPaymentData/CardTransaction``.
+    /// - ``saveCard`` saves a card without charging it and yields an ``MercadoPagoCheckoutResult``
+    ///   of ``MPPaymentData/CardSave``.
     ///
-    /// This propagates the concrete payment data type all the way through to
-    /// ``MercadoPagoCheckoutResult`` at the call site.
+    /// The choice you make here determines the type of payment data and cancellation context your
+    /// result closure receives, so you can read them without casting.
     struct CheckoutType: Sendable {
         enum Kind: Sendable {
             case cardTransaction(MPOrder)
