@@ -154,6 +154,51 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
     }
 
+    // MARK: - Process Order
+
+    func processOrderTask(_ paymentData: MPPaymentData.CardTransaction) async throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
+        guard let params = OrderTransactionParams(cardTransaction: paymentData) else {
+            assertionFailure("processOrderTask: invalid payment data")
+            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "invalid payment data", location: .orderProcess)
+        }
+        do {
+            let data = try await orderUseCase.execute(orderId: paymentData.orderId, params: params)
+            var updatedPaymentData = paymentData
+            updatedPaymentData.orderStatus = data.status
+            self.trackOrderSubmit(updatedPaymentData)
+            return updatedPaymentData
+        } catch {
+            self.trackOrderError(error, orderId: paymentData.orderId)
+            throw error
+        }
+    }
+
+    private func trackOrderSubmit(_ paymentData: MPPaymentData.CardTransaction) {
+        let eventData = OrderSubmitEventData(
+            orderId: paymentData.orderId,
+            orderStatus: paymentData.orderStatus
+        )
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(OrderAnalyticsPath.orderSubmit)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
+    private func trackOrderError(_ error: MercadoPagoCheckoutError, orderId: String) {
+        let eventData = OrderErrorEventData(
+            errorType: error.analyticsErrorType,
+            orderId: orderId
+        )
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(OrderAnalyticsPath.orderError)
+                .setEventData(eventData)
+                .send()
+        }
+    }
+
     // MARK: - Payment Data Mapping
 
     func buildPaymentData(from output: CardFormOutput) -> T? {
