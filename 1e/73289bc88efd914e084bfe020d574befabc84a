@@ -1,0 +1,19 @@
+.github/workflows/mirror-pr.yml
+  s_a3e1420e6edb6a::t_8d5d7e4aba65c9 58,129,227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "1e73289bc88efd914e084bfe020d574befabc84a",
+  "prompts": {},
+  "sessions": {
+    "s_a3e1420e6edb6a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e7f1065-94a7-4b70-9bf9-ff4853761d2c",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}
