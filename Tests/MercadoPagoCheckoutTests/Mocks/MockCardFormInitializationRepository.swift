@@ -29,6 +29,7 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
         CardFormInitializationInput(
             title: "Default Header",
             buttonLabel: "Save",
+            currencySymbol: "R$",
             fields: CardFormInitializationInputStub.makeDefaultFields(),
             identificationTypes: []
         )
@@ -38,6 +39,7 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
         CardFormInitializationInput(
             title: "Default Header",
             buttonLabel: "Save",
+            currencySymbol: "R$",
             fields: CardFormInitializationInputStub.makeDefaultFields(),
             identificationTypes: identificationTypes
         )

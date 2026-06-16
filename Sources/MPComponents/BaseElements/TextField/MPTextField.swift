@@ -64,6 +64,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.isReadOnly) private var isReadOnly
     @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.accessibilityIDPrefix) private var idPrefix: String?
 
     // MARK: - Editing State
 
@@ -202,6 +203,7 @@ package struct MPTextField<Prefix: View, Suffix: View>: View {
             .disabled(!self.isEnabled)
             .accessibility(label: Text(self.accessibilityLabel))
             .accessibility(hint: Text(self.accessibilityHint(for: self.currentState) ?? ""))
+            .accessibility(identifier: self.idPrefix ?? "")
         }
     }
 

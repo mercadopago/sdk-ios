@@ -11,6 +11,7 @@ struct CardFormOutput: Sendable {
     let paymentTypeId: String
     let issuerId: String?
     let payer: Payer?
+    let installmentsData: MPInstallmentsData?
 
     struct Payer: Sendable {
         let documentType: String
