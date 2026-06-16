@@ -9,6 +9,7 @@ import MPFoundation
 import SwiftUI
 
 package struct MPListItem: View {
+    @Environment(\.checkoutTheme) private var theme: MPTheme
     @Environment(\.listItemStyle) private var style
     @Environment(\.listItemTrailingStyle) private var trailingStyle
     @State private var isPressed = false
@@ -68,7 +69,16 @@ package struct MPListItem: View {
     @ViewBuilder
     private var titleView: some View {
         if let title = contentInfo.title {
-            Text(title)
+            if let suffix = contentInfo.titleDecimalSuffix {
+                HStack(alignment: .top, spacing: self.theme.spacings.xnano) {
+                    Text(title)
+                    Text(suffix)
+                        .font(self.theme.typography.body.small.emphasis.toFont())
+                        .offset(y: 0)
+                }
+            } else {
+                Text(title)
+            }
         }
     }
 
@@ -80,7 +90,6 @@ package struct MPListItem: View {
         }
     }
 
-    @ViewBuilder
     private var leftImageView: some View {
         self.leftImage
     }
@@ -102,14 +111,14 @@ package struct MPListItem: View {
     struct MPListItemView: View {
         @State private var selectedIndex: Int? = 0
 
-        public init() {}
+        init() {}
 
-        public var body: some View {
+        var body: some View {
             VStack(spacing: 16) {
                 VStack(spacing: 8) {
                     MPListItem(
                         isSelected: self.bindingForIndex(0),
-                        contentInfo: .init(title: "Title")
+                        contentInfo: .init(title: "1x R$10", titleDecimalSuffix: "00")
                     )
 
                     MPListItem(

@@ -8,9 +8,10 @@
 public extension MercadoPagoCheckout {
     /// A fluent builder for constructing a ``MercadoPagoCheckout`` instance.
     ///
-    /// The generic parameter `T` of the enclosing ``MercadoPagoCheckout`` is inferred from
-    /// the ``CheckoutType`` passed to ``init(checkoutType:checkoutAppearance:)``, so the
-    /// type flows naturally into ``MercadoPagoCheckoutResult``.
+    /// Create a builder with the ``CheckoutType`` and appearance you want, chain optional
+    /// configuration such as ``setPaymentMethodConfiguration(_:)``, then call ``build()``. The
+    /// checkout type you pass determines the type of ``MercadoPagoCheckoutResult`` the resulting
+    /// checkout delivers, so you do not specify the generic parameter yourself.
     ///
     /// ```swift
     /// let checkout = MercadoPagoCheckout.Builder(

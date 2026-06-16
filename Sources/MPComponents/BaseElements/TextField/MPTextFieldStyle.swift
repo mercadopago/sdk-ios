@@ -15,6 +15,7 @@ package protocol MPTextFieldStyle: StyleProtocol, Identifiable where Configurati
 package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
     public var id: UUID = .init()
     @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.accessibilityIDPrefix) private var idPrefix: String?
 
     @State private var isPopoverPresented = false
 
@@ -110,10 +111,12 @@ package struct MPDefaultTextFieldStyle: MPTextFieldStyle {
             )
         }
         .accessibility(label: Text(MPStrings.Common.Accessibility.TextField.moreInfo))
+        .accessibility(identifier: self.idPrefix.map { "\($0).tooltip" } ?? "")
         .buttonStyle(.plain)
         .mpTooltip(config: MPDefaultTooltipConfig(side: .top), isPresented: self.$isPopoverPresented) {
             Text(textPopover)
                 .textStyle(.smallMedium(colorType: .inverted))
+                .accessibility(identifier: self.idPrefix.map { "\($0).tooltip.content" } ?? "")
         }
     }
 

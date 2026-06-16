@@ -9,7 +9,7 @@
 ///
 /// Built by ``MercadoPagoCheckout/Builder`` from the integrator-supplied
 /// ``MercadoPagoCheckout/CheckoutType`` and payment methods.
-struct MPCheckoutConfiguration<T: MPPaymentData.Kind>: Sendable {
+struct MPCheckoutConfiguration<T: MPPaymentData.Kind> {
     /// The type of checkout experience to present.
     var type: MercadoPagoCheckout<T>.CheckoutType
     /// The payment method  configuration for the checkout flow.
@@ -20,3 +20,5 @@ struct MPCheckoutConfiguration<T: MPPaymentData.Kind>: Sendable {
         self.paymentMethod = paymentMethod
     }
 }
+
+extension MPCheckoutConfiguration: Sendable where T: Sendable {}
