@@ -24,5 +24,3 @@ package extension TextFormatting {
     func formatOnChange(_ text: String) -> String { text }
     func formatOnCommit(_ text: String) -> String { text }
 }
-
-
