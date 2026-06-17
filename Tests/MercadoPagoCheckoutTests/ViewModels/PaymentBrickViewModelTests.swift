@@ -22,7 +22,7 @@ final class PaymentBrickViewModelTests: XCTestCase {
 
     func test_payerEmail_withCardTransactionOrderPayer_shouldReturnEmail() {
         // Arrange
-        let order = MPOrder(amount: 100, payer: MPPayer(email: "card@mail.com"))
+        let order = MPOrder(orderId: "ORD01", clientToken: "seller_client_token", amount: 100, payer: MPPayer(email: "card@mail.com"))
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
             type: .cardTransaction(order: order),
             paymentMethod: [.card()]
@@ -82,7 +82,7 @@ final class PaymentBrickViewModelTests: XCTestCase {
     // MARK: - Helpers
 
     private func makePaymentSUT(payer: MPPayer?) -> PaymentBrickViewModel<MPPaymentData.PaymentTransaction> {
-        let order = MPOrder(amount: 100, payer: payer)
+        let order = MPOrder(orderId: "ORD01", clientToken: "seller_client_token", amount: 100, payer: payer ?? MPPayer(email: ""))
         let configuration = MPCheckoutConfiguration<MPPaymentData.PaymentTransaction>(
             type: .payment(order: order),
             paymentMethod: [.card()]

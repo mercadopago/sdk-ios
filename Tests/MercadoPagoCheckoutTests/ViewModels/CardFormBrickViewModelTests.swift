@@ -32,6 +32,25 @@ final class CardFormBrickViewModelTests: XCTestCase {
         return (viewModel, repository)
     }
 
+    private func makeProcessData() -> OrderTransactionProcessData {
+        OrderTransactionProcessData(
+            id: "ORD01",
+            status: "processed",
+            statusDetail: "accredited",
+            totalAmount: "100.00",
+            payments: [
+                OrderTransactionProcessData.Payment(
+                    id: "PAY01",
+                    status: "processed",
+                    statusDetail: "accredited",
+                    amount: "100.00",
+                    paymentMethodId: "master",
+                    installments: 1
+                )
+            ]
+        )
+    }
+
     // MARK: - load() retry
 
     func test_load_whenFirstAttemptSucceeds_shouldCallRepositoryOnce() async throws {

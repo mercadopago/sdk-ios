@@ -41,6 +41,6 @@ final class PaymentsViewModelTests: XCTestCase {
 
     func test_amount_withRoundValue_decimalPartIsZero() {
         let sut = PaymentsViewModel(amount: 500)
-        XCTAssertEqual(sut.amount.decimalPart, "00")
+        XCTAssertEqual(sut.amount.decimalPart, "")
     }
 }

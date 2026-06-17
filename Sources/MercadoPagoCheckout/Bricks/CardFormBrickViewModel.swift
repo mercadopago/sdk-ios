@@ -25,6 +25,15 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
     }
 
+    private var clientToken: String? {
+        switch self.configuration.type.kind {
+        case .saveCard:
+            return nil
+        case let .payment(order), let .cardTransaction(order):
+            return order.clientToken
+        }
+    }
+
     // MARK: - Published State
 
     @Published private(set) var screenState: ScreenState = .loading
@@ -118,7 +127,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 payer: payer
             ) as? T
 
-        default:
+        case .payment:
             return nil
         }
     }
