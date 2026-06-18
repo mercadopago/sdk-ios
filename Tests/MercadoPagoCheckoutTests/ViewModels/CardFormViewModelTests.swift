@@ -89,6 +89,16 @@ final class CardFormViewModelTests: XCTestCase {
             ]
         )
 
+        static let visaWithInstallments = CardPaymentBrickCardData(
+            securityCodeTranslations: nil,
+            installment: CardPaymentBrickCardData.Installment(
+                selectionType: "dropdown",
+                quotas: [],
+                translations: .init(headerTitle: "", totalLabel: "", payButtonLabel: "", currencySymbol: "R$")
+            ),
+            paymentMethods: [makePaymentMethod(id: "visa")]
+        )
+
         static let emptyPaymentMethods = CardPaymentBrickCardData(
             securityCodeTranslations: nil,
             installment: nil,
@@ -180,7 +190,9 @@ final class CardFormViewModelTests: XCTestCase {
     private func makeSUT(
         amount: Double = .zero,
         checkoutTypeAnalyticsValue: String = "save_card",
-        identificationTypes: [IdentificationType] = []
+        identificationTypes: [IdentificationType] = [],
+        minInstallments: Int? = nil,
+        maxInstallments: Int? = nil
     ) -> SUT {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
@@ -189,7 +201,9 @@ final class CardFormViewModelTests: XCTestCase {
             checkoutTypeAnalyticsValue: checkoutTypeAnalyticsValue,
             excludedPaymentTypeIds: [],
             excludedPaymentMethodIds: [],
-            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes)
+            initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes),
+            minInstallments: minInstallments,
+            maxInstallments: maxInstallments
         )
         let viewModel = CardFormViewModel(
             config: config,
@@ -736,7 +750,7 @@ final class CardFormViewModelTests: XCTestCase {
         let sut = self.makeSUTWithAmount(500.0)
 
         // Assert
-        XCTAssertEqual(sut.viewModel.footerAmount(), MPAmountData(from: 500.0))
+        XCTAssertEqual(sut.viewModel.footerAmount(), MPAmountData(from: 500.0, currencySymbol: "R$"))
     }
 
     // MARK: - submitCardData
@@ -970,6 +984,48 @@ final class CardFormViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(capturedOutput?.issuerId, "24")
+    }
+
+    func test_submitCardData_whenCardDataHasInstallments_shouldIncludeInstallmentsDataInOutput() async {
+        // Arrange
+        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
+        await sut.repository.setResult(.success(CardDataStub.visaWithInstallments))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var capturedOutput: CardFormOutput?
+
+        // Act
+        await sut.viewModel.submitCardData(
+            cardForm: CardFormDataStub.validForm,
+            onSuccess: { capturedOutput = $0 },
+            onFailure: { XCTFail("Expected success, got error: \($0)") }
+        )
+
+        // Assert
+        XCTAssertNotNil(capturedOutput?.installmentsData)
+        XCTAssertEqual(capturedOutput?.installmentsData?.cardDisplayInfo.paymentTypeId, "credit_card")
+        XCTAssertEqual(capturedOutput?.installmentsData?.cardDisplayInfo.lastFourDigits, "1111")
+    }
+
+    func test_submitCardData_whenCardDataHasNoInstallments_shouldReturnNilInstallmentsData() async {
+        // Arrange
+        let sut = self.makeSUT(identificationTypes: [IdentificationTypeStub.cpf])
+        await sut.repository.setResult(.success(CardDataStub.visa))
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+        await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
+        var capturedOutput: CardFormOutput?
+
+        // Act
+        await sut.viewModel.submitCardData(
+            cardForm: CardFormDataStub.validForm,
+            onSuccess: { capturedOutput = $0 },
+            onFailure: { XCTFail("Expected success, got error: \($0)") }
+        )
+
+        // Assert
+        XCTAssertNil(capturedOutput?.installmentsData)
     }
 
     func test_retryBinFetch_whenCalledTwice_withNetworkError_shouldShowSnackbarBothTimes() async {

@@ -80,7 +80,7 @@ final class MPPaymentDataTests: XCTestCase {
     }
 
     func test_cardTransaction_codable_missingOptionalFields_shouldNotFail() throws {
-        let json = #"{"token":"tok","paymentMethodId":"visa","paymentTypeId":"credit_card"}"#.data(using: .utf8)!
+        let json = #"{"token":"tok","paymentMethodId":"visa","paymentTypeId":"credit_card","orderId":"","orderStatus":""}"#.data(using: .utf8)!
         let decoded = try JSONDecoder().decode(MPPaymentData.CardTransaction.self, from: json)
         XCTAssertEqual(decoded.token, "tok")
         XCTAssertNil(decoded.transactionAmount)

@@ -44,6 +44,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
             "translations": {
                 "card_form_title": "Preencha os dados do cartão",
                 "card_form_footer_button_label": "Salvar cartão",
+                "currency_symbol": "R$",
                 "card_number": {
                     "label": "Número do cartão",
                     "placeholder": "1234 1234 1234 1234",

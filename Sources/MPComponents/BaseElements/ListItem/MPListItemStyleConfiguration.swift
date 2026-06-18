@@ -1,5 +1,5 @@
 //
-//  ListItemStyleConfiguration.swift
+//  MPListItemStyleConfiguration.swift
 //  MPComponents
 //
 //  Created by [Your Name] on [Date].
@@ -67,7 +67,6 @@ extension EnvironmentValues {
     }
 }
 
-
 package extension MPListItemStyle {
     @MainActor
     func resolve(configuration: Configuration) -> some View {
@@ -80,15 +79,15 @@ private struct ResolvedListItemStyle<Style: MPListItemStyle>: View {
     let configuration: Style.Configuration
 
     var body: some View {
-        style
-            .makeBody(configuration: configuration)
+        self.style
+            .makeBody(configuration: self.configuration)
     }
 }
 
 package extension View {
     /// Sets the style for `ListItem` views within this view.
     /// Outermost caller wins — inner modifiers are ignored if an ancestor already set a style.
-    func listItemStyle<S: MPListItemStyle>(_ style: S) -> some View {
+    func listItemStyle(_ style: some MPListItemStyle) -> some View {
         transformEnvironment(\.listItemStyle) { current in
             if current == nil {
                 current = style

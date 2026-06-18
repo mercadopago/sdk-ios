@@ -5,79 +5,17 @@
 //  Created by Danielle Nozaki Ogawa on 28/01/26.
 //
 
-@testable import CoreMethods
 @testable import MercadoPagoCheckout
 @testable import MPComponents
 @testable import MPFoundation
+import SwiftUI
 import XCTest
 
+@MainActor
 final class InstallmentsScreenViewModelTests: XCTestCase {
-    func test_formatInstallmentLabel_shouldReturnCorrectFormat() {
-        // Arrange
-        let sut = self.makeSUT()
-        let payerCost = Installment.makePayerCost(installments: 3, installmentAmount: 370.77)
+    // MARK: - selectedTotalAmount
 
-        // Act
-        let result = sut.formatInstallmentLabel(for: payerCost)
-
-        // Assert
-        XCTAssertTrue(result.contains("3x"))
-        XCTAssertTrue(result.contains("370"))
-    }
-
-    func test_formatInstallmentLabel_withOneInstallment_shouldShowOneX() {
-        // Arrange
-        let sut = self.makeSUT()
-        let payerCost = Installment.makePayerCost(installments: 1, installmentAmount: 1000.0)
-
-        // Act
-        let result = sut.formatInstallmentLabel(for: payerCost)
-
-        // Assert
-        XCTAssertTrue(result.hasPrefix("1x"))
-    }
-
-    // MARK: - formatInterestLabel Tests
-
-    func test_formatInterestLabel_withZeroRate_shouldReturnEmpty() {
-        // Arrange
-        let sut = self.makeSUT()
-        let payerCost = Installment.makePayerCost(installmentRate: 0.0)
-
-        // Act
-        let result = sut.formatInterestLabel(for: payerCost)
-
-        // Assert
-        XCTAssertEqual(result, String())
-    }
-
-    func test_formatInterestLabel_withZeroRate_shouldReturnInterestFree() {
-        // Arrange
-        let sut = self.makeSUT(installments: Installment.validInstallments)
-        let payerCost = Installment.makePayerCost(installments: 2, installmentRate: 0.0)
-
-        // Act
-        let result = sut.formatInterestLabel(for: payerCost)
-
-        // Assert
-        XCTAssertEqual(result, MPStrings.Installments.interestFree)
-    }
-
-    func test_formatInterestLabel_withPositiveRate_shouldReturnTotalAmount() {
-        // Arrange
-        let sut = self.makeSUT()
-        let payerCost = Installment.makePayerCost(installments: 2, installmentRate: 9.64, totalAmount: 1096.4)
-
-        // Act
-        let result = sut.formatInterestLabel(for: payerCost)
-
-        // Assert
-        XCTAssertEqual("\(MPStrings.Common.currency) 1.096,40", result)
-    }
-
-    // MARK: - selectedTotalAmount Tests
-
-    func test_selectedTotalAmount_whenSelectedIsNil_shouldReturnFirstInstallmentAmount() {
+    func test_selectedTotalAmount_whenSelectedIsNil_shouldReturnFirstQuotaTotalAmount() {
         // Arrange
         let sut = self.makeSUT()
 
@@ -85,203 +23,165 @@ final class InstallmentsScreenViewModelTests: XCTestCase {
         let result = sut.selectedTotalAmount(nil)
 
         // Assert
-        XCTAssertEqual(MPAmountData(from: 1000.0), result)
+        XCTAssertEqual(MPAmountData(from: 1000.0, currencySymbol: "R$"), result)
     }
 
     func test_selectedTotalAmount_whenSelected_shouldReturnSelectedTotalAmount() {
         // Arrange
         let sut = self.makeSUT()
-        let selectedPayerCost = Installment.makePayerCost(totalAmount: 1221.1)
+        let selectedQuota = CardPaymentBrickCardData.Installment.Quota.make(totalAmount: 1221.1)
 
         // Act
-        let result = sut.selectedTotalAmount(selectedPayerCost)
+        let result = sut.selectedTotalAmount(selectedQuota)
 
         // Assert
-        XCTAssertEqual(MPAmountData(from: 1221.1), result)
+        XCTAssertEqual(MPAmountData(from: 1221.1, currencySymbol: "R$"), result)
     }
 
-    // MARK: - formatInterestLabel — one-installment edge case
-
-    func test_formatInterestLabel_withOneInstallment_shouldReturnEmpty() {
-        // Arrange -- single installment: no interest label regardless of rate
-        let sut = self.makeSUT()
-        let payerCost = Installment.makePayerCost(installments: 1, installmentRate: 5.0, totalAmount: 1000.0)
+    func test_selectedTotalAmount_shouldUseCurrencySymbolFromTranslations() {
+        // Arrange
+        let translations = CardPaymentBrickCardData.Installment.InstallmentTranslations(
+            headerTitle: String(),
+            totalLabel: String(),
+            payButtonLabel: String(),
+            currencySymbol: "$"
+        )
+        let installment = CardPaymentBrickCardData.Installment(
+            selectionType: "radio_button",
+            quotas: [.make(totalAmount: 500.0)],
+            translations: translations
+        )
+        let sut = self.makeSUT(installmentsData: .init(installment: installment, cardDisplayInfo: .make()))
 
         // Act
-        let result = sut.formatInterestLabel(for: payerCost)
+        let result = sut.selectedTotalAmount(nil)
 
         // Assert
-        XCTAssertEqual(result, String())
+        XCTAssertEqual(result.currencySymbol, "$")
     }
 
-    // MARK: - findInterestLabelColor
+    // MARK: - color(for:)
 
-    func test_findInterestLabelColor_whenZeroRate_shouldReturnFeedbackPositive() {
+    func test_color_whenStateIsSuccess_shouldReturnFeedbackPositive() {
         // Arrange
         let sut = self.makeSUT()
-        let payerCost = Installment.makePayerCost(installmentRate: 0.0)
+        let quota = CardPaymentBrickCardData.Installment.Quota.make(state: .success)
 
         // Act
-        let result = sut.findInterestLabelColor(for: payerCost)
+        let result = sut.color(for: quota)
 
         // Assert
         XCTAssertEqual(result, .feedbackPositive)
     }
 
-    func test_findInterestLabelColor_whenPositiveRate_shouldReturnNil() {
+    func test_color_whenStateIsNone_shouldReturnNil() {
         // Arrange
         let sut = self.makeSUT()
-        let payerCost = Installment.makePayerCost(installmentRate: 9.64)
+        let quota = CardPaymentBrickCardData.Installment.Quota.make(state: .none)
 
         // Act
-        let result = sut.findInterestLabelColor(for: payerCost)
+        let result = sut.color(for: quota)
 
         // Assert
         XCTAssertNil(result)
     }
 
-    // MARK: - formatFooterDescription
+    // MARK: - headerTitle / totalLabel
 
-    func test_formatFooterDescription_whenAllFieldsPresent_shouldReturnFormattedDescription() {
-        // Arrange -- validInstallments has issuer.name "Mercado Pago" and paymentTypeId "credit_card"
+    func test_headerTitle_shouldMatchTranslations() {
         let sut = self.makeSUT()
-
-        // Act
-        let result = sut.formatFooterDescription()
-
-        // Assert -- format is "<Normalized issuer> <Credit/Debit> **** <lastDigits>"
-        XCTAssertTrue(result.contains("Mercado Pago"))
-        XCTAssertTrue(result.contains(MPStrings.Common.creditCard))
-        XCTAssertTrue(result.contains("****"))
+        XCTAssertEqual(sut.headerTitle, "Escolha o parcelamento")
     }
 
-    func test_formatFooterDescription_whenIssuerHasNoName_shouldReturnEmpty() {
-        // Arrange -- Issuer.name is String?; nil causes the guard in formatFooterDescription to fail
-        let installment = Installment(
-            paymentMethodId: "visa",
-            paymentTypeId: "credit_card",
-            thumbnail: "",
-            issuer: Installment.Issuer(id: "1", thumbnail: "", name: nil),
-            processingMode: "aggregator",
-            merchantAccountId: "",
-            payerCosts: Installment.payerCosts,
-            agreements: []
-        )
-        let sut = InstallmentsScreenViewModel(installments: installment)
-
-        // Act
-        let result = sut.formatFooterDescription()
-
-        // Assert
-        XCTAssertEqual(result, "")
+    func test_totalLabel_shouldMatchTranslations() {
+        let sut = self.makeSUT()
+        XCTAssertEqual(sut.totalLabel, "Total")
     }
 
-    // MARK: - getSavedCardName
+    // MARK: - footerDescription
 
-    func test_getSavedCardName_whenNotMercadoPagoCard_shouldIncludeMaskedLastDigits() {
+    func test_footerDescription_shouldFormatIssuerPaymentTypeAndLastFourDigits() {
         // Arrange
         let sut = self.makeSUT()
 
         // Act
-        let result = sut.getSavedCardName(
-            issuerName: "Bradesco",
-            paymentTypeLabel: "Crédito",
-            lastDigits: "4321",
-            isMercadoPagoCard: false
-        )
+        let result = sut.footerDescription()
 
         // Assert
-        XCTAssertEqual(result, "Bradesco Crédito **** 4321")
+        XCTAssertTrue(result.contains("Bradesco"))
+        XCTAssertTrue(result.contains("****"))
+        XCTAssertTrue(result.contains("4321"))
     }
 
-    func test_getSavedCardName_whenIsMercadoPagoCard_shouldOmitMaskAndLastDigits() {
-        // Arrange -- MercadoPago-issued cards don't show the masked suffix
-        let sut = self.makeSUT()
+    // MARK: - Helpers
 
-        // Act
-        let result = sut.getSavedCardName(
-            issuerName: "Mercado Pago",
-            paymentTypeLabel: "Crédito",
-            lastDigits: "4321",
-            isMercadoPagoCard: true
+    private func makeSUT(
+        installmentsData: MPInstallmentsData = .validMPInstallmentsData
+    ) -> InstallmentsScreenViewModel {
+        var data = installmentsData
+        return InstallmentsScreenViewModel(
+            installmentsData: Binding(get: { data }, set: { data = $0 }),
+            checkoutType: "card_payment_brick"
         )
-
-        // Assert
-        XCTAssertEqual(result, "Mercado Pago Crédito")
-    }
-
-    func test_getSavedCardName_shouldNormalizeIssuerName_byStrippingCreditWord() {
-        // Arrange -- issuerName passes through MPFormatIssuerName.cleanIssuerName before joining
-        let sut = self.makeSUT()
-
-        // Act
-        let result = sut.getSavedCardName(
-            issuerName: "Banco de Crédito del Perú",
-            paymentTypeLabel: "Crédito",
-            lastDigits: "1234",
-            isMercadoPagoCard: false
-        )
-
-        // Assert -- "Crédito" word removed, capitalization applied ("de"/"del" stay lowercase)
-        XCTAssertEqual(result, "Banco de del Perú Crédito **** 1234")
-    }
-
-    // MARK: - Helpers:
-
-    private func makeSUT(installments: Installment = Installment.validInstallments) -> InstallmentsScreenViewModel {
-        InstallmentsScreenViewModel(installments: installments)
     }
 }
 
-extension Installment {
-    static let validInstallments = Installment(
-        paymentMethodId: "visa",
-        paymentTypeId: "credit_card",
-        thumbnail: "https://example.com/visa.png",
-        issuer: Installment.Issuer(id: "25", thumbnail: "https://example.com/visa.png", name: "Mercado Pago"),
-        processingMode: "aggregator",
-        merchantAccountId: "",
-        payerCosts: payerCosts,
-        agreements: []
+// MARK: - Test Fixtures
+
+extension MPInstallmentsData {
+    static let validMPInstallmentsData = MPInstallmentsData(
+        installment: .validInstallments,
+        cardDisplayInfo: .make()
     )
+}
 
-    static let payerCosts: [Installment.PayerCost] = [
-        makePayerCost(id: 1, installments: 1, installmentAmount: 1000.0, installmentRate: 0.0, totalAmount: 1000.0),
-        makePayerCost(id: 2, installments: 2, installmentAmount: 548.2, installmentRate: 9.64, totalAmount: 1096.4),
-        makePayerCost(id: 3, installments: 3, installmentAmount: 370.77, installmentRate: 11.23, totalAmount: 1112.3)
-    ]
-
-    static let singleInstallment = Installment(
-        paymentMethodId: "visa",
-        paymentTypeId: "credit_card",
-        thumbnail: "",
-        issuer: Installment.Issuer(id: "1", thumbnail: ""),
-        processingMode: "aggregator",
-        merchantAccountId: "",
-        payerCosts: [makePayerCost(id: 1, installments: 1, installmentAmount: 500.0, installmentRate: 0.0, totalAmount: 500.0)],
-        agreements: []
+extension CardPaymentBrickCardData.Installment {
+    static let validInstallments = CardPaymentBrickCardData.Installment(
+        selectionType: "radio_button",
+        quotas: [
+            .make(installments: 1, installmentAmount: 1000.0, totalAmount: 1000.0, state: .none),
+            .make(installments: 2, installmentAmount: 548.2, totalAmount: 1096.4, state: .none),
+            .make(installments: 3, installmentAmount: 370.77, totalAmount: 1112.3, state: .success)
+        ],
+        translations: .init(
+            headerTitle: "Escolha o parcelamento",
+            totalLabel: "Total",
+            payButtonLabel: "Pagar",
+            currencySymbol: "R$"
+        )
     )
+}
 
-    static func makePayerCost(
-        id: Int = 1,
+extension CardPaymentBrickCardData.Installment.Quota {
+    static func make(
         installments: Int = 1,
         installmentAmount: Double = 1000.0,
-        installmentRate: Double = 0.0,
-        totalAmount: Double = 1000.0
-    ) -> Installment.PayerCost {
-        Installment.PayerCost(
-            id: id,
+        totalAmount: Double = 1000.0,
+        primaryLabel: String = "1x R$ 1.000,00",
+        secondaryLabel: String = "À vista",
+        state: CardPaymentBrickCardData.Installment.QuotaState = .none,
+        tertiaryLabel: String? = nil,
+        accessibilityLabel: String? = nil
+    ) -> CardPaymentBrickCardData.Installment.Quota {
+        .init(
             installments: installments,
             installmentAmount: installmentAmount,
-            installmentRate: installmentRate,
-            installmentRateCollector: ["MERCADOPAGO"],
             totalAmount: totalAmount,
-            minAllowedAmount: 0.5,
-            maxAllowedAmount: 60000.0,
-            discountRate: 0.0,
-            reimbursementRate: 0.0,
-            labels: [],
-            paymentMethodOptionId: "test-\(id)"
+            primaryLabel: primaryLabel,
+            secondaryLabel: secondaryLabel,
+            state: state,
+            tertiaryLabel: tertiaryLabel,
+            accessibilityLabel: accessibilityLabel
         )
+    }
+}
+
+extension CardDisplayInfo {
+    static func make(
+        issuerName: String = "Bradesco",
+        paymentTypeId: String = "credit_card",
+        lastFourDigits: String = "4321"
+    ) -> CardDisplayInfo {
+        .init(issuerName: issuerName, paymentTypeId: paymentTypeId, lastFourDigits: lastFourDigits)
     }
 }

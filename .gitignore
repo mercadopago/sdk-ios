@@ -89,10 +89,12 @@ buildServer.json
 
 .docc-temp
 
-.claude/
+.claude/settings.local.json
 .xcodebuildmcp/
 
 Example/Sources/ExampleApp.swift
+
+Sources/MPCore/Internal/Core/Base/MPSDKProduct.swift
 
 CLAUDE.md
 
