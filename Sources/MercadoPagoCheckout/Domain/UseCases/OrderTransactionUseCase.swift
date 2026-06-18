@@ -16,10 +16,11 @@ struct OrderTransactionUseCase {
 
     func execute(
         orderId: String,
+        clientToken: String,
         params: OrderTransactionParams
     ) async throws(MercadoPagoCheckoutError) -> OrderTransactionProcessData {
         do {
-            return try await repository.processOrder(orderId: orderId, params: params)
+            return try await self.repository.processOrder(orderId: orderId, clientToken: clientToken, params: params)
         } catch let error as MercadoPagoCheckoutError {
             throw error
         } catch let error as APIClientError {

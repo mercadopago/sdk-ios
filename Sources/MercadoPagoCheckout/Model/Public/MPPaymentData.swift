@@ -100,7 +100,16 @@ public enum MPPaymentData {
         }
     }
 
-    /// The payer's identification details collected during the flow.
+    public struct PaymentTransaction: Kind, Equatable, Codable, Sendable {
+        public typealias Cancellation = MPUserCancelledContext.Payment
+
+        public var orderId: String
+        public var orderStatus = ""
+        public var transactionAmount: Double
+
+        var token = ""
+    }
+
     public struct Payer: Equatable, Codable, Sendable {
         /// The type of identification document (for example, the local document code).
         public var documentType: String

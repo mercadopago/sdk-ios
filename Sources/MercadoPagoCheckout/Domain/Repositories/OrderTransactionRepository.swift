@@ -6,5 +6,5 @@
 //
 
 protocol OrderTransactionRepository: Sendable {
-    func processOrder(orderId: String, params: OrderTransactionParams) async throws -> OrderTransactionProcessData
+    func processOrder(orderId: String, clientToken: String, params: OrderTransactionParams) async throws -> OrderTransactionProcessData
 }

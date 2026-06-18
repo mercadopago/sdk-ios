@@ -18,7 +18,7 @@ package struct MPListRowRadioStyle: MPListItemStyle {
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let hasDescription = configuration.description != nil
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.micro) {
+        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xtiny) {
             self.radioToggle(isSelected: configuration.isSelected)
 
             VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {

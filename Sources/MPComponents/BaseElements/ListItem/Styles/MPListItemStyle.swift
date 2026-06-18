@@ -50,8 +50,8 @@ package struct MPDefaultListItemStyle: MPListItemStyle {
         let hasDescription = configuration.description != nil
 
         HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xtiny) {
-            if let leftImage = configuration.leftImage {
-                leftImage
+            if let leading = configuration.leading {
+                leading
             }
 
             VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {

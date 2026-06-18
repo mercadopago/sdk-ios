@@ -29,4 +29,5 @@ package enum Logos: Equatable {
     package static let close = "Close"
     package static let arrowLeft = "arrow.left"
     package static let questionMark = "questionmark.circle"
+    package static let chevronRight = "chevron.right"
 }

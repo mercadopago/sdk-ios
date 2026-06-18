@@ -21,7 +21,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_cardTransaction_init_shouldStoreAmountInCheckoutType() {
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: .init(amount: 100.0, payer: .init(email: "test@mp.com"), orderId: "order-1")),
+            checkoutType: .cardTransaction(order: .init(orderId: "order-1", clientToken: "seller_client_token", amount: 100.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         ).build()
 
@@ -35,7 +35,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_build_withoutSettingPaymentMethodConfiguration_shouldHaveDefaultConfiguration() {
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"), orderId: "")),
+            checkoutType: .cardTransaction(order: .init(orderId: "", clientToken: "seller_client_token", amount: 50.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         ).build()
 
@@ -55,7 +55,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         ]
 
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"), orderId: "")),
+            checkoutType: .cardTransaction(order: .init(orderId: "", clientToken: "seller_client_token", amount: 50.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         )
         .setPaymentMethodConfiguration(customConfig)
@@ -72,7 +72,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_setPaymentMethodConfiguration_withNoArgument_shouldResetToEmpty() {
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"), orderId: "")),
+            checkoutType: .cardTransaction(order: .init(orderId: "", clientToken: "seller_client_token", amount: 50.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         )
         builder.setPaymentMethodConfiguration([.card(excludedTypes: [.credit])])
@@ -84,7 +84,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_setPaymentMethodConfiguration_shouldBeDiscardableAndReturnSameBuilder() {
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: .init(amount: 50.0, payer: .init(email: "test@mp.com"), orderId: "")),
+            checkoutType: .cardTransaction(order: .init(orderId: "", clientToken: "seller_client_token", amount: 50.0, payer: .init(email: "test@mp.com"))),
             checkoutAppearance: .init()
         )
 
@@ -126,7 +126,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_cardTransaction_checkoutType_analyticsValue() {
         let checkoutType = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutType.cardTransaction(
-            order: .init(amount: 10.0, payer: .init(email: "a@b.com"), orderId: "")
+            order: .init(orderId: "", clientToken: "seller_client_token", amount: 10.0, payer: .init(email: "a@b.com"))
         )
         XCTAssertEqual(checkoutType.analyticsValue, "card_transaction")
     }
@@ -138,7 +138,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_cardTransaction_checkoutType_carriesOrderAmount() {
         let checkoutType = MercadoPagoCheckout<MPPaymentData.CardTransaction>.CheckoutType.cardTransaction(
-            order: .init(amount: 77.5, payer: .init(email: "test@mp.com"), orderId: "")
+            order: .init(orderId: "", clientToken: "seller_client_token", amount: 77.5, payer: .init(email: "test@mp.com"))
         )
         guard case let .cardTransaction(order) = checkoutType.kind else {
             return XCTFail("Expected .cardTransaction kind")

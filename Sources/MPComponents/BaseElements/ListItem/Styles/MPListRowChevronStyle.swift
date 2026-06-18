@@ -17,7 +17,7 @@ package struct MPListRowChevronStyle: MPListItemStyle {
         let hasDescription = configuration.description != nil
 
         HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xmicro) {
-            if let leftImage = configuration.leftImage {
+            if let leftImage = configuration.leading {
                 leftImage
             }
 

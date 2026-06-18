@@ -135,11 +135,13 @@ final class MPListItemSnapshotTests: XCTestCase {
         rightText: String = "",
         rightTextColor: TextStyleColorType? = nil,
         isSelected: Binding<Bool>? = nil,
-        leftImageSystemName: String? = nil
+        leftImageSystemName: String? = nil,
+        leading: MPListItemLeading? = nil
     ) -> some View {
-        MPListItem(
+        let resolvedLeading: MPListItemLeading? = leading ?? leftImageSystemName.map { .image(Image(systemName: $0)) }
+        return MPListItem(
             isSelected: isSelected ?? .constant(false),
-            leftImage: leftImageSystemName.map(Image.init(systemName:)),
+            leading: resolvedLeading,
             contentInfo: .init(title: title, header: header, description: description),
             trailing: .init(text: rightText, color: rightTextColor)
         )

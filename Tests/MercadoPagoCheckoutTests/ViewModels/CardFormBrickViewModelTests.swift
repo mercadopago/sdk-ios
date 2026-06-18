@@ -32,6 +32,25 @@ final class CardFormBrickViewModelTests: XCTestCase {
         return (viewModel, repository)
     }
 
+    private func makeProcessData() -> OrderTransactionProcessData {
+        OrderTransactionProcessData(
+            id: "ORD01",
+            status: "processed",
+            statusDetail: "accredited",
+            totalAmount: "100.00",
+            payments: [
+                OrderTransactionProcessData.Payment(
+                    id: "PAY01",
+                    status: "processed",
+                    statusDetail: "accredited",
+                    amount: "100.00",
+                    paymentMethodId: "master",
+                    installments: 1
+                )
+            ]
+        )
+    }
+
     // MARK: - load() retry
 
     func test_load_whenFirstAttemptSucceeds_shouldCallRepositoryOnce() async throws {
@@ -84,7 +103,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
 
     func test_buildPaymentData_cardTransaction_shouldPropagateOrderId() {
         // Arrange
-        let order = MPOrder(amount: 100.0, payer: .init(email: "test@mp.com"), orderId: "order-42")
+        let order = MPOrder(orderId: "order-42", clientToken: "seller_client_token", amount: 100.0, payer: .init(email: "test@mp.com"))
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
             type: .cardTransaction(order: order),
             paymentMethod: [.card()]
@@ -107,5 +126,38 @@ final class CardFormBrickViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(result?.orderId, "order-42")
+    }
+
+    // MARK: - processOrderTask clientToken propagation
+
+    func test_processOrderTask_shouldPropagateClientTokenFromOrderToRepository() async throws {
+        // Arrange
+        let order = MPOrder(orderId: "order-99", clientToken: "seller_client_token", amount: 100.0, payer: .init(email: "test@mp.com"))
+        let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
+            type: .cardTransaction(order: order),
+            paymentMethod: [.card()]
+        )
+        let orderRepository = MockOrderTransactionRepository()
+        await orderRepository.setResult(.success(self.makeProcessData()))
+        let viewModel = CardFormBrickViewModel<MPPaymentData.CardTransaction>(
+            configuration: configuration,
+            initializeUseCase: InitializeCardFormUseCase(repository: MockCardFormInitializationRepository()),
+            orderUseCase: OrderTransactionUseCase(repository: orderRepository)
+        )
+        let paymentData = MPPaymentData.CardTransaction(
+            transactionAmount: 100.0,
+            token: "tok",
+            installment: 1,
+            paymentMethodId: "visa",
+            paymentTypeId: "credit_card",
+            orderId: "order-99"
+        )
+
+        // Act
+        _ = try await viewModel.processOrderTask(paymentData)
+
+        // Assert
+        let lastClientToken = await orderRepository.lastClientToken
+        XCTAssertEqual(lastClientToken, "seller_client_token")
     }
 }

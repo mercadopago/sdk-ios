@@ -8,7 +8,6 @@
 import XCTest
 
 final class OrderTransactionUseCaseTests: XCTestCase {
-
     // MARK: - Types
 
     typealias SUT = (
@@ -61,11 +60,11 @@ final class OrderTransactionUseCaseTests: XCTestCase {
     // MARK: - Success
 
     func test_execute_whenRepositorySucceeds_returnsData() async throws {
-        let sut = makeSUT()
-        let expected = makeProcessData()
+        let sut = self.makeSUT()
+        let expected = self.makeProcessData()
         await sut.repository.setResult(.success(expected))
 
-        let result = try await sut.useCase.execute(orderId: "ORD01", params: makeParams())
+        let result = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
 
         XCTAssertEqual(result.id, expected.id)
         XCTAssertEqual(result.status, expected.status)
@@ -74,21 +73,31 @@ final class OrderTransactionUseCaseTests: XCTestCase {
     }
 
     func test_execute_passesOrderIdToRepository() async throws {
-        let sut = makeSUT()
-        await sut.repository.setResult(.success(makeProcessData()))
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(self.makeProcessData()))
 
-        _ = try await sut.useCase.execute(orderId: "ORD-EXPECTED-123", params: makeParams())
+        _ = try await sut.useCase.execute(orderId: "ORD-EXPECTED-123", clientToken: "token", params: self.makeParams())
 
         let lastOrderId = await sut.repository.lastOrderId
         XCTAssertEqual(lastOrderId, "ORD-EXPECTED-123")
     }
 
-    func test_execute_passesParamsToRepository() async throws {
-        let sut = makeSUT()
-        let params = makeParams()
-        await sut.repository.setResult(.success(makeProcessData()))
+    func test_execute_passesClientTokenToRepository() async throws {
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(self.makeProcessData()))
 
-        _ = try await sut.useCase.execute(orderId: "ORD01", params: params)
+        _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
+
+        let lastClientToken = await sut.repository.lastClientToken
+        XCTAssertEqual(lastClientToken, "seller_client_token")
+    }
+
+    func test_execute_passesParamsToRepository() async throws {
+        let sut = self.makeSUT()
+        let params = self.makeParams()
+        await sut.repository.setResult(.success(self.makeProcessData()))
+
+        _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: params)
 
         let lastParams = await sut.repository.lastParams
         XCTAssertEqual(lastParams?.amount, params.amount)
@@ -98,7 +107,7 @@ final class OrderTransactionUseCaseTests: XCTestCase {
     // MARK: - Error Propagation
 
     func test_execute_whenRepositoryThrowsMercadoPagoCheckoutError_propagatesSameError() async {
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         let originalError = MercadoPagoCheckoutError(
             code: .serviceError,
             localizedDescription: "service error",
@@ -107,7 +116,7 @@ final class OrderTransactionUseCaseTests: XCTestCase {
         await sut.repository.setResult(.failure(originalError))
 
         do {
-            _ = try await sut.useCase.execute(orderId: "ORD01", params: makeParams())
+            _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
             XCTFail("Expected error to be thrown")
         } catch {
             XCTAssertEqual(error.code, .serviceError)
@@ -117,11 +126,11 @@ final class OrderTransactionUseCaseTests: XCTestCase {
 
     func test_execute_whenRepositoryThrowsUnknownError_wrapsAsUnknown() async {
         struct SomeUnknownError: Error {}
-        let sut = makeSUT()
+        let sut = self.makeSUT()
         await sut.repository.setResult(.failure(SomeUnknownError()))
 
         do {
-            _ = try await sut.useCase.execute(orderId: "ORD01", params: makeParams())
+            _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
             XCTFail("Expected error to be thrown")
         } catch {
             XCTAssertEqual(error.code, .unknown)
@@ -139,7 +148,7 @@ final class OrderTransactionUseCaseTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.useCase.execute(orderId: "ORD01", params: self.makeParams())
+            _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
             XCTFail("Expected error to be thrown")
         } catch {
             XCTAssertEqual(error.code, .serviceError)
@@ -148,10 +157,10 @@ final class OrderTransactionUseCaseTests: XCTestCase {
     }
 
     func test_execute_callsRepositoryExactlyOnce() async throws {
-        let sut = makeSUT()
-        await sut.repository.setResult(.success(makeProcessData()))
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(self.makeProcessData()))
 
-        _ = try await sut.useCase.execute(orderId: "ORD01", params: makeParams())
+        _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
 
         let callCount = await sut.repository.callCount
         XCTAssertEqual(callCount, 1)

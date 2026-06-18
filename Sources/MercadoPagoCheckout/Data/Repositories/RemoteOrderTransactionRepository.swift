@@ -1,5 +1,5 @@
 //
-//  RemoteTransactionOrderRepository.swift
+//  RemoteOrderTransactionRepository.swift
 //  MercadoPagoSDK
 //
 //  Created by Danielle Nozaki Ogawa on 02/06/26.
@@ -17,9 +17,9 @@ struct RemoteOrderTransactionRepository: OrderTransactionRepository {
         self.dependencies = dependencies
     }
 
-    func processOrder(orderId: String, params: OrderTransactionParams) async throws -> OrderTransactionProcessData {
+    func processOrder(orderId: String, clientToken: String, params: OrderTransactionParams) async throws -> OrderTransactionProcessData {
         let response: OrderTransactionResponse = try await dependencies.networkService.request(
-            OrderTransactionEndpoint.process(orderId: orderId, params: params)
+            OrderTransactionEndpoint.process(orderId: orderId, clientToken: clientToken, params: params)
         )
         return self.map(response)
     }

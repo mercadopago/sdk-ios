@@ -140,6 +140,10 @@ struct CheckoutPlaygroundView: View {
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
                 .accessibilityIdentifier("playground.orderId")
+            TextField("Client Token", text: self.$config.clientToken)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+                .accessibilityIdentifier("playground.clientToken")
         }
     }
 
@@ -240,6 +244,8 @@ struct CheckoutPlaygroundView: View {
             return AnyView(self.config.makeCardSaveCheckout().show(onResult: self.handleSaveResult))
         case .cardTransaction:
             return AnyView(self.config.makeCardTransactionCheckout().show(onResult: self.handleTransactionResult))
+        case .payment:
+            return AnyView(self.config.makePaymentCheckout().show(onResult: self.handlePaymentResult))
         }
     }
 
@@ -256,6 +262,11 @@ struct CheckoutPlaygroundView: View {
                 checkout: self.config.makeCardTransactionCheckout(),
                 onResult: self.handleTransactionResult
             ))
+        case .payment:
+            return AnyView(CheckoutPushRepresentable(
+                checkout: self.config.makePaymentCheckout(),
+                onResult: self.handlePaymentResult
+            ))
         }
     }
 
@@ -266,6 +277,8 @@ struct CheckoutPlaygroundView: View {
             self.config.makeCardSaveCheckout().present(from: topVC, onResult: self.handleSaveResult)
         case .cardTransaction:
             self.config.makeCardTransactionCheckout().present(from: topVC, onResult: self.handleTransactionResult)
+        case .payment:
+            self.config.makePaymentCheckout().present(from: topVC, onResult: self.handlePaymentResult)
         }
     }
 
@@ -313,6 +326,27 @@ struct CheckoutPlaygroundView: View {
                 self.alertItem = AlertItem(
                     title: "Success",
                     message: "Method: \(paymentData.paymentMethodId)\nInstallments: \(paymentData.installment ?? 1)"
+                )
+            case let .error(error):
+                self.alertItem = AlertItem(title: "Error", message: error.localizedDescription)
+            case let .userCancelled(context):
+                print("Contexto: ", context)
+                self.alertItem = AlertItem(title: "Cancelled", message: "User has cancelled.")
+            }
+        }
+    }
+
+    private func handlePaymentResult(_ result: MercadoPagoCheckoutResult<MPPaymentData.PaymentTransaction>) {
+        Task { @MainActor in
+            self.preparedCheckout = nil
+            self.sheetCheckout = nil
+            try? await Task.sleep(for: .seconds(0.6))
+            guard self.preparedCheckout == nil, self.sheetCheckout == nil else { return }
+            switch result {
+            case let .success(paymentData):
+                self.alertItem = AlertItem(
+                    title: "Success",
+                    message: "Order: \(paymentData.orderId)\n Status: \(paymentData.orderStatus)"
                 )
             case let .error(error):
                 self.alertItem = AlertItem(title: "Error", message: error.localizedDescription)

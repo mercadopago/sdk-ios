@@ -18,7 +18,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     private var transactionAmount: Double {
         switch self.configuration.type.kind {
-        case .saveCard:
+        case .saveCard, .payment:
             return .zero
         case let .cardTransaction(order):
             return order.amount
@@ -27,10 +27,19 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     private var orderId: String? {
         switch self.configuration.type.kind {
-        case .saveCard:
+        case .saveCard, .payment:
             return nil
         case let .cardTransaction(order):
             return order.orderId
+        }
+    }
+
+    private var clientToken: String? {
+        switch self.configuration.type.kind {
+        case .saveCard:
+            return nil
+        case let .payment(order), let .cardTransaction(order):
+            return order.clientToken
         }
     }
 
@@ -112,12 +121,12 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Process Order
 
     func processOrderTask(_ paymentData: MPPaymentData.CardTransaction) async throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
-        guard let params = OrderTransactionParams(cardTransaction: paymentData) else {
+        guard let params = OrderTransactionParams(cardTransaction: paymentData), let clientToken = self.clientToken else {
             assertionFailure("processOrderTask: invalid payment data")
             throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "invalid payment data", location: .orderProcess)
         }
         do {
-            let data = try await orderUseCase.execute(orderId: paymentData.orderId, params: params)
+            let data = try await orderUseCase.execute(orderId: paymentData.orderId, clientToken: clientToken, params: params)
             var updatedPaymentData = paymentData
             updatedPaymentData.orderStatus = data.status
             self.trackOrderSubmit(updatedPaymentData)
@@ -183,6 +192,9 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 issuerId: output.issuerId,
                 payer: payer
             ) as? T
+
+        case .payment:
+            return nil
         }
     }
 

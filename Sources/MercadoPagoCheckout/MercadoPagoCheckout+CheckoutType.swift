@@ -18,6 +18,7 @@ public extension MercadoPagoCheckout {
     /// result closure receives, so you can read them without casting.
     struct CheckoutType: Sendable {
         enum Kind: Sendable {
+            case payment(MPOrder)
             case cardTransaction(MPOrder)
             case saveCard
         }
@@ -28,6 +29,7 @@ public extension MercadoPagoCheckout {
             switch self.kind {
             case .cardTransaction: return "card_transaction"
             case .saveCard: return "save_card"
+            case .payment: return "payment"
             }
         }
     }
@@ -49,5 +51,16 @@ public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.CardS
     /// ``MPPaymentData/CardSave`` carrying the token.
     static var saveCard: MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType {
         .init(kind: .saveCard)
+    }
+}
+
+public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.PaymentTransaction {
+    /// A payment selection flow that produces a ``MPPaymentData/PaymentTransaction``.
+    ///
+    /// - Parameter configuration: Configuration values for the payment selection, such as amount and payer.
+    static func payment(
+        order: MPOrder
+    ) -> MercadoPagoCheckout<MPPaymentData.PaymentTransaction>.CheckoutType {
+        .init(kind: .payment(order))
     }
 }

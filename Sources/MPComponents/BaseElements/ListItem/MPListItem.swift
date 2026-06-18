@@ -8,6 +8,11 @@
 import MPFoundation
 import SwiftUI
 
+package enum MPListItemLeading {
+    case image(Image)
+    case thumbnail(URL?)
+}
+
 package struct MPListItem: View {
     @Environment(\.checkoutTheme) private var theme: MPTheme
     @Environment(\.listItemStyle) private var style
@@ -15,18 +20,18 @@ package struct MPListItem: View {
     @State private var isPressed = false
 
     let isSelected: Binding<Bool>
-    let leftImage: Image?
+    let leading: MPListItemLeading?
     let contentInfo: MPListItemContentInfo
     let trailing: MPListItemTrailing?
 
     package init(
         isSelected: Binding<Bool> = .constant(false),
-        leftImage: Image? = nil,
+        leading: MPListItemLeading? = nil,
         contentInfo: MPListItemContentInfo,
         trailing: MPListItemTrailing? = nil
     ) {
         self.isSelected = isSelected
-        self.leftImage = leftImage
+        self.leading = leading
         self.contentInfo = contentInfo
         self.trailing = trailing
     }
@@ -35,10 +40,10 @@ package struct MPListItem: View {
         let configuration: MPListItemStyleConfiguration = .init(
             isPressed: isPressed,
             isSelected: isSelected.wrappedValue,
-            leftImage: self.leftImageView,
-            title: self.titleView,
-            header: self.headerView,
-            description: self.descriptionView,
+            leading: self.leadingView,
+            title: self.contentInfo.title.map { _ in self.titleView },
+            header: self.contentInfo.header.map { _ in self.headerView },
+            description: self.contentInfo.description.map { _ in self.descriptionView },
             trailing: self.trailingView
         )
 
@@ -90,8 +95,17 @@ package struct MPListItem: View {
         }
     }
 
-    private var leftImageView: some View {
-        self.leftImage
+    @ViewBuilder
+    private var leadingView: some View {
+        switch self.leading {
+        case let .image(image):
+            image
+        case let .thumbnail(url):
+            MPIcon(source: .remote(url: url))
+                .mpIconStyle(.thumbnailFlag)
+        case .none:
+            EmptyView()
+        }
     }
 
     @ViewBuilder
@@ -111,11 +125,32 @@ package struct MPListItem: View {
     struct MPListItemView: View {
         @State private var selectedIndex: Int? = 0
 
-        init() {}
+        private let mercadopago = URL(string: "https://http2.mlstatic.com/storage/mobile-on-demand-resources//image/cho_off-mercadopago_xxxhdpi")
+
+        private let visaURL = URL(string: "https://http2.mlstatic.com/storage/mobile-on-demand-resources//image/cho_off-visa_xxxhdpi")
+
+        public init() {}
 
         var body: some View {
             VStack(spacing: 16) {
                 VStack(spacing: 8) {
+                    MPListItem(
+                        leading: .thumbnail(self.mercadopago),
+                        contentInfo: .init(
+                            title: "Saldo em conta ou cartões salvos"
+                        ),
+                        trailing: .init(text: "")
+                    )
+
+                    MPListItem(
+                        leading: .thumbnail(self.visaURL),
+                        contentInfo: .init(
+                            title: "Banco •••• 1234",
+                            description: "Visa Crédito"
+                        ),
+                        trailing: .init(text: "")
+                    )
+
                     MPListItem(
                         isSelected: self.bindingForIndex(0),
                         contentInfo: .init(title: "1x R$10", titleDecimalSuffix: "00")
@@ -145,14 +180,12 @@ package struct MPListItem: View {
                         trailing: .init(text: "$ 1,000.00")
                     )
                 }
-
-                MPListItem(
-                    leftImage: Image(systemName: "creditcard"),
-                    contentInfo: .init(title: "Default style", description: "Text-only trailing 11"),
-                    trailing: .init(text: "$ 500.00")
-                )
             }
-            .listItemStyle(.radioButton)
+            .listItemTrailingStyle(
+                .textIcon(
+                    Image(systemName: "chevron.right")
+                )
+            )
             .padding()
         }
 

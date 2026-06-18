@@ -10,7 +10,6 @@ import CommonTests
 import XCTest
 
 final class RemoteOrderTransactionRepositoryTests: XCTestCase {
-
     // MARK: - Types
 
     typealias SUT = (
@@ -99,7 +98,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.id, "ORD01MOCKAPPROVEDRESPONSE0001A")
@@ -112,7 +111,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.status, "processed")
@@ -125,7 +124,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.statusDetail, "accredited")
@@ -138,7 +137,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.totalAmount, "100.00")
@@ -153,7 +152,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.payments.count, 1)
@@ -166,7 +165,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.payments.first?.id, "PAY01MOCKAPPROVEPAYMENT00001A")
@@ -179,7 +178,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.payments.first?.status, "processed")
@@ -192,7 +191,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.payments.first?.statusDetail, "accredited")
@@ -205,7 +204,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.payments.first?.amount, "100.00")
@@ -218,7 +217,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.payments.first?.paymentMethodId, "master")
@@ -231,10 +230,44 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
 
         // Assert
         XCTAssertEqual(result.payments.first?.installments, 1)
+    }
+
+    // MARK: - Authorization Header
+
+    func testProcessEndpoint_setsAuthorizationHeaderToClientToken() {
+        // Arrange
+        let endpoint = OrderTransactionEndpoint.process(
+            orderId: "ORD01",
+            clientToken: "seller_client_token",
+            params: self.makeParams()
+        )
+
+        // Act
+        let headers = endpoint.headers
+
+        // Assert
+        XCTAssertEqual(headers["Authorization"], "seller_client_token")
+    }
+
+    func testProcessEndpoint_doesNotSetAuthorizationHeaderWhenClientTokenEmpty() {
+        // Arrange
+        let endpoint = OrderTransactionEndpoint.process(
+            orderId: "ORD01",
+            clientToken: "",
+            params: self.makeParams()
+        )
+
+        // Act
+        let headers = endpoint.headers
+
+        // Assert: an empty token still maps to the header, never to a different scheme
+        XCTAssertEqual(headers["Authorization"], "")
+        XCTAssertNotNil(headers["X-Public-Key"])
+        XCTAssertEqual(headers["Content-Type"], "application/json")
     }
 
     // MARK: - Error Cases
@@ -246,7 +279,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+            _ = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
             XCTFail("Expected error to be thrown")
         } catch {
             XCTAssertNotNil(error)
@@ -261,7 +294,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+            _ = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
             XCTFail("Expected decoding error")
         } catch {
             XCTAssertNotNil(error)
@@ -283,7 +316,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.processOrder(orderId: "ORD01", params: self.makeParams())
+            _ = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
             XCTFail("Expected error to be thrown")
         } catch let error as APIClientError {
             if case let .apiError(apiError) = error {

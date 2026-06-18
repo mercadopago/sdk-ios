@@ -8,7 +8,7 @@
 import SwiftUI
 
 package struct MPListItemStyleConfiguration {
-    package struct LeftImage: View {
+    package struct Leading: View {
         package let body: AnyView
     }
 
@@ -30,7 +30,7 @@ package struct MPListItemStyleConfiguration {
 
     package let isPressed: Bool
     package let isSelected: Bool
-    package let leftImage: LeftImage?
+    package let leading: Leading?
     package let title: Title?
     package let header: Header?
     package let description: DescriptionText?
@@ -40,7 +40,7 @@ package struct MPListItemStyleConfiguration {
     package init(
         isPressed: Bool = false,
         isSelected: Bool = false,
-        leftImage: (some View)? = nil,
+        leading: (some View)? = nil,
         title: (some View)? = nil,
         header: (some View)? = nil,
         description: (some View)? = nil,
@@ -51,7 +51,7 @@ package struct MPListItemStyleConfiguration {
         self.title = title.map { Title(body: AnyView($0)) }
         self.header = header.map { Header(body: AnyView($0)) }
         self.description = description.map { DescriptionText(body: AnyView($0)) }
-        self.leftImage = leftImage.map { LeftImage(body: AnyView($0)) }
+        self.leading = leading.map { Leading(body: AnyView($0)) }
         self.trailing = trailing.map { Trailing(body: AnyView($0)) }
     }
 }

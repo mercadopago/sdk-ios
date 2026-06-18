@@ -379,10 +379,10 @@ extension CardFormViewModel {
         }
     }
 
-    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Double?) {
+    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Double) {
         let eventData = CardFormSubmitEventData(
             cardBrand: paymentMethodId,
-            transactionAmount: transactionAmount ?? 0,
+            transactionAmount: transactionAmount,
             issuer: self.cardData?.paymentMethods.first?.issuers.first?.name ?? "",
             paymentType: paymentTypeId
         )
