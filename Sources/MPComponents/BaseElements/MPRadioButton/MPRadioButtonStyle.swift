@@ -10,10 +10,8 @@ import SwiftUI
 package struct MPRadioButtonToggleStyle: ToggleStyle {
     @Environment(\.checkoutTheme) var theme: MPTheme
 
-    private let buttonSize: CGFloat = 20
-    private let innerPadding: CGFloat = 6
+    /// borderWidth has no exact token (between borderWidth.small=1 and borderWidth.medium=2)
     private let borderWidth: CGFloat = 1.5
-    private let outerBorderGap: CGFloat = 4
 
     package func makeBody(configuration: Configuration) -> some View {
         HStack {
@@ -27,24 +25,27 @@ package struct MPRadioButtonToggleStyle: ToggleStyle {
 
     @ViewBuilder
     private func radioCircle(isOn: Bool) -> some View {
+        let buttonSize = self.theme.spacings.tiny
+        let outerSize = buttonSize + self.theme.spacings.xnano
+
         if isOn {
             ZStack {
                 Circle()
                     .fill(self.theme.colors.selected.fillIdle)
                 Circle()
                     .fill(self.theme.colors.fill.primary)
-                    .padding(self.innerPadding)
+                    .padding(self.theme.spacings.nano)
             }
-            .frame(width: self.buttonSize, height: self.buttonSize)
+            .frame(width: buttonSize, height: buttonSize)
             .background(
                 Circle()
                     .fill(self.theme.colors.fill.accentQuiet)
-                    .frame(width: self.buttonSize + self.outerBorderGap, height: self.buttonSize + self.outerBorderGap)
+                    .frame(width: outerSize, height: outerSize)
             )
         } else {
             Circle()
                 .strokeBorder(self.theme.colors.interactive.borderIdle, lineWidth: self.borderWidth)
-                .frame(width: self.buttonSize, height: self.buttonSize)
+                .frame(width: buttonSize, height: buttonSize)
         }
     }
 }

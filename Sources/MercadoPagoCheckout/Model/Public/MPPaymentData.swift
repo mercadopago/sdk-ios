@@ -6,34 +6,74 @@
 //
 import Foundation
 
-/// Payment data produced by the checkout flow.
+/// The payment data returned when a checkout flow succeeds.
 ///
-/// Acts as a sealed namespace: each concrete checkout type (`CardSave`, `CardTransaction`)
-/// produces its own variant. The variant is determined by the ``CheckoutType`` chosen on the
-/// builder and is propagated to ``MercadoPagoCheckoutResult`` at the call site, so consumers
-/// access the concrete fields directly — no nested `switch`, no unreachable branches.
+/// You receive one of these in ``MercadoPagoCheckoutResult/success(_:)``. This namespace groups
+/// the available variants; the one you actually get is fixed by the
+/// ``MercadoPagoCheckout/CheckoutType`` you configured, so you never need to cast:
+/// `.cardTransaction(order:)` delivers a ``CardTransaction``, and `.saveCard` delivers a
+/// ``CardSave``.
+///
+/// ## Topics
+///
+/// ### Variants
+///
+/// - ``CardTransaction``
+/// - ``CardSave``
+///
+/// ### Supporting Types
+///
+/// - ``Payer``
+/// - ``Kind``
 public enum MPPaymentData {
-    /// Marker protocol adopted by every concrete `MPPaymentData` variant.
-    public protocol Kind: Sendable {}
+    /// Marker protocol adopted by every payment data variant in this namespace.
+    ///
+    /// Each variant also declares, via ``Cancellation``, the matching
+    /// ``MPUserCancelledContext`` it is paired with — which is why the checkout type that fixes
+    /// the success payload also fixes the cancellation context you receive.
+    public protocol Kind: Sendable {
+        /// The cancellation context delivered if the user cancels this flow instead of completing it.
+        associatedtype Cancellation: MPUserCancelledContext.Kind
+    }
 
-    /// Payment data emitted by the `saveCard` flow.
+    /// Payment data returned by the `.saveCard` flow.
+    ///
+    /// Carries the token for the card the user saved, which you can use to charge the card later.
     public struct CardSave: Kind, Equatable, Codable, Sendable {
+        public typealias Cancellation = MPUserCancelledContext.CardSave
+
         /// The token representing the saved card.
         public let token: String
+        /// The identifier of the selected payment method (for example, the card brand).
         public var paymentMethodId: String
+        /// The identifier of the payment type (for example, credit or debit).
         public var paymentTypeId: String
+        /// The identifier of the card issuer, when available.
         public var issuerId: String?
+        /// The payer's identification details, when collected.
         public var payer: Payer?
     }
 
-    /// Payment data emitted by the `cardTransaction` flow.
+    /// Payment data returned by the `.cardTransaction(order:)` flow.
+    ///
+    /// Carries the tokenized card details and the chosen installment plan for the transaction.
     public struct CardTransaction: Kind, Equatable, Codable, Sendable {
+        public typealias Cancellation = MPUserCancelledContext.CardTransaction
+
+        /// The amount charged for the transaction.
         public var transactionAmount: Double?
+        /// The number of installments the user selected.
         public var installment: Int?
+        /// The identifier of the selected payment method (for example, the card brand).
         public var paymentMethodId: String
+        /// The identifier of the payment type (for example, credit or debit).
         public var paymentTypeId: String
+        /// The identifier of the card issuer, when available.
         public var issuerId: String?
+        /// The payer's identification details, when collected.
         public var payer: Payer?
+        public var orderId: String
+        public var orderStatus: String
 
         var token: String
 
@@ -44,6 +84,8 @@ public enum MPPaymentData {
             paymentMethodId: String = "",
             paymentTypeId: String = "",
             issuerId: String? = "",
+            orderId: String = "",
+            orderStatus: String = "",
             payer: Payer? = nil
         ) {
             self.transactionAmount = transactionAmount
@@ -52,12 +94,26 @@ public enum MPPaymentData {
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
             self.issuerId = issuerId
+            self.orderId = orderId
+            self.orderStatus = orderStatus
             self.payer = payer
         }
     }
 
+    public struct PaymentTransaction: Kind, Equatable, Codable, Sendable {
+        public typealias Cancellation = MPUserCancelledContext.Payment
+
+        public var orderId: String
+        public var orderStatus = ""
+        public var transactionAmount: Double
+
+        var token = ""
+    }
+
     public struct Payer: Equatable, Codable, Sendable {
+        /// The type of identification document (for example, the local document code).
         public var documentType: String
+        /// The identification document number.
         public var documentNumber: String
 
         init(documentType: String, documentNumber: String) {

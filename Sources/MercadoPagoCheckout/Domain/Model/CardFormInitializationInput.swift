@@ -13,6 +13,7 @@ import CoreMethods
 struct CardFormInitializationInput {
     let title: String
     let buttonLabel: String
+    let currencySymbol: String
     let fields: CardFormFields.Fields
     let identificationTypes: [IdentificationType]
 }

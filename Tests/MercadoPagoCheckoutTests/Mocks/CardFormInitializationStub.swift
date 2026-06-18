@@ -79,6 +79,7 @@ enum CardFormInitializationOutputStub {
         CardFormInitializationOutput(
             title: "Default Header",
             button: "Save",
+            currencySymbol: "R$",
             fields: Self.makeDefaultFields(),
             identificationTypes: identificationTypes
         )

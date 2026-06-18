@@ -8,39 +8,59 @@ import MPFoundation
 import SwiftUI
 import UIKit
 
-// The main entry point for the MercadoPago checkout experience.
-//
-// `MercadoPagoCheckout` encapsulates the full configuration needed to launch a
-// payment flow, including appearance theming and the checkout behavior. Use the
-// ``Builder`` to assemble an instance fluently, then present it via SwiftUI,
-// UIKit modal, or a `UINavigationController` push.
-//
-// The generic parameter `T` represents the concrete ``MPPaymentData`` variant produced by the
-// flow. It is inferred from the ``CheckoutType`` passed to the ``Builder``, so the
-// ``MercadoPagoCheckoutResult`` delivered to the callback carries the concrete subtype directly.
-//
-// ## Usage
-//
-// ```swift
-// let checkout = MercadoPagoCheckout.Builder(
-//     checkoutType: .cardTransaction(order: .init(amount: 99.90, payer: .init(email: "..."))),
-//     checkoutAppearance: .init()
-// )
-// .setPaymentMethodConfiguration([.card(excludedTypes: [.prepaid])])
-// .build()
-//
-// // SwiftUI
-// checkout.show { result in
-//     // result: MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>
-//     print(result)
-// }
-//
-// // UIKit – modal
-// checkout.present(from: self) { result in
-//     print(result)
-// }
-// ```
-
+/// The main entry point for presenting the MercadoPago checkout experience.
+///
+/// `MercadoPagoCheckout` bundles the appearance and behavior of a payment flow. Build an instance
+/// with ``Builder``, then present it via SwiftUI (``show(onResult:)``), a UIKit modal
+/// (``present(from:animated:onResult:)``), or a navigation push
+/// (``push(to:animated:onResult:)``). When the flow finishes, your `onResult` closure receives a
+/// ``MercadoPagoCheckoutResult``.
+///
+/// The generic parameter `T` is the concrete ``MPPaymentData`` variant the flow produces. You do
+/// not specify it directly — it is inferred from the ``CheckoutType`` you pass to the ``Builder``,
+/// so the result delivered to your closure is already typed for the flow you chose.
+///
+/// ## Usage
+///
+/// ```swift
+/// let checkout = MercadoPagoCheckout.Builder(
+///     checkoutType: .cardTransaction(order: .init(amount: 99.90, payer: .init(email: "..."))),
+///     checkoutAppearance: .init()
+/// )
+/// .setPaymentMethodConfiguration([.card(excludedTypes: [.prepaid])])
+/// .build()
+///
+/// // SwiftUI
+/// checkout.show { result in
+///     // result: MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>
+///     print(result)
+/// }
+///
+/// // UIKit – modal
+/// checkout.present(from: self) { result in
+///     print(result)
+/// }
+/// ```
+///
+/// - Tip: You never write the generic parameter `T` yourself. Choosing the ``CheckoutType`` fixes
+///   it, and with it the type of ``MercadoPagoCheckoutResult`` your closure receives.
+///
+/// ## Topics
+///
+/// ### Building a Checkout
+///
+/// - ``Builder``
+/// - ``CheckoutType``
+///
+/// ### Presenting the Flow
+///
+/// - ``show(onResult:)``
+/// - ``present(from:animated:onResult:)``
+/// - ``push(to:animated:onResult:)``
+///
+/// ### Receiving the Result
+///
+/// - ``MercadoPagoCheckoutResult``
 public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable {
     /// A unique identifier for this checkout instance.
     public let id = UUID()
@@ -74,11 +94,20 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
     public func show(
         onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) -> some View {
-        CardFormBrick<T>(
-            configuration: self.configuration,
-            appearance: self.theme,
-            onResult: onResult
-        )
+        switch self.configuration.type.kind {
+        case .saveCard, .cardTransaction:
+            CardFormBrick<T>(
+                configuration: self.configuration,
+                appearance: self.theme,
+                onResult: onResult
+            )
+        case .payment:
+            PaymentBrick(
+                configuration: self.configuration,
+                appearance: self.theme,
+                onResult: onResult
+            )
+        }
     }
 
     /// Presents the checkout flow modally from a UIKit view controller.
@@ -95,12 +124,8 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
         animated: Bool = true,
         onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) {
-        let cardFormBrick = CardFormBrick<T>(
-            configuration: configuration,
-            appearance: theme,
-            onResult: onResult
-        )
-        let hostingController = UIHostingController(rootView: cardFormBrick)
+        let rootView = self.show(onResult: onResult)
+        let hostingController = UIHostingController(rootView: rootView)
         hostingController.modalPresentationStyle = .fullScreen
         viewController.present(hostingController, animated: animated)
     }
@@ -120,12 +145,8 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
         animated: Bool = true,
         onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) {
-        let cardFormBrick = CardFormBrick<T>(
-            configuration: configuration,
-            appearance: theme,
-            onResult: onResult
-        )
-        let hostingController = UIHostingController(rootView: cardFormBrick)
+        let rootView = self.show(onResult: onResult)
+        let hostingController = UIHostingController(rootView: rootView)
         navigationController.pushViewController(hostingController, animated: animated)
     }
 }
