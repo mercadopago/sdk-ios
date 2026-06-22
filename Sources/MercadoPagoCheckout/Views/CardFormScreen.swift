@@ -63,7 +63,7 @@ struct CardFormScreen: View {
             footer: {
                 MPFooter(
                     title: MPStrings.Common.total,
-                    amount: nil,
+                    amount: self.viewModel.footerAmount(),
                     buttonData: .init(
                         text: self.viewModel.initResult.button,
                         onClick: {
@@ -112,6 +112,7 @@ struct CardFormScreen: View {
                         formatter: self.viewModel.cardNumberFormatter
                     )
                     .mpFocused(self.$isCardNumberFocused)
+                    .accessibilityIDPrefix("mp.cardForm.cardNumber")
 
                     MPTextField(
                         text: self.$cardForm.cardHolder,
@@ -129,6 +130,7 @@ struct CardFormScreen: View {
                             }
                         }
                     )
+                    .accessibilityIDPrefix("mp.cardForm.cardHolder")
 
                     MPTextField(
                         text: self.$cardForm.expirationDate,
@@ -146,6 +148,7 @@ struct CardFormScreen: View {
                         },
                         formatter: self.viewModel.expirationDateFormatter
                     )
+                    .accessibilityIDPrefix("mp.cardForm.expiration")
 
                     if self.viewModel.isSecurityCodeMandatory {
                         MPTextField(
@@ -165,6 +168,7 @@ struct CardFormScreen: View {
                             formatter: self.viewModel.securityCodeFormatter,
                             popoverText: self.viewModel.cvvTooltipText
                         )
+                        .accessibilityIDPrefix("mp.cardForm.cvv")
                     }
 
                     if !self.viewModel.initResult.identificationTypes.isEmpty {
@@ -190,6 +194,7 @@ struct CardFormScreen: View {
                             }
                         )
                         .id(self.viewModel.selectTypeDocument?.getKeyboardType() ?? .default)
+                        .accessibilityIDPrefix("mp.cardForm.document")
                     }
                 }
                 .padding(.horizontal, self.theme.spacings.micro)
@@ -265,6 +270,7 @@ struct CardFormScreen: View {
                     self.isDocumentSheetPresented = true
                 }
                 .accessibility(label: Text(verbatim: self.viewModel.selectTypeDocument?.name ?? String()))
+                .accessibility(identifier: "mp.cardForm.documentType")
 
             Rectangle()
                 .fill(self.theme.textFields.standard.idle.borderColor)

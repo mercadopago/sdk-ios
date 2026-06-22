@@ -1,0 +1,19 @@
+//
+//  Screen.swift
+//  MercadoPagoSDK
+//
+
+/// A checkout screen the user reached before cancelling.
+///
+/// Delivered as an ordered `screens` list on the cancellation context — for example
+/// ``MPUserCancelledContext/CardTransaction/screens`` or
+/// ``MPUserCancelledContext/Payment/screens`` — so you can tell how far the user progressed
+/// through the flow before leaving. The order reflects the sequence in which the user visited the
+/// screens.
+///
+/// - Important: New cases may be added in future SDK versions. Include a `default` branch when you
+///   switch over a ``Screen`` value.
+public enum Screen: Sendable, Equatable {
+    /// The installments selection screen.
+    case installments
+}

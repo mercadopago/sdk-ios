@@ -17,12 +17,20 @@ package struct MPFixedFooterButtonData {
     var text: String
     /// Visual variant of the button. Defaults to `.loud`.
     var style: MPButtonStyle.Variant = .loud
+    /// Optional icon displayed to the left of the label.
+    var icon: Logos.Icon?
     /// Closure invoked when the button is tapped.
     var onClick: () async -> Void
 
-    package init(text: String, style: MPButtonStyle.Variant = .loud, onClick: @escaping () async -> Void) {
+    package init(
+        text: String,
+        style: MPButtonStyle.Variant = .loud,
+        icon: Logos.Icon? = nil,
+        onClick: @escaping () async -> Void
+    ) {
         self.text = text
         self.style = style
+        self.icon = icon
         self.onClick = onClick
     }
 }
