@@ -1,0 +1,25 @@
+Example/Sources/Playground/CheckoutPlaygroundView.swift
+  s_21dc219873ed72::t_74091cc66064f8 62-64
+  s_21dc219873ed72::t_6e4ec19766bd87 231-232
+  s_21dc219873ed72::t_f2851ac8968275 291,293
+  s_21dc219873ed72::t_f39d535852072f 312,314
+  s_21dc219873ed72::t_6af45e9eaa5c8a 20
+Example/Sources/Playground/CheckoutConfig.swift
+  s_21dc219873ed72::t_3c0767598e1b72 30,38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "fb6576fc77220b76ca30c97eb4a1c14697c5dd03",
+  "prompts": {},
+  "sessions": {
+    "s_21dc219873ed72": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ebf177f4-7d65-44b4-a5fd-70f3386b61f4",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

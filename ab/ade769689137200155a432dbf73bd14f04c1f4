@@ -1,0 +1,41 @@
+Example/Sources/Playground/CheckoutConfig.swift
+  s_db2d5753b9c531::t_41afa48f94e395 1-63,65-75,85-90,92-104,106-112,114-121,125-126,129,131-132,134-137,139-141,143,145-147,149-151,153,155-161,163-170,173,176,178-182,184-193,195,197-208,210,212-214
+  s_db2d5753b9c531::t_3386f0adc83c0d 76-84
+Example/Sources/Playground/CheckoutPlaygroundView.swift
+  s_db2d5753b9c531::t_5e06ecc2802fdd 58-60
+  s_db2d5753b9c531::t_f2730947aefa96 121,126,130
+  s_db2d5753b9c531::t_f2ebeb40570f53 214,218,222,226-227,230,232,236-237,240,242-243,245,247-248
+  s_db2d5753b9c531::t_7df0a9328bb876 189-191,195
+  s_db2d5753b9c531::t_c2748ab3722281 61-62
+  s_db2d5753b9c531::t_9c3ea330e74b5b 19,27-34
+  s_db2d5753b9c531::t_843cecdc552920 20
+  s_db2d5753b9c531::t_1a94f53573b46d 155-169,171,175-182
+  s_db2d5753b9c531::t_d8876e281281f4 313
+  s_db2d5753b9c531::t_28f9205d0c5948 100-102,105,108-110,113
+  s_db2d5753b9c531::t_fec653c9620435 143,151
+  s_db2d5753b9c531::t_d16e26e90fe452 76,79-81,84,92
+  s_db2d5753b9c531::t_a7248696df323a 1-18,21-26,35-46,51,56-57,63-75,77-78,82-83,85-91,93-99,103-104,106-107,111-112,114-120,122-125,127-129,131-135,152-154,170,172-174,183-188,192-194,196-213,215-217,219-221,223-225,228-229,231,233-235,238-239,241,244,246,249-275,277-293,295-312,314-327
+  s_db2d5753b9c531::t_b1290e63efeb98 136-142,144-150
+  s_db2d5753b9c531::t_16623414cec186 276,294
+Example/Sources/Playground/ExclusionsSheet.swift
+  s_db2d5753b9c531::t_9efeece6ac6437 1-25,27-35,37-45,47-51,54-70
+  s_db2d5753b9c531::t_8efc9072f142e1 26,36,46,52-53
+Example/Sources/MainListView.swift
+  s_db2d5753b9c531::t_11b9c6b4094ccc 30,32-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "abade769689137200155a432dbf73bd14f04c1f4",
+  "prompts": {},
+  "sessions": {
+    "s_db2d5753b9c531": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9669b56f-db4a-48a5-8dbd-09cdaec4a4b2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

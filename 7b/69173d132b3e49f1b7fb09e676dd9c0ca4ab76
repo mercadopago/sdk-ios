@@ -1,0 +1,19 @@
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_3fd61e2364f302::t_9c1e5079b7538d 85,165,167,189-190,209
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "7b69173d132b3e49f1b7fb09e676dd9c0ca4ab76",
+  "prompts": {},
+  "sessions": {
+    "s_3fd61e2364f302": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44f4592c-adfb-41a4-a5de-fe2ffceb4218",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

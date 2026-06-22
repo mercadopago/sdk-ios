@@ -1,0 +1,19 @@
+Example/Sources/MainListView.swift
+  s_32abd524879270::t_1ac95da36a59bf 18,27-34,47,64-78,100-102,114-115,162-212
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6575d67f8c91dc76c050c3472b02a772a7b376f2",
+  "prompts": {},
+  "sessions": {
+    "s_32abd524879270": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7a90a049-81ff-4cc4-a006-eb5f617bd3a1",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Danielle Nozaki Ogawa <danielle.ogawa+meli@mercadolivre.com>"
+    }
+  }
+}

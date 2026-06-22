@@ -1,0 +1,41 @@
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTests.swift
+  s_ccf6972c5340bb::t_1c7e12a9629e4f 187,204
+Sources/MercadoPagoCheckout/Bricks/CardFormBrickViewModel.swift
+  s_ccf6972c5340bb::t_458b03c39bdeb8 98-99
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutPaymentMethodTests.swift
+  s_ccf6972c5340bb::t_570f68d715d612 11,16,18,20,25,34,39,46-47,53,60,66,69,79,84,92,97,104,110,113
+  s_ccf6972c5340bb::t_fc3927699ea3cb 12,14,26-27,30,32,35,45,48-49,59,61-65,67-68,71,75,77,80,90,93,103,105-109,111-112,115
+Sources/MercadoPagoCheckout/Domain/Analytics/CardFormInitializeEventData.swift
+  s_ccf6972c5340bb::t_608a4dd1df3f6a 7-8,15-16
+Tests/MercadoPagoCheckoutTests/API/MercadoPagoCheckoutBuilderTests.swift
+  s_ccf6972c5340bb::t_e59232c9170ebf 57
+  s_ccf6972c5340bb::t_c2052063643de8 13-15,41,48-49,52,54-56,65,74,78-79,84,86-87,90,93,101
+Sources/MercadoPagoCheckout/Views/CardFormViewModel.swift
+  s_ccf6972c5340bb::t_7d6926abf834db 251-252
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTrackingTests.swift
+  s_ccf6972c5340bb::t_b5fae61b223e12 31
+Sources/MercadoPagoCheckout/Data/Network/CardPaymentBrickEndpoint.swift
+  s_ccf6972c5340bb::t_86c7c1857cbabd 53-58
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTests.swift
+  s_ccf6972c5340bb::t_cc4bb172ec4324 26
+Tests/MercadoPagoCheckoutTests/UseCases/FetchCardPaymentBrickCardUseCaseTests.swift
+  s_ccf6972c5340bb::t_654b9f29339fce 33-34
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTrackingTests.swift
+  s_ccf6972c5340bb::t_85a6aa6345f6ad 101
+Sources/MercadoPagoCheckout/Data/Model/CardPaymentBrickCardParams.swift
+  s_ccf6972c5340bb::t_df46213ec86373 13-14
+Tests/MercadoPagoCheckoutTests/Mocks/MockCheckoutService.swift
+  s_ccf6972c5340bb::t_9243e78b033e56 116-117
+Tests/MercadoPagoCheckoutTests/Domain/Analytics/CardFormAnalyticsEventDataTests.swift
+  s_ccf6972c5340bb::t_4cdcc9c00fd9d2 21-22,32-33,42-43,51-52
+Sources/MercadoPagoCheckout/MercadoPagoCheckout+PaymentMethod.swift
+  s_ccf6972c5340bb::t_46b6f6706d5b36 13-14,17-18,24-25,27,32
+Tests/MercadoPagoCheckoutTests/Data/RemoteCardPaymentBrickCardRepositoryTests.swift
+  s_ccf6972c5340bb::t_7742cdcc99d995 34-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "63b3cab69d25f5ae8d58a292e8b005950b7b741a",
+  "prompts": {}
+}

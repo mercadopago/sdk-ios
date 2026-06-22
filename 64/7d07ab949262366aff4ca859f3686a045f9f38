@@ -1,0 +1,22 @@
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormViewModelTests.swift
+  s_a3e1420e6edb6a::t_0dd6a7385bd3c1 92-101
+  s_a3e1420e6edb6a::t_c3b04f8b7bed2b 989-1030
+Tests/MercadoPagoCheckoutTests/ViewModels/CardFormBrickViewModelTests.swift
+  s_a3e1420e6edb6a::t_aff2cbfae4b78b 101-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "647d07ab949262366aff4ca859f3686a045f9f38",
+  "prompts": {},
+  "sessions": {
+    "s_a3e1420e6edb6a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e7f1065-94a7-4b70-9bf9-ff4853761d2c",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

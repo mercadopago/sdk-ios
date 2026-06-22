@@ -1,0 +1,31 @@
+Sources/MercadoPagoCheckout/Bricks/CardFormBrick.swift
+  s_86a3b790f6b099::t_87c63b2fc1f846 185
+Example/Sources/Playground/ExclusionsSheet.swift
+  s_cd660a75f0d0a1::t_25a030d65946a7 37
+Example/Sources/Playground/CheckoutConfig.swift
+  s_cd660a75f0d0a1::t_6c4b0383b9fc10 128-129,132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "e244ff93b8d037a3a2a579feafb57a07f995dada",
+  "prompts": {},
+  "sessions": {
+    "s_86a3b790f6b099": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ddad773-fbd5-4a5a-b9d4-4203811080b0",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    },
+    "s_cd660a75f0d0a1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a940249c-48d1-4d7d-88dc-bf5f6e0fe9fb",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

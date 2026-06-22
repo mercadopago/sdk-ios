@@ -1,0 +1,19 @@
+Example/Sources/MainListView.swift
+  s_6f94599486104f::t_8c61ae1f83dd66 80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "4fc9dc6dc4a1e98e9db46e71574a8167d700d70f",
+  "prompts": {},
+  "sessions": {
+    "s_6f94599486104f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3ea268e3-ca96-4b8c-9fd8-55b005d76f1b",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Guilherme Prata Costa <guilherme.pcosta@mercadolivre.com>"
+    }
+  }
+}

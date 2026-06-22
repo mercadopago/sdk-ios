@@ -1,0 +1,9 @@
+Tests/MercadoPagoCheckoutTests/UseCases/OrderTransactionUseCaseTests.swift
+  ai_agent 105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "d525d6cd03f2a1ad5b70f0e6d46377ae7d3c4373",
+  "prompts": {}
+}
