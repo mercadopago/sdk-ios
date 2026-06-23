@@ -6,6 +6,7 @@
 //
 
 import CoreMethods
+import Foundation
 
 /// Orchestrates fetching all initialization data for the CardForm screen.
 /// Applies business rules: resolves button variant and custom texts over defaults.
@@ -19,7 +20,7 @@ struct InitializeCardFormUseCase {
     /// Fetches initialization data from the repository,
     /// then applies business rules (button selection, custom text overrides).
     func execute(
-        amount: Double,
+        amount: Decimal,
         checkoutType: MercadoPagoCheckout<some MPPaymentData.Kind>.CheckoutType
     ) async throws(MercadoPagoCheckoutError) -> CardFormInitializationOutput {
         do {

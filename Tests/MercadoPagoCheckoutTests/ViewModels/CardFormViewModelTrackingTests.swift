@@ -91,7 +91,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSUT(
-        amount: Double = .zero,
+        amount: Decimal = .zero,
         identificationTypes: [IdentificationType] = []
     ) -> SUT {
         let service = MockCheckoutService()

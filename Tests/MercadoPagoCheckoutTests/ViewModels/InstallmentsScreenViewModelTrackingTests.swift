@@ -65,7 +65,7 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
             "payment_type": "credit_card",
             "selection_type": "radio_button",
             "quotas_count": 3,
-            "transaction_amount": 500.0,
+            "transaction_amount": Decimal(500),
             "order_id": "NOT_APPLY"
         ])))
     }
@@ -139,8 +139,8 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
         let messages = await sut.analytics.mock.getMessages()
         XCTAssertTrue(messages.contains(.setEventData([
             "installments": 3,
-            "installment_amount": 333.34,
-            "total_amount": 1000.0
+            "installment_amount": 333.34 as Decimal,
+            "total_amount": Decimal(1000)
         ])))
     }
 

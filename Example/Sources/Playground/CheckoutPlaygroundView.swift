@@ -35,14 +35,6 @@ struct CheckoutPlaygroundView: View {
         let view: AnyView
     }
 
-    private static let amountFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        return formatter
-    }()
-
     var body: some View {
         Form {
             self.sdkSection
@@ -128,7 +120,7 @@ struct CheckoutPlaygroundView: View {
 
     private var orderSection: some View {
         Section("Order") {
-            TextField("Amount", value: self.$config.amount, formatter: Self.amountFormatter)
+            TextField("Amount (ex: 100.30)", text: self.$config.amountText)
                 .keyboardType(.decimalPad)
                 .accessibilityIdentifier("playground.amount")
             TextField("Payer Email", text: self.$config.email)

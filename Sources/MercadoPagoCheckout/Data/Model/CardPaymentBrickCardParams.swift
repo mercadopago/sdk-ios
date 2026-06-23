@@ -4,10 +4,11 @@
 //
 //  Created by Danielle Nozaki Ogawa on 13/04/26.
 //
+import Foundation
 
 struct CardPaymentBrickCardParams {
     let bin: String
-    let amount: Double?
+    let amount: Decimal?
     let checkoutType: String
     let processingMode: String
     let excludedCardTypes: [String]

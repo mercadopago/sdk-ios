@@ -87,7 +87,7 @@ final class InstallmentsScreenViewModel: ObservableObject {
 
     // MARK: - Analytics
 
-    func trackInitialize(transactionAmount: Double, paymentMethodId: String, orderId: String) {
+    func trackInitialize(transactionAmount: Decimal, paymentMethodId: String, orderId: String) {
         let eventData = InstallmentInitializeEventData(
             checkoutType: self.checkoutType,
             paymentMethodId: paymentMethodId,

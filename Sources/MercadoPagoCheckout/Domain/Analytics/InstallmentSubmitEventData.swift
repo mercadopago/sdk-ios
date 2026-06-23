@@ -1,9 +1,10 @@
+import Foundation
 import MPAnalytics
 
 struct InstallmentSubmitEventData: AnalyticsEventData {
     let installments: Int
-    let installmentAmount: Double
-    let totalAmount: Double
+    let installmentAmount: Decimal
+    let totalAmount: Decimal
 
     func toDictionary() -> [String: any Sendable] {
         [

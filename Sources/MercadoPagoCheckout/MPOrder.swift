@@ -4,10 +4,11 @@
 //
 //  Created by Danielle Nozaki Ogawa on 20/02/26.
 //
+import Foundation
 
 protocol CheckoutTypeConfiguration: Sendable {
     /// The transaction amount to be charged.
-    var amount: Double { get }
+    var amount: Decimal { get }
 }
 
 /// Represents an order created through the MercadoPago Orders API.
@@ -79,7 +80,7 @@ public struct MPOrder: CheckoutTypeConfiguration {
     public let clientToken: String
 
     /// The total amount to charge, in the account's default currency.
-    public var amount: Double
+    public var amount: Decimal
 
     /// Payer information used to pre-fill the checkout form.
     ///
@@ -93,7 +94,7 @@ public struct MPOrder: CheckoutTypeConfiguration {
     ///   - clientToken: The token returned by the Orders API when the order was created.
     ///   - amount: The total amount to charge.
     ///   - payer: Payer information used to pre-fill the checkout form.
-    public init(orderId: String, clientToken: String, amount: Double, payer: MPPayer) {
+    public init(orderId: String, clientToken: String, amount: Decimal, payer: MPPayer) {
         self.orderId = orderId
         self.clientToken = clientToken
         self.amount = amount
@@ -102,7 +103,7 @@ public struct MPOrder: CheckoutTypeConfiguration {
 }
 
 struct SavedCardConfiguration: CheckoutTypeConfiguration {
-    var amount: Double = .zero
+    var amount: Decimal = .zero
 
     init() {}
 }

@@ -66,7 +66,7 @@ public enum MPPaymentData {
         public typealias Cancellation = MPUserCancelledContext.CardTransaction
 
         /// Amount charged for the transaction.
-        public var transactionAmount: Double?
+        public var transactionAmount: Decimal?
         /// Number of installments the user selected.
         public var installment: Int?
         /// Payment method identifier (e.g. `"visa"`, `"master"`).
@@ -85,7 +85,7 @@ public enum MPPaymentData {
         var token: String
 
         init(
-            transactionAmount: Double = .zero,
+            transactionAmount: Decimal = .zero,
             token: String = "",
             installment: Int = 1,
             paymentMethodId: String = "",
@@ -118,7 +118,7 @@ public enum MPPaymentData {
         /// Order status returned by the Orders API.
         public var orderStatus = ""
         /// Amount charged for the transaction.
-        public var transactionAmount: Double
+        public var transactionAmount: Decimal
     }
 
     /// Payer identification collected during the checkout flow.

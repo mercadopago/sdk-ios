@@ -1,3 +1,4 @@
+import Foundation
 import MPAnalytics
 
 struct InstallmentInitializeEventData: AnalyticsEventData {
@@ -6,7 +7,7 @@ struct InstallmentInitializeEventData: AnalyticsEventData {
     let paymentType: String
     let selectionType: String
     let quotasCount: Int
-    let transactionAmount: Double
+    let transactionAmount: Decimal
     let orderId: String
 
     func toDictionary() -> [String: any Sendable] {

@@ -13,7 +13,7 @@ import SwiftUI
 @MainActor
 final class CardFormViewModel: ObservableObject {
     struct Configuration {
-        let amount: Double
+        let amount: Decimal
         let checkoutTypeAnalyticsValue: String
         let excludedPaymentTypeIds: [String]
         let excludedPaymentMethodIds: [String]
@@ -379,10 +379,10 @@ extension CardFormViewModel {
         }
     }
 
-    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Double) {
+    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Decimal) {
         let eventData = CardFormSubmitEventData(
             cardBrand: paymentMethodId,
-            transactionAmount: transactionAmount ?? 0,
+            transactionAmount: transactionAmount,
             issuer: self.cardData?.paymentMethods.first?.issuers.first?.name ?? "",
             paymentType: paymentTypeId
         )

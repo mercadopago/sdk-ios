@@ -16,7 +16,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         case ready(CardFormInitializationOutput, CardFormViewModel)
     }
 
-    private var transactionAmount: Double {
+    private var transactionAmount: Decimal {
         switch self.configuration.type.kind {
         case .saveCard, .payment:
             return .zero

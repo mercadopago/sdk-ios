@@ -32,7 +32,7 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
         XCTAssertEqual(dict["payment_type"] as? String, "credit_card")
         XCTAssertEqual(dict["selection_type"] as? String, "radio_button")
         XCTAssertEqual(dict["quotas_count"] as? Int, 6)
-        XCTAssertEqual(dict["transaction_amount"] as? Double, 500.0)
+        XCTAssertEqual(dict["transaction_amount"] as? Decimal, 500)
     }
 
     func test_installmentInitializeEventData_withChevronSelectionType_shouldContainChevron() {
@@ -94,8 +94,8 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(dict["installments"] as? Int, 3)
-        XCTAssertEqual(dict["installment_amount"] as? Double, 333.34)
-        XCTAssertEqual(dict["total_amount"] as? Double, 1000.0)
+        XCTAssertEqual(dict["installment_amount"] as? Decimal, 333.34)
+        XCTAssertEqual(dict["total_amount"] as? Decimal, 1000)
     }
 
     func test_installmentSubmitEventData_singleInstallment_shouldContainAllFields() {
@@ -111,8 +111,8 @@ final class InstallmentAnalyticsEventDataTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(dict["installments"] as? Int, 1)
-        XCTAssertEqual(dict["installment_amount"] as? Double, 1000.0)
-        XCTAssertEqual(dict["total_amount"] as? Double, 1000.0)
+        XCTAssertEqual(dict["installment_amount"] as? Decimal, 1000)
+        XCTAssertEqual(dict["total_amount"] as? Decimal, 1000)
     }
 
     // MARK: - InstallmentCanceledErrorEventData

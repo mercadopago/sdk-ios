@@ -57,4 +57,24 @@ package struct MPAmountData: Equatable {
         self.integerPart = parts.first ?? formatted
         self.decimalPart = decimal == "00" ? "" : decimal
     }
+
+    package init(from value: Decimal) {
+        self.init(from: value, currencySymbol: MPStrings.Common.currency)
+    }
+
+    package init(from value: Decimal, currencySymbol: String) {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+
+        let formatted = formatter.string(from: value as NSDecimalNumber) ?? NSDecimalNumber(decimal: value).stringValue
+        let separator = formatter.decimalSeparator ?? ","
+        let parts = formatted.components(separatedBy: separator)
+
+        let decimal = parts.count > 1 ? parts[1] : "00"
+        self.currencySymbol = currencySymbol
+        self.integerPart = parts.first ?? formatted
+        self.decimalPart = decimal == "00" ? "" : decimal
+    }
 }

@@ -1,8 +1,9 @@
+import Foundation
 import MPAnalytics
 
 struct CardFormSubmitEventData: AnalyticsEventData {
     let cardBrand: String
-    let transactionAmount: Double
+    let transactionAmount: Decimal
     let issuer: String
     let paymentType: String?
 

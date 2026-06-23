@@ -4,6 +4,7 @@
 //
 //  Created by Danielle Nozaki Ogawa on 13/04/26.
 //
+import Foundation
 
 struct CardPaymentBrickCardResponse: Codable {
     let translations: CardFormTranslationsResponse
@@ -36,8 +37,8 @@ struct CardPaymentBrickCardResponse: Codable {
 
         struct QuotaData: Codable {
             let installments: Int
-            let installmentAmount: Double
-            let totalAmount: Double
+            let installmentAmount: Decimal
+            let totalAmount: Decimal
             let primaryLabel: String
             let secondaryLabel: String
             let state: String
@@ -53,6 +54,18 @@ struct CardPaymentBrickCardResponse: Codable {
                 case state
                 case tertiaryLabel = "tertiary_label"
                 case accessibilityLabel = "accessibility_label"
+            }
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                self.installments = try container.decode(Int.self, forKey: .installments)
+                self.installmentAmount = try Decimal(container.decode(Double.self, forKey: .installmentAmount))
+                self.totalAmount = try Decimal(container.decode(Double.self, forKey: .totalAmount))
+                self.primaryLabel = try container.decode(String.self, forKey: .primaryLabel)
+                self.secondaryLabel = try container.decode(String.self, forKey: .secondaryLabel)
+                self.state = try container.decode(String.self, forKey: .state)
+                self.tertiaryLabel = try container.decodeIfPresent(String.self, forKey: .tertiaryLabel)
+                self.accessibilityLabel = try container.decodeIfPresent(String.self, forKey: .accessibilityLabel)
             }
         }
     }

@@ -188,7 +188,7 @@ final class CardFormViewModelTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeSUT(
-        amount: Double = .zero,
+        amount: Decimal = .zero,
         checkoutTypeAnalyticsValue: String = "save_card",
         identificationTypes: [IdentificationType] = [],
         minInstallments: Int? = nil,
@@ -213,7 +213,7 @@ final class CardFormViewModelTests: XCTestCase {
         return (viewModel, service, repository)
     }
 
-    private func makeSUTWithAmount(_ amount: Double) -> SUT {
+    private func makeSUTWithAmount(_ amount: Decimal) -> SUT {
         self.makeSUT(amount: amount, checkoutTypeAnalyticsValue: "card_transaction")
     }
 

@@ -16,7 +16,7 @@ final class PaymentsViewModel: ObservableObject {
     let amount: MPAmountData
     let title: String
 
-    init(amount: Double, initialization: PaymentInitializationOutput = .mock) {
+    init(amount: Decimal, initialization: PaymentInitializationOutput = .mock) {
         self.initialization = initialization
         self.amount = MPAmountData(from: amount)
         self.title = "Escolha como pagar"

@@ -6,6 +6,7 @@
 //
 
 import CoreMethods
+import Foundation
 import MPCore
 import MPFoundation
 
@@ -16,7 +17,7 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
         self.networkService = networkService
     }
 
-    func fetchInitialization(amount: Double?, checkoutType: String) async throws -> CardFormInitializationInput {
+    func fetchInitialization(amount: Decimal?, checkoutType: String) async throws -> CardFormInitializationInput {
         let response: CardFormInitializationResponse = try await networkService.request(
             CardFormInitializationEndpoint(amount: amount, checkoutType: checkoutType)
         )

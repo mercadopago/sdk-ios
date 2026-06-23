@@ -12,7 +12,7 @@ import Foundation
 #endif
 
 struct CardFormInitializationEndpoint: RequestEndpoint {
-    let amount: Double?
+    let amount: Decimal?
     let checkoutType: String
 
     var apiVersion: APIVersion {

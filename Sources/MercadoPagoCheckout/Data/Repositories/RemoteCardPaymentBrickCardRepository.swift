@@ -5,6 +5,7 @@
 //  Created by Danielle Nozaki Ogawa on 13/04/26.
 //
 
+import Foundation
 import MPCore
 import MPFoundation
 

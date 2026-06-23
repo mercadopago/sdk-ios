@@ -155,8 +155,8 @@ extension CardPaymentBrickCardData.Installment {
 extension CardPaymentBrickCardData.Installment.Quota {
     static func make(
         installments: Int = 1,
-        installmentAmount: Double = 1000.0,
-        totalAmount: Double = 1000.0,
+        installmentAmount: Decimal = 1000.0,
+        totalAmount: Decimal = 1000.0,
         primaryLabel: String = "1x R$ 1.000,00",
         secondaryLabel: String = "À vista",
         state: CardPaymentBrickCardData.Installment.QuotaState = .none,

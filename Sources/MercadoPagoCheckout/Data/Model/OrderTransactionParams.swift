@@ -4,9 +4,10 @@
 //
 //  Created by Danielle Nozaki Ogawa on 01/06/26.
 //
+import Foundation
 
 struct OrderTransactionParams: Encodable {
-    let amount: Double
+    let amount: Decimal
     let paymentMethodId: String
     let paymentMethodType: String
     let token: String
@@ -14,7 +15,13 @@ struct OrderTransactionParams: Encodable {
 
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(String(format: "%.2f", self.amount), forKey: .amount)
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.decimalSeparator = "."
+        formatter.groupingSeparator = ""
+        let amountStr = formatter.string(from: self.amount as NSDecimalNumber) ?? NSDecimalNumber(decimal: self.amount).stringValue
+        try container.encode(amountStr, forKey: .amount)
         try container.encode(self.paymentMethodId, forKey: .paymentMethodId)
         try container.encode(self.paymentMethodType, forKey: .paymentMethodType)
         try container.encode(self.token, forKey: .token)

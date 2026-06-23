@@ -62,7 +62,7 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
         // Arrange
         let sut = CardFormSubmitEventData(
             cardBrand: "visa",
-            transactionAmount: 100.0,
+            transactionAmount: 100.10,
             issuer: "Bradesco",
             paymentType: "credit_card"
         )
@@ -72,7 +72,7 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(dict["card_brand"] as? String, "visa")
-        XCTAssertEqual(dict["transaction_amount"] as? Double, 100.0)
+        XCTAssertEqual(dict["transaction_amount"] as? Decimal, 100.10)
         XCTAssertEqual(dict["issuer"] as? String, "Bradesco")
         XCTAssertEqual(dict["payment_type"] as? String, "credit_card")
     }
@@ -91,7 +91,7 @@ final class CardFormAnalyticsEventDataTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(dict["card_brand"] as? String, "master")
-        XCTAssertEqual(dict["transaction_amount"] as? Double, 0)
+        XCTAssertEqual(dict["transaction_amount"] as? Decimal, 0)
         XCTAssertEqual(dict["issuer"] as? String, "Itaú")
         XCTAssertNil(dict["payment_type"])
     }

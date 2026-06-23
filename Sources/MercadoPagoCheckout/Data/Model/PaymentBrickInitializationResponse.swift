@@ -4,6 +4,7 @@
 //
 //  Created by SDK on 22/06/26.
 //
+import Foundation
 
 struct PaymentBrickInitializationResponse: Codable {
     let headerTitle: String
@@ -160,8 +161,8 @@ struct PaymentBrickInitializationResponse: Codable {
 
     struct Quota: Codable {
         let installments: Int
-        let installmentAmount: Double
-        let totalAmount: Double
+        let installmentAmount: Decimal
+        let totalAmount: Decimal
         let primaryLabel: String
         let secondaryLabel: String
         let state: String

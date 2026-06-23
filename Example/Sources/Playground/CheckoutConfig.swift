@@ -122,8 +122,12 @@ final class CheckoutConfig: ObservableObject {
     @Published var presentation: PresentationMode = .swiftUIShow
     @Published var appearance: AppearanceStyleOption = .automatic
 
-    // Order (Card Transaction only)
-    @Published var amount = 100.0
+    /// Order (Card Transaction only)
+    @Published var amountText = "100.00" {
+        didSet { self.amount = Decimal(string: self.amountText.replacingOccurrences(of: ",", with: ".")) ?? 0 }
+    }
+
+    private(set) var amount: Decimal = 100
     @Published var email = "test@mp.com"
     @Published var orderId = "12345"
     @Published var clientToken = "seller_client_token"

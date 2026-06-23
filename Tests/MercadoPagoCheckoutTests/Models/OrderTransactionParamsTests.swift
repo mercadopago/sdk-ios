@@ -10,7 +10,7 @@ final class OrderTransactionParamsTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeParams(
-        amount: Double = 100.0,
+        amount: Decimal = 100.0,
         paymentMethodId: String = "visa",
         paymentMethodType: String = "credit_card",
         token: String = "abc123",
@@ -47,8 +47,9 @@ final class OrderTransactionParamsTests: XCTestCase {
         XCTAssertEqual(json["amount"] as? String, "10.90")
     }
 
-    func testEncoding_amountFloatingPointSum_doesNotProduceRoundingArtifacts() throws {
-        let json = try encodeToJSON(makeParams(amount: 0.1 + 0.2))
+    func testEncoding_amountDecimalSum_doesNotProduceRoundingArtifacts() throws {
+        let amount: Decimal = 0.1 + 0.2
+        let json = try encodeToJSON(makeParams(amount: amount))
         XCTAssertEqual(json["amount"] as? String, "0.30")
     }
 
@@ -85,7 +86,7 @@ final class OrderTransactionParamsTests: XCTestCase {
 
     func testInit_cardTransaction_whenAllFieldsPresent_returnsParams() {
         let transaction = MPPaymentData.CardTransaction(
-            transactionAmount: 150.0,
+            transactionAmount: 150,
             token: "tok_xyz",
             installment: 6,
             paymentMethodId: "visa",
@@ -95,7 +96,7 @@ final class OrderTransactionParamsTests: XCTestCase {
         let params = OrderTransactionParams(cardTransaction: transaction)
 
         XCTAssertNotNil(params)
-        XCTAssertEqual(params?.amount, 150.0)
+        XCTAssertEqual(params?.amount, 150)
         XCTAssertEqual(params?.token, "tok_xyz")
         XCTAssertEqual(params?.installments, 6)
         XCTAssertEqual(params?.paymentMethodId, "visa")
@@ -112,7 +113,7 @@ final class OrderTransactionParamsTests: XCTestCase {
     }
 
     func testInit_cardTransaction_whenInstallmentNil_returnsNil() {
-        var transaction = MPPaymentData.CardTransaction(transactionAmount: 100.0)
+        var transaction = MPPaymentData.CardTransaction(transactionAmount: 100)
         transaction.installment = nil
 
         let params = OrderTransactionParams(cardTransaction: transaction)
@@ -122,7 +123,7 @@ final class OrderTransactionParamsTests: XCTestCase {
 
     func testInit_cardTransaction_mapsPaymentTypeIdToPaymentMethodType() {
         let transaction = MPPaymentData.CardTransaction(
-            transactionAmount: 100.0,
+            transactionAmount: 100,
             installment: 1,
             paymentMethodId: "master",
             paymentTypeId: "debit_card"

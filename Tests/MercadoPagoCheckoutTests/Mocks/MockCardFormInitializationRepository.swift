@@ -15,7 +15,7 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
     nonisolated(unsafe) var fetchCallCount = 0
     nonisolated(unsafe) var sequentialResults: [Result<CardFormInitializationInput, Error>] = []
 
-    func fetchInitialization(amount _: Double?, checkoutType _: String) async throws -> CardFormInitializationInput {
+    func fetchInitialization(amount _: Decimal?, checkoutType _: String) async throws -> CardFormInitializationInput {
         self.fetchCallCount += 1
         if !self.sequentialResults.isEmpty {
             let result = self.sequentialResults.removeFirst()

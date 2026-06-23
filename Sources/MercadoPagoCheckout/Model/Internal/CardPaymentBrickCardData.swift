@@ -4,6 +4,7 @@
 //
 //  Created by Danielle Nozaki Ogawa on 13/04/26.
 //
+import Foundation
 
 struct CardPaymentBrickCardData: Equatable {
     let securityCodeTranslations: CardFormFields.CVVField?
@@ -23,8 +24,8 @@ struct CardPaymentBrickCardData: Equatable {
             }
 
             let installments: Int
-            let installmentAmount: Double
-            let totalAmount: Double
+            let installmentAmount: Decimal
+            let totalAmount: Decimal
             let primaryLabel: String
             let secondaryLabel: String
             let state: QuotaState
