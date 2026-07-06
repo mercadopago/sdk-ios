@@ -39,7 +39,7 @@ final actor MockCoreMethodsRepository: CoreMethodsRepositoryProtocol {
         self.issuersResult = result
     }
 
-    func generateCardToken(_ data: CardTokenBody) async throws -> CardTokenResponse {
+    func generateCardToken(_: CardTokenBody) async throws -> CardTokenResponse {
         guard let result = self.generateCardTokenResult else {
             throw MockError.resultNotSet
         }
@@ -53,21 +53,21 @@ final actor MockCoreMethodsRepository: CoreMethodsRepositoryProtocol {
         return try result.get()
     }
 
-    func getInstallments(params: InstallmentsParams) async throws -> [Installment] {
+    func getInstallments(params _: InstallmentsParams) async throws -> [Installment] {
         guard let result = self.installmentsResult else {
             throw MockError.resultNotSet
         }
         return try result.get()
     }
 
-    func getPaymentMethods(params: PaymentMethodsParams) async throws -> [PaymentMethod] {
+    func getPaymentMethods(params _: PaymentMethodsParams) async throws -> [PaymentMethod] {
         guard let result = self.paymentMethodsResult else {
             throw MockError.resultNotSet
         }
         return try result.get()
     }
 
-    func getIssuers(params: IssuersParams) async throws -> [Issuer] {
+    func getIssuers(params _: IssuersParams) async throws -> [Issuer] {
         guard let result = self.issuersResult else {
             throw MockError.resultNotSet
         }

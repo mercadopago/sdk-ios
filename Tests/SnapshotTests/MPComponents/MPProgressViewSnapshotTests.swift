@@ -3,22 +3,21 @@
 //  MercadoPagoSDK
 //
 
-import XCTest
-import SwiftUI
-import SnapshotTesting
 @testable import MPComponents
 @testable import MPFoundation
+import SnapshotTesting
+import SwiftUI
+import XCTest
 
 @MainActor
 final class MPProgressViewSnapshotTests: XCTestCase {
-
     func test_animationMoments() async throws {
-        let view = createTestView {
+        let view = self.createTestView {
             MPProgressIndicator()
         }
 
         let hostingController = UIHostingController(rootView: view)
-        let window = makeWindow(for: hostingController)
+        let window = self.makeWindow(for: hostingController)
 
         try await Task.sleep(nanoseconds: 50_000_000) // 0.05s
 
@@ -47,7 +46,7 @@ final class MPProgressViewSnapshotTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
+    private func createTestView(@ViewBuilder content: @escaping () -> some View) -> some View {
         ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             content()
                 .padding(24)

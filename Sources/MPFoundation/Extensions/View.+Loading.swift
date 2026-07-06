@@ -21,5 +21,5 @@ package extension View {
 }
 
 private struct LoadingKey: EnvironmentKey {
-    static let defaultValue: Bool = false
+    static let defaultValue = false
 }

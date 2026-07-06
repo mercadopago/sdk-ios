@@ -68,16 +68,17 @@ final class GenerateCardTokenUseCaseTests: XCTestCase {
 }
 
 // MARK: - Helpers
+
 private extension GenerateCardTokenUseCaseTests {
     final class PaymentMethodUseCaseMock: PaymentMethodUseCaseProtocol, Sendable {
         let result: [PaymentMethod]
-        
+
         init(result: [PaymentMethod]) {
             self.result = result
         }
 
         func getPaymentMethods(params _: PaymentMethodsParams) async throws -> [PaymentMethod] {
-            return result
+            return self.result
         }
     }
 

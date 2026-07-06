@@ -14,9 +14,9 @@ package actor MPAnalyticsConfiguration {
     var siteID = ""
 
     package var sessionID = ""
-    
+
     private init() {}
-    
+
     func initialize(version: String, siteID: String) {
         self.version = version
         self.siteID = siteID

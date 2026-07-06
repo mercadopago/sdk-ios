@@ -1,28 +1,21 @@
-//
-//  SimpleTaskModifier.swift
-//  MercadoPagoSDK
-//
-//  Created by Guilherme Prata Costa on 28/01/26.
-//
-
-import SwiftUI
-import Foundation
 import Combine
+import Foundation
+import SwiftUI
 
 extension View {
     @_disfavoredOverload
     @usableFromInline
-    func mpTask(
+    package func mpTask(
         priority: _Concurrency.TaskPriority = .userInitiated,
         @_inheritActorContext _ action: @escaping @Sendable () async -> Swift.Void
     ) -> some SwiftUI.View {
         modifier(TaskModifier(priority: priority, action: action))
     }
-    
+
     @_disfavoredOverload
     @usableFromInline
-    func mpTask<T: Equatable>(
-        id: T,
+    package func mpTask(
+        id: some Equatable,
         priority: _Concurrency.TaskPriority = .userInitiated,
         @_inheritActorContext _ action: @escaping @Sendable () async -> Swift.Void
     ) -> some SwiftUI.View {
@@ -43,7 +36,7 @@ struct TaskModifier: ViewModifier {
             content
                 .onAppear {
                     self.currentTask = Task {
-                        await action()
+                        await self.action()
                     }
                 }
                 .onDisappear {
@@ -66,20 +59,19 @@ struct TaskWithIDModifier<ID: Equatable>: ViewModifier {
         } else {
             content
                 .onAppear {
-                    runTask()
+                    self.runTask()
                 }
                 .onDisappear {
-                    currentTask?.cancel()
+                    self.currentTask?.cancel()
                 }
-                .onReceive(Just(id)) { _ in
-                    runTask()
+                .onReceive(Just(self.id)) { _ in
+                    self.runTask()
                 }
         }
-
     }
 
     private func runTask() {
-        currentTask?.cancel()
-        currentTask = Task(priority: priority, operation: action)
+        self.currentTask?.cancel()
+        self.currentTask = Task(priority: self.priority, operation: self.action)
     }
 }

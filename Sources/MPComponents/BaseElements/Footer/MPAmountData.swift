@@ -26,7 +26,7 @@ package struct MPAmountData: Equatable {
     package init(currencySymbol: String, integerPart: String, decimalPart: String) {
         self.currencySymbol = currencySymbol
         self.integerPart = integerPart
-        self.decimalPart = decimalPart
+        self.decimalPart = decimalPart == "00" ? "" : decimalPart
     }
 
     /// Creates an `MPAmountData` by splitting a `Double` amount into its display parts.
@@ -39,6 +39,10 @@ package struct MPAmountData: Equatable {
     /// // → currencySymbol: "R$", integerPart: "1.250", decimalPart: "99"
     /// ```
     package init(from value: Double) {
+        self.init(from: value, currencySymbol: MPStrings.Common.currency)
+    }
+
+    package init(from value: Double, currencySymbol: String) {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
@@ -48,8 +52,29 @@ package struct MPAmountData: Equatable {
         let separator = formatter.decimalSeparator ?? ","
         let parts = formatted.components(separatedBy: separator)
 
-        self.currencySymbol = MPStrings.Common.currency
+        let decimal = parts.count > 1 ? parts[1] : "00"
+        self.currencySymbol = currencySymbol
         self.integerPart = parts.first ?? formatted
-        self.decimalPart = parts.count > 1 ? parts[1] : "00"
+        self.decimalPart = decimal == "00" ? "" : decimal
+    }
+
+    package init(from value: Decimal) {
+        self.init(from: value, currencySymbol: MPStrings.Common.currency)
+    }
+
+    package init(from value: Decimal, currencySymbol: String) {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+
+        let formatted = formatter.string(from: value as NSDecimalNumber) ?? NSDecimalNumber(decimal: value).stringValue
+        let separator = formatter.decimalSeparator ?? ","
+        let parts = formatted.components(separatedBy: separator)
+
+        let decimal = parts.count > 1 ? parts[1] : "00"
+        self.currencySymbol = currencySymbol
+        self.integerPart = parts.first ?? formatted
+        self.decimalPart = decimal == "00" ? "" : decimal
     }
 }

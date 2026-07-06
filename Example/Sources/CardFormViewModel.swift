@@ -2,14 +2,14 @@ import CoreMethods
 import SwiftUI
 
 /// CardFormViewModel - Business logic layer for CoreMethods SDK integration
-/// 
+///
 /// This ViewModel demonstrates the recommended patterns for integrating CoreMethods SDK:
 /// - Fetching configuration data (documents, payment methods, installments)
 /// - Managing card validation states
 /// - Handling dynamic card behavior based on BIN detection
 /// - Coordinating multiple API calls for a complete payment flow
 /// - Centralizing all CoreMethods SDK operations in one place
-/// 
+///
 /// Key Integration Points:
 /// 1. Document Types: Required for user identification compliance
 /// 2. Payment Methods: Auto-detected from card BIN for dynamic UI
@@ -85,12 +85,12 @@ class CardFormViewModel: ObservableObject {
     // MARK: - Card Configuration Methods
 
     /// Configures card behavior based on detected payment method
-    /// 
+    ///
     /// This method updates:
     /// - Maximum card number length
     /// - Card number formatting mask
     /// - Security code length requirements
-    /// 
+    ///
     /// Called automatically when payment method is detected via BIN
     func configureCard() {
         // Update maximum card number length from payment method configuration
@@ -115,7 +115,7 @@ class CardFormViewModel: ObservableObject {
     // MARK: - API Methods
 
     /// Fetches available document types from CoreMethods API
-    /// 
+    ///
     /// This is typically the first API call you make when initializing the payment form.
     /// Document types are required for compliance and vary by country.
     func getDocuments() async {
@@ -133,12 +133,12 @@ class CardFormViewModel: ObservableObject {
     }
 
     /// Handles card BIN changes to fetch payment method info and installments
-    /// 
+    ///
     /// This is called automatically when the user types the first 6-8 digits of their card.
     /// It triggers two API calls:
     /// 1. Payment method detection for card configuration
     /// 2. Installment options for the detected payment method
-    /// 
+    ///
     /// @param bin The card's Bank Identification Number (first 6-8 digits)
     func handleBinChange(_ bin: String) async {
         await self.searchPaymentMethod(bin: bin)
@@ -147,15 +147,15 @@ class CardFormViewModel: ObservableObject {
     }
 
     /// Creates a payment token using CoreMethods SDK
-    /// 
+    ///
     /// This is the main payment processing method that should be called when user taps pay.
     /// It validates all fields and creates a secure token for backend processing.
-    /// 
+    ///
     /// @param cardNumberTextField Validated card number field
     /// @param expirationTextField Validated expiration date field
     /// @param securityTextField Validated security code field
     /// @param cardHolderName Cardholder's name (use "APRO" for testing)
-    /// 
+    ///
     /// @return Created token string for backend processing
     /// @throws CoreMethods API errors or validation errors
     func createPaymentToken(
@@ -202,7 +202,7 @@ class CardFormViewModel: ObservableObject {
     }
 
     /// Fetches available installment options based on BIN and amount
-    /// 
+    ///
     /// @param bin Card BIN for payment method identification
     private func searchInstallment(bin: String) async {
         do {
@@ -222,13 +222,13 @@ class CardFormViewModel: ObservableObject {
     }
 
     /// Fetches payment method details based on card BIN
-    /// 
+    ///
     /// This API call provides:
     /// - Payment method ID and name
     /// - Card brand logo/thumbnail
     /// - Security code length requirements
     /// - Card number length and formatting rules
-    /// 
+    ///
     /// @param bin Card BIN for payment method identification
     private func searchPaymentMethod(bin: String) async {
         do {

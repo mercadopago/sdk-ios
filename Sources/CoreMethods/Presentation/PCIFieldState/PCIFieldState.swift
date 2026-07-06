@@ -208,7 +208,7 @@ private extension PCIFieldState {
             self.isValid = false
         }
     }
-    
+
     func updateCurrentTextToNewMask(_ newFormatter: Configuration.Mask) {
         guard let currentText = textField.text,
               !currentText.isEmpty else {
@@ -218,7 +218,7 @@ private extension PCIFieldState {
         let numbersOnly = currentText.onlyNumbers()
 
         let newFormattedText = numbersOnly.applyMask(newFormatter.pattern, separator: newFormatter.separator)
-        textField.text = newFormattedText
+        self.textField.text = newFormattedText
     }
 }
 

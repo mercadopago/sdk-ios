@@ -5,8 +5,8 @@
 //  Created by Guilherme Prata Costa on 17/06/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 /// A protocol that defines the requirements for a text style.
 ///
@@ -63,6 +63,6 @@ private struct ResolvedTextStyle<Style: TextStyle>: View {
     let configuration: Style.Configuration
 
     var body: some View {
-        style.makeBody(configuration: configuration)
+        self.style.makeBody(configuration: self.configuration)
     }
 }

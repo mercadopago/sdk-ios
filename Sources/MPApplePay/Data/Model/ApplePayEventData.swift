@@ -9,11 +9,11 @@
 #endif
 
 struct ApplePayEventData: AnalyticsEventData {
-    let typeWallet: String = "applepay"
+    let typeWallet = "applepay"
 
     func toDictionary() -> [String: any Sendable] {
         return [
-            "type_wallet": self.typeWallet,
+            "type_wallet": self.typeWallet
         ]
     }
 }

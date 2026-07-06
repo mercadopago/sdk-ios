@@ -7,8 +7,8 @@
 
 import Foundation
 #if SWIFT_PACKAGE
-    import MPCore
     import MPAnalytics
+    import MPCore
 #endif
 protocol GenerateCardTokenUseCaseProtocol: Sendable {
     func tokenize(
@@ -51,11 +51,11 @@ final class GenerateCardTokenUseCase: GenerateCardTokenUseCaseProtocol {
         identificationType: String?,
         identificationNumber: String?
     ) async throws -> CardToken {
-        try validateExpirationDate(month: expirationDateMonth, year: expirationDateYear)
-        try await validateCardData(cardNumber: cardNumber, securityCode: securityCodeInput, cardID: cardID)
+        try self.validateExpirationDate(month: expirationDateMonth, year: expirationDateYear)
+        try await self.validateCardData(cardNumber: cardNumber, securityCode: securityCodeInput, cardID: cardID)
 
         var buyerIdentification: BuyerIdentification?
-        
+
         let session = await MPAnalyticsConfiguration.shared.sessionID
         let version = await MPAnalyticsConfiguration.shared.version
 
