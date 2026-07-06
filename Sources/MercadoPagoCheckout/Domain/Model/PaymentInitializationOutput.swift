@@ -15,6 +15,7 @@ struct PaymentInitializationOutput: Equatable {
 
     struct Footer: Equatable {
         let totalLabel: String
+        let totalAmount: String
     }
 
     /// A titled group of payment options (e.g. "Mercado Pago", "Outros meios de pagamento").
@@ -105,7 +106,7 @@ extension PaymentInitializationOutput {
                     ]
                 )
             ],
-            footer: .init(totalLabel: "Total")
+            footer: .init(totalLabel: "Total", totalAmount: "$ 15")
         )
     }
 }

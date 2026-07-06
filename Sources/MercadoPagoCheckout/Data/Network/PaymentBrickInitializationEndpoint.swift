@@ -13,8 +13,7 @@ import Foundation
 
 struct PaymentBrickInitializationEndpoint: RequestEndpoint {
     let orderId: String
-    let customerId: String?
-    let cardIds: [String]
+    let clientToken: String
 
     var apiVersion: APIVersion {
         .v1
@@ -35,24 +34,13 @@ struct PaymentBrickInitializationEndpoint: RequestEndpoint {
     var headers: [String: String] {
         [
             "Content-Type": "application/json",
-            "X-Public-Key": MercadoPagoSDK.shared.getPublicKey()
+            "X-Public-Key": MercadoPagoSDK.shared.getPublicKey(),
+            "Authorization": "Bearer \(self.clientToken)"
         ]
     }
 
     var urlParams: [String: any CustomStringConvertible] {
-        var params: [String: any CustomStringConvertible] = [
-            "order_id": self.orderId
-        ]
-
-        if let customerId = self.customerId {
-            params["customer_id"] = customerId
-        }
-
-        if !self.cardIds.isEmpty {
-            params["card_ids"] = self.cardIds.joined(separator: ",")
-        }
-
-        return params
+        ["order_id": self.orderId]
     }
 
     var body: Data? {

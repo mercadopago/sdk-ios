@@ -19,25 +19,31 @@ final class FetchPaymentBrickInitializationUseCaseTests: XCTestCase {
     func test_execute_returnsOutputFromRepository() async throws {
         let sut = self.makeSUT()
 
-        let output = try await sut.useCase.execute(orderId: "ORD01", customerId: nil, cardIds: [])
+        let output = try await sut.useCase.execute(orderId: "ORD01", clientToken: "tok")
 
         XCTAssertEqual(output, sut.repository.mockOutput)
     }
 
-    func test_execute_forwardsParameters() async throws {
+    func test_execute_forwardsOrderId() async throws {
         let sut = self.makeSUT()
 
-        _ = try await sut.useCase.execute(orderId: "ORD42", customerId: "CUST01", cardIds: ["CARD1", "CARD2"])
+        _ = try await sut.useCase.execute(orderId: "ORD42", clientToken: "tok")
 
         XCTAssertEqual(sut.repository.capturedOrderId, "ORD42")
-        XCTAssertEqual(sut.repository.capturedCustomerId, "CUST01")
-        XCTAssertEqual(sut.repository.capturedCardIds, ["CARD1", "CARD2"])
+    }
+
+    func test_execute_forwardsClientToken() async throws {
+        let sut = self.makeSUT()
+
+        _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "seller_token")
+
+        XCTAssertEqual(sut.repository.capturedClientToken, "seller_token")
     }
 
     func test_execute_callsRepositoryOnce() async throws {
         let sut = self.makeSUT()
 
-        _ = try await sut.useCase.execute(orderId: "ORD01", customerId: nil, cardIds: [])
+        _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "tok")
 
         XCTAssertEqual(sut.repository.fetchCallCount, 1)
     }
@@ -49,7 +55,7 @@ final class FetchPaymentBrickInitializationUseCaseTests: XCTestCase {
         sut.repository.shouldThrow = true
 
         do {
-            _ = try await sut.useCase.execute(orderId: "ORD01", customerId: nil, cardIds: [])
+            _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "tok")
             XCTFail("Expected throw")
         } catch let error as MercadoPagoCheckoutError {
             XCTAssertEqual(error.locationDescription, "initialization")

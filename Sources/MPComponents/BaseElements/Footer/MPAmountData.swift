@@ -77,4 +77,37 @@ package struct MPAmountData: Equatable {
         self.integerPart = parts.first ?? formatted
         self.decimalPart = decimal == "00" ? "" : decimal
     }
+
+    /// Parses a pre-formatted amount string (e.g. `"$ 15"`, `"R$ 1.250,99"`) into its display parts.
+    ///
+    /// The currency symbol is everything before the first digit. The decimal part is identified
+    /// by a trailing separator followed by exactly 2 digits — grouping separators (3 digits after)
+    /// are kept as part of the integer portion.
+    package init(fromFormatted string: String) {
+        let trimmed = string.trimmingCharacters(in: .whitespaces)
+
+        guard let firstDigitIndex = trimmed.firstIndex(where: { $0.isNumber }) else {
+            self.currencySymbol = trimmed
+            self.integerPart = ""
+            self.decimalPart = ""
+            return
+        }
+
+        self.currencySymbol = String(trimmed[trimmed.startIndex..<firstDigitIndex])
+            .trimmingCharacters(in: .whitespaces)
+
+        let numberPart = String(trimmed[firstDigitIndex...])
+
+        if let lastSep = numberPart.lastIndex(where: { $0 == "," || $0 == "." }) {
+            let afterSep = String(numberPart[numberPart.index(after: lastSep)...])
+            if afterSep.count == 2, afterSep.allSatisfy({ $0.isNumber }) {
+                self.integerPart = String(numberPart[..<lastSep])
+                self.decimalPart = afterSep == "00" ? "" : afterSep
+                return
+            }
+        }
+
+        self.integerPart = numberPart
+        self.decimalPart = ""
+    }
 }

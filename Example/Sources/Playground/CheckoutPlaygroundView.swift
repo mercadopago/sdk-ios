@@ -39,7 +39,7 @@ struct CheckoutPlaygroundView: View {
         Form {
             self.sdkSection
             self.checkoutSection
-            if self.config.checkoutType == .cardTransaction {
+            if self.config.checkoutType == .cardTransaction || self.config.checkoutType == .payment {
                 self.orderSection
             }
             self.installmentsSection

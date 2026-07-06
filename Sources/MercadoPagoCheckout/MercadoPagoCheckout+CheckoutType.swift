@@ -18,7 +18,7 @@ public extension MercadoPagoCheckout {
     /// result closure receives, so you can read them without casting.
     struct CheckoutType: Sendable {
         enum Kind: Sendable {
-            case payment(MPOrder, cardIds: [String], customerId: String?)
+            case payment(MPOrder)
             case cardTransaction(MPOrder)
             case saveCard
         }
@@ -59,15 +59,9 @@ public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.Payme
     ///
     /// - Parameters:
     ///   - order: The order to process, including its `orderId` and `clientToken`.
-    ///   - cardIds: Saved card IDs to display in the payment selector.
-    ///     Pass an empty array when there are no saved cards to show.
-    ///   - customerId: Alphanumeric customer ID (e.g. `"649457098-FybpOkG6zH8QRm"`).
-    ///     Pass `nil` when there are no saved cards to show.
     static func payment(
-        order: MPOrder,
-        cardIds: [String] = [],
-        customerId: String? = nil
+        order: MPOrder
     ) -> MercadoPagoCheckout<MPPaymentData.Payment>.CheckoutType {
-        .init(kind: .payment(order, cardIds: cardIds, customerId: customerId))
+        .init(kind: .payment(order))
     }
 }

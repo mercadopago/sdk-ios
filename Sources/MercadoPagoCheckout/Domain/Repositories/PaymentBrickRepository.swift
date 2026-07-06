@@ -10,7 +10,6 @@ import Foundation
 protocol PaymentBrickRepository: Sendable {
     func fetchInitialization(
         orderId: String,
-        customerId: String?,
-        cardIds: [String]
+        clientToken: String
     ) async throws -> PaymentInitializationOutput
 }

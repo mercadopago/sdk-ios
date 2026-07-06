@@ -13,7 +13,7 @@ import XCTest
 @MainActor
 final class PaymentsScreenSnapshotTests: XCTestCase {
     func test_paymentsScreen_defaultMockData() {
-        let view = PaymentsScreen(viewModel: PaymentsViewModel(amount: 500))
+        let view = PaymentsScreen(viewModel: PaymentsViewModel())
 
         assertSnapshot(
             of: UIHostingController(rootView: view),

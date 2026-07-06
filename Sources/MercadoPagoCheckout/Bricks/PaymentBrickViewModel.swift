@@ -32,13 +32,9 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     private let fetchInitializationUseCase: FetchPaymentBrickInitializationUseCase
     private let orderTransactionUseCase: OrderTransactionUseCase
 
-    var transactionAmount: Decimal {
-        return 10.0
-    }
+    var transactionAmount: Decimal { .zero }
 
-    var payerEmail: String {
-        return ""
-    }
+    var payerEmail: String { "" }
 
     init(
         configuration: MPCheckoutConfiguration<T>,
@@ -53,8 +49,8 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.fetchInitializationUseCase = fetchInitializationUseCase
         self.orderTransactionUseCase = orderTransactionUseCase
 
-        if case let .payment(order, _, _) = configuration.type.kind {
-            self.paymentData = .init(orderId: order.orderId, transactionAmount: 10.0)
+        if case let .payment(order) = configuration.type.kind {
+            self.paymentData = .init(orderId: order.orderId, transactionAmount: .zero)
         }
     }
 
@@ -69,14 +65,13 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Load
 
     func load() async throws(MercadoPagoCheckoutError) {
-        guard case let .payment(order, cardIds: cardIds, customerId: customerId) = configuration.type.kind else {
+        guard case let .payment(order) = configuration.type.kind else {
             return
         }
         self.screenState = .loading
         let output = try await fetchInitializationUseCase.execute(
             orderId: order.orderId,
-            customerId: customerId,
-            cardIds: cardIds
+            clientToken: order.clientToken
         )
         self.screenState = .ready(output)
     }
@@ -84,7 +79,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Process Order
 
     func processOrder(params: OrderTransactionParams) async throws(MercadoPagoCheckoutError) -> T {
-        guard case let .payment(order, _, _) = configuration.type.kind else {
+        guard case let .payment(order) = configuration.type.kind else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
                 localizedDescription: "ORDER_PROCESS",
@@ -109,7 +104,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         let data = MPPaymentData.Payment(
             orderId: order.orderId,
             orderStatus: result.status,
-            transactionAmount: 10,
+            transactionAmount: Decimal(string: result.totalAmount) ?? .zero,
             paymentMethodId: payment.paymentMethodId,
             paymentTypeId: payment.paymentTypeId
         )

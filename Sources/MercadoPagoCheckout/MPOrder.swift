@@ -12,7 +12,7 @@ protocol CheckoutTypeConfiguration: Sendable {}
 ///
 /// Both ``orderId`` and ``clientToken`` are returned by the Orders API when the order
 /// is created. Pass an `MPOrder` to
-/// ``MercadoPagoCheckout/CheckoutType/payment(order:cardIds:)`` or
+/// ``MercadoPagoCheckout/CheckoutType/payment(order:)`` or
 /// ``MercadoPagoCheckout/CheckoutType/cardTransaction(order:)`` to start the checkout.
 ///
 /// ## Initializing from an order creation response

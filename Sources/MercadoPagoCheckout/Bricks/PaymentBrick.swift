@@ -72,10 +72,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
 
     private func paymentsScreen(output: PaymentInitializationOutput) -> some View {
         PaymentsScreen(
-            viewModel: PaymentsViewModel(
-                amount: self.viewModel.transactionAmount,
-                initialization: output
-            ),
+            viewModel: PaymentsViewModel(initialization: output),
             onBack: {
                 self.cancel(screens: self.viewModel.screensVisited)
             },

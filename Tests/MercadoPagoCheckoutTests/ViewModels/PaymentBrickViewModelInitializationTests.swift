@@ -63,12 +63,12 @@ final class PaymentBrickViewModelInitializationTests: XCTestCase {
         XCTAssertEqual(sut.repository.capturedOrderId, "ORD99")
     }
 
-    func test_load_forwardsCustomerId() async throws {
-        let sut = self.makeSUT(customerId: "CUST01")
+    func test_load_forwardsClientToken() async throws {
+        let sut = self.makeSUT(clientToken: "seller_token")
 
         try await sut.viewModel.load()
 
-        XCTAssertEqual(sut.repository.capturedCustomerId, "CUST01")
+        XCTAssertEqual(sut.repository.capturedClientToken, "seller_token")
     }
 
     func test_load_onRepositoryError_throws() async {
@@ -103,13 +103,12 @@ final class PaymentBrickViewModelInitializationTests: XCTestCase {
 
     private func makeSUT(
         orderId: String = "ORD01",
-        customerId: String? = nil,
-        cardIds: [String] = []
+        clientToken: String = "token"
     ) -> SUT {
         let repository = MockPaymentBrickRepository()
-        let order = MPOrder(orderId: orderId, clientToken: "token")
+        let order = MPOrder(orderId: orderId, clientToken: clientToken)
         let configuration = MPCheckoutConfiguration<MPPaymentData.Payment>(
-            type: .payment(order: order, cardIds: cardIds, customerId: customerId),
+            type: .payment(order: order),
             paymentMethod: []
         )
         let viewModel = PaymentBrickViewModel(

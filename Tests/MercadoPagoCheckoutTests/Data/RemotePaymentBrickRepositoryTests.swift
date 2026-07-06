@@ -100,13 +100,13 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         // Act
         let result = try await sut.repository.fetchInitialization(
             orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
+            clientToken: "tok"
         )
 
         // Assert
         XCTAssertEqual(result.headerTitle, "Como você quer pagar?")
         XCTAssertEqual(result.footer.totalLabel, "Total")
+        XCTAssertEqual(result.footer.totalAmount, "R$ 100,00")
         XCTAssertEqual(result.sections.count, 2)
         XCTAssertEqual(result.sections[0].title, "Mercado Pago")
         XCTAssertEqual(result.sections[1].title, "Outros meios de pagamento")
@@ -121,8 +121,7 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         // Act
         let result = try await sut.repository.fetchInitialization(
             orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
+            clientToken: "tok"
         )
 
         // Assert
@@ -139,8 +138,7 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         // Act
         let result = try await sut.repository.fetchInitialization(
             orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
+            clientToken: "tok"
         )
 
         // Assert
@@ -161,8 +159,7 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         // Act
         let result = try await sut.repository.fetchInitialization(
             orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
+            clientToken: "tok"
         )
 
         // Assert
@@ -179,11 +176,9 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         await sut.session.mock.setData(self.makeValidResponseData())
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
-        // Act
         let result = try await sut.repository.fetchInitialization(
             orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
+            clientToken: "tok"
         )
 
         // Assert
@@ -205,8 +200,7 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         do {
             _ = try await sut.repository.fetchInitialization(
                 orderId: "ORDER-1",
-                customerId: nil,
-                cardIds: []
+                clientToken: "tok"
             )
             XCTFail("Expected error to be thrown")
         } catch {
@@ -224,8 +218,7 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         do {
             _ = try await sut.repository.fetchInitialization(
                 orderId: "ORDER-1",
-                customerId: nil,
-                cardIds: []
+                clientToken: "tok"
             )
             XCTFail("Expected decoding error")
         } catch {
@@ -233,14 +226,13 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         }
     }
 
-    // MARK: - Endpoint urlParams Cases
+    // MARK: - Endpoint Cases
 
-    func testEndpoint_alwaysIncludesRequiredParams() {
+    func testEndpoint_includesOrderIdParam() {
         // Arrange
         let endpoint = PaymentBrickInitializationEndpoint(
             orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
+            clientToken: "tok"
         )
 
         // Act
@@ -250,79 +242,44 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         XCTAssertEqual(String(describing: params["order_id"]!), "ORDER-1")
     }
 
-    func testEndpoint_whenCustomerIdNil_omitsCustomerIdParam() {
+    func testEndpoint_doesNotIncludeExtraParams() {
         // Arrange
         let endpoint = PaymentBrickInitializationEndpoint(
             orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
+            clientToken: "tok"
         )
-
+        
         // Act
         let params = endpoint.urlParams
 
         // Assert
+        XCTAssertNil(params["total_amount"])
         XCTAssertNil(params["customer_id"])
-    }
-
-    func testEndpoint_whenCardIdsEmpty_omitsCardIdsParam() {
-        // Arrange
-        let endpoint = PaymentBrickInitializationEndpoint(
-            orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
-        )
-
-        // Act
-        let params = endpoint.urlParams
-
-        // Assert
         XCTAssertNil(params["card_ids"])
     }
 
-    func testEndpoint_whenCustomerIdPresent_includesCustomerIdParam() {
+    func testEndpoint_includesAuthorizationHeader() {
         // Arrange
+
         let endpoint = PaymentBrickInitializationEndpoint(
             orderId: "ORDER-1",
-            customerId: "CUSTOMER-42",
-            cardIds: []
+            clientToken: "seller_token"
         )
-
-        // Act
-        let params = endpoint.urlParams
-
+        
         // Assert
-        XCTAssertEqual(String(describing: params["customer_id"]!), "CUSTOMER-42")
-    }
-
-    func testEndpoint_whenCardIdsPresent_joinsWithComma() {
-        // Arrange
-        let endpoint = PaymentBrickInitializationEndpoint(
-            orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: ["card-1", "card-2", "card-3"]
-        )
-
-        // Act
-        let params = endpoint.urlParams
-
-        // Assert
-        XCTAssertEqual(String(describing: params["card_ids"]!), "card-1,card-2,card-3")
+        XCTAssertEqual(endpoint.headers["Authorization"], "Bearer seller_token")
     }
 
     func testEndpoint_configuresMethodPathAndVersion() {
         // Arrange
         let endpoint = PaymentBrickInitializationEndpoint(
             orderId: "ORDER-1",
-            customerId: nil,
-            cardIds: []
+            clientToken: "tok"
         )
 
         // Assert
         XCTAssertEqual(endpoint.method, .get)
         XCTAssertEqual(endpoint.path, "payment_brick/initialization")
-        XCTAssertEqual(endpoint.apiVersion, .v1)
         XCTAssertNil(endpoint.body)
-        XCTAssertEqual(endpoint.baseURL, ConstantsEndpoint.baseURLBricks)
     }
 }

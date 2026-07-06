@@ -33,7 +33,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard:
             return nil
-        case let .payment(order, _, _), let .cardTransaction(order):
+        case let .payment(order), let .cardTransaction(order):
             return order.clientToken
         }
     }
@@ -42,7 +42,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard:
             return nil
-        case let .payment(order, _, _), let .cardTransaction(order):
+        case let .payment(order), let .cardTransaction(order):
             return order
         }
     }

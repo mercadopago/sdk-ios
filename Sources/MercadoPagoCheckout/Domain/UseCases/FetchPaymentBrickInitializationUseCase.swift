@@ -15,14 +15,12 @@ struct FetchPaymentBrickInitializationUseCase {
 
     func execute(
         orderId: String,
-        customerId: String?,
-        cardIds: [String]
+        clientToken: String
     ) async throws(MercadoPagoCheckoutError) -> PaymentInitializationOutput {
         do {
             return try await self.repository.fetchInitialization(
                 orderId: orderId,
-                customerId: customerId,
-                cardIds: cardIds
+                clientToken: clientToken
             )
         } catch let error as APIClientError {
             throw MercadoPagoCheckoutError(from: error, location: .initialization)
