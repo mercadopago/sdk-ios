@@ -2,7 +2,7 @@ import CoreMethods
 import SwiftUI
 
 /// CardFormView - Main SwiftUI view demonstrating CoreMethods SDK integration
-/// 
+///
 /// This example shows how to integrate the CoreMethods SDK for payment processing in a SwiftUI app.
 /// Key features demonstrated:
 /// - Card number, expiration date, and security code input validation
@@ -10,7 +10,7 @@ import SwiftUI
 /// - Document type selection for user identification
 /// - Installment options based on payment method
 /// - Token creation for secure payment processing
-/// 
+///
 /// Architecture Note: All CoreMethods SDK operations are centralized in CardFormViewModel
 /// for better organization and single source of truth.
 struct CardFormView: View {
@@ -109,7 +109,7 @@ struct CardFormView: View {
     // MARK: - Actions
 
     /// Main payment processing function
-    /// 
+    ///
     /// This demonstrates the complete flow for creating a payment token using the ViewModel:
     /// 1. Validate all required fields are available
     /// 2. Call ViewModel's createPaymentToken() method

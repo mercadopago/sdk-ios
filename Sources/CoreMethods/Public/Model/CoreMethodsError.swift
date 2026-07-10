@@ -13,7 +13,6 @@ enum CoreMethodsError: Error, LocalizedError {
     case cardNumberInvalid
     case expirationDateInvalid
 
-    
     var errorDescription: String? {
         switch self {
         case .binIsEmpty:

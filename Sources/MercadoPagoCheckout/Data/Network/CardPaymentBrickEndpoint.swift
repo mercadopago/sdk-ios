@@ -56,6 +56,12 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
             if !params.excludedCardBrands.isEmpty {
                 result["excluded_payment_methods"] = params.excludedCardBrands.joined(separator: ",")
             }
+            if let minInstallments = params.minInstallments {
+                result["min_installments"] = minInstallments
+            }
+            if let maxInstallments = params.maxInstallments {
+                result["max_installments"] = maxInstallments
+            }
             return result
         }
     }

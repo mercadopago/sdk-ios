@@ -74,7 +74,7 @@ package extension RequestEndpoint {
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = headers
         request.httpBody = body
-        request.cachePolicy = isCacheable ? cachePolicy : .reloadIgnoringLocalCacheData
+        request.cachePolicy = self.isCacheable ? self.cachePolicy : .reloadIgnoringLocalCacheData
 
         return request
     }

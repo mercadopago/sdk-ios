@@ -37,8 +37,7 @@ private extension MercadoPagoSDKTests {
 
 final class MercadoPagoSDKTests: XCTestCase {
     // MARK: - Initialization Tests
-    
-    
+
     func test_initializea_WithValidConfiguration_ShouldSetPropertiesCorrectly() async {
         let (sut, analytics) = self.makeSUT()
         let locale = "pt-BR"
@@ -48,7 +47,7 @@ final class MercadoPagoSDKTests: XCTestCase {
             locale: locale,
             country: .BRA
         )
-        
+
         let config2 = MercadoPagoSDK.Configuration(
             publicKey: "test_key2",
             locale: "es-AR",
@@ -62,7 +61,7 @@ final class MercadoPagoSDKTests: XCTestCase {
             publicKey: "test_key",
             sdkVersion: MPSDKVersion.version
         )
-        
+
         let expectEventDataNewConfig = MPInicializationEventData(
             locale: "es-AR",
             distribution: analytics.sellerInfo.getDistribution().rawValue,
@@ -72,18 +71,16 @@ final class MercadoPagoSDKTests: XCTestCase {
         )
 
         sut.initialize(config)
-        
+
         XCTAssertTrue(sut.isInitialized)
         XCTAssertEqual(sut.getPublicKey(), "test_key")
 
         await sut.analyticsMonitoringTask?.value
-        
-        
+
         sut.setNewConfiguration(config2)
         XCTAssertEqual(sut.getPublicKey(), "test_key2")
 
         await sut.analyticsMonitoringTask?.value
-
 
         let messages = await analytics.mock.getMessages()
 

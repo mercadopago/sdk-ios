@@ -20,12 +20,12 @@ final class MPAmountDataTests: XCTestCase {
         XCTAssertEqual(result.currencySymbol, MPStrings.Common.currency)
     }
 
-    func test_initFromDouble_withRoundValue_shouldHaveZeroDecimalPart() {
+    func test_initFromDouble_withRoundValue_shouldHaveEmptyDecimalPart() {
         // Arrange / Act
         let result = MPAmountData(from: 1000.0)
 
         // Assert
-        XCTAssertEqual(result.decimalPart, "00")
+        XCTAssertEqual(result.decimalPart, "")
     }
 
     func test_initFromDouble_withNonZeroDecimal_shouldExtractDecimalPart() {

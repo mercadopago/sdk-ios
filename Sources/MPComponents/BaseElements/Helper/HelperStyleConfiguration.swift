@@ -5,8 +5,8 @@
 //  Created by SDK on 06/01/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 /// Configuration object consumed by `HelperStyle`.
 package struct HelperStyleConfiguration: Sendable {

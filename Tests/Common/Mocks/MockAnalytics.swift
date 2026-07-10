@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 14/02/25.
 //
 
+import Foundation
 import MPAnalytics
 
 package final class MockAnalytics: AnalyticsInterface {
@@ -69,6 +70,10 @@ package final class MockAnalytics: AnalyticsInterface {
                 }
                 // Double
                 else if let v1 = value1 as? Double, let v2 = value2 as? Double {
+                    return v1 == v2
+                }
+                // Decimal
+                else if let v1 = value1 as? Decimal, let v2 = value2 as? Decimal {
                     return v1 == v2
                 }
                 // Bool

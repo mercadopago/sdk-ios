@@ -14,9 +14,13 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
     nonisolated(unsafe) var shouldThrow = false
     nonisolated(unsafe) var fetchCallCount = 0
     nonisolated(unsafe) var sequentialResults: [Result<CardFormInitializationInput, Error>] = []
+    nonisolated(unsafe) var capturedOrderId: String?
+    nonisolated(unsafe) var capturedClientToken: String?
 
-    func fetchInitialization(amount _: Double?, checkoutType _: String) async throws -> CardFormInitializationInput {
+    func fetchInitialization(orderId: String?, clientToken: String?, checkoutType _: String) async throws -> CardFormInitializationInput {
         self.fetchCallCount += 1
+        self.capturedOrderId = orderId
+        self.capturedClientToken = clientToken
         if !self.sequentialResults.isEmpty {
             let result = self.sequentialResults.removeFirst()
             return try result.get()
@@ -25,10 +29,12 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
         return self.mockData ?? Self.makeDefault()
     }
 
-    static func makeDefault() -> CardFormInitializationInput {
+    static func makeDefault(amount: Decimal? = 100) -> CardFormInitializationInput {
         CardFormInitializationInput(
             title: "Default Header",
             buttonLabel: "Save",
+            currencySymbol: "R$",
+            amount: amount,
             fields: CardFormInitializationInputStub.makeDefaultFields(),
             identificationTypes: []
         )
@@ -38,6 +44,8 @@ final class MockCardFormInitializationRepository: CardFormInitializationReposito
         CardFormInitializationInput(
             title: "Default Header",
             buttonLabel: "Save",
+            currencySymbol: "R$",
+            amount: 100,
             fields: CardFormInitializationInputStub.makeDefaultFields(),
             identificationTypes: identificationTypes
         )

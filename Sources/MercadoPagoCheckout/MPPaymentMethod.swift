@@ -17,7 +17,7 @@ public enum MPPaymentMethodConfig: Sendable {
         excludedBrands: [MPCardBrand] = [],
         installment: MPInstallment? = MPInstallment()
     )
-    
+
     public static var defaults: [MPPaymentMethodConfig] {
         [
             .card(excludedTypes: [], excludedBrands: [])
@@ -38,5 +38,12 @@ extension [MPPaymentMethodConfig] {
             guard case let .card(_, excludedBrands, _) = method else { return [] }
             return excludedBrands.map(\.paymentMethodId)
         }
+    }
+
+    var installmentConfig: MPInstallment? {
+        for method in self {
+            if case let .card(_, _, installment) = method { return installment }
+        }
+        return nil
     }
 }
