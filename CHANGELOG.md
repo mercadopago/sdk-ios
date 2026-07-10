@@ -1,3 +1,278 @@
+## [1.0.0] - 2026-07-10
+
+- Merge pull request #128 from melisource/feature/card-form-order
+- disable test of payment
+- Remove checkout type payment
+- Merge pull request #131 from melisource/feature/i13-models
+- docs(SMFINTECH-32897): add selector-de-meios specs (#133)
+- fix(tests): align RemotePaymentBrickRepositoryTests with clientToken-based fetchInitialization
+- remove comments
+- (Feature): Map saved card data and security code screen configuration
+- [CHOBK-4440] (Enhancement): Remove totalAmount param and adjust MPItemList style (#129)
+- Merge pull request #130 from melisource/fix/order-adjust
+- fix test
+- fix tests
+- (Fix): Fetch transaction amount from backend for card forms
+- (Fix): Adjust order initialization by removing amount and payer details
+- Merge pull request #127 from melisource/fix/order-response
+- add result screen
+- fix amount
+- fix checkout
+- (Fix): Adjust OrderTransactionResponse fields
+- add decoded problem return
+- Merge pull request #126 from melisource/feature/viewmodel-cvv
+- fix swiftlint and format
+- (Feature): SecurityCodeViewModel
+- Merge pull request #125 from melisource/fix/order-transaction-process
+- fix snapshot
+- fix test with space
+- fix test
+- expose MercadoPagoCheckout library in Package.swift
+- adjust swift lint and format
+- adjust order transaction process
+- Merge pull request #124 from melisource/feature/security-code-usecase
+- Merge pull request #123 from melisource/feature/security-code-models
+- Merge pull request #122 from melisource/feature/callbacks-payment
+- fix swift format
+- add private func
+- add error
+- fix swiftlint and format
+- (Feature): Enable tokenization of saved cards with security code
+- private func map
+- (Feature): Add security code screen domain models
+- adjust swiftlint
+- (Feature): Track visited screens and expose payment outcomes
+- Merge pull request #121 from melisource/feature/4275
+- adjust error type
+- Merge pull request #120 from melisource/feature/4274
+- Merge pull request #119 from melisource/feature/4273
+- adjust swift format and lint
+- add order call
+- chore: document intentional omission of footer.totalAmount (PR review)
+- fix swiftlint
+- test: fix tautological title test, add totalLabel coverage, assert header+footer in repo tests (PR review)
+- feat: Dynamically configure payment screen header and footer labels
+- Revert "feat: Dynamically configure payment screen header and footer labels"
+- Revert "feat: Dynamically configure payment screen header and footer labels"
+- feat: Dynamically configure payment screen header and footer labels
+- feat: Dynamically configure payment screen header and footer labels
+- adjust unit test
+- test: verify .loading state during in-progress fetch (PR review)
+- private load
+- adjust swiftlint
+- adjust load cardformbrick
+- Merge pull request #116 from melisource/feature/4272-decimal-amounts
+- Merge pull request #115 from melisource/feature/4272
+- swift format and swift lint
+- Initialize PaymentBrick asynchronously
+- fix swiftlint
+- remove comments
+- fix swiftlint
+- fix unit test
+- fix init decimal
+- fix double to decimal
+- fix decimal example
+- [4272] (refactor): Convert amount fields from Double to Decimal in Payment Brick and Card Transaction
+- fix tests
+- Merge pull request #114 from melisource/feature/4271/models-payment
+- change to decimal
+- Revert "fix swiftlint"
+- fix swiftlint
+- [4272] (feat): Add Payment Brick initialization data layer
+- add snapshots test
+- remove snapshot
+- [4271] (feat): Add Payment Brick initialization response model
+- Merge pull request #81 from melisource/feature/skeleton-component
+- Merge pull request #113 from melisource/feature/card-id-and-customer
+- Merge pull request #112 from melisource/feature/rename-payment-data
+- A
+- Fix swiftlint
+- Feat: Refactor payment result type for clarity and offline payments
+- Merge pull request #109 from melisource/feature/payment-brick-q2
+- fix(mirror): permite espelhar esta branch com base != main
+- add image
+- put again base main
+- [CHOBK-4301] (Sync): add clientToken to order processing chain
+- fix rebase with new changes from card-payment
+- add again thread
+- fix pull request review thread
+- fix name snapshot
+- remove function
+- fix test
+- (Test): Add unit and snapshot tests for payment view models and screens
+- (Layout): Adjust horizontal spacing in payment selection UI
+- Adjust token MPListItem
+- Change name to PaymentInitializationOutput
+- (Refactor): Improve MPListItem rendering for optional content
+- (Feature): Add initial payment method selection UI to PaymentBrick
+- Revert "test commit"
+- test commit
+- remove enum
+- remove paymentbrick
+- (Tests): Add Email screen unit and snapshot tests
+- fix payment screen
+- (Feature): Implement Email screen in PaymentBrick flow
+- Revert "test commit"
+- test commit
+- (Feature): Add MPIcon thumbnailFlag style with remote image loading (#192)
+- Introduce MPOrder for unified payment configuration
+- add payment data published
+- Revert "test commit"
+- test commit
+- adjust code review
+- [Feature]: Implement Payment Brick example and foundational UI
+- [Refactor]: Introduce dedicated configuration for payment selection
+- add order parameter
+- [Feature]: Enable PaymentTransaction flow with PaymentBrick
+- [Feature]: Add initial Payment Brick SwiftUI structure
+- [CHOBK-3881] (Chore): absorb 0.3.0 release changes from public branch
+- adjust snapshot
+- Test: Add CardFormViewModel tests for installment data output
+- Refactor: Centralize installment data generation in CardFormViewModel
+- fix sheet exclusion
+- fix playground
+- fix playground
+- Refactor: Update Swift syntax and improve code style
+- add accessibility identifiers
+- add sheet
+- fix review
+- fix fingerprint
+- adjust skill
+- update skill
+- remove from fingerprint
+- add if MDS and simulator
+- add .claude and remove gitignore
+- add mds
+- fix swiftlint
+- (Feature): Introduce configurable MercadoPagoCheckout Playground
+- adjust swiftlint
+- fix test not apply
+- add not apply prop
+- tracks for order
+- [CHOBK-4087] (Feature): Integrate order processing in checkout flow (#98)
+- Order Transaction Service (#94)
+- [CHOBK-3977] (Feature): Wire orderId from MPOrder into MPPaymentData.CardTransaction (#91)
+- updated viewmodel
+- [CHOBK-4128] (Feature): Add min and max installments support (#89)
+- updated snapshot
+- MPCheckoutConfiguration Sendable
+- mark models as Sendable
+- updated test
+- conflict fix and updated example for cardTransaction
+- Mirror: (Refactor): Change installments initialize track to type view (#83)
+- Mirror: [CHOBK-4088] (Feature): Amount on footer for CardForm (#82)
+- Mirror: (Fix): Make transactionAmount required in Installments (#60)
+- Mirror: [Feature] Checkout Card Payment Installments
+- Mirror: (Fix): Installment screen adjustments (#57)
+- Mirror: accessibility (#185)
+- Mirror: [Feature] Checkout Card Payment Installments
+- chore(example): switch handleResult to CardSave result type
+- feat(checkout): type user-cancelled context by checkout type (I4)
+- Mirror: (Fix): Make transactionAmount non-optional in CardFormSubmitEventData (#84)
+- Mirror: (Fix): Make transactionAmount non-optional in CardFormSubmitEventData (#59)
+- Merge pull request #111 from melisource/fix/mirror-pr-branch
+- fix(mirror): espelha conteúdo completo relativo a main quando a base não existe
+- fix(mirror): espelha branches com base != main sem abrir PR
+- fix(mirror): restore --binary flag and restrict mirror to main branch only (#107)
+- Merge pull request #104 from melisource/fix/payment-methods-security-length-numeric-CHOBK-4208
+- Merge pull request #102 from melisource/feature/ux-handoff-mirrorignore
+- chore(mirror): add Flowbook/ to .mirrorignore
+- refactor(coremethods): address review - fallback security_length to 0 and drop comments
+- fix(mirror): re-sync public branch before enqueueing to prevent merge conflicts
+- fix(coremethods): send security_length as Numeric in payment_methods track
+- fix: use external PAT for mercadopago queries to bypass IP allowlist
+- Merge pull request #97 from melisource/feature/pin-third-party-actions
+- fix: pin third-party GitHub Actions to commit SHA
+- Merge pull request #93 from melisource/fix/mirror-diff-png
+- fix diff with files png
+- Merge pull request #90 from melisource/refactor/cardform-callback
+- Revert MPOrder cleanup to fit CI line cap
+- Drop new buildPaymentData tests and BIN/init response optional-field fixes
+- fix bin decoded
+- Fixing tests
+- (Refactor): Consolidate CardForm initialization and amount logic
+- (Refactor): Decouple CardForm components from payment data generics
+- [CHOBK-4052] (Refactor): Rename PaymentMethod to excluded types approach (#80)
+- add skeleton snapshot
+- Add snapshot tests for MPSkeletonView
+- Add skeleton component
+- Mirror: (Fix): Make transactionAmount non-optional in CardFormSubmitEventData (#59)
+- Merge pull request #72 from melisource/feature/TEST-2-cleanup-changelog
+- Merge pull request #73 from melisource/fix/example-use-sdk-local
+- Merge pull request #78 from melisource/fix/mirror-merge-queue-branch-delete
+- fix: only delete branch on direct merge, not when using merge queue
+- Merge pull request #77 from melisource/fix/mirror-merge-queue
+- fix: use enqueuePullRequest for merge queue-enabled public repos
+- chore: retrigger sync after rej fix in sync job
+- Merge pull request #76 from melisource/fix/mirror-sync-remove-rej
+- fix: apply .rej cleanup to sync job too
+- chore: retrigger mirror sync after workflow fix
+- Merge pull request #75 from melisource/fix/mirror-pr-remove-rej-files
+- fix: delete .rej files before git add -A in mirror-pr
+- Merge pull request #74 from melisource/fix/mirror-ci-public-pat
+- fix: TEST-2 use external PAT for public repo queries in CI status
+- fix mainlistview and add mirrorignore
+- fix mirror ignore
+- TEST-2: add comment line for mirror flow validation
+- add example project mirrorignore
+- revert mainlistview
+- Merge pull request #69 from melisource/feature/TEST-1-mirror-flow-validation
+- fix config
+- Merge pull request #71 from melisource/fix/mirror-ci-github-statuses-api
+- fix: TEST-1 use GitHub commit statuses API instead of CircleCI v2
+- Merge pull request #70 from melisource/fix/mirror-ci-status-jq-syntax
+- fix: wrap if-elif-else in parens before 'as $badge' in jq expression
+- TEST-1: add unreleased section to CHANGELOG
+- Merge pull request #68 from melisource/mirror/extract-nested-types-mp-prefix
+- Mirror: (Refactor): Extract T-independent types from MercadoPagoCheckout with MP prefix
+- Merge pull request #67 from melisource/feature/sdk-mirror-setup
+- Merge pull request #66 from melisource/mirror/generic-builder
+- fix: replace --delete-branch with explicit ref DELETE for merge-queue repos
+- Merge pull request #65 from melisource/feature/sdk-mirror-setup
+- Mirror: [Feature] Implement generic builder
+- SDK-MIRROR: add PR mirroring, CI status, QA checks and UX reference protection
+- Merge pull request #63 from melisource/mirror/adjust-builder
+- Mirror: (Refactor): Adjust builder
+- Merge pull request #62 from melisource/fix/theme-token
+- Fix bug theme token
+- Merge pull request #58 from melisource/mirror/fix-snackbar-bin-error
+- Mirror: (Fix): Show snackbar immediately on BIN fetch network error
+- Merge pull request #50 from melisource/feature/checkout/card_payment_BFF_v2
+- (Fix): Sync BottomSheet components with sdk-ios
+- Merge pull request #55 from melisource/mirror/fix-pixel-perfect-bff-v2
+- Mirror: Fix pixel-perfect BFF v2 adjustments
+- Merge pull request #54 from melisource/fix/pixel-perfect-bff
+- add new snapshots tests
+- adjust textfield
+- adjust button back style
+- call presented
+- fix bottom sheet call and label
+- Fix merge problems
+- Merge pull request #52 from melisource/feature/bottom-sheet-mp
+- Merge feature/checkout/card_payment_BFF_v2 into feature/bottom-sheet-mp
+- Mirror: [CHOBK-3891] (Feature): Add MPTooltip component (#53)
+- Mirror: (Refactor): Map user_error_message to payment method not found error (#51)
+- separate files and responsability
+- adjust design and animation of bottom sheet
+- Mirror: feat(checkout): Card Payment BFF implementation
+- return document label
+- add drag action
+- remove picker and add bottom sheet custom
+- (Feature): Introduce adaptive MPOptionPicker component
+- Mirror: [Feature] Checkout Card Payment (#2)
+- Merge pull request #47 from melisource/fix/remove-3ds-coremethods-mirror
+- Mirror: [CHOBK-3932] [Fix] Remove 3DS implementation from CoreMethods module
+- Revert "mds initial configuration"
+- mds initial configuration
+- Mirror: [CHOBK-3881] (Feature): Add MPExtended module with deviceSession API (#39)
+- Merge pull request #3 from melisource/enhancement/add-sdd-reverse-eng-specs
+- Remove meli/extracted/ from version control and add to .gitignore
+- Add SDD reverse engineering specs for openplatform-sdk-ios
+- Merge pull request #1 from melisource/feature/migrate-sdk
+- Add missing MPSDKProduct.swift and remove it from .gitignore
+- Migrate SDK ios project
+- Initial commit
+
 ## [0.3.0] - 2026-04-17
 
 - [CHOBK-3881] (Feature): Add MPExtended module with deviceSession API (#160)
