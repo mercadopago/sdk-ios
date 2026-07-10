@@ -18,7 +18,7 @@ struct CardTokenBody: Codable {
     var buyerIdentification: BuyerIdentification?
 
     var device: Data?
-    
+
     var session: String?
     var sdkVersion: String?
 }
@@ -51,7 +51,7 @@ extension CardTokenBody {
 
         if let deviceData = device,
            let deviceObject = try? JSONSerialization.jsonObject(with: deviceData, options: []) as? [String: Any] {
-            jsonObject["device"] = deviceObject            
+            jsonObject["device"] = deviceObject
         }
 
         return try? JSONSerialization.data(withJSONObject: jsonObject, options: [])

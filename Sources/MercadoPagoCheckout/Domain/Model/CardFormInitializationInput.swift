@@ -6,6 +6,7 @@
 //
 
 import CoreMethods
+import Foundation
 
 /// Input entity returned by the repository.
 /// Contains all raw data needed for business decisions (e.g. button variants in future).
@@ -13,6 +14,8 @@ import CoreMethods
 struct CardFormInitializationInput {
     let title: String
     let buttonLabel: String
+    let currencySymbol: String
+    let amount: Decimal?
     let fields: CardFormFields.Fields
     let identificationTypes: [IdentificationType]
 }
