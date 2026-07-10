@@ -21,7 +21,7 @@ import UIKit
 ///    .borderColor(.systemGray)
 ///    .borderWidth(2)
 ///    .cornerRadius(8)
-///    
+///
 /// let field = SecurityCodeTextField(style: style)
 ///    .setMaxLength(4)
 ///    .setPlaceholder("Insert security code")

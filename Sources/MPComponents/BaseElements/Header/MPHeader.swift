@@ -58,7 +58,6 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
     @State private var contentHeight: CGFloat = 0
     @State private var scrollViewHeight: CGFloat = 0
     @State private var footerMeasuredHeight: CGFloat = 0
-    @State private var actualFooterHeight: CGFloat = 0
 
     // MARK: - Computed
 
@@ -157,7 +156,6 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
         .onPreferenceChange(SubHeaderHeightKey.self) { self.subHeaderHeight = $0 }
         .onPreferenceChange(ScrollViewHeightKey.self) { self.scrollViewHeight = $0 }
         .onPreferenceChange(FooterMeasurementKey.self) { self.footerMeasuredHeight = $0 }
-        .onPreferenceChange(FooterHeightKey.self) { self.actualFooterHeight = $0 }
         .navigationBarHidden(true)
     }
 
@@ -181,60 +179,7 @@ package struct MPHeader<Content: View, TrailingActions: View, Footer: View>: Vie
 
     // MARK: - Scroll Area
 
-    @ViewBuilder
     private var scrollArea: some View {
-        if #available(iOS 14.0, *) {
-            self.scrollAreaWithAutoScroll
-        } else {
-            self.scrollAreaBase
-        }
-    }
-
-    @available(iOS 14.0, *)
-    private var scrollAreaWithAutoScroll: some View {
-        ScrollViewReader { proxy in
-            ScrollViewWithOffset(
-                offset: self.$scrollOffset,
-                contentHeight: self.$contentHeight
-            ) {
-                VStack(spacing: 0) {
-                    // Space reserved for the floating header bar
-                    Color.clear.frame(height: self.headerHeight)
-                    // Invisible spacer that measures sub-header height for animation math
-                    self.subHeaderSpacer
-                    Color.clear.frame(height: self.theme.spacings.xsmall)
-                    self.content
-                    // Reserves space so last item scrolls above the footer with breathing room
-                    Color.clear
-                        .frame(height: self.footerMeasuredHeight + self.theme.spacings.xsmall)
-                        .id("footerPadding")
-                }
-            }
-            .background(
-                GeometryReader { geo in
-                    Color.clear.preference(key: ScrollViewHeightKey.self, value: geo.size.height)
-                }
-            )
-            .overlay(
-                self.footer
-                    .environment(\.mpHeaderIsScrollable, self.isScrollable)
-                    .background(
-                        GeometryReader { geo in
-                            Color.clear.preference(key: FooterHeightKey.self, value: geo.size.height)
-                        }
-                    ),
-                alignment: .bottom
-            )
-            .onChange(of: self.actualFooterHeight) { newHeight in
-                guard newHeight > 0 else { return }
-                withAnimation(.easeOut(duration: 0.25)) {
-                    proxy.scrollTo("footerPadding", anchor: .bottom)
-                }
-            }
-        }
-    }
-
-    private var scrollAreaBase: some View {
         ScrollViewWithOffset(
             offset: self.$scrollOffset,
             contentHeight: self.$contentHeight
@@ -390,13 +335,6 @@ private struct ScrollMetricsReader: UIViewRepresentable {
 // MARK: - Preference Keys
 
 private struct SubHeaderHeightKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
-
-private struct FooterHeightKey: PreferenceKey {
     static let defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = max(value, nextValue())

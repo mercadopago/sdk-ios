@@ -36,7 +36,7 @@ final class FetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
             let response = try await repository.getID()
 
             return response.id
-            
+
         } catch _ as APIClientError {
             if self.currentRetry < self.maxRetry {
                 self.currentRetry += 1

@@ -5,17 +5,16 @@
 //  Created by Danielle Nozaki Ogawa on 13/02/26.
 //
 
-import XCTest
-import SwiftUI
-import SnapshotTesting
 @testable import MPComponents
 @testable import MPFoundation
+import SnapshotTesting
+import SwiftUI
+import XCTest
 
 @MainActor
 final class MPRadioButtonSnapshotTests: XCTestCase {
-
     func testButtonStyleView_LargeSize() {
-        let view = createTestView {
+        let view = self.createTestView {
             MPRadioButton(selected: .constant(true))
             MPRadioButton(selected: .constant(false))
         }
@@ -27,7 +26,7 @@ final class MPRadioButtonSnapshotTests: XCTestCase {
         )
     }
 
-    private func createTestView<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
+    private func createTestView(@ViewBuilder content: @escaping () -> some View) -> some View {
         ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             VStack(alignment: .center, spacing: 12) {
                 content()
@@ -40,5 +39,3 @@ final class MPRadioButtonSnapshotTests: XCTestCase {
         }
     }
 }
-
-

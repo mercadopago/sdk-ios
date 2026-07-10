@@ -12,7 +12,6 @@ import SwiftUI
 /// via `@Environment(\.MPTheme)`. It automatically switches between light and dark theme variants.
 @MainActor
 package struct ThemeProvider<Content: View>: View {
-
     /// Reads the system color scheme (light or dark).
     @Environment(\.colorScheme) var colorScheme
 
@@ -26,7 +25,7 @@ package struct ThemeProvider<Content: View>: View {
 
     /// The content view to wrap in the themed environment.
     private let content: () -> Content
-    
+
     /// Initializes a `ThemeProvider` with optional light and dark themes.
     ///
     /// - Parameters:
@@ -44,30 +43,29 @@ package struct ThemeProvider<Content: View>: View {
         self.style = style
         self.content = content
     }
-  
+
     /// The view body that injects the current theme into the environment
     /// based on the active color scheme.
     package var body: some View {
-
-        return content()
-          .environment(\.checkoutTheme, currentTheme)
-          .preferredColorScheme(resolvedColorScheme)
-          .animation(.easeInOut, value: colorScheme)
+        return self.content()
+            .environment(\.checkoutTheme, self.currentTheme)
+            .preferredColorScheme(self.resolvedColorScheme)
+            .animation(.easeInOut, value: self.colorScheme)
     }
-    
+
     private var currentTheme: MPTheme {
-        switch style {
+        switch self.style {
         case .lightMode:
-            return lightTheme
+            return self.lightTheme
         case .darkMode:
-            return darkTheme
+            return self.darkTheme
         case .automatic:
-            return (colorScheme == .dark) ? darkTheme : lightTheme
+            return (self.colorScheme == .dark) ? self.darkTheme : self.lightTheme
         }
     }
 
     private var resolvedColorScheme: ColorScheme? {
-        switch style {
+        switch self.style {
         case .lightMode:
             return .light
         case .darkMode:
@@ -84,7 +82,6 @@ package struct CheckoutThemeKey: @preconcurrency EnvironmentKey {
 }
 
 package extension EnvironmentValues {
-    
     /// The current `CheckoutThemeKey` instance injected into the environment.
     ///
     /// This is used by all  components to access colors, shapes, typography, and spacing.

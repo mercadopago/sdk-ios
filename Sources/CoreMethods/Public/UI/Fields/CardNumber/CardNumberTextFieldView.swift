@@ -16,7 +16,7 @@ import UIKit
 ///
 /// ```swift
 /// @State var cardNumberTextField: CardNumberTextField?
-/// 
+///
 /// CardNumberTextFieldView(
 ///     textField: self.$cardNumberTextField,
 ///     style: myCustomStyle,
@@ -72,7 +72,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
 
     /// A closure that is called when a validation error occurs.
     public var onError: (CardNumberError) -> Void
-    
+
     /// A closure that is called when the input length changes.
     public var onLengthChanged: ((Int) -> Void)?
 
@@ -145,7 +145,7 @@ public struct CardNumberTextFieldView: UIViewRepresentable {
         textField.onLengthChanged = self.onLengthChanged
         textField.onBinChanged = self.onBinChanged
         textField.onLastFourDigitsFilled = self.onLastFourDigitsFilled
-        
+
         textField.onFocusChanged = TextFieldFocusHelper.makeFocusHandler(
             focusState: self.focusState,
             onFocusChanged: self.onFocusChanged
@@ -233,7 +233,7 @@ public extension CardNumberTextFieldView {
     ///   ```
     func mask(_ pattern: String, separator _: Character = " ") -> CardNumberTextFieldView {
         var view = self
-        textField?.setMask(pattern: pattern)
+        self.textField?.setMask(pattern: pattern)
         return view
     }
 

@@ -13,11 +13,13 @@ import SwiftUI
 @MainActor
 final class CardFormViewModel: ObservableObject {
     struct Configuration {
-        let amount: Double
+        let amount: Decimal
         let checkoutTypeAnalyticsValue: String
         let excludedPaymentTypeIds: [String]
         let excludedPaymentMethodIds: [String]
         let initResult: CardFormInitializationOutput
+        let minInstallments: Int?
+        let maxInstallments: Int?
     }
 
     // MARK: - Dependencies
@@ -87,6 +89,7 @@ final class CardFormViewModel: ObservableObject {
     private var paymentMethodTask: Task<Void, Never>?
     private let fields: CardFormFields.Fields
     private var analyticsTask: Task<Void, Never>?
+    private var currencySymbol: String
 
     // MARK: - Init
 
@@ -102,6 +105,7 @@ final class CardFormViewModel: ObservableObject {
         self.fields = config.initResult.fields
         self.analytics = analytics
         self.identificationTypes = config.initResult.identificationTypes
+        self.currencySymbol = config.initResult.currencySymbol
         _selectTypeDocument = Published(wrappedValue: config.initResult.identificationTypes.first)
 
         self.cardNumberFormatter = CardNumberFormatter(
@@ -146,10 +150,12 @@ final class CardFormViewModel: ObservableObject {
     // MARK: - Footer
 
     func footerAmount() -> MPAmountData? {
-        if self.config.amount == .zero {
+        guard
+            self.config.amount != .zero
+        else {
             return nil
         }
-        return MPAmountData(from: self.config.amount)
+        return MPAmountData(from: self.config.amount, currencySymbol: self.currencySymbol)
     }
 
     // MARK: - Card Token
@@ -264,7 +270,9 @@ final class CardFormViewModel: ObservableObject {
             checkoutType: self.config.checkoutTypeAnalyticsValue,
             processingMode: ProcessingMode.aggregator.rawValue,
             excludedCardTypes: self.config.excludedPaymentTypeIds,
-            excludedCardBrands: self.config.excludedPaymentMethodIds
+            excludedCardBrands: self.config.excludedPaymentMethodIds,
+            maxInstallments: self.config.maxInstallments,
+            minInstallments: self.config.minInstallments
         )
     }
 
@@ -293,8 +301,24 @@ final class CardFormViewModel: ObservableObject {
             paymentMethodId: paymentMethod.id,
             paymentTypeId: paymentMethod.paymentTypeId,
             issuerId: paymentMethod.issuers.first?.id,
-            payer: payer
+            payer: payer,
+            installmentsData: self.makeInstallmentsData(cardFormData: cardFormData)
         )
+    }
+
+    private func makeInstallmentsData(cardFormData: CardFormData) -> MPInstallmentsData? {
+        guard
+            let installment = self.cardData?.installment,
+            let method = self.cardData?.paymentMethods.first
+        else { return nil }
+
+        let lastFourDigits = String(cardFormData.cardNumber.filter(\.isNumber).suffix(4))
+        let cardDisplayInfo = CardDisplayInfo(
+            issuerName: method.issuers.first?.name ?? String(),
+            paymentTypeId: method.paymentTypeId,
+            lastFourDigits: lastFourDigits
+        )
+        return MPInstallmentsData(installment: installment, cardDisplayInfo: cardDisplayInfo)
     }
 
     func submitCardData(
@@ -308,13 +332,11 @@ final class CardFormViewModel: ObservableObject {
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
             let output = try self.buildCardFormOutput(cardToken: cardToken, cardFormData: cardForm)
-
             self.trackSubmit(
                 paymentMethodId: output.paymentMethodId,
                 paymentTypeId: output.paymentTypeId,
                 transactionAmount: self.config.amount
             )
-
             onSuccess(output)
         } catch {
             guard !Task.isCancelled else { return }
@@ -322,9 +344,11 @@ final class CardFormViewModel: ObservableObject {
             onFailure(error)
         }
     }
+}
 
-    // MARK: - Analytics
+// MARK: - Analytics
 
+extension CardFormViewModel {
     func cancel(context _: MPCardFormUserCancelledContext, reason: CardFormCancelReason) {
         self.isCancelling = true
         let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)
@@ -355,7 +379,7 @@ final class CardFormViewModel: ObservableObject {
         }
     }
 
-    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Double?) {
+    private func trackSubmit(paymentMethodId: String, paymentTypeId: String, transactionAmount: Decimal) {
         let eventData = CardFormSubmitEventData(
             cardBrand: paymentMethodId,
             transactionAmount: transactionAmount,

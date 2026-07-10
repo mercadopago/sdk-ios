@@ -21,7 +21,7 @@ import UIKit
 ///    .borderColor(.systemGray)
 ///    .borderWidth(2)
 ///    .cornerRadius(8)
-///    
+///
 /// let field = ExpirationDateTextfield(style: style)
 ///    .setPlaceholder("Insert date")
 ///
@@ -34,7 +34,7 @@ import UIKit
 /// field.onInputFilled = { [weak self] error in
 ///     // Handle complete field
 /// }
-/// 
+///
 /// field.setStyle(style) // Also you can change style this way
 ///
 /// ```
@@ -95,7 +95,7 @@ public final class ExpirationDateTextfield: PCITextField {
     }
 
     // MARK: - Initialization
-    
+
     /// Initializer the textfield
     ///
     /// - Parameters:

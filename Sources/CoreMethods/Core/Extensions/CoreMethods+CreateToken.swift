@@ -11,7 +11,6 @@ extension CoreMethods {
     public func createToken(
         _ params: CardParams
     ) async throws -> CardToken {
-        
         return try await tokenization(
             cardNumber: params.cardNumber,
             expirationDateMonth: params.expirationMonth,
@@ -19,7 +18,8 @@ extension CoreMethods {
             securityCode: params.securityCode,
             cardHolderName: params.cardHolderName,
             documentType: params.documentType,
-            documentNumber: params.documentNumber
+            documentNumber: params.documentNumber,
+            cardID: params.cardId
         )
     }
 }

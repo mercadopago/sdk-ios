@@ -5,8 +5,8 @@
 //  Created by Danielle Nozaki Ogawa on 24/02/26.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 extension View {
     @_disfavoredOverload
@@ -36,10 +36,10 @@ struct OnChangeModifier<V: Equatable>: ViewModifier {
         } else if #available(iOS 14.0, *) {
             content.onChange(of: value, perform: action)
         } else {
-            content.onReceive(Just(value)) { newValue in
-                if newValue != previous {
-                    previous = newValue
-                    action(newValue)
+            content.onReceive(Just(self.value)) { newValue in
+                if newValue != self.previous {
+                    self.previous = newValue
+                    self.action(newValue)
                 }
             }
         }

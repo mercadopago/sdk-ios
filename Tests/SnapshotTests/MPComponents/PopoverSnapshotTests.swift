@@ -5,42 +5,41 @@
 //  Created by Guilherme Prata Costa on 09/09/25.
 //
 
-import XCTest
-import SwiftUI
-import SnapshotTesting
 @testable import MPComponents
 import MPFoundation
+import SnapshotTesting
+import SwiftUI
+import XCTest
 
 @MainActor
 final class PopoverSnapshotTests: XCTestCase {
-
     // MARK: - Tests: All Sides
 
     func testPopover_SideBottom() {
         assertSnapshot(
-            of: makeHostingController(side: .bottom),
-            as: .image(precision: 0.95, size: snapshotSize)
+            of: self.makeHostingController(side: .bottom),
+            as: .image(precision: 0.95, size: self.snapshotSize)
         )
     }
 
     func testPopover_SideTop() {
         assertSnapshot(
-            of: makeHostingController(side: .top),
-            as: .image(precision: 0.95, size: snapshotSize)
+            of: self.makeHostingController(side: .top),
+            as: .image(precision: 0.95, size: self.snapshotSize)
         )
     }
 
     func testPopover_SideLeft() {
         assertSnapshot(
-            of: makeHostingController(side: .left),
-            as: .image(precision: 0.95, size: snapshotSize)
+            of: self.makeHostingController(side: .left),
+            as: .image(precision: 0.95, size: self.snapshotSize)
         )
     }
 
     func testPopover_SideRight() {
         assertSnapshot(
-            of: makeHostingController(side: .right),
-            as: .image(precision: 0.95, size: snapshotSize)
+            of: self.makeHostingController(side: .right),
+            as: .image(precision: 0.95, size: self.snapshotSize)
         )
     }
 
@@ -54,19 +53,19 @@ final class PopoverSnapshotTests: XCTestCase {
     /// away from the edge opposite to where the bubble will appear.
     private func triggerFrame(for side: PopoverSide) -> CGRect {
         switch side {
-        case .top:    return CGRect(x: 225, y: 300, width: 50, height: 30) // trigger low → bubble above
+        case .top: return CGRect(x: 225, y: 300, width: 50, height: 30) // trigger low → bubble above
         case .bottom: return CGRect(x: 225, y: 200, width: 50, height: 30) // trigger high → bubble below
-        case .left:   return CGRect(x: 300, y: 235, width: 50, height: 30) // trigger right → bubble left
-        case .right:  return CGRect(x: 100, y: 235, width: 50, height: 30) // trigger left → bubble right
-        default:      return CGRect(x: 225, y: 235, width: 50, height: 30)
+        case .left: return CGRect(x: 300, y: 235, width: 50, height: 30) // trigger right → bubble left
+        case .right: return CGRect(x: 100, y: 235, width: 50, height: 30) // trigger left → bubble right
+        default: return CGRect(x: 225, y: 235, width: 50, height: 30)
         }
     }
 
     /// Renders `MPPopoverFloatingContent` directly — bypasses UIViewControllerRepresentable
     /// and the deferred `present()` call so the bubble is visible in synchronous snapshots.
     private func makeHostingController(side: PopoverSide) -> UIHostingController<some View> {
-        let size = snapshotSize
-        let trigger = triggerFrame(for: side)
+        let size = self.snapshotSize
+        let trigger = self.triggerFrame(for: side)
         let view = ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             ZStack {
                 Color(UIColor.darkGray)
@@ -97,7 +96,7 @@ final class PopoverSnapshotTests: XCTestCase {
         // "Modifying state during view update" in Xcode Canvas previews).
         // Three cycles: layout → async fires → layout with updated measuredSize →
         // SwiftUI schedules re-render → async fires again → final layout.
-        hostingController.view.frame = CGRect(origin: .zero, size: snapshotSize)
+        hostingController.view.frame = CGRect(origin: .zero, size: self.snapshotSize)
         hostingController.view.layoutIfNeeded()
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
         hostingController.view.layoutIfNeeded()

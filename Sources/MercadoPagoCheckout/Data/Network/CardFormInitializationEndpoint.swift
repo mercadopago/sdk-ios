@@ -12,8 +12,9 @@ import Foundation
 #endif
 
 struct CardFormInitializationEndpoint: RequestEndpoint {
-    let amount: Double?
     let checkoutType: String
+    let orderId: String?
+    let clientToken: String?
 
     var apiVersion: APIVersion {
         .v1
@@ -32,18 +33,30 @@ struct CardFormInitializationEndpoint: RequestEndpoint {
     }
 
     var headers: [String: String] {
-        [
+        var headers = [
             "Content-Type": "application/json",
             "X-Public-Key": MercadoPagoSDK.shared.getPublicKey()
         ]
+
+        if let clientToken {
+            headers["Authorization"] = "Bearer \(clientToken)"
+        }
+
+        return headers
     }
 
     var urlParams: [String: any CustomStringConvertible] {
-        [
+        var params: [String: any CustomStringConvertible] = [
             "product_id": MPSDKProduct.id,
             "checkout_type": self.checkoutType,
-            "amount": self.amount ?? 0
+            "amount": 0
         ]
+
+        if let orderId {
+            params["order_id"] = orderId
+        }
+
+        return params
     }
 
     var body: Data? {
