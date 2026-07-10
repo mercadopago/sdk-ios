@@ -4,6 +4,7 @@
 //
 
 import MPAnalytics
+import MPComponents
 import MPCore
 import SwiftUI
 
@@ -11,10 +12,8 @@ import SwiftUI
 final class SecurityCodeViewModel: ObservableObject {
     struct Configuration {
         let screenOutput: SecurityCodeScreenOutput
-
-        let expectedLength: Int
-
-        let cardId: String
+        let item: PaymentInitializationOutput.Item
+        let transactionAmount: Decimal
     }
 
     // MARK: - Published State
@@ -30,7 +29,8 @@ final class SecurityCodeViewModel: ObservableObject {
     // MARK: - Computed
 
     var screenOutput: SecurityCodeScreenOutput { self.config.screenOutput }
-    var expectedLength: Int { self.config.expectedLength }
+    var cardTitle: String { self.config.item.title }
+    var amount: MPAmountData { MPAmountData(from: self.config.transactionAmount) }
 
     // MARK: - Init
 
@@ -52,8 +52,8 @@ final class SecurityCodeViewModel: ObservableObject {
 
         let cardToken = try await securityCodeUseCase.execute(
             code: code,
-            expectedLength: self.config.expectedLength,
-            cardId: self.config.cardId
+            expectedLength: self.config.screenOutput.length,
+            cardId: self.config.item.id
         )
         self.trackSubmit()
 
