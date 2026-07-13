@@ -228,6 +228,8 @@ struct CheckoutPlaygroundView: View {
             return AnyView(self.config.makeCardSaveCheckout().show(onResult: self.handleSaveResult))
         case .cardTransaction:
             return AnyView(self.config.makeCardTransactionCheckout().show(onResult: self.handleTransactionResult))
+        case .payment:
+            return AnyView(self.config.makePaymentCheckout().show(onResult: self.handlePaymentResult))
         }
     }
 
@@ -244,6 +246,11 @@ struct CheckoutPlaygroundView: View {
                 checkout: self.config.makeCardTransactionCheckout(),
                 onResult: self.handleTransactionResult
             ))
+        case .payment:
+            return AnyView(CheckoutPushRepresentable(
+                checkout: self.config.makePaymentCheckout(),
+                onResult: self.handlePaymentResult
+            ))
         }
     }
 
@@ -254,6 +261,8 @@ struct CheckoutPlaygroundView: View {
             self.config.makeCardSaveCheckout().present(from: topVC, onResult: self.handleSaveResult)
         case .cardTransaction:
             self.config.makeCardTransactionCheckout().present(from: topVC, onResult: self.handleTransactionResult)
+        case .payment:
+            self.config.makePaymentCheckout().present(from: topVC, onResult: self.handlePaymentResult)
         }
     }
 

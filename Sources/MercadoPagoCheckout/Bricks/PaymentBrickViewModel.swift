@@ -135,4 +135,8 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             )
         )
     }
+
+    func shouldSkipSecurityCode(from item: PaymentInitializationOutput.Item) -> Bool {
+        return item.cardData?.securityCodeScreen == nil
+    }
 }

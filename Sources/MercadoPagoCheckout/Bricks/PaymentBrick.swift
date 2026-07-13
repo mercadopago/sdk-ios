@@ -11,11 +11,13 @@ import SwiftUI
 struct PaymentBrick<T: MPPaymentData.Kind>: View {
     enum Route: Hashable {
         case cardForm
+        case securityCode
         case installments
         case reviewAndConfirm
     }
 
     @State private var route: Route?
+    @State private var selectedItem: PaymentInitializationOutput.Item?
     @ObservedObject private var viewModel: PaymentBrickViewModel<T>
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -89,6 +91,10 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         switch item.route {
         case "card_form":
             self.route = .cardForm
+        case "saved_card":
+            self.selectedItem = item
+            // TODO: Create logic to skip screen of Security Code to go installment/review and confirm or process order
+            self.route = .securityCode
         default:
             // TODO: Route account_money / credit_line / saved_card / pix / boleto to their
             break
@@ -98,8 +104,9 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     private func navigationLinks() -> some View {
         Group {
             NavigationLink(
-                destination: self.routeDestination(),
-                tag: Route.cardForm,
+                destination: self.securityCodeDestination()
+                    .onAppear { self.viewModel.markScreenPresented(.securityCode) },
+                tag: Route.securityCode,
                 selection: self.$route
             ) {
                 EmptyView()
@@ -109,13 +116,24 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     }
 
     @ViewBuilder
-    private func routeDestination() -> some View {
-        // TODO: Replace with the real destination screens (card form, installments, etc.).
-        ZStack {
-            self.theme.colors.background.primary
-                .edgesIgnoringSafeArea(.all)
-            MPProgressIndicator()
-                .size(.xlarge)
+    private func securityCodeDestination() -> some View {
+        if let item = self.selectedItem, let screenOutput = item.cardData?.securityCodeScreen {
+            SecurityCodeScreen(
+                viewModel: SecurityCodeViewModel(
+                    config: .init(
+                        screenOutput: screenOutput,
+                        item: item,
+                        transactionAmount: self.viewModel.transactionAmount
+                    )
+                ),
+                onTokenSuccess: {
+                    _ in self.route = .installments
+                },
+                onTokenError: { self.route = nil },
+                onBack: { self.route = nil }
+            )
+        } else {
+            EmptyView()
         }
     }
 
