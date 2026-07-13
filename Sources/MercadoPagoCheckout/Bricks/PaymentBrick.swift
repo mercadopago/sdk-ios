@@ -104,16 +104,8 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     private func navigationLinks() -> some View {
         Group {
             NavigationLink(
-                destination: self.routeDestination(),
-                tag: Route.cardForm,
-                selection: self.$route
-            ) {
-                EmptyView()
-            }
-            .hidden()
-
-            NavigationLink(
-                destination: self.routeDestination().onAppear { self.viewModel.markScreenPresented(.securityCode) },
+                destination: self.securityCodeDestination()
+                    .onAppear { self.viewModel.markScreenPresented(.securityCode) },
                 tag: Route.securityCode,
                 selection: self.$route
             ) {
@@ -124,13 +116,24 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     }
 
     @ViewBuilder
-    private func routeDestination() -> some View {
-        // TODO: Replace with the real destination screens (card form, security code, installments, etc.).
-        ZStack {
-            self.theme.colors.background.primary
-                .edgesIgnoringSafeArea(.all)
-            MPProgressIndicator()
-                .size(.xlarge)
+    private func securityCodeDestination() -> some View {
+        if let item = self.selectedItem, let screenOutput = item.cardData?.securityCodeScreen {
+            SecurityCodeScreen(
+                viewModel: SecurityCodeViewModel(
+                    config: .init(
+                        screenOutput: screenOutput,
+                        item: item,
+                        transactionAmount: self.viewModel.transactionAmount
+                    )
+                ),
+                onTokenSuccess: {
+                    _ in self.route = .installments
+                },
+                onTokenError: { self.route = nil },
+                onBack: { self.route = nil }
+            )
+        } else {
+            EmptyView()
         }
     }
 

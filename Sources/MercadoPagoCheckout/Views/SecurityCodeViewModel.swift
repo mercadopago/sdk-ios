@@ -10,6 +10,7 @@ import SwiftUI
 
 @MainActor
 final class SecurityCodeViewModel: ObservableObject {
+    /// Configuration for the security code screen.
     struct Configuration {
         let screenOutput: SecurityCodeScreenOutput
         let item: PaymentInitializationOutput.Item
@@ -29,8 +30,15 @@ final class SecurityCodeViewModel: ObservableObject {
     // MARK: - Computed
 
     var screenOutput: SecurityCodeScreenOutput { self.config.screenOutput }
-    var cardTitle: String { self.config.item.title }
     var amount: MPAmountData { MPAmountData(from: self.config.transactionAmount) }
+
+    // MARK: MPListItem Informations
+
+    var cardTitle: String { self.config.item.title }
+
+    var cardDescription: String? { self.config.item.description }
+
+    var cardIcon: PaymentInitializationOutput.Item.Icon { self.config.item.icon }
 
     // MARK: - Init
 
