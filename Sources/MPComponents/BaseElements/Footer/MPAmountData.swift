@@ -93,14 +93,14 @@ package struct MPAmountData: Equatable {
             return
         }
 
-        self.currencySymbol = String(trimmed[trimmed.startIndex..<firstDigitIndex])
+        self.currencySymbol = String(trimmed[trimmed.startIndex ..< firstDigitIndex])
             .trimmingCharacters(in: .whitespaces)
 
         let numberPart = String(trimmed[firstDigitIndex...])
 
         if let lastSep = numberPart.lastIndex(where: { $0 == "," || $0 == "." }) {
             let afterSep = String(numberPart[numberPart.index(after: lastSep)...])
-            if afterSep.count == 2, afterSep.allSatisfy({ $0.isNumber }) {
+            if afterSep.count == 2, afterSep.allSatisfy(\.isNumber) {
                 self.integerPart = String(numberPart[..<lastSep])
                 self.decimalPart = afterSep == "00" ? "" : afterSep
                 return
