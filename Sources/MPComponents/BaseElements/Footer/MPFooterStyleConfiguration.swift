@@ -8,37 +8,35 @@ import SwiftUI
 
 /// Configuration passed to `MPFooterStyle` for rendering.
 package struct MPFooterStyleConfiguration {
-    
     // MARK: - Subviews
-    
+
     package struct SummaryLine: View {
         package let body: AnyView
     }
-    
+
     package struct DescriptionLine: View {
         package let body: AnyView
     }
-    
+
     package struct Button: View {
         package let body: AnyView
     }
-    
+
     // MARK: - Properties
-    
+
     /// Summary line view (with label and amount)
     package let summaryLine: SummaryLine
-    
+
     /// Description line view (optional card/payment info)
     package let descriptionLine: DescriptionLine
-    
-    
+
     package let button: Button?
-    
+
     /// Whether the footer has description information
     package let hasDescription: Bool
-    
+
     // MARK: - Initialization
-    
+
     @MainActor
     package init(
         summaryLine: some View,
@@ -52,4 +50,3 @@ package struct MPFooterStyleConfiguration {
         self.hasDescription = hasDescription
     }
 }
-

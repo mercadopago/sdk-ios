@@ -26,6 +26,7 @@ final class SecurityCodeViewModel: ObservableObject {
     private let config: Configuration
     private let securityCodeUseCase: SecurityCodeUseCase
     private let analytics: AnalyticsInterface
+    private var analyticsTask: Task<Void, Never>?
 
     // MARK: - Computed
 
@@ -58,14 +59,19 @@ final class SecurityCodeViewModel: ObservableObject {
         self.isTokenizing = true
         defer { self.isTokenizing = false }
 
-        let cardToken = try await securityCodeUseCase.execute(
-            code: code,
-            expectedLength: self.config.screenOutput.length,
-            cardId: self.config.item.id
-        )
-        self.trackSubmit()
+        do {
+            let cardToken = try await securityCodeUseCase.execute(
+                code: code,
+                expectedLength: self.config.screenOutput.length,
+                cardId: self.config.item.id
+            )
+            self.trackSubmit()
 
-        return cardToken.token
+            return cardToken.token
+        } catch {
+            self.trackSubmitError(error)
+            throw error
+        }
     }
 
     // MARK: - Navigation
@@ -77,21 +83,49 @@ final class SecurityCodeViewModel: ObservableObject {
 
 // MARK: - Analytics
 
-// TODO: define SecurityCodeAnalyticsPath and event data.
 extension SecurityCodeViewModel {
     func trackInitialize() {
-        // TODO: SecurityCodeAnalyticsPath.initialize
+        guard let cardData = self.config.item.cardData else { return }
+        let eventData = SecurityCodeInitializeEventData(
+            paymentMethodId: cardData.paymentMethodId,
+            paymentTypeId: cardData.paymentTypeId,
+            issuerId: cardData.issuerId,
+            cardId: self.config.item.id
+        )
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackView(SecurityCodeAnalyticsPath.initialize)
+                .setEventData(eventData)
+                .send()
+        }
     }
 
     private func trackSubmit() {
-        // TODO: SecurityCodeAnalyticsPath.submit
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(SecurityCodeAnalyticsPath.submit).send()
+        }
     }
 
-    private func trackSubmitError(_: MercadoPagoCheckoutError) {
-        // TODO: SecurityCodeAnalyticsPath.submitError
+    private func trackSubmitError(_ error: MercadoPagoCheckoutError) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(SecurityCodeAnalyticsPath.submitError)
+                .setError(error.analyticsErrorType)
+                .send()
+        }
     }
 
-    func trackCanceledError(errorType _: String) {
-        // TODO: SecurityCodeAnalyticsPath.userCanceledError
+    func trackCanceledError(errorType: String) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(SecurityCodeAnalyticsPath.userCanceledError)
+                .setError(errorType)
+                .send()
+        }
+    }
+
+    private func enqueueAnalytics(_ block: @escaping @Sendable () async -> Void) {
+        let previous = self.analyticsTask
+        self.analyticsTask = Task {
+            await previous?.value
+            await block()
+        }
     }
 }

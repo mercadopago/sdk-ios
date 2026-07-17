@@ -3,6 +3,7 @@
 //  MercadoPagoSDK
 //
 
+import CommonTests
 @testable import CoreMethods
 @testable import MercadoPagoCheckout
 @testable import MPComponents
@@ -113,14 +114,132 @@ final class SecurityCodeViewModelTests: XCTestCase {
         }
     }
 
+    // MARK: - trackInitialize
+
+    func test_trackInitialize_withCardData_shouldTrackInitializePath() async {
+        // Arrange
+        let analytics = MockAnalytics()
+        let sut = self.makeSUT(cardData: self.makeCardData(), analytics: analytics)
+
+        // Act
+        sut.trackInitialize()
+        await analytics.mock.waitForSend()
+
+        // Assert
+        let messages = await analytics.mock.getMessages()
+        XCTAssertTrue(messages.contains(.trackView(SecurityCodeAnalyticsPath.initialize)))
+        XCTAssertTrue(messages.contains(.send))
+    }
+
+    func test_trackInitialize_withCardData_shouldSendPaymentMethodTypeIssuerAndCardId() async {
+        // Arrange
+        let analytics = MockAnalytics()
+        let sut = self.makeSUT(
+            itemId: "card-9999",
+            cardData: self.makeCardData(paymentMethodId: "master", paymentTypeId: "credit_card", issuerId: 2),
+            analytics: analytics
+        )
+
+        // Act
+        sut.trackInitialize()
+        await analytics.mock.waitForSend()
+
+        // Assert
+        let messages = await analytics.mock.getMessages()
+        XCTAssertTrue(messages.contains(.setEventData([
+            "payment_method_id": "master",
+            "payment_type_id": "credit_card",
+            "issuer_id": 2,
+            "card_id": "card-9999"
+        ])))
+    }
+
+    func test_trackInitialize_withoutCardData_shouldNotTrack() async {
+        // Arrange
+        let analytics = MockAnalytics()
+        let sut = self.makeSUT(cardData: nil, analytics: analytics)
+
+        // Act
+        sut.trackInitialize()
+
+        // Assert -- nothing was ever tracked, so waiting for a send would hang; assert synchronously instead.
+        let messages = await analytics.mock.getMessages()
+        XCTAssertTrue(messages.isEmpty)
+    }
+
+    // MARK: - trackSubmit (via submit(code:))
+
+    func test_submit_whenSuccessful_shouldTrackSubmitPath() async throws {
+        // Arrange
+        let analytics = MockAnalytics()
+        let service = MockCheckoutService()
+        await service.setCreateCardTokenResult(.success(self.makeCardToken(token: "TOKEN-123")))
+        let sut = self.makeSUT(service: service, analytics: analytics)
+
+        // Act
+        _ = try await sut.submit(code: "123")
+        await analytics.mock.waitForSend()
+
+        // Assert
+        let messages = await analytics.mock.getMessages()
+        XCTAssertTrue(messages.contains(.track(path: SecurityCodeAnalyticsPath.submit)))
+        XCTAssertTrue(messages.contains(.send))
+    }
+
+    // MARK: - trackSubmitError (via submit(code:))
+
+    func test_submit_whenServiceThrows_shouldTrackSubmitErrorPath() async {
+        // Arrange
+        let analytics = MockAnalytics()
+        let service = MockCheckoutService()
+        await service.setCreateCardTokenResult(
+            .failure(MercadoPagoCheckoutError(code: .serviceError, localizedDescription: "failed", location: .tokenization))
+        )
+        let sut = self.makeSUT(service: service, analytics: analytics)
+
+        // Act
+        do {
+            _ = try await sut.submit(code: "123")
+            XCTFail("Expected throw")
+        } catch {
+            // no-op -- asserted via analytics below
+        }
+        await analytics.mock.waitForSend()
+
+        // Assert
+        let messages = await analytics.mock.getMessages()
+        XCTAssertTrue(messages.contains(.track(path: SecurityCodeAnalyticsPath.submitError)))
+        XCTAssertTrue(messages.contains(.send))
+    }
+
+    // MARK: - trackCanceledError (via goBack())
+
+    func test_goBack_shouldTrackUserCanceledErrorPath() async {
+        // Arrange
+        let analytics = MockAnalytics()
+        let sut = self.makeSUT(analytics: analytics)
+
+        // Act
+        sut.goBack()
+        await analytics.mock.waitForSend()
+
+        // Assert
+        let messages = await analytics.mock.getMessages()
+        XCTAssertTrue(messages.contains(.track(path: SecurityCodeAnalyticsPath.userCanceledError)))
+        XCTAssertTrue(messages.contains(.setError("back_pressed")))
+        XCTAssertTrue(messages.contains(.send))
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(
         itemId: String = "card-9999",
         itemTitle: String = "Mastercard •••• 6351",
+        cardData: PaymentInitializationOutput.Item.CardData? = nil,
         screenOutput: SecurityCodeScreenOutput? = nil,
         transactionAmount: Decimal = 100,
-        service: MockCheckoutService = MockCheckoutService()
+        service: MockCheckoutService = MockCheckoutService(),
+        analytics: MockAnalytics = MockAnalytics()
     ) -> SecurityCodeViewModel {
         SecurityCodeViewModel(
             config: .init(
@@ -130,11 +249,26 @@ final class SecurityCodeViewModelTests: XCTestCase {
                     title: itemTitle,
                     description: "Master Crédito",
                     icon: .system("creditcard"),
-                    route: "saved_card"
+                    route: "saved_card",
+                    cardData: cardData
                 ),
                 transactionAmount: transactionAmount
             ),
-            securityCodeUseCase: SecurityCodeUseCase(service: service)
+            securityCodeUseCase: SecurityCodeUseCase(service: service),
+            analytics: analytics
+        )
+    }
+
+    private func makeCardData(
+        paymentMethodId: String = "master",
+        paymentTypeId: String = "credit_card",
+        issuerId: Int = 2
+    ) -> PaymentInitializationOutput.Item.CardData {
+        .init(
+            paymentMethodId: paymentMethodId,
+            paymentTypeId: paymentTypeId,
+            issuerId: issuerId,
+            securityCodeScreen: nil
         )
     }
 
