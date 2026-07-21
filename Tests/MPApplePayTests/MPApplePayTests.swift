@@ -1,12 +1,12 @@
 
-import XCTest
-import PassKit
 import CommonTests
 @testable import MPApplePay
+import PassKit
+import XCTest
 
 final class MPApplePayTests: XCTestCase {
-
     // MARK: - Typealias
+
     private typealias SUT = (
         sut: MPApplePay,
         useCase: ApplePayUseCaseMock,
@@ -14,6 +14,7 @@ final class MPApplePayTests: XCTestCase {
     )
 
     // MARK: - Stubs
+
     private enum ApplePayTokenStub {
         static let validToken = MPApplePayToken(id: "token_id", bin: "123456")
     }
@@ -23,7 +24,8 @@ final class MPApplePayTests: XCTestCase {
     }
 
     // MARK: - SUT Factory
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> SUT {
+
+    private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
         let useCaseMock = ApplePayUseCaseMock()
         let dependencies = MockDependencyContainer()
         let sut = MPApplePay(dependencies: dependencies, useCaseMock)
@@ -31,9 +33,10 @@ final class MPApplePayTests: XCTestCase {
     }
 
     // MARK: - Tests
+
     func test_createToken_whenUseCaseSucceeds_shouldReturnToken() async throws {
         // Arrange
-        let (sut, useCaseMock, dependencies) = makeSUT()
+        let (sut, useCaseMock, dependencies) = self.makeSUT()
         await useCaseMock.setCreateToken(result: .success(ApplePayTokenStub.validToken))
         let paymentToken = PKPaymentToken()
 
@@ -57,7 +60,7 @@ final class MPApplePayTests: XCTestCase {
 
     func test_createToken_whenUseCaseFails_shouldThrowError() async {
         // Arrange
-        let (sut, useCaseMock, dependencies) = makeSUT()
+        let (sut, useCaseMock, dependencies) = self.makeSUT()
         let expectedError = APIErrorStub.genericError
         await useCaseMock.setCreateToken(result: .failure(expectedError))
         let paymentToken = PKPaymentToken()
@@ -82,25 +85,25 @@ final class MPApplePayTests: XCTestCase {
     }
 }
 
-
 // MARK: - Mock
+
 private actor ApplePayUseCaseMock: @preconcurrency ApplePayUseCaseProtocol {
     private(set) var createTokenCallCount = 0
     private var createTokenResult: Result<MPApplePayToken, Error>!
 
     func setCreateToken(result: Result<MPApplePayToken, Error>) {
-        createTokenResult = result
+        self.createTokenResult = result
     }
 
-    func createToken(_ payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken {
-        createTokenCallCount += 1
-        switch createTokenResult {
-        case .success(let token):
+    func createToken(_: PKPaymentToken, status _: String?) async throws -> MPApplePayToken {
+        self.createTokenCallCount += 1
+        switch self.createTokenResult {
+        case let .success(token):
             return token
-        case .failure(let error):
+        case let .failure(error):
             throw error
         case .none:
             fatalError("Result not set")
         }
     }
-} 
+}

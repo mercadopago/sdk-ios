@@ -54,9 +54,9 @@ public enum MPUserCancelledContext {
         /// The screens the user visited, in the order they reached them, before cancelling.
         ///
         /// Empty when the user cancelled directly from the card form without advancing further.
-        public let screens: [Screen]
+        public let screens: [MPScreen]
 
-        public init(cardForm: MPCardFormUserCancelledContext, screens: [Screen] = []) {
+        public init(cardForm: MPCardFormUserCancelledContext, screens: [MPScreen] = []) {
             self.cardForm = cardForm
             self.screens = screens
         }
@@ -67,9 +67,9 @@ public enum MPUserCancelledContext {
         /// The screens the user visited, in the order they reached them, before cancelling.
         ///
         /// Empty when the user cancelled directly from the selector without advancing.
-        public let screens: [Screen]
+        public let screens: [MPScreen]
 
-        public init(screens: [Screen] = []) {
+        public init(screens: [MPScreen] = []) {
             self.screens = screens
         }
     }

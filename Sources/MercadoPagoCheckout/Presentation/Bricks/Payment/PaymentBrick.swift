@@ -144,7 +144,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         self.presentationMode.wrappedValue.dismiss()
     }
 
-    private func cancel(screens: [Screen] = []) {
+    private func cancel(screens: [MPScreen] = []) {
         self.route = nil
         let context = MPUserCancelledContext.Payment(screens: screens)
         guard let typed = context as? T.Cancellation else {
