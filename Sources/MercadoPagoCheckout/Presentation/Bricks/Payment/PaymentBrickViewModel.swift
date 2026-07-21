@@ -20,9 +20,9 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     @Published private(set) var screenState: ScreenState = .loading
     @Published private(set) var paymentData: MPPaymentData.Payment?
 
-    private var presentedScreens: [Screen] = []
+    private var presentedScreens: [MPScreen] = []
 
-    var screensVisited: [Screen] { self.presentedScreens }
+    var screensVisited: [MPScreen] { self.presentedScreens }
 
     // MARK: - Dependencies
 
@@ -56,7 +56,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     // MARK: - Screen tracking
 
-    func markScreenPresented(_ screen: Screen) {
+    func markScreenPresented(_ screen: MPScreen) {
         if !self.presentedScreens.contains(screen) {
             self.presentedScreens.append(screen)
         }
