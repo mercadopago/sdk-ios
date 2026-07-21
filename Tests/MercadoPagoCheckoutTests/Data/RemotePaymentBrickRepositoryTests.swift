@@ -137,6 +137,57 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         )!
     }
 
+    /// Response with a `ticket` method whose `screen` block drives the Off Payment List screen.
+    private func makeTicketWithMethodSelectionScreenResponseData(selectionType: String) -> Data {
+        let buttonJSON = selectionType == "radio_button" ? #"{ "label": "Generar código de pago" }"# : "null"
+        let json = """
+        {
+            "header_title": "Como você quer pagar?",
+            "sections": [
+                {
+                    "title": "Outros meios de pagamento",
+                    "methods": [
+                        {
+                            "type": "ticket",
+                            "title": "Efetivo",
+                            "subtitle": "Pago Fácil y Rapipago",
+                            "icon_url": "https://http2.mlstatic.com/storage/ticket.png",
+                            "screen": {
+                                "header_title": "Elige donde pagar",
+                                "selection_type": "\(selectionType)",
+                                "footer": {
+                                    "total_label": "Total",
+                                    "total_amount": "$ 1.000",
+                                    "button": \(buttonJSON)
+                                },
+                                "options": [
+                                    {
+                                        "id": "pagofacil",
+                                        "name": "Pago Fácil",
+                                        "subtitle": "Acreditación al instante",
+                                        "icon_url": "https://http2.mlstatic.com/storage/pagofacil.png"
+                                    },
+                                    {
+                                        "id": "rapipago",
+                                        "name": "Rapipago",
+                                        "subtitle": "Acreditación al instante",
+                                        "icon_url": "https://http2.mlstatic.com/storage/rapipago.png"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+            "footer": {
+                "total_label": "Total",
+                "total_amount": "R$ 100,00"
+            }
+        }
+        """
+        return Data(json.utf8)
+    }
+
     // MARK: - Success / Mapping Cases
 
     func testFetch_whenSuccess_mapsSectionsCountAndTitles() async throws {
@@ -296,6 +347,85 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         XCTAssertEqual(ticket.title, "Boleto")
         XCTAssertNil(ticket.description)
         XCTAssertEqual(ticket.route, "ticket")
+    }
+
+    func testFetch_whenTicketWithoutScreen_leavesMethodSelectionScreenNil() async throws {
+        // Arrange — makeValidResponseData's ticket has no `screen` block.
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchInitialization(
+            orderId: "ORDER-1",
+            clientToken: "tok"
+        )
+
+        // Assert
+        XCTAssertNil(result.sections[1].items[1].screen)
+    }
+
+    func testFetch_whenTicketWithChevronScreen_mapsMethodSelectionScreenWithoutButton() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        let data = self.makeTicketWithMethodSelectionScreenResponseData(selectionType: "chevron")
+        await sut.session.mock.setData(data)
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchInitialization(
+            orderId: "ORDER-1",
+            clientToken: "tok"
+        )
+
+        // Assert
+        let screen = try XCTUnwrap(result.sections[0].items[0].screen)
+        XCTAssertEqual(screen.headerTitle, "Elige donde pagar")
+        XCTAssertEqual(screen.selectionType, .chevron)
+        XCTAssertEqual(screen.footer.totalLabel, "Total")
+        XCTAssertEqual(screen.footer.totalAmount, "$ 1.000")
+        XCTAssertNil(screen.footer.button)
+        XCTAssertEqual(screen.options.map(\.id), ["pagofacil", "rapipago"])
+        XCTAssertEqual(screen.options[0].name, "Pago Fácil")
+        XCTAssertEqual(screen.options[0].subtitle, "Acreditación al instante")
+        XCTAssertEqual(screen.options[0].iconUrl, "https://http2.mlstatic.com/storage/pagofacil.png")
+    }
+
+    func testFetch_whenTicketWithRadioButtonScreen_mapsMethodSelectionScreenWithButton() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        let data = self.makeTicketWithMethodSelectionScreenResponseData(selectionType: "radio_button")
+        await sut.session.mock.setData(data)
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchInitialization(
+            orderId: "ORDER-1",
+            clientToken: "tok"
+        )
+
+        // Assert
+        let screen = try XCTUnwrap(result.sections[0].items[0].screen)
+        XCTAssertEqual(screen.selectionType, .radioButton)
+        XCTAssertEqual(screen.footer.button?.label, "Generar código de pago")
+    }
+
+    func testFetch_whenTicketScreenHasUnknownSelectionType_fallsBackToRadioButton() async throws {
+        // Arrange — safe default so an unrecognized BFF value never crashes the SDK.
+        let sut = self.makeSUT()
+        let data = self.makeTicketWithMethodSelectionScreenResponseData(selectionType: "unknown_future_layout")
+        await sut.session.mock.setData(data)
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchInitialization(
+            orderId: "ORDER-1",
+            clientToken: "tok"
+        )
+
+        // Assert
+        let screen = try XCTUnwrap(result.sections[0].items[0].screen)
+        XCTAssertEqual(screen.selectionType, .radioButton)
     }
 
     // MARK: - Error Cases

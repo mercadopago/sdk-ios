@@ -112,6 +112,15 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 EmptyView()
             }
             .hidden()
+
+            NavigationLink(
+                destination: self.routeDestination().onAppear { self.viewModel.markScreenPresented(.securityCode) },
+                tag: Route.securityCode,
+                selection: self.$route
+            ) {
+                EmptyView()
+            }
+            .hidden()
         }
     }
 
