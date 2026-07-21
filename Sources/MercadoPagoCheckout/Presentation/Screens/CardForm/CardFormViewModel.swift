@@ -276,12 +276,12 @@ final class CardFormViewModel: ObservableObject {
         )
     }
 
-    // MARK: - Card Form Output
+    // MARK: - Card Form Submit Result
 
-    private func buildCardFormOutput(
+    private func buildCardFormSubmitResult(
         cardToken: CardToken,
         cardFormData: CardFormData
-    ) throws(MercadoPagoCheckoutError) -> CardFormOutput {
+    ) throws(MercadoPagoCheckoutError) -> CardFormSubmitResult {
         guard let paymentMethod = cardData?.paymentMethods.first else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
@@ -290,13 +290,13 @@ final class CardFormViewModel: ObservableObject {
             )
         }
 
-        let payer: CardFormOutput.Payer? = {
+        let payer: CardFormSubmitResult.Payer? = {
             guard let selectTypeDocument else { return nil }
             let docNumber = cardFormData.documentHolder.filter { $0.isLetter || $0.isNumber }
             return .init(documentType: selectTypeDocument.id, documentNumber: docNumber)
         }()
 
-        return CardFormOutput(
+        return CardFormSubmitResult(
             token: cardToken.token,
             paymentMethodId: paymentMethod.id,
             paymentTypeId: paymentMethod.paymentTypeId,
@@ -323,7 +323,7 @@ final class CardFormViewModel: ObservableObject {
 
     func submitCardData(
         cardForm: CardFormData,
-        onSuccess: (CardFormOutput) -> Void,
+        onSuccess: (CardFormSubmitResult) -> Void,
         onFailure: (MercadoPagoCheckoutError) -> Void
     ) async {
         self.isTokenizing = true
@@ -331,7 +331,7 @@ final class CardFormViewModel: ObservableObject {
 
         do {
             let cardToken = try await self.createCardToken(cardForm: cardForm)
-            let output = try self.buildCardFormOutput(cardToken: cardToken, cardFormData: cardForm)
+            let output = try self.buildCardFormSubmitResult(cardToken: cardToken, cardFormData: cardForm)
             self.trackSubmit(
                 paymentMethodId: output.paymentMethodId,
                 paymentTypeId: output.paymentTypeId,
