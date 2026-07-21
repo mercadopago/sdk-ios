@@ -5,13 +5,11 @@
 //  Created by Guilherme Prata Costa on 23/07/25.
 //
 
-
 import Foundation
 import PassKit
 #if SWIFT_PACKAGE
     import MPCore
 #endif
-
 
 /// Abstraction for Apple Pay repository behaviors.
 protocol ApplePayRepositoryProtocol: Sendable {
@@ -23,7 +21,6 @@ protocol ApplePayRepositoryProtocol: Sendable {
 
 /// Default implementation of `ApplePayRepositoryProtocol` backed by `NetworkService`.
 final class MPApplePayRepository: ApplePayRepositoryProtocol {
-
     typealias Dependency = HasNetwork
     private typealias Endpoint = ApplePayEndpoint
 
