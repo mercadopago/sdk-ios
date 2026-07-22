@@ -15,12 +15,14 @@ import SwiftUI
 enum CheckoutTypeOption: String, CaseIterable, Identifiable {
     case saveCard
     case cardTransaction
+    case payment
 
     var id: String { rawValue }
     var title: String {
         switch self {
         case .saveCard: return "Save Card"
         case .cardTransaction: return "Card Transaction"
+        case .payment: return "Payment"
         }
     }
 }
@@ -207,6 +209,20 @@ final class CheckoutConfig: ObservableObject {
         )
         return MercadoPagoCheckout.Builder(
             checkoutType: .cardTransaction(order: order),
+            checkoutAppearance: self.checkoutAppearance
+        )
+        .setPaymentMethodConfiguration(self.paymentMethodConfigs)
+        .build()
+    }
+
+    @MainActor
+    func makePaymentCheckout() -> MercadoPagoCheckout<MPPaymentData.Payment> {
+        let order = MPOrder(
+            orderId: orderId,
+            clientToken: clientToken
+        )
+        return MercadoPagoCheckout.Builder(
+            checkoutType: .payment(order: order),
             checkoutAppearance: self.checkoutAppearance
         )
         .setPaymentMethodConfiguration(self.paymentMethodConfigs)
