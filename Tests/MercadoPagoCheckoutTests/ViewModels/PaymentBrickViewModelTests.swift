@@ -106,40 +106,6 @@ import XCTest
         func test_screensVisited_initiallyEmpty() {
             let sut = self.makePaymentSUT(payer: nil)
             XCTAssertTrue(sut.screensVisited.isEmpty)
-    private func makeSavedCardItem(withSecurityCode: Bool) -> PaymentInitializationOutput.Item {
-        let screen: SecurityCodeScreenOutput? = withSecurityCode
-            ? SecurityCodeScreenOutput(
-                length: 3,
-                headerTitle: "Completá el código de seguridad",
-                field: .init(label: "CVV", placeholder: "Ej.: 123", helper: "", error: "Completá este campo."),
-                buttonLabel: "Continuar"
-            )
-            : nil
-        return PaymentInitializationOutput.Item(
-            id: "card-9999",
-            title: "Mastercard •••• 6351",
-            description: "Master Crédito",
-            icon: .system("creditcard"),
-            route: "saved_card",
-            cardData: .init(
-                paymentMethodId: "master",
-                paymentTypeId: "credit_card",
-                issuerId: 1,
-                securityCodeScreen: screen
-            )
-        )
-    }
-
-    private func makePaymentSUT(
-        orderRepository: MockOrderTransactionRepository? = nil
-    ) -> PaymentBrickViewModel<MPPaymentData.Payment> {
-        let order = MPOrder(orderId: "ORD01", clientToken: "seller_client_token")
-        let configuration = MPCheckoutConfiguration<MPPaymentData.Payment>(
-            type: .payment(order: order),
-            paymentMethod: [.card()]
-        )
-        if let repo = orderRepository {
-            return PaymentBrickViewModel(configuration: configuration, orderTransactionUseCase: OrderTransactionUseCase(repository: repo))
         }
 
         func test_markScreenPresented_paymentMethodSelector_addsScreen() {
