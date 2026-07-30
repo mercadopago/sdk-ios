@@ -63,6 +63,24 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
         )
     }
 
+    private func mapMethodSelectionScreen(
+        _ screen: PaymentBrickInitializationResponse.MethodSelectionScreen?
+    ) -> MethodSelectionOutput? {
+        guard let screen else { return nil }
+        return MethodSelectionOutput(
+            headerTitle: screen.headerTitle,
+            selectionType: .init(screen.selectionType),
+            footer: MethodSelectionOutput.Footer(
+                totalLabel: screen.footer.totalLabel,
+                totalAmount: screen.footer.totalAmount,
+                button: screen.footer.button.map { MethodSelectionOutput.Footer.Button(label: $0.label) }
+            ),
+            options: screen.options.map {
+                MethodSelectionOutput.Option(id: $0.id, name: $0.name, subtitle: $0.subtitle, iconUrl: $0.iconUrl)
+            }
+        )
+    }
+
     private func map(_ method: PaymentBrickInitializationResponse.PaymentMethod) -> PaymentInitializationOutput.Item {
         let identifier: String = {
             if method.type == "saved_card" {
@@ -84,7 +102,8 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
                     issuerId: data.issuerId,
                     securityCodeScreen: self.mapSecurityCodeScreen(data)
                 )
-            }
+            },
+            screen: self.mapMethodSelectionScreen(method.screen)
         )
     }
 }
