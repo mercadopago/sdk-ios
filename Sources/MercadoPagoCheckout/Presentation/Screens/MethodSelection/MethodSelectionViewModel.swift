@@ -18,6 +18,8 @@ final class MethodSelectionViewModel: ObservableObject {
     // MARK: - Computed
 
     var listItemStyle: any MPListItemStyle { self.output.selectionType.listItemStyle }
+    var trailingStyle: (any MPListItemTrailingStyle)? { self.output.selectionType.trailingStyle }
+    var rowTrailing: MPListItemTrailing? { self.output.selectionType.rowTrailing }
 
     // MARK: - Events
 
