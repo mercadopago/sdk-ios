@@ -11,11 +11,15 @@ import SwiftUI
 struct PaymentBrick<T: MPPaymentData.Kind>: View {
     enum Route: Hashable {
         case cardForm
+        case securityCode
         case installments
         case reviewAndConfirm
+        case offlineMethodSelector
     }
 
     @State private var route: Route?
+    @State private var selectedItem: PaymentInitializationOutput.Item?
+    @State private var methodSelectionViewModel: MethodSelectionViewModel?
     @ObservedObject private var viewModel: PaymentBrickViewModel<T>
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -89,17 +93,70 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         switch item.route {
         case "card_form":
             self.route = .cardForm
+        case "saved_card":
+            self.selectedItem = item
+            // TODO: Create logic to skip screen of Security Code to go installment/review and confirm or process order
+            self.route = .securityCode
+        case "ticket":
+            self.selectedItem = item
+            self.handleOfflineFlow()
         default:
-            // TODO: Route account_money / credit_line / saved_card / pix / boleto to their
+            // TODO: Route account_money / credit_line / pix / boleto to their
             break
+        }
+    }
+
+    private func handleOfflineFlow() {
+        guard let item = selectedItem else { return }
+        if let screen = FetchMethodSelectionScreenUseCase().execute(item: item) {
+            self.methodSelectionViewModel = MethodSelectionViewModel(output: screen)
+            self.route = .offlineMethodSelector
+        } else {
+            Task {
+                await self.process(
+                    params: OrderTransactionParams(
+                        amount: self.viewModel.transactionAmount,
+                        paymentMethodType: .ticket(paymentMethodId: item.id)
+                    )
+                )
+            }
+        }
+    }
+
+    private func handleMethodSelectionOption(_ option: MethodSelectionOutput.Option) {
+        guard let screen = self.methodSelectionViewModel?.output else { return }
+
+        switch screen.selectionType {
+        case .chevron:
+            self.route = .reviewAndConfirm
+        case .radioButton:
+            Task {
+                await self.process(
+                    params: OrderTransactionParams(
+                        amount: self.viewModel.transactionAmount,
+                        paymentMethodType: .ticket(paymentMethodId: option.id)
+                    )
+                )
+            }
         }
     }
 
     private func navigationLinks() -> some View {
         Group {
             NavigationLink(
-                destination: self.routeDestination(),
-                tag: Route.cardForm,
+                destination: self.securityCodeDestination()
+                    .onAppear { self.viewModel.markScreenPresented(.securityCode) },
+                tag: Route.securityCode,
+                selection: self.$route
+            ) {
+                EmptyView()
+            }
+            .hidden()
+
+            NavigationLink(
+                destination: self.methodSelectionDestination()
+                    .onAppear { self.viewModel.markScreenPresented(.offlineMethodSelector) },
+                tag: Route.offlineMethodSelector,
                 selection: self.$route
             ) {
                 EmptyView()
@@ -109,13 +166,39 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     }
 
     @ViewBuilder
-    private func routeDestination() -> some View {
-        // TODO: Replace with the real destination screens (card form, installments, etc.).
-        ZStack {
-            self.theme.colors.background.primary
-                .edgesIgnoringSafeArea(.all)
-            MPProgressIndicator()
-                .size(.xlarge)
+    private func securityCodeDestination() -> some View {
+        if let item = self.selectedItem, let screenOutput = item.cardData?.securityCodeScreen {
+            SecurityCodeScreen(
+                viewModel: SecurityCodeViewModel(
+                    config: .init(
+                        screenOutput: screenOutput,
+                        item: item,
+                        transactionAmount: self.viewModel.transactionAmount
+                    )
+                ),
+                onTokenSuccess: {
+                    _ in self.route = .installments
+                },
+                onTokenError: { self.route = nil },
+                onBack: { self.route = nil }
+            )
+        } else {
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func methodSelectionDestination() -> some View {
+        if let methodSelectionViewModel = self.methodSelectionViewModel {
+            MethodSelectionScreen(
+                viewModel: methodSelectionViewModel,
+                onOptionSelected: { option in
+                    self.handleMethodSelectionOption(option)
+                },
+                onBack: { self.route = nil }
+            )
+        } else {
+            EmptyView()
         }
     }
 
