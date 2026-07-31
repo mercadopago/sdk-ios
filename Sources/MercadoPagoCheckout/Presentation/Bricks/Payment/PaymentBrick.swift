@@ -123,6 +123,24 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         }
     }
 
+    private func handleMethodSelectionOption(_ option: MethodSelectionOutput.Option) {
+        guard let screen = self.methodSelectionViewModel?.output else { return }
+
+        switch screen.selectionType {
+        case .chevron:
+            self.route = .reviewAndConfirm
+        case .radioButton:
+            Task {
+                await self.process(
+                    params: OrderTransactionParams(
+                        amount: self.viewModel.transactionAmount,
+                        paymentMethodType: .ticket(paymentMethodId: option.id)
+                    )
+                )
+            }
+        }
+    }
+
     private func navigationLinks() -> some View {
         Group {
             NavigationLink(
@@ -136,7 +154,8 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             .hidden()
 
             NavigationLink(
-                destination: self.methodSelectionDestination(),
+                destination: self.methodSelectionDestination()
+                    .onAppear { self.viewModel.markScreenPresented(.offlineMethodSelector) },
                 tag: Route.offlineMethodSelector,
                 selection: self.$route
             ) {
