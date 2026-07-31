@@ -4,17 +4,17 @@
 //
 
 import MPAnalytics
+import MPComponents
 import MPCore
 import SwiftUI
 
 @MainActor
 final class SecurityCodeViewModel: ObservableObject {
+    /// Configuration for the security code screen.
     struct Configuration {
         let screenOutput: SecurityCodeScreenOutput
-
-        let expectedLength: Int
-
-        let cardId: String
+        let item: PaymentInitializationOutput.Item
+        let transactionAmount: Decimal
     }
 
     // MARK: - Published State
@@ -26,11 +26,20 @@ final class SecurityCodeViewModel: ObservableObject {
     private let config: Configuration
     private let securityCodeUseCase: SecurityCodeUseCase
     private let analytics: AnalyticsInterface
+    private var analyticsTask: Task<Void, Never>?
 
     // MARK: - Computed
 
     var screenOutput: SecurityCodeScreenOutput { self.config.screenOutput }
-    var expectedLength: Int { self.config.expectedLength }
+    var amount: MPAmountData { MPAmountData(from: self.config.transactionAmount) }
+
+    // MARK: MPListItem Informations
+
+    var cardTitle: String { self.config.item.title }
+
+    var cardDescription: String? { self.config.item.description }
+
+    var cardIcon: PaymentInitializationOutput.Item.Icon { self.config.item.icon }
 
     // MARK: - Init
 
@@ -50,14 +59,19 @@ final class SecurityCodeViewModel: ObservableObject {
         self.isTokenizing = true
         defer { self.isTokenizing = false }
 
-        let cardToken = try await securityCodeUseCase.execute(
-            code: code,
-            expectedLength: self.config.expectedLength,
-            cardId: self.config.cardId
-        )
-        self.trackSubmit()
+        do {
+            let cardToken = try await securityCodeUseCase.execute(
+                code: code,
+                expectedLength: self.config.screenOutput.length,
+                cardId: self.config.item.id
+            )
+            self.trackSubmit()
 
-        return cardToken.token
+            return cardToken.token
+        } catch {
+            self.trackSubmitError(error)
+            throw error
+        }
     }
 
     // MARK: - Navigation
@@ -69,21 +83,49 @@ final class SecurityCodeViewModel: ObservableObject {
 
 // MARK: - Analytics
 
-// TODO: define SecurityCodeAnalyticsPath and event data.
 extension SecurityCodeViewModel {
     func trackInitialize() {
-        // TODO: SecurityCodeAnalyticsPath.initialize
+        guard let cardData = self.config.item.cardData else { return }
+        let eventData = SecurityCodeInitializeEventData(
+            paymentMethodId: cardData.paymentMethodId,
+            paymentTypeId: cardData.paymentTypeId,
+            issuerId: cardData.issuerId,
+            cardId: self.config.item.id
+        )
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackView(SecurityCodeAnalyticsPath.initialize)
+                .setEventData(eventData)
+                .send()
+        }
     }
 
     private func trackSubmit() {
-        // TODO: SecurityCodeAnalyticsPath.submit
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(SecurityCodeAnalyticsPath.submit).send()
+        }
     }
 
-    private func trackSubmitError(_: MercadoPagoCheckoutError) {
-        // TODO: SecurityCodeAnalyticsPath.submitError
+    private func trackSubmitError(_ error: MercadoPagoCheckoutError) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(SecurityCodeAnalyticsPath.submitError)
+                .setError(error.analyticsErrorType)
+                .send()
+        }
     }
 
-    func trackCanceledError(errorType _: String) {
-        // TODO: SecurityCodeAnalyticsPath.userCanceledError
+    func trackCanceledError(errorType: String) {
+        self.enqueueAnalytics { [analytics = self.analytics] in
+            await analytics.trackEvent(SecurityCodeAnalyticsPath.userCanceledError)
+                .setError(errorType)
+                .send()
+        }
+    }
+
+    private func enqueueAnalytics(_ block: @escaping @Sendable () async -> Void) {
+        let previous = self.analyticsTask
+        self.analyticsTask = Task {
+            await previous?.value
+            await block()
+        }
     }
 }

@@ -114,17 +114,6 @@ extension CardPaymentBrickCardData.Installment {
 
 // MARK: - InstallmentScreen
 
-/// Helper extension to conditionally apply trailing style
-extension View {
-    func listItemTrailingStyleIfPresent(_ style: MPListItemTrailingStyle?) -> AnyView {
-        if let style {
-            return AnyView(self.listItemTrailingStyle(style))
-        } else {
-            return AnyView(self)
-        }
-    }
-}
-
 struct InstallmentScreen: View {
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.presentationMode) var presentationMode

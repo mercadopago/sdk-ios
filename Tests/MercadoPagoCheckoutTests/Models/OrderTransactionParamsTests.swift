@@ -22,6 +22,16 @@ final class OrderTransactionParamsTests: XCTestCase {
         )
     }
 
+    private func makeTicketParams(
+        amount: Decimal = 100.0,
+        paymentMethodId: String = "pec"
+    ) -> OrderTransactionParams {
+        OrderTransactionParams(
+            amount: amount,
+            paymentMethodType: .ticket(paymentMethodId: paymentMethodId)
+        )
+    }
+
     private func encodeToJSON(_ params: OrderTransactionParams) throws -> [String: Any] {
         let data = try JSONEncoder().encode(params)
         return try JSONSerialization.jsonObject(with: data) as! [String: Any]
@@ -71,6 +81,26 @@ final class OrderTransactionParamsTests: XCTestCase {
     func testEncoding_card_installments_encodesAsInt() throws {
         let json = try encodeToJSON(makeCardParams(installments: 3))
         XCTAssertEqual(json["installments"] as? Int, 3)
+    }
+
+    // MARK: - Ticket encoding
+
+    func testEncoding_ticket_paymentMethodId_usesSnakeCaseKey() throws {
+        let json = try encodeToJSON(makeTicketParams(paymentMethodId: "pec"))
+        XCTAssertEqual(json["payment_method_id"] as? String, "pec")
+        XCTAssertNil(json["paymentMethodId"])
+    }
+
+    func testEncoding_ticket_doesNotIncludeTokenOrInstallments() throws {
+        let json = try encodeToJSON(makeTicketParams())
+        XCTAssertNil(json["token"])
+        XCTAssertNil(json["installments"])
+        XCTAssertNil(json["payment_method_type"])
+    }
+
+    func testEncoding_ticket_amountInteger_formatsToTwoDecimalPlaces() throws {
+        let json = try encodeToJSON(makeTicketParams(amount: 50.0))
+        XCTAssertEqual(json["amount"] as? String, "50.00")
     }
 
     // MARK: - init?(cardTransaction:)

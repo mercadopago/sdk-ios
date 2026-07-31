@@ -95,3 +95,24 @@ package extension View {
         }
     }
 }
+
+// MARK: - List item vertical alignment (composable via the view hierarchy)
+
+private struct MPListItemAlignmentKey: EnvironmentKey {
+    static let defaultValue: VerticalAlignment? = nil
+}
+
+extension EnvironmentValues {
+    var mpListItemAlignment: VerticalAlignment? {
+        get { self[MPListItemAlignmentKey.self] }
+        set { self[MPListItemAlignmentKey.self] = newValue }
+    }
+}
+
+package extension View {
+    /// Overrides the vertical alignment of `MPListItem` rows below in the hierarchy.
+    /// Defaults to `nil`: each style keeps its own rule (top when a description is present, else center).
+    func mpListItemAlignment(_ alignment: VerticalAlignment) -> some View {
+        environment(\.mpListItemAlignment, alignment)
+    }
+}
