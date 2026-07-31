@@ -14,10 +14,12 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         case securityCode
         case installments
         case reviewAndConfirm
+        case offlineMethodSelector
     }
 
     @State private var route: Route?
     @State private var selectedItem: PaymentInitializationOutput.Item?
+    @State private var methodSelectionViewModel: MethodSelectionViewModel?
     @ObservedObject private var viewModel: PaymentBrickViewModel<T>
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -112,6 +114,15 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 EmptyView()
             }
             .hidden()
+
+            NavigationLink(
+                destination: self.methodSelectionDestination(),
+                tag: Route.offlineMethodSelector,
+                selection: self.$route
+            ) {
+                EmptyView()
+            }
+            .hidden()
         }
     }
 
@@ -130,6 +141,21 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                     _ in self.route = .installments
                 },
                 onTokenError: { self.route = nil },
+                onBack: { self.route = nil }
+            )
+        } else {
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func methodSelectionDestination() -> some View {
+        if let methodSelectionViewModel = self.methodSelectionViewModel {
+            MethodSelectionScreen(
+                viewModel: methodSelectionViewModel,
+                onOptionSelected: { option in
+                    self.handleMethodSelectionOption(option)
+                },
                 onBack: { self.route = nil }
             )
         } else {

@@ -21,11 +21,6 @@ final class MethodSelectionViewModel: ObservableObject {
     var trailingStyle: (any MPListItemTrailingStyle)? { self.output.selectionType.trailingStyle }
     var rowTrailing: MPListItemTrailing? { self.output.selectionType.rowTrailing }
 
-    // MARK: - Events
-
-    var onOptionSelected: ((MethodSelectionOutput.Option) -> Void)?
-    var onBack: (() -> Void)?
-
     // MARK: - Init
 
     init(output: MethodSelectionOutput) {
@@ -34,29 +29,30 @@ final class MethodSelectionViewModel: ObservableObject {
 
     // MARK: - Actions
 
-    func selectOption(_ optionId: String) {
-        guard let option = self.output.options.first(where: { $0.id == optionId }) else { return }
+    @discardableResult
+    func selectOption(_ optionId: String) -> MethodSelectionOutput.Option? {
+        guard let option = self.output.options.first(where: { $0.id == optionId }) else { return nil }
 
         if self.output.selectionType == .chevron {
-            self.onOptionSelected?(option)
-            return
+            return option
         }
 
         self.selectedOptionId = option.id
         self.isCtaEnabled = true
+        return nil
     }
 
-    func confirmSelection() {
+    @discardableResult
+    func confirmSelection() -> MethodSelectionOutput.Option? {
         guard let selectedId = self.selectedOptionId,
-              let option = self.output.options.first(where: { $0.id == selectedId }) else { return }
+              let option = self.output.options.first(where: { $0.id == selectedId }) else { return nil }
 
         self.selectedOptionId = nil
         self.isCtaEnabled = false
-        self.onOptionSelected?(option)
+        return option
     }
 
     func goBack() {
         // Analytics `off_payment_list_back` is dispatched once a MethodSelection AnalyticsPath exists.
-        self.onBack?()
     }
 }

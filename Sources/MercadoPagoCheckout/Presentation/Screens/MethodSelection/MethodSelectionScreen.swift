@@ -11,14 +11,26 @@ struct MethodSelectionScreen: View {
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
 
-    init(viewModel: MethodSelectionViewModel) {
+    private let onOptionSelected: (MethodSelectionOutput.Option) -> Void
+    private let onBack: () -> Void
+
+    init(
+        viewModel: MethodSelectionViewModel,
+        onOptionSelected: @escaping (MethodSelectionOutput.Option) -> Void = { _ in },
+        onBack: @escaping () -> Void = {}
+    ) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self.onOptionSelected = onOptionSelected
+        self.onBack = onBack
     }
 
     var body: some View {
         MPHeader(
             title: self.viewModel.output.headerTitle,
-            onBack: { self.viewModel.goBack() },
+            onBack: {
+                self.viewModel.goBack()
+                self.onBack()
+            },
             content: {
                 VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {
                     ForEach(self.viewModel.output.options) { option in
@@ -54,7 +66,11 @@ struct MethodSelectionScreen: View {
                 amount: amount,
                 buttonData: .init(
                     text: button.label,
-                    onClick: { self.viewModel.confirmSelection() }
+                    onClick: {
+                        if let option = self.viewModel.confirmSelection() {
+                            self.onOptionSelected(option)
+                        }
+                    }
                 )
             )
             .disabled(!self.viewModel.isCtaEnabled)
@@ -70,7 +86,10 @@ struct MethodSelectionScreen: View {
         Binding(
             get: { self.viewModel.selectedOptionId == option.id },
             set: { isSelected in
-                if isSelected { self.viewModel.selectOption(option.id) }
+                guard isSelected else { return }
+                if let selected = self.viewModel.selectOption(option.id) {
+                    self.onOptionSelected(selected)
+                }
             }
         )
     }
@@ -82,18 +101,21 @@ struct MethodSelectionScreen: View {
             viewModel: MethodSelectionViewModel(
                 output: MethodSelectionOutput(
                     headerTitle: "¿Cómo querés pagar?",
-                    selectionType: .radioButton,
+                    selectionType: .chevron,
                     footer: .init(
                         totalLabel: "Total",
                         totalAmount: "$ 1.000",
-                        button: .init(label: "Generar código de pago")
+                        button: nil
                     ),
                     options: [
                         .init(id: "rapipago", name: "Rapipago", subtitle: "Hasta 2 días hábiles", iconUrl: "https://http2.mlstatic.com/storage/mobile-on-demand-resources/image/cho_off-rapipago_mdpi"),
                         .init(id: "pago_facil", name: "Pago Fácil", subtitle: "Hasta 2 días hábiles", iconUrl: "https://http2.mlstatic.com/storage/mobile-on-demand-resources/image/cho_off-pagofacil_mdpi?updatedAt=0")
                     ]
                 )
-            )
+            ),
+            onOptionSelected: { option in
+                print(option)
+            }
         )
         .loadMPFonts()
     }

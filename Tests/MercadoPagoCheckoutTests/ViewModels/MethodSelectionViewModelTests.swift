@@ -21,14 +21,12 @@ final class MethodSelectionViewModelTests: XCTestCase {
 
     // MARK: - selectOption(_:) — chevron
 
-    func test_selectOption_whenChevron_emitsOptionImmediately() {
+    func test_selectOption_whenChevron_returnsOptionImmediately() {
         // Arrange
         let sut = self.makeSUT(selectionType: .chevron)
-        var emitted: MethodSelectionOutput.Option?
-        sut.onOptionSelected = { emitted = $0 }
 
         // Act
-        sut.selectOption("rapipago")
+        let emitted = sut.selectOption("rapipago")
 
         // Assert
         XCTAssertEqual(emitted?.id, "rapipago")
@@ -46,17 +44,15 @@ final class MethodSelectionViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isCtaEnabled)
     }
 
-    func test_selectOption_whenChevronAndUnknownId_doesNothing() {
+    func test_selectOption_whenChevronAndUnknownId_returnsNil() {
         // Arrange
         let sut = self.makeSUT(selectionType: .chevron)
-        var emitted = false
-        sut.onOptionSelected = { _ in emitted = true }
 
         // Act
-        sut.selectOption("does-not-exist")
+        let emitted = sut.selectOption("does-not-exist")
 
         // Assert
-        XCTAssertFalse(emitted)
+        XCTAssertNil(emitted)
     }
 
     // MARK: - selectOption(_:) — radio button
@@ -73,17 +69,15 @@ final class MethodSelectionViewModelTests: XCTestCase {
         XCTAssertTrue(sut.isCtaEnabled)
     }
 
-    func test_selectOption_whenRadioButton_doesNotEmitBeforeConfirm() {
+    func test_selectOption_whenRadioButton_doesNotReturnBeforeConfirm() {
         // Arrange
         let sut = self.makeSUT(selectionType: .radioButton)
-        var emitted = false
-        sut.onOptionSelected = { _ in emitted = true }
 
         // Act
-        sut.selectOption("pago_facil")
+        let emitted = sut.selectOption("pago_facil")
 
         // Assert
-        XCTAssertFalse(emitted)
+        XCTAssertNil(emitted)
     }
 
     func test_selectOption_whenRadioButtonAndUnknownId_doesNotSelectNorEnableCta() {
@@ -100,15 +94,13 @@ final class MethodSelectionViewModelTests: XCTestCase {
 
     // MARK: - confirmSelection()
 
-    func test_confirmSelection_whenOptionSelected_emitsSelectedOption() {
+    func test_confirmSelection_whenOptionSelected_returnsSelectedOption() {
         // Arrange
         let sut = self.makeSUT(selectionType: .radioButton)
-        var emitted: MethodSelectionOutput.Option?
-        sut.onOptionSelected = { emitted = $0 }
         sut.selectOption("pago_facil")
 
         // Act
-        sut.confirmSelection()
+        let emitted = sut.confirmSelection()
 
         // Assert
         XCTAssertEqual(emitted?.id, "pago_facil")
@@ -127,47 +119,29 @@ final class MethodSelectionViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isCtaEnabled)
     }
 
-    func test_confirmSelection_calledTwice_emitsOnlyOnce() {
+    func test_confirmSelection_calledTwice_returnsOptionOnlyOnce() {
         // Arrange
         let sut = self.makeSUT(selectionType: .radioButton)
-        var emitCount = 0
-        sut.onOptionSelected = { _ in emitCount += 1 }
         sut.selectOption("pago_facil")
 
         // Act -- simulate a rapid double tap on the CTA
-        sut.confirmSelection()
-        sut.confirmSelection()
+        let first = sut.confirmSelection()
+        let second = sut.confirmSelection()
 
         // Assert
-        XCTAssertEqual(emitCount, 1)
+        XCTAssertNotNil(first)
+        XCTAssertNil(second)
     }
 
-    func test_confirmSelection_whenNothingSelected_doesNotEmit() {
+    func test_confirmSelection_whenNothingSelected_returnsNil() {
         // Arrange
         let sut = self.makeSUT(selectionType: .radioButton)
-        var emitted = false
-        sut.onOptionSelected = { _ in emitted = true }
 
         // Act
-        sut.confirmSelection()
+        let emitted = sut.confirmSelection()
 
         // Assert
-        XCTAssertFalse(emitted)
-    }
-
-    // MARK: - goBack()
-
-    func test_goBack_invokesOnBack() {
-        // Arrange
-        let sut = self.makeSUT()
-        var didGoBack = false
-        sut.onBack = { didGoBack = true }
-
-        // Act
-        sut.goBack()
-
-        // Assert
-        XCTAssertTrue(didGoBack)
+        XCTAssertNil(emitted)
     }
 
     // MARK: - listItemStyle
