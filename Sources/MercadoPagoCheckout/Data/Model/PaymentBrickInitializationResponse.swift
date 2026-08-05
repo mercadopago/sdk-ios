@@ -121,14 +121,12 @@ struct PaymentBrickInitializationResponse: Codable {
     // MARK: - SecurityCodeScreen
 
     struct SecurityCodeScreen: Codable {
-        let headerTitle: String
+        let header: Header
         let field: Field
-        let continueButtonLabel: String
+        let button: Button
 
-        enum CodingKeys: String, CodingKey {
-            case headerTitle = "header_title"
-            case field
-            case continueButtonLabel = "continue_button_label"
+        struct Header: Codable {
+            let title: String
         }
 
         struct Field: Codable {
@@ -136,6 +134,10 @@ struct PaymentBrickInitializationResponse: Codable {
             let placeholder: String
             let helper: String
             let error: String
+        }
+
+        struct Button: Codable {
+            let label: String
         }
     }
 

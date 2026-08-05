@@ -104,14 +104,18 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
                                 "security_code": {
                                     "length": 4,
                                     "screen": {
-                                        "header_title": "Insira o código de segurança",
+                                        "header": {
+                                            "title": "Insira o código de segurança"
+                                        },
                                         "field": {
                                             "label": "Código de segurança",
                                             "placeholder": "ex.: 1234",
                                             "helper": "Fica no verso do cartão.",
                                             "error": "Preencha este campo."
                                         },
-                                        "continue_button_label": "Continuar"
+                                        "button": {
+                                            "label": "Continuar"
+                                        }
                                     }
                                 }
                             }

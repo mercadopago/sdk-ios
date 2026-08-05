@@ -34,6 +34,11 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     var transactionAmount: Decimal { .zero }
 
+    var footer: PaymentInitializationOutput.Footer? {
+        guard case let .ready(output) = self.screenState else { return nil }
+        return output.footer
+    }
+
     var payerEmail: String { "" }
 
     init(

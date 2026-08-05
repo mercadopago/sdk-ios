@@ -52,14 +52,14 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
         guard let screen = cardData.securityCode.screen else { return nil }
         return SecurityCodeScreenOutput(
             length: cardData.securityCode.length,
-            headerTitle: screen.headerTitle,
+            headerTitle: screen.header.title,
             field: SecurityCodeScreenOutput.Field(
                 label: screen.field.label,
                 placeholder: screen.field.placeholder,
                 helper: screen.field.helper,
                 error: screen.field.error
             ),
-            buttonLabel: screen.continueButtonLabel
+            buttonLabel: screen.button.label
         )
     }
 

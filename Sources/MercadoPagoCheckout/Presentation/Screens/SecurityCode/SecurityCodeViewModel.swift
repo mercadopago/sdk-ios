@@ -14,7 +14,7 @@ final class SecurityCodeViewModel: ObservableObject {
     struct Configuration {
         let screenOutput: SecurityCodeScreenOutput
         let item: PaymentInitializationOutput.Item
-        let transactionAmount: Decimal
+        let footer: PaymentInitializationOutput.Footer
     }
 
     // MARK: - Published State
@@ -31,7 +31,15 @@ final class SecurityCodeViewModel: ObservableObject {
     // MARK: - Computed
 
     var screenOutput: SecurityCodeScreenOutput { self.config.screenOutput }
-    var amount: MPAmountData { MPAmountData(from: self.config.transactionAmount) }
+
+    /// Total label and amount come from the BFF footer — `MPOrder` carries no amount.
+    var totalLabel: String { self.config.footer.totalLabel }
+    var amount: MPAmountData { MPAmountData(fromFormatted: self.config.footer.totalAmount) }
+
+    /// Limits input to digits only, capped at the CVV length defined by the BFF.
+    var securityCodeFormatter: SecurityCodeFormatter {
+        SecurityCodeFormatter(maxLength: self.config.screenOutput.length)
+    }
 
     // MARK: MPListItem Informations
 

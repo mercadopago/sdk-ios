@@ -69,6 +69,7 @@ struct SecurityCodeScreen: View {
                         placeholder: self.viewModel.screenOutput.field.placeholder,
                         errorMessage: self.field.$code,
                         keyboard: .numberPad,
+                        formatter: self.viewModel.securityCodeFormatter,
                         popoverText: self.viewModel.screenOutput.field.helper
                     )
                     .accessibilityIDPrefix("mp.securityCode.field")
@@ -77,9 +78,8 @@ struct SecurityCodeScreen: View {
             },
             footer: {
                 MPFooter(
-                    title: MPStrings.Common.total,
+                    title: self.viewModel.totalLabel,
                     amount: self.viewModel.amount,
-                    subtitle: self.viewModel.cardTitle,
                     buttonData: .init(
                         text: self.viewModel.screenOutput.buttonLabel,
                         onClick: {
@@ -139,7 +139,7 @@ struct SecurityCodeScreen: View {
                             securityCodeScreen: nil
                         )
                     ),
-                    transactionAmount: 1500
+                    footer: .init(totalLabel: "Total", totalAmount: "$ 1.500")
                 )
             ),
             onTokenSuccess: { token in print("Token: \(token)") },

@@ -75,7 +75,7 @@ final class SecurityCodeScreenTests: XCTestCase {
                         securityCodeScreen: nil
                     )
                 ),
-                transactionAmount: 1500
+                footer: .init(totalLabel: "Total", totalAmount: "$ 1.500")
             )
         )
     }

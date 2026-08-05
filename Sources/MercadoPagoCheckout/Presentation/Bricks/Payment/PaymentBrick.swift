@@ -167,13 +167,15 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
 
     @ViewBuilder
     private func securityCodeDestination() -> some View {
-        if let item = self.selectedItem, let screenOutput = item.cardData?.securityCodeScreen {
+        if let item = self.selectedItem,
+           let screenOutput = item.cardData?.securityCodeScreen,
+           let footer = self.viewModel.footer {
             SecurityCodeScreen(
                 viewModel: SecurityCodeViewModel(
                     config: .init(
                         screenOutput: screenOutput,
                         item: item,
-                        transactionAmount: self.viewModel.transactionAmount
+                        footer: footer
                     )
                 ),
                 onTokenSuccess: {

@@ -21,12 +21,20 @@ final class SecurityCodeViewModelTests: XCTestCase {
         XCTAssertEqual(sut.cardTitle, "Mastercard •••• 6351")
     }
 
-    func test_amount_shouldExposeTransactionAmountAsMPAmountData() {
+    func test_amount_shouldExposeBFFFooterAmountAsMPAmountData() {
         // Arrange / Act
-        let sut = self.makeSUT(transactionAmount: 100)
+        let sut = self.makeSUT(footer: .init(totalLabel: "Total", totalAmount: "$ 15"))
 
         // Assert
-        XCTAssertEqual(sut.amount, MPAmountData(from: Decimal(100)))
+        XCTAssertEqual(sut.amount, MPAmountData(fromFormatted: "$ 15"))
+    }
+
+    func test_totalLabel_shouldExposeBFFFooterTotalLabel() {
+        // Arrange / Act
+        let sut = self.makeSUT(footer: .init(totalLabel: "Total a pagar", totalAmount: "$ 15"))
+
+        // Assert
+        XCTAssertEqual(sut.totalLabel, "Total a pagar")
     }
 
     func test_screenOutput_shouldExposeConfigurationScreenOutput() {
@@ -38,6 +46,41 @@ final class SecurityCodeViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(sut.screenOutput, screenOutput)
+    }
+
+    // MARK: - securityCodeFormatter
+
+    func test_securityCodeFormatter_whenLengthIsThree_shouldTruncateExtraDigits() {
+        // Arrange
+        let sut = self.makeSUT(screenOutput: self.makeScreenOutput(length: 3))
+
+        // Act
+        let formatted = sut.securityCodeFormatter.formatOnChange("12345")
+
+        // Assert
+        XCTAssertEqual(formatted, "123")
+    }
+
+    func test_securityCodeFormatter_whenLengthIsFour_shouldTruncateExtraDigits() {
+        // Arrange
+        let sut = self.makeSUT(screenOutput: self.makeScreenOutput(length: 4))
+
+        // Act
+        let formatted = sut.securityCodeFormatter.formatOnChange("123456")
+
+        // Assert
+        XCTAssertEqual(formatted, "1234")
+    }
+
+    func test_securityCodeFormatter_whenInputHasNonDigits_shouldStripThem() {
+        // Arrange
+        let sut = self.makeSUT(screenOutput: self.makeScreenOutput(length: 4))
+
+        // Act
+        let formatted = sut.securityCodeFormatter.formatOnChange("1a2-b3 4")
+
+        // Assert
+        XCTAssertEqual(formatted, "1234")
     }
 
     // MARK: - submit(code:)
@@ -237,7 +280,7 @@ final class SecurityCodeViewModelTests: XCTestCase {
         itemTitle: String = "Mastercard •••• 6351",
         cardData: PaymentInitializationOutput.Item.CardData? = nil,
         screenOutput: SecurityCodeScreenOutput? = nil,
-        transactionAmount: Decimal = 100,
+        footer: PaymentInitializationOutput.Footer = .init(totalLabel: "Total", totalAmount: "$ 100"),
         service: MockCheckoutService = MockCheckoutService(),
         analytics: MockAnalytics = MockAnalytics()
     ) -> SecurityCodeViewModel {
@@ -252,7 +295,7 @@ final class SecurityCodeViewModelTests: XCTestCase {
                     route: "saved_card",
                     cardData: cardData
                 ),
-                transactionAmount: transactionAmount
+                footer: footer
             ),
             securityCodeUseCase: SecurityCodeUseCase(service: service),
             analytics: analytics
