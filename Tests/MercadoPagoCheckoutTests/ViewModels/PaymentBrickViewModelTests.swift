@@ -81,7 +81,27 @@ import XCTest
             XCTAssertFalse(emailViewModel.isEmailValid)
         }
 
-        // MARK: - markScreenPresented / screensVisited
+        // MARK: - shouldSkipSecurityCode(from:)
+
+        func test_shouldSkipSecurityCode_whenItemHasSecurityCodeScreen_returnsFalse() {
+            // Arrange
+            let sut = self.makePaymentSUT()
+            let item = self.makeSavedCardItem(withSecurityCode: true)
+
+            // Act / Assert
+            XCTAssertFalse(sut.shouldSkipSecurityCode(from: item))
+        }
+
+        func test_shouldSkipSecurityCode_whenItemHasNoSecurityCodeScreen_returnsTrue() {
+            // Arrange
+            let sut = self.makePaymentSUT()
+            let item = self.makeSavedCardItem(withSecurityCode: false)
+
+            // Act / Assert
+            XCTAssertTrue(sut.shouldSkipSecurityCode(from: item))
+        }
+
+        // MARK: - screensVisited
 
         func test_screensVisited_initiallyEmpty() {
             let sut = self.makePaymentSUT(payer: nil)
@@ -171,7 +191,7 @@ import XCTest
         // MARK: - Helpers
 
         private func makePaymentSUT(
-            payer: MPPayer?,
+            payer: MPPayer? = nil,
             amount: Decimal = 100,
             orderRepository: MockOrderTransactionRepository? = nil
         ) -> PaymentBrickViewModel<MPPaymentData.Payment> {
@@ -184,6 +204,30 @@ import XCTest
                 return PaymentBrickViewModel(configuration: configuration, orderTransactionUseCase: OrderTransactionUseCase(repository: repo))
             }
             return PaymentBrickViewModel(configuration: configuration)
+        }
+
+        private func makeSavedCardItem(withSecurityCode: Bool) -> PaymentInitializationOutput.Item {
+            let screen: SecurityCodeScreenOutput? = withSecurityCode
+                ? SecurityCodeScreenOutput(
+                    length: 3,
+                    headerTitle: "Completá el código de seguridad",
+                    field: .init(label: "CVV", placeholder: "Ej.: 123", helper: "", error: "Completá este campo."),
+                    buttonLabel: "Continuar"
+                )
+                : nil
+            return PaymentInitializationOutput.Item(
+                id: "card-9999",
+                title: "Mastercard •••• 6351",
+                description: "Master Crédito",
+                icon: .system("creditcard"),
+                route: "saved_card",
+                cardData: .init(
+                    paymentMethodId: "master",
+                    paymentTypeId: "credit_card",
+                    issuerId: 1,
+                    securityCodeScreen: screen
+                )
+            )
         }
 
         private func makeOrderParams() -> OrderTransactionParams {

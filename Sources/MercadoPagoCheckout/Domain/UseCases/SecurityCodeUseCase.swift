@@ -20,8 +20,8 @@ struct SecurityCodeUseCase {
         try self.validateFormat(code: code, expectedLength: expectedLength)
         let params = CardParams(
             cardNumber: "",
-            expirationYear: "",
-            expirationMonth: "",
+            expirationYear: nil,
+            expirationMonth: nil,
             securityCode: code,
             documentType: nil,
             documentNumber: nil,
