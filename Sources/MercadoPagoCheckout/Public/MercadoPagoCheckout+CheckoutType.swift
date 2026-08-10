@@ -53,3 +53,15 @@ public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.CardS
         .init(kind: .saveCard)
     }
 }
+
+public extension MercadoPagoCheckout.CheckoutType where T == MPPaymentData.Payment {
+    /// A payment selection flow that produces a ``MPPaymentData/Payment``.
+    ///
+    /// - Parameters:
+    ///   - order: The order to process, including its `orderId` and `clientToken`.
+    static func payment(
+        order: MPOrder
+    ) -> MercadoPagoCheckout<MPPaymentData.Payment>.CheckoutType {
+        .init(kind: .payment(order))
+    }
+}
