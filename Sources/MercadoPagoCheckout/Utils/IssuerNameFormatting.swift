@@ -10,7 +10,6 @@ import MPFoundation
 
 package enum MPFormatIssuerName {
     // MARK: - Special Words
-
     package static let specialWords: [String] = [
         "AstroPay",
         "BBVA",
@@ -38,13 +37,12 @@ package enum MPFormatIssuerName {
         "la",
         "por"
     ]
-
+    
     // MARK: - Clean Issuer Name
-
     /// Removes debit/credit words from issuer name and cleans extra spaces
     package static func cleanIssuerName(_ issuerName: String) -> String {
         var result = issuerName
-
+        
         // Remove debit variations (débito, debito, debit)
         let debitPattern = "\\b(d[eé]bit[o]?)\\b"
         if let debitRegex = try? NSRegularExpression(pattern: debitPattern, options: .caseInsensitive) {
@@ -55,7 +53,7 @@ package enum MPFormatIssuerName {
                 withTemplate: " "
             )
         }
-
+        
         // Remove credit variations (crédito, credito, credit)
         let creditPattern = "\\b(cr[eé]dit[o]?)\\b"
         if let creditRegex = try? NSRegularExpression(pattern: creditPattern, options: .caseInsensitive) {
@@ -66,7 +64,7 @@ package enum MPFormatIssuerName {
                 withTemplate: " "
             )
         }
-
+        
         // Collapse multiple spaces into single space
         let multiSpacePattern = "\\s+"
         if let spaceRegex = try? NSRegularExpression(pattern: multiSpacePattern, options: []) {
@@ -77,10 +75,10 @@ package enum MPFormatIssuerName {
                 withTemplate: " "
             )
         }
-
+        
         // Trim and remove trailing dots
         result = result.trimmingCharacters(in: .whitespaces)
-
+        
         let trailingDotsPattern = "\\.+$"
         if let dotsRegex = try? NSRegularExpression(pattern: trailingDotsPattern, options: []) {
             result = dotsRegex.stringByReplacingMatches(
@@ -90,16 +88,15 @@ package enum MPFormatIssuerName {
                 withTemplate: ""
             )
         }
-
+        
         return result
     }
 
     // MARK: - Apply Capitalization Rules
-
     /// Applies proper capitalization preserving special words
     package static func applyCapitalizationRules(_ issuerName: String) -> String {
         let words = issuerName.split(separator: " ").map { String($0) }
-
+        
         let capitalizedWords = words.map { word -> String in
             // Check for S.A. pattern
             let saPattern = "^s\\.?a\\.?$"
@@ -107,23 +104,22 @@ package enum MPFormatIssuerName {
                saRegex.firstMatch(in: word, options: [], range: NSRange(word.startIndex..., in: word)) != nil {
                 return "S.A."
             }
-
+            
             // Check if word is in special words list (case insensitive)
             if let preservedWord = MPFormatIssuerName.specialWords.first(where: {
                 $0.lowercased() == word.lowercased()
             }) {
                 return preservedWord
             }
-
+            
             // Default: capitalize first letter, lowercase rest
             return word.prefix(1).uppercased() + word.dropFirst().lowercased()
         }
-
+        
         return capitalizedWords.joined(separator: " ")
     }
 
     // MARK: - Payment Method Type
-
     /// Returns formatted payment type: "Credit" or "Debit"
     package static func formattedPaymentType(_ value: String) -> String {
         switch value {

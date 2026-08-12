@@ -161,7 +161,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     }
 
     /// The screens the user reached before cancelling, derived from the brick's navigation state.
-    private var screensVisited: [MPScreen] {
+    private var screensVisited: [Screen] {
         self.brickViewModel.installmentsWasPresented ? [.installments] : []
     }
 
@@ -177,7 +177,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     /// `T.Cancellation` is fixed by the configured ``MercadoPagoCheckout/CheckoutType``:
     /// `.cardTransaction(order:)` produces a ``MPUserCancelledContext/CardTransaction`` and
     /// `.saveCard` produces a ``MPUserCancelledContext/CardSave``.
-    private func emitUserCancelled(cardForm context: MPCardFormUserCancelledContext, screens: [MPScreen] = []) {
+    private func emitUserCancelled(cardForm context: MPCardFormUserCancelledContext, screens: [Screen] = []) {
         let cancellation: (any MPUserCancelledContext.Kind)?
         if T.Cancellation.self == MPUserCancelledContext.CardSave.self {
             cancellation = MPUserCancelledContext.CardSave(cardForm: context)

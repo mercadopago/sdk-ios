@@ -20,13 +20,12 @@ struct InitializeCardFormUseCase {
     /// Fetches initialization data from the repository,
     /// then applies business rules (button selection, custom text overrides).
     func execute(
-        order: MPOrder? = nil,
+        amount: Decimal,
         checkoutType: MercadoPagoCheckout<some MPPaymentData.Kind>.CheckoutType
     ) async throws(MercadoPagoCheckoutError) -> CardFormInitializationOutput {
         do {
             let data = try await repository.fetchInitialization(
-                orderId: order?.orderId,
-                clientToken: order?.clientToken,
+                amount: amount,
                 checkoutType: checkoutType.analyticsValue
             )
 
@@ -59,7 +58,6 @@ struct InitializeCardFormUseCase {
             title: data.title,
             button: data.buttonLabel,
             currencySymbol: data.currencySymbol,
-            amount: data.amount ?? .zero,
             fields: .init(
                 cardNumber: .init(
                     label: fields.cardNumber.label,

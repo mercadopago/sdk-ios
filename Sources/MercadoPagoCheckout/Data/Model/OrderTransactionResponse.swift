@@ -31,8 +31,8 @@ struct OrderTransactionResponse: Codable {
         case siteId = "site_id"
         case status
         case statusDetail = "status_detail"
-        case dateCreated = "created_date"
-        case lastUpdated = "last_updated_date"
+        case dateCreated = "date_created"
+        case lastUpdated = "last_updated"
         case userId = "user_id"
         case captureMode = "capture_mode"
         case processingMode = "processing_mode"
@@ -41,7 +41,7 @@ struct OrderTransactionResponse: Codable {
     }
 
     struct PayerData: Codable {
-        let id: String?
+        let id: String
         let email: String
     }
 

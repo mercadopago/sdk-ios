@@ -20,8 +20,9 @@ protocol ApplePayUseCaseProtocol: Sendable {
 }
 
 final class ApplePayUseCase: ApplePayUseCaseProtocol {
-    private let repository: ApplePayRepositoryProtocol
 
+    private let repository: ApplePayRepositoryProtocol
+    
     typealias Dependency = HasFingerPrint
 
     let dependencies: Dependency
@@ -41,8 +42,9 @@ final class ApplePayUseCase: ApplePayUseCaseProtocol {
     /// - Parameter payment: `PKPaymentToken` received from Apple Pay sheet.
     /// - Returns: `MPApplePayToken` with backend token data.
     func createToken(_ payment: PKPaymentToken, status: String?) async throws -> MPApplePayToken {
+        
         let deviceData = await dependencies.fingerPrint.getDeviceData() ?? Data()
 
-        return try await self.repository.createToken(payment: payment, status: status, device: deviceData)
+        return try await repository.createToken(payment: payment, status: status, device: deviceData)
     }
 }

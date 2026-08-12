@@ -18,8 +18,7 @@ extension CoreMethods {
             securityCode: params.securityCode,
             cardHolderName: params.cardHolderName,
             documentType: params.documentType,
-            documentNumber: params.documentNumber,
-            cardID: params.cardId
+            documentNumber: params.documentNumber
         )
     }
 }

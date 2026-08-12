@@ -17,9 +17,9 @@ final class PaymentsViewModel: ObservableObject {
     let title: String
     let totalLabel: String
 
-    init(initialization: PaymentInitializationOutput = .mock) {
+    init(amount: Decimal, initialization: PaymentInitializationOutput = .mock) {
         self.initialization = initialization
-        self.amount = MPAmountData(fromFormatted: initialization.footer.totalAmount)
+        self.amount = MPAmountData(from: amount)
         self.title = initialization.headerTitle
         self.totalLabel = initialization.footer.totalLabel
     }

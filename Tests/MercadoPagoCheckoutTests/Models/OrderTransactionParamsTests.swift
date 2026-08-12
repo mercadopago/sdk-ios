@@ -12,13 +12,12 @@ final class OrderTransactionParamsTests: XCTestCase {
     private func makeCardParams(
         amount: Decimal = 100.0,
         paymentMethodId: String = "visa",
-        paymentTypeId: String = "credit_card",
         token: String = "abc123",
         installments: Int = 1
     ) -> OrderTransactionParams {
         OrderTransactionParams(
             amount: amount,
-            paymentMethodType: .card(paymentMethodId: paymentMethodId, paymentTypeId: paymentTypeId, token: token, installments: installments)
+            paymentMethodType: .card(paymentMethodId: paymentMethodId, token: token, installments: installments)
         )
     }
 
@@ -88,11 +87,10 @@ final class OrderTransactionParamsTests: XCTestCase {
 
         XCTAssertNotNil(params)
         XCTAssertEqual(params?.amount, 150)
-        guard case let .card(paymentMethodId, paymentTypeId, token, installments) = params?.paymentMethodType else {
+        guard case let .card(paymentMethodId, token, installments) = params?.paymentMethodType else {
             return XCTFail("Expected .card case")
         }
         XCTAssertEqual(paymentMethodId, "visa")
-        XCTAssertEqual(paymentTypeId, "credit_card")
         XCTAssertEqual(token, "tok_xyz")
         XCTAssertEqual(installments, 6)
     }

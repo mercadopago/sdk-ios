@@ -63,7 +63,7 @@ final class MPUserCancelledContextTests: XCTestCase {
     // MARK: - Screen
 
     func test_screen_equatable() {
-        XCTAssertEqual(MPScreen.installments, MPScreen.installments)
+        XCTAssertEqual(Screen.installments, Screen.installments)
     }
 
     // MARK: - Result wiring (typed by checkout type)

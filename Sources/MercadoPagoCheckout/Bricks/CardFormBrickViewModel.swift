@@ -17,7 +17,12 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     }
 
     private var transactionAmount: Decimal {
-        return self.result?.amount ?? .zero
+        switch self.configuration.type.kind {
+        case .saveCard, .payment:
+            return .zero
+        case let .cardTransaction(order):
+            return order.amount
+        }
     }
 
     private var orderId: String? {
@@ -33,21 +38,10 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard:
             return nil
-        case let .payment(order), let .cardTransaction(order):
+        case let .payment(order, _, _), let .cardTransaction(order):
             return order.clientToken
         }
     }
-
-    private var order: MPOrder? {
-        switch self.configuration.type.kind {
-        case .saveCard:
-            return nil
-        case let .payment(order), let .cardTransaction(order):
-            return order
-        }
-    }
-
-    private var result: CardFormInitializationOutput?
 
     // MARK: - Published State
 
@@ -89,11 +83,10 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         do {
             let result = try await withRetry {
                 try await self.initializeUseCase.execute(
-                    order: self.order,
+                    amount: self.transactionAmount,
                     checkoutType: self.configuration.type
                 )
             }
-            self.result = result
 
             let configuration = CardFormViewModel.Configuration(
                 amount: self.transactionAmount,
@@ -109,7 +102,6 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 config: configuration,
                 analytics: self.analytics
             )
-
             self.screenState = .ready(result, viewModel)
             self.trackInitialize()
         } catch let error as MercadoPagoCheckoutError {
@@ -181,7 +173,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case let .cardTransaction(order):
             return MPPaymentData.CardTransaction(
-                transactionAmount: self.transactionAmount,
+                transactionAmount: order.amount,
                 token: output.token,
                 installment: 1,
                 paymentMethodId: output.paymentMethodId,

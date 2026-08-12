@@ -15,12 +15,14 @@ import SwiftUI
 enum CheckoutTypeOption: String, CaseIterable, Identifiable {
     case saveCard
     case cardTransaction
+    case payment
 
     var id: String { rawValue }
     var title: String {
         switch self {
         case .saveCard: return "Save Card"
         case .cardTransaction: return "Card Transaction"
+        case .payment: return "Payment"
         }
     }
 }
@@ -120,8 +122,15 @@ final class CheckoutConfig: ObservableObject {
     @Published var presentation: PresentationMode = .swiftUIShow
     @Published var appearance: AppearanceStyleOption = .automatic
 
-    @Published var orderId = ""
-    @Published var clientToken = ""
+    /// Order (Card Transaction only)
+    @Published var amountText = "100.00" {
+        didSet { self.amount = Decimal(string: self.amountText.replacingOccurrences(of: ",", with: ".")) ?? 0 }
+    }
+
+    private(set) var amount: Decimal = 100
+    @Published var email = "test@mp.com"
+    @Published var orderId = "12345"
+    @Published var clientToken = "seller_client_token"
 
     @Published var minInstallmentsText = ""
     @Published var maxInstallmentsText = ""
@@ -203,10 +212,28 @@ final class CheckoutConfig: ObservableObject {
     func makeCardTransactionCheckout() -> MercadoPagoCheckout<MPPaymentData.CardTransaction> {
         let order = MPOrder(
             orderId: orderId,
-            clientToken: clientToken
+            clientToken: clientToken,
+            amount: amount,
+            payer: .init(email: email)
         )
         return MercadoPagoCheckout.Builder(
             checkoutType: .cardTransaction(order: order),
+            checkoutAppearance: self.checkoutAppearance
+        )
+        .setPaymentMethodConfiguration(self.paymentMethodConfigs)
+        .build()
+    }
+
+    @MainActor
+    func makePaymentCheckout() -> MercadoPagoCheckout<MPPaymentData.Payment> {
+        let order = MPOrder(
+            orderId: orderId,
+            clientToken: clientToken,
+            amount: amount,
+            payer: .init(email: email)
+        )
+        return MercadoPagoCheckout.Builder(
+            checkoutType: .payment(order: order),
             checkoutAppearance: self.checkoutAppearance
         )
         .setPaymentMethodConfiguration(self.paymentMethodConfigs)

@@ -6,7 +6,6 @@
 //
 
 @testable import CoreMethods
-import Foundation
 @testable import MercadoPagoCheckout
 
 // MARK: - Input (CardFormInitializationInput - Repository → UseCase)
@@ -76,12 +75,11 @@ enum CardFormInitializationInputStub {
 // MARK: - Output (CardFormInitializationOutput - UseCase output)
 
 enum CardFormInitializationOutputStub {
-    static func make(identificationTypes: [IdentificationType] = [], amount: Decimal = 100) -> CardFormInitializationOutput {
+    static func make(identificationTypes: [IdentificationType] = []) -> CardFormInitializationOutput {
         CardFormInitializationOutput(
             title: "Default Header",
             button: "Save",
             currencySymbol: "R$",
-            amount: amount,
             fields: Self.makeDefaultFields(),
             identificationTypes: identificationTypes
         )

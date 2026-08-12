@@ -16,7 +16,7 @@ import SwiftUI
 /// ```swift
 ///
 /// @State var expirationDateTextField: ExpirationDateTextfield?
-///
+/// 
 /// ExpirationDateTextFieldView(
 ///     textField: self.$expirationDateTextField,
 ///     style: myCustomStyle,

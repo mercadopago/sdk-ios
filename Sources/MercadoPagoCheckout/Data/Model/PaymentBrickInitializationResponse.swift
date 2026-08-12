@@ -132,7 +132,6 @@ struct PaymentBrickInitializationResponse: Codable {
             let label: String
             let placeholder: String
             let helper: String
-            let error: String
         }
     }
 

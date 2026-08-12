@@ -12,6 +12,7 @@ import Foundation
 
 package protocol HasNoDependency: Sendable {}
 
+
 /// Protocol combining core SDK dependencies for analytics and networking
 typealias DI = Sendable & HasNoDependency & HasAnalytics & HasNetwork & HasFingerPrint
 

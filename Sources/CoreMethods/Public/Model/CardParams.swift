@@ -13,8 +13,6 @@ public struct CardParams: Sendable {
     let documentType: String?
     let documentNumber: String?
     let cardHolderName: String
-    /// Identifier of a saved card. When set, tokenizes using only the security code.
-    let cardId: String?
 
     public init(
         cardNumber: String,
@@ -23,8 +21,7 @@ public struct CardParams: Sendable {
         securityCode: String,
         documentType: String?,
         documentNumber: String?,
-        cardHolderName: String,
-        cardId: String? = nil
+        cardHolderName: String
     ) {
         self.cardNumber = cardNumber
         self.expirationYear = expirationYear
@@ -33,6 +30,5 @@ public struct CardParams: Sendable {
         self.documentType = documentType
         self.documentNumber = documentNumber
         self.cardHolderName = cardHolderName
-        self.cardId = cardId
     }
 }

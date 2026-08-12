@@ -16,9 +16,9 @@ final class PaymentsViewModelTests: XCTestCase {
         let output = PaymentInitializationOutput(
             headerTitle: "Cómo querés pagar",
             sections: [],
-            footer: .init(totalLabel: "Total", totalAmount: "$ 15")
+            footer: .init(totalLabel: "Total")
         )
-        let sut = PaymentsViewModel(initialization: output)
+        let sut = PaymentsViewModel(amount: 100, initialization: output)
         XCTAssertEqual(sut.title, "Cómo querés pagar")
     }
 
@@ -26,16 +26,16 @@ final class PaymentsViewModelTests: XCTestCase {
         let output = PaymentInitializationOutput(
             headerTitle: "Header",
             sections: [],
-            footer: .init(totalLabel: "Valor total", totalAmount: "$ 15")
+            footer: .init(totalLabel: "Valor total")
         )
-        let sut = PaymentsViewModel(initialization: output)
+        let sut = PaymentsViewModel(amount: 100, initialization: output)
         XCTAssertEqual(sut.totalLabel, "Valor total")
     }
 
     // MARK: - initialization
 
     func test_initialization_byDefault_hasSections() {
-        let sut = PaymentsViewModel()
+        let sut = PaymentsViewModel(amount: 100)
         XCTAssertFalse(sut.initialization.sections.isEmpty)
     }
 
@@ -43,33 +43,21 @@ final class PaymentsViewModelTests: XCTestCase {
         let customOutput = PaymentInitializationOutput(
             headerTitle: "Cómo querés pagar",
             sections: [.init(id: "test", title: "Test Section", items: [])],
-            footer: .init(totalLabel: "Total", totalAmount: "$ 15")
+            footer: .init(totalLabel: "Total")
         )
-        let sut = PaymentsViewModel(initialization: customOutput)
+        let sut = PaymentsViewModel(amount: 100, initialization: customOutput)
         XCTAssertEqual(sut.initialization, customOutput)
     }
 
     // MARK: - amount
 
-    func test_amount_parsedFromFooterTotalAmount() {
-        let output = PaymentInitializationOutput(
-            headerTitle: "Header",
-            sections: [],
-            footer: .init(totalLabel: "Total", totalAmount: "R$ 1.250,99")
-        )
-        let sut = PaymentsViewModel(initialization: output)
-        XCTAssertEqual(sut.amount.currencySymbol, "R$")
-        XCTAssertEqual(sut.amount.integerPart, "1.250")
-        XCTAssertEqual(sut.amount.decimalPart, "99")
+    func test_amount_currencySymbol_isNotEmpty() {
+        let sut = PaymentsViewModel(amount: 500)
+        XCTAssertFalse(sut.amount.currencySymbol.isEmpty)
     }
 
-    func test_amount_withRoundValue_decimalPartIsEmpty() {
-        let output = PaymentInitializationOutput(
-            headerTitle: "Header",
-            sections: [],
-            footer: .init(totalLabel: "Total", totalAmount: "$ 500,00")
-        )
-        let sut = PaymentsViewModel(initialization: output)
+    func test_amount_withRoundValue_decimalPartIsZero() {
+        let sut = PaymentsViewModel(amount: 500)
         XCTAssertEqual(sut.amount.decimalPart, "")
     }
 }

@@ -28,7 +28,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
     private func makeParams() -> OrderTransactionParams {
         OrderTransactionParams(
             amount: 100.0,
-            paymentMethodType: .card(paymentMethodId: "master", paymentTypeId: "credit_card", token: "abc123", installments: 1)
+            paymentMethodType: .card(paymentMethodId: "master", token: "abc123", installments: 1)
         )
     }
 
@@ -43,8 +43,8 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
             "site_id": "MLB",
             "status": "processed",
             "status_detail": "accredited",
-            "created_date": "2024-01-01T00:00:00",
-            "last_updated_date": "2024-01-01T00:00:00",
+            "date_created": "2024-01-01T00:00:00",
+            "last_updated": "2024-01-01T00:00:00",
             "user_id": "1000000001",
             "capture_mode": "automatic_async",
             "processing_mode": "automatic",
@@ -247,7 +247,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         let headers = endpoint.headers
 
         // Assert
-        XCTAssertEqual(headers["Authorization"], "Bearer seller_client_token")
+        XCTAssertEqual(headers["Authorization"], "seller_client_token")
     }
 
     func testProcessEndpoint_doesNotSetAuthorizationHeaderWhenClientTokenEmpty() {
@@ -262,7 +262,7 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         let headers = endpoint.headers
 
         // Assert: an empty token still maps to the header, never to a different scheme
-        XCTAssertEqual(headers["Authorization"], "Bearer ")
+        XCTAssertEqual(headers["Authorization"], "")
         XCTAssertNotNil(headers["X-Public-Key"])
         XCTAssertEqual(headers["Content-Type"], "application/json")
     }

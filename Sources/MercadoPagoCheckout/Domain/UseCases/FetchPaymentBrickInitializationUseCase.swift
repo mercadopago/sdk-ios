@@ -7,20 +7,24 @@ import Foundation
 import MPCore
 
 struct FetchPaymentBrickInitializationUseCase {
-    private let repository: PaymentBrickRepository
+    private let repository: PaymentBrickInitializationRepository
 
-    init(repository: PaymentBrickRepository = RemotePaymentBrickRepository()) {
+    init(repository: PaymentBrickInitializationRepository = RemotePaymentBrickInitializationRepository()) {
         self.repository = repository
     }
 
     func execute(
         orderId: String,
-        clientToken: String
+        totalAmount: Decimal,
+        customerId: String?,
+        cardIds: [String]
     ) async throws(MercadoPagoCheckoutError) -> PaymentInitializationOutput {
         do {
             return try await self.repository.fetchInitialization(
                 orderId: orderId,
-                clientToken: clientToken
+                totalAmount: totalAmount,
+                customerId: customerId,
+                cardIds: cardIds
             )
         } catch let error as APIClientError {
             throw MercadoPagoCheckoutError(from: error, location: .initialization)

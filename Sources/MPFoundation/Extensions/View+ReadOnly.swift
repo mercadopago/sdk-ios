@@ -21,5 +21,5 @@ package extension View {
 }
 
 private struct ReadOnlyKey: EnvironmentKey {
-    static let defaultValue = false
+    static let defaultValue: Bool = false
 }

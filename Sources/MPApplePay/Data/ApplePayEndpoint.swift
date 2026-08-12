@@ -5,6 +5,7 @@
 //  Created by Guilherme Prata Costa on 23/07/25.
 //
 
+
 import Foundation
 #if SWIFT_PACKAGE
     import MPCore
@@ -53,15 +54,16 @@ extension ApplePayEndpoint: RequestEndpoint {
         var defaultHeaders = [
             "Content-Type": "application/json",
             "X-Product-id": MPSDKProduct.id,
-            "X-Public-key": "\(MercadoPagoSDK.shared.getPublicKey())"
+            "X-Public-key": "\(MercadoPagoSDK.shared.getPublicKey())",
         ]
-
+        
         switch self {
         case let .postToken(_, status):
             defaultHeaders["X-Test-Status"] = status
         }
-
+        
         return defaultHeaders
+
     }
 
     /// Request URL parameters.
@@ -72,8 +74,9 @@ extension ApplePayEndpoint: RequestEndpoint {
     /// Request body data.
     var body: Data? {
         switch self {
-        case let .postToken(body, _):
-            return body.toJSONData()
+        case let .postToken(body,_):
+            let httpBody = body.toJSONData()
+            return httpBody
         }
     }
-}
+} 

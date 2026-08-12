@@ -1,19 +1,18 @@
 
+import XCTest
+import PassKit
 import CommonTests
 @testable import MPApplePay
-import PassKit
-import XCTest
 
 final class ApplePayUseCaseTests: XCTestCase {
-    // MARK: - Typealias
 
+    // MARK: - Typealias
     private typealias SUT = (
         sut: ApplePayUseCase,
         repository: ApplePayRepositoryMock
     )
 
     // MARK: - Stubs
-
     private enum ApplePayTokenStub {
         static let validToken = MPApplePayToken(id: "some_token_id", bin: "123456")
     }
@@ -23,8 +22,7 @@ final class ApplePayUseCaseTests: XCTestCase {
     }
 
     // MARK: - SUT Factory
-
-    private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> SUT {
         let container = MockDependencyContainer()
         let repositoryMock = ApplePayRepositoryMock()
         let useCase = ApplePayUseCase(dependencies: container, repository: repositoryMock)
@@ -32,10 +30,9 @@ final class ApplePayUseCaseTests: XCTestCase {
     }
 
     // MARK: - Tests
-
     func test_createToken_whenRepositorySucceeds_shouldReturnToken() async throws {
         // Arrange
-        let (sut, repositoryMock) = self.makeSUT()
+        let (sut, repositoryMock) = makeSUT()
         await repositoryMock.setCreateToken(result: .success(ApplePayTokenStub.validToken))
         let paymentToken = PKPaymentToken()
 
@@ -45,14 +42,14 @@ final class ApplePayUseCaseTests: XCTestCase {
         // Assert
         XCTAssertEqual(receivedToken.id, ApplePayTokenStub.validToken.id)
         XCTAssertEqual(receivedToken.bin, ApplePayTokenStub.validToken.bin)
-
+        
         let callCount = await repositoryMock.createTokenCallCount
         XCTAssertEqual(callCount, 1)
     }
 
     func test_createToken_whenRepositoryFails_shouldThrowError() async {
         // Arrange
-        let (sut, repositoryMock) = self.makeSUT()
+        let (sut, repositoryMock) = makeSUT()
         let expectedError = APIErrorStub.genericError
         await repositoryMock.setCreateToken(result: .failure(expectedError))
         let paymentToken = PKPaymentToken()
@@ -63,15 +60,15 @@ final class ApplePayUseCaseTests: XCTestCase {
             XCTFail("Expected createToken to throw an error, but it did not.")
         } catch {
             XCTAssertEqual(error as NSError, expectedError)
-
+            
             let callCount = await repositoryMock.createTokenCallCount
             XCTAssertEqual(callCount, 1)
         }
     }
 }
 
-// MARK: - Mock
 
+// MARK: - Mock
 private actor ApplePayRepositoryMock: ApplePayRepositoryProtocol {
     private(set) var createTokenCallCount = 0
     private var createTokenResult: Result<MPApplePayToken, Error>!
@@ -80,15 +77,15 @@ private actor ApplePayRepositoryMock: ApplePayRepositoryProtocol {
         self.createTokenResult = result
     }
 
-    func createToken(payment _: PKPaymentToken, status _: String?, device _: Data) async throws -> MPApplePayToken {
-        self.createTokenCallCount += 1
-        switch self.createTokenResult {
-        case let .success(token):
+    func createToken(payment: PKPaymentToken, status: String?, device: Data) async throws -> MPApplePayToken {
+        createTokenCallCount += 1
+        switch createTokenResult {
+        case .success(let token):
             return token
-        case let .failure(error):
+        case .failure(let error):
             throw error
         case .none:
             fatalError("Result not set")
         }
     }
-}
+} 

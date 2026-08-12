@@ -19,9 +19,9 @@ struct CheckoutPlaygroundView: View {
     @State private var preparedCheckout: PreparedCheckout?
     @State private var sheetCheckout: PreparedCheckout?
     @State private var showExclusions = false
-    @State private var resultItem: ResultItem?
+    @State private var alertItem: AlertItem?
 
-    struct ResultItem: Identifiable {
+    struct AlertItem: Identifiable {
         let id = UUID()
         let title: String
         let message: String
@@ -57,8 +57,8 @@ struct CheckoutPlaygroundView: View {
         .fullScreenCover(item: self.$preparedCheckout) { prepared in
             prepared.view
         }
-        .sheet(item: self.$resultItem) { item in
-            ResultSheet(item: item)
+        .alert(item: self.$alertItem) { item in
+            Alert(title: Text(item.title), message: Text(item.message))
         }
     }
 
@@ -81,14 +81,14 @@ struct CheckoutPlaygroundView: View {
             Button("Reinitialize SDK") {
                 let key = self.config.publicKey
                 guard key.hasPrefix("APP_USR-") || key.hasPrefix("TEST-") else {
-                    self.resultItem = ResultItem(
+                    self.alertItem = AlertItem(
                         title: "Invalid public key",
                         message: "Use the APP_USR-... or TEST-... format."
                     )
                     return
                 }
                 self.config.applySDKConfiguration()
-                self.resultItem = ResultItem(
+                self.alertItem = AlertItem(
                     title: "SDK updated",
                     message: "Public key and country applied."
                 )
@@ -120,6 +120,14 @@ struct CheckoutPlaygroundView: View {
 
     private var orderSection: some View {
         Section("Order") {
+            TextField("Amount (ex: 100.30)", text: self.$config.amountText)
+                .keyboardType(.decimalPad)
+                .accessibilityIdentifier("playground.amount")
+            TextField("Payer Email", text: self.$config.email)
+                .keyboardType(.emailAddress)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+                .accessibilityIdentifier("playground.email")
             TextField("Order ID", text: self.$config.orderId)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
@@ -228,6 +236,8 @@ struct CheckoutPlaygroundView: View {
             return AnyView(self.config.makeCardSaveCheckout().show(onResult: self.handleSaveResult))
         case .cardTransaction:
             return AnyView(self.config.makeCardTransactionCheckout().show(onResult: self.handleTransactionResult))
+        case .payment:
+            return AnyView(self.config.makePaymentCheckout().show(onResult: self.handlePaymentResult))
         }
     }
 
@@ -244,6 +254,11 @@ struct CheckoutPlaygroundView: View {
                 checkout: self.config.makeCardTransactionCheckout(),
                 onResult: self.handleTransactionResult
             ))
+        case .payment:
+            return AnyView(CheckoutPushRepresentable(
+                checkout: self.config.makePaymentCheckout(),
+                onResult: self.handlePaymentResult
+            ))
         }
     }
 
@@ -254,6 +269,8 @@ struct CheckoutPlaygroundView: View {
             self.config.makeCardSaveCheckout().present(from: topVC, onResult: self.handleSaveResult)
         case .cardTransaction:
             self.config.makeCardTransactionCheckout().present(from: topVC, onResult: self.handleTransactionResult)
+        case .payment:
+            self.config.makePaymentCheckout().present(from: topVC, onResult: self.handlePaymentResult)
         }
     }
 
@@ -277,16 +294,15 @@ struct CheckoutPlaygroundView: View {
             guard self.preparedCheckout == nil, self.sheetCheckout == nil else { return }
             switch result {
             case let .success(paymentData):
-                self.resultItem = ResultItem(
+                self.alertItem = AlertItem(
                     title: "Success",
                     message: "Method: \(paymentData.paymentMethodId)\nToken: \(paymentData.token)"
                 )
             case let .error(error):
-                print("Error: \(error)")
-                self.resultItem = ResultItem(title: "Error", message: error.localizedDescription)
+                self.alertItem = AlertItem(title: "Error", message: error.localizedDescription)
             case let .userCancelled(context):
                 print("Contexto: ", context)
-                self.resultItem = ResultItem(title: "Cancelled", message: "User has cancelled.")
+                self.alertItem = AlertItem(title: "Cancelled", message: "User has cancelled.")
             }
         }
     }
@@ -299,16 +315,15 @@ struct CheckoutPlaygroundView: View {
             guard self.preparedCheckout == nil, self.sheetCheckout == nil else { return }
             switch result {
             case let .success(paymentData):
-                self.resultItem = ResultItem(
+                self.alertItem = AlertItem(
                     title: "Success",
                     message: "Method: \(paymentData.paymentMethodId)\nInstallments: \(paymentData.installment ?? 1)"
                 )
             case let .error(error):
-                print("Error: \(error)")
-                self.resultItem = ResultItem(title: "Error", message: error.localizedDescription)
+                self.alertItem = AlertItem(title: "Error", message: error.localizedDescription)
             case let .userCancelled(context):
                 print("Contexto: ", context)
-                self.resultItem = ResultItem(title: "Cancelled", message: "User has cancelled.")
+                self.alertItem = AlertItem(title: "Cancelled", message: "User has cancelled.")
             }
         }
     }
@@ -321,44 +336,15 @@ struct CheckoutPlaygroundView: View {
             guard self.preparedCheckout == nil, self.sheetCheckout == nil else { return }
             switch result {
             case let .success(paymentData):
-                self.resultItem = ResultItem(
+                self.alertItem = AlertItem(
                     title: "Success",
                     message: "Order: \(paymentData.orderId)\n Status: \(paymentData.orderStatus)"
                 )
             case let .error(error):
-                print("Error: \(error)")
-                self.resultItem = ResultItem(title: "Error", message: error.localizedDescription)
+                self.alertItem = AlertItem(title: "Error", message: error.localizedDescription)
             case let .userCancelled(context):
                 print("Contexto: ", context)
-                self.resultItem = ResultItem(title: "Cancelled", message: "User has cancelled.")
-            }
-        }
-    }
-}
-
-// MARK: - Result sheet
-
-@available(iOS 14.0, *)
-private struct ResultSheet: View {
-    let item: CheckoutPlaygroundView.ResultItem
-    @Environment(\.presentationMode) private var presentationMode
-
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 16) {
-                Text(self.item.message)
-                    .multilineTextAlignment(.center)
-                    .padding()
-                Spacer()
-            }
-            .navigationTitle(self.item.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("OK") {
-                        self.presentationMode.wrappedValue.dismiss()
-                    }
-                }
+                self.alertItem = AlertItem(title: "Cancelled", message: "User has cancelled.")
             }
         }
     }

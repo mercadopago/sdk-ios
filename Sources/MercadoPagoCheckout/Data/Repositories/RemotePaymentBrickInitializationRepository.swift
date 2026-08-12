@@ -1,5 +1,5 @@
 //
-//  RemotePaymentBrickRepository.swift
+//  RemotePaymentBrickInitializationRepository.swift
 //  MercadoPagoSDK
 //
 //  Created by SDK on 22/06/26.
@@ -9,7 +9,7 @@ import CoreMethods
 import Foundation
 import MPCore
 
-struct RemotePaymentBrickRepository: PaymentBrickRepository {
+struct RemotePaymentBrickInitializationRepository: PaymentBrickInitializationRepository {
     private let networkService: NetworkServiceProtocol
 
     init(networkService: NetworkServiceProtocol = NetworkService()) {
@@ -18,12 +18,16 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
 
     func fetchInitialization(
         orderId: String,
-        clientToken: String
+        totalAmount: Decimal,
+        customerId: String?,
+        cardIds: [String]
     ) async throws -> PaymentInitializationOutput {
         let response: PaymentBrickInitializationResponse = try await networkService.request(
             PaymentBrickInitializationEndpoint(
                 orderId: orderId,
-                clientToken: clientToken
+                totalAmount: totalAmount,
+                customerId: customerId,
+                cardIds: cardIds
             )
         )
         return self.map(response)
@@ -42,24 +46,9 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
         return PaymentInitializationOutput(
             headerTitle: response.headerTitle,
             sections: sections,
-            footer: .init(totalLabel: response.footer.totalLabel, totalAmount: response.footer.totalAmount)
-        )
-    }
-
-    private func mapSecurityCodeScreen(
-        _ cardData: PaymentBrickInitializationResponse.CardData
-    ) -> SecurityCodeScreenOutput? {
-        guard let screen = cardData.securityCode.screen else { return nil }
-        return SecurityCodeScreenOutput(
-            length: cardData.securityCode.length,
-            headerTitle: screen.headerTitle,
-            field: SecurityCodeScreenOutput.Field(
-                label: screen.field.label,
-                placeholder: screen.field.placeholder,
-                helper: screen.field.helper,
-                error: screen.field.error
-            ),
-            buttonLabel: screen.continueButtonLabel
+            // footer.totalAmount is intentionally omitted — the displayed amount is
+            // sourced client-side from the Order via MPAmountData(from: order.amount).
+            footer: .init(totalLabel: response.footer.totalLabel)
         )
     }
 
@@ -76,15 +65,7 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
             title: method.title,
             description: method.subtitle,
             icon: .remote(URL(string: method.iconUrl)),
-            route: method.type,
-            cardData: method.cardData.map { data in
-                .init(
-                    paymentMethodId: data.paymentMethodId,
-                    paymentTypeId: data.paymentTypeId,
-                    issuerId: data.issuerId,
-                    securityCodeScreen: self.mapSecurityCodeScreen(data)
-                )
-            }
+            route: method.type
         )
     }
 }

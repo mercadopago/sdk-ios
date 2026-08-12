@@ -13,7 +13,7 @@ struct ApplePayRequestBody {
     let transactionIdentifier: String
     let device: Data
 
-    /// Nested payment method
+    /// Nested payment method 
     struct PaymentMethod: Codable {
         let type: String
         let paymentData: String
@@ -31,6 +31,7 @@ struct ApplePayRequestBody {
     }
 }
 
+
 extension ApplePayRequestBody {
     /// Converts the `ApplePayRequestBody` data to JSON format for use in a request body.
     ///
@@ -38,14 +39,14 @@ extension ApplePayRequestBody {
     func toJSONData() -> Data? {
         let payment: [String: String] = [
             "type": paymentMethod.type,
-            "payment_data": self.paymentMethod.paymentData
+            "payment_data": paymentMethod.paymentData
         ]
-
+        
         var jsonObject: [String: Any] = [
             "payment_method": payment as Any,
-            "transaction_identifier": transactionIdentifier as Any
+            "transaction_identifier": transactionIdentifier as Any,
         ]
-
+        
         if let deviceObject = try? JSONSerialization.jsonObject(with: device, options: []) as? [String: Any] {
             jsonObject["device"] = deviceObject
         }

@@ -18,11 +18,6 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     }
 
     @Published private(set) var screenState: ScreenState = .loading
-    @Published private(set) var paymentData: MPPaymentData.Payment?
-
-    private var presentedScreens: [MPScreen] = []
-
-    var screensVisited: [MPScreen] { self.presentedScreens }
 
     // MARK: - Dependencies
 
@@ -32,9 +27,24 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     private let fetchInitializationUseCase: FetchPaymentBrickInitializationUseCase
     private let orderTransactionUseCase: OrderTransactionUseCase
 
-    var transactionAmount: Decimal { .zero }
+    @Published private(set) var paymentData: MPPaymentData.Payment?
 
-    var payerEmail: String { "" }
+    var transactionAmount: Decimal {
+        switch self.configuration.type.kind {
+        case let .payment(order, _, _):
+            return order.amount
+        default: return .zero
+        }
+    }
+
+    var payerEmail: String {
+        switch self.configuration.type.kind {
+        case let .payment(order, _, _), let .cardTransaction(order):
+            return order.payer.email
+        case .saveCard:
+            return ""
+        }
+    }
 
     init(
         configuration: MPCheckoutConfiguration<T>,
@@ -49,29 +59,23 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.fetchInitializationUseCase = fetchInitializationUseCase
         self.orderTransactionUseCase = orderTransactionUseCase
 
-        if case let .payment(order) = configuration.type.kind {
-            self.paymentData = .init(orderId: order.orderId, transactionAmount: .zero)
-        }
-    }
-
-    // MARK: - Screen tracking
-
-    func markScreenPresented(_ screen: MPScreen) {
-        if !self.presentedScreens.contains(screen) {
-            self.presentedScreens.append(screen)
+        if case let .payment(order, _, _) = configuration.type.kind {
+            self.paymentData = .init(orderId: order.orderId, transactionAmount: order.amount)
         }
     }
 
     // MARK: - Load
 
     func load() async throws(MercadoPagoCheckoutError) {
-        guard case let .payment(order) = configuration.type.kind else {
+        guard case let .payment(order, cardIds: cardIds, customerId: customerId) = configuration.type.kind else {
             return
         }
         self.screenState = .loading
         let output = try await fetchInitializationUseCase.execute(
             orderId: order.orderId,
-            clientToken: order.clientToken
+            totalAmount: order.amount,
+            customerId: customerId,
+            cardIds: cardIds
         )
         self.screenState = .ready(output)
     }
@@ -79,7 +83,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Process Order
 
     func processOrder(params: OrderTransactionParams) async throws(MercadoPagoCheckoutError) -> T {
-        guard case let .payment(order) = configuration.type.kind else {
+        guard case let .payment(order, _, _) = configuration.type.kind else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
                 localizedDescription: "ORDER_PROCESS",
@@ -104,7 +108,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         let data = MPPaymentData.Payment(
             orderId: order.orderId,
             orderStatus: result.status,
-            transactionAmount: Decimal(string: result.totalAmount) ?? .zero,
+            transactionAmount: order.amount,
             paymentMethodId: payment.paymentMethodId,
             paymentTypeId: payment.paymentTypeId
         )

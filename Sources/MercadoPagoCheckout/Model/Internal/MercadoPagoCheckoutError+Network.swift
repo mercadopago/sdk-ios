@@ -6,55 +6,6 @@ import Foundation
 import MPCore
 
 extension MercadoPagoCheckoutError {
-    private static func decodingErrorDescription(from error: Error) -> String {
-        guard let decodingError = error as? DecodingError else {
-            return error.localizedDescription
-        }
-        switch decodingError {
-        case let .keyNotFound(key, context):
-            let path = (context.codingPath + [key]).map(\.stringValue).joined(separator: ".")
-            return "Decoding failed: missing key '\(path)'."
-        case let .typeMismatch(type, context):
-            let path = context.codingPath.map(\.stringValue).joined(separator: ".")
-            return "Decoding failed: type mismatch at '\(path)' — expected \(type)."
-        case let .valueNotFound(type, context):
-            let path = context.codingPath.map(\.stringValue).joined(separator: ".")
-            return "Decoding failed: null value at '\(path)' — expected \(type)."
-        case let .dataCorrupted(context):
-            let path = context.codingPath.map(\.stringValue).joined(separator: ".")
-            return "Decoding failed: corrupted data at '\(path)' — \(context.debugDescription)."
-        @unknown default:
-            return error.localizedDescription
-        }
-    }
-
-    private static func decodingUserInfo(from error: Error) -> [String: Any] {
-        guard let decodingError = error as? DecodingError else { return [:] }
-        let context: DecodingError.Context?
-        var failedKey: String?
-        switch decodingError {
-        case let .keyNotFound(key, ctx):
-            context = ctx
-            failedKey = key.stringValue
-        case let .typeMismatch(_, ctx):
-            context = ctx
-        case let .valueNotFound(_, ctx):
-            context = ctx
-        case let .dataCorrupted(ctx):
-            context = ctx
-        @unknown default:
-            context = nil
-        }
-        guard let context else { return [:] }
-        var path = context.codingPath.map(\.stringValue).joined(separator: ".")
-        if let key = failedKey {
-            path = path.isEmpty ? key : "\(path).\(key)"
-        }
-        var info: [String: Any] = ["decoding_path": path]
-        if let key = failedKey { info["decoding_failed_key"] = key }
-        return info
-    }
-
     init(from error: APIClientError, location: LocationDescription) {
         switch error {
         case let .networkError(underlying):
@@ -117,8 +68,7 @@ extension MercadoPagoCheckoutError {
         case let .decodingFailed(error):
             self.init(
                 code: .unknown,
-                localizedDescription: Self.decodingErrorDescription(from: error),
-                userInfo: Self.decodingUserInfo(from: error),
+                localizedDescription: error.localizedDescription,
                 location: location
             )
         case let .requestFailed(error):

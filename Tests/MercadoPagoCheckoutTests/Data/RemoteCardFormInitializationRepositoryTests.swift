@@ -30,7 +30,6 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
     private func makeValidResponseData() -> Data {
         let json = """
         {
-            "amount": 250.50,
             "identification_types": [
                 {
                     "id": "CPF",
@@ -139,31 +138,10 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: nil,
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.title, "Preencha os dados do cartão")
-    }
-
-    func testFetch_whenSuccess_mapsAmountFromBFF() async throws {
-        // Arrange
-        let sut = self.makeSUT()
-        await sut.session.mock.setData(self.makeValidResponseData())
-        await sut.session.mock.setResponse(self.makeHTTPResponse())
-
-        // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: "order-1",
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
-
-        // Assert
-        XCTAssertEqual(result.amount, 250.50)
     }
 
     func testFetch_whenSuccess_mapsTranslationsToButton() async throws {
@@ -173,11 +151,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: nil,
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.buttonLabel, "Salvar cartão")
@@ -190,11 +164,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: nil,
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.cardNumber.label, "Número do cartão")
@@ -208,11 +178,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: nil,
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.cardHolder.label, "Nome do titular")
@@ -227,11 +193,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: nil,
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.expiration.label, "Vencimento")
@@ -245,11 +207,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: nil,
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.cvv.label, "Código de segurança")
@@ -263,11 +221,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: nil,
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.fields.document.label, "Documento do titular")
@@ -280,11 +234,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
         await sut.session.mock.setResponse(self.makeHTTPResponse())
 
         // Act
-        let result = try await sut.repository.fetchInitialization(
-            orderId: nil,
-            clientToken: nil,
-            checkoutType: "card_form"
-        )
+        let result = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
 
         // Assert
         XCTAssertEqual(result.identificationTypes.count, 1)
@@ -302,11 +252,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.fetchInitialization(
-                orderId: nil,
-                clientToken: nil,
-                checkoutType: "card_form"
-            )
+            _ = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
             XCTFail("Expected error to be thrown")
         } catch {
             XCTAssertNotNil(error)
@@ -321,11 +267,7 @@ final class RemoteCardFormInitializationRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.fetchInitialization(
-                orderId: nil,
-                clientToken: nil,
-                checkoutType: "card_form"
-            )
+            _ = try await sut.repository.fetchInitialization(amount: nil, checkoutType: "card_form")
             XCTFail("Expected decoding error")
         } catch {
             XCTAssertNotNil(error)

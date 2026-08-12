@@ -23,10 +23,6 @@ let package = Package(
         .library(
             name: "MPExtended",
             targets: ["MPExtended"]
-        ),
-        .library(
-            name: "MercadoPagoCheckout",
-            targets: ["MercadoPagoCheckout"]
         )
     ],
     dependencies: [

@@ -7,7 +7,6 @@
 
 import CoreMethods
 import Foundation
-import MPComponents
 import MPCore
 import MPFoundation
 
@@ -18,9 +17,9 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
         self.networkService = networkService
     }
 
-    func fetchInitialization(orderId: String?, clientToken: String?, checkoutType: String) async throws -> CardFormInitializationInput {
+    func fetchInitialization(amount: Decimal?, checkoutType: String) async throws -> CardFormInitializationInput {
         let response: CardFormInitializationResponse = try await networkService.request(
-            CardFormInitializationEndpoint(checkoutType: checkoutType, orderId: orderId, clientToken: clientToken)
+            CardFormInitializationEndpoint(amount: amount, checkoutType: checkoutType)
         )
         return self.map(response)
     }
@@ -33,7 +32,6 @@ struct RemoteCardFormInitializationRepository: CardFormInitializationRepository 
             title: translations.cardFormTitle,
             buttonLabel: translations.cardFormFooterButtonLabel,
             currencySymbol: translations.currencySymbol,
-            amount: response.amount,
             fields: .init(
                 cardNumber: .init(
                     label: translations.cardNumber.label,

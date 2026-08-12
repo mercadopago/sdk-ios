@@ -1,5 +1,5 @@
 //
-//  MPScreen.swift
+//  Screen.swift
 //  MercadoPagoSDK
 //
 
@@ -13,11 +13,7 @@
 ///
 /// - Important: New cases may be added in future SDK versions. Include a `default` branch when you
 ///   switch over a ``Screen`` value.
-public enum MPScreen: Sendable, Equatable {
-    /// The payment method selector screen (first screen of the PaymentBrick flow).
-    case paymentMethodSelector
+public enum Screen: Sendable, Equatable {
     /// The installments selection screen.
     case installments
-    /// The security code (CVV) entry screen shown when paying with a saved card.
-    case securityCode
 }

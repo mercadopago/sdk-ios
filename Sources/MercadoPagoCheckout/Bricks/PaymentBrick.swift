@@ -58,7 +58,6 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                         }
                     case let .ready(output):
                         self.paymentsScreen(output: output)
-                            .onAppear { self.viewModel.markScreenPresented(.paymentMethodSelector) }
                     }
                     self.navigationLinks()
                 }
@@ -72,9 +71,12 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
 
     private func paymentsScreen(output: PaymentInitializationOutput) -> some View {
         PaymentsScreen(
-            viewModel: PaymentsViewModel(initialization: output),
+            viewModel: PaymentsViewModel(
+                amount: self.viewModel.transactionAmount,
+                initialization: output
+            ),
             onBack: {
-                self.cancel(screens: self.viewModel.screensVisited)
+                self.presentationMode.wrappedValue.dismiss()
             },
             onSelect: { item in
                 self.handleSelection(of: item)
@@ -119,7 +121,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         }
     }
 
-    // MARK: - States
+    // MARK: States
 
     private func load() async {
         do {
@@ -127,41 +129,6 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         } catch {
             self.fail(error)
         }
-    }
-
-    private func process(params: OrderTransactionParams) async {
-        do {
-            let payment = try await self.viewModel.processOrder(params: params)
-            self.complete(with: payment)
-        } catch {
-            self.fail(error)
-        }
-    }
-
-    private func complete(with payment: T) {
-        self.route = nil
-        self.onResult(.success(payment))
-        self.presentationMode.wrappedValue.dismiss()
-    }
-
-    private func cancel(screens: [MPScreen] = []) {
-        self.route = nil
-        let context = MPUserCancelledContext.Payment(screens: screens)
-        guard let typed = context as? T.Cancellation else {
-            self.fail(
-                MercadoPagoCheckoutError(
-                    code: .integrationError,
-                    localizedDescription: "Type mismatch: \(context)",
-                    location: .initialization
-                )
-            )
-            self.presentationMode.wrappedValue.dismiss()
-
-            return
-        }
-
-        self.onResult(.userCancelled(typed))
-        self.presentationMode.wrappedValue.dismiss()
     }
 
     private func fail(_ error: MercadoPagoCheckoutError) {

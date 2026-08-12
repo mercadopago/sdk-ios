@@ -4,7 +4,6 @@
 //
 //  Created by Guilherme Prata Costa on 18/03/26.
 //
-import Foundation
 
 struct CardFormInitializationResponse: Codable {
     let identificationTypes: [IdentificationTypeDTO]
@@ -13,7 +12,6 @@ struct CardFormInitializationResponse: Codable {
     let holderName: HolderNameConfig
     let expirationDate: ExpirationDateConfig
     let translations: Translations
-    let amount: Decimal?
 
     enum CodingKeys: String, CodingKey {
         case identificationTypes = "identification_types"
@@ -22,7 +20,6 @@ struct CardFormInitializationResponse: Codable {
         case holderName = "holder_name"
         case expirationDate = "expiration_date"
         case translations
-        case amount
     }
 
     // MARK: - Identification Type DTO

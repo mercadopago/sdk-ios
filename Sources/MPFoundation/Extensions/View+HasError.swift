@@ -8,7 +8,7 @@ import SwiftUI
 
 /// Environment key for error state
 private struct ErrorStateKey: EnvironmentKey {
-    static let defaultValue = false
+    static let defaultValue: Bool = false
 }
 
 /// Extension to add error state to environment

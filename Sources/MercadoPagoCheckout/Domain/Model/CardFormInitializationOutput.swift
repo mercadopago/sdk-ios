@@ -6,13 +6,11 @@
 //
 
 import CoreMethods
-import Foundation
 
 struct CardFormInitializationOutput {
     let title: String
     let button: String
     let currencySymbol: String
-    let amount: Decimal
     let fields: CardFormFields.Fields
     let identificationTypes: [IdentificationType]
 }

@@ -6,13 +6,16 @@
 //
 import Foundation
 
-protocol CheckoutTypeConfiguration: Sendable {}
+protocol CheckoutTypeConfiguration: Sendable {
+    /// The transaction amount to be charged.
+    var amount: Decimal { get }
+}
 
 /// Represents an order created through the MercadoPago Orders API.
 ///
 /// Both ``orderId`` and ``clientToken`` are returned by the Orders API when the order
 /// is created. Pass an `MPOrder` to
-/// ``MercadoPagoCheckout/CheckoutType/payment(order:)`` or
+/// ``MercadoPagoCheckout/CheckoutType/payment(order:cardIds:)`` or
 /// ``MercadoPagoCheckout/CheckoutType/cardTransaction(order:)`` to start the checkout.
 ///
 /// ## Initializing from an order creation response
@@ -76,6 +79,14 @@ public struct MPOrder: CheckoutTypeConfiguration {
     /// Used by the SDK to authorize the payment request
     public let clientToken: String
 
+    /// The total amount to charge, in the account's default currency.
+    public var amount: Decimal
+
+    /// Payer information used to pre-fill the checkout form.
+    ///
+    /// Providing at least ``MPPayer/email`` reduces friction during checkout.
+    public var payer: MPPayer
+
     /// Creates an order configuration to pass to the MercadoPago checkout.
     ///
     /// - Parameters:
@@ -83,12 +94,16 @@ public struct MPOrder: CheckoutTypeConfiguration {
     ///   - clientToken: The token returned by the Orders API when the order was created.
     ///   - amount: The total amount to charge.
     ///   - payer: Payer information used to pre-fill the checkout form.
-    public init(orderId: String, clientToken: String) {
+    public init(orderId: String, clientToken: String, amount: Decimal, payer: MPPayer) {
         self.orderId = orderId
         self.clientToken = clientToken
+        self.amount = amount
+        self.payer = payer
     }
 }
 
 struct SavedCardConfiguration: CheckoutTypeConfiguration {
+    var amount: Decimal = .zero
+
     init() {}
 }

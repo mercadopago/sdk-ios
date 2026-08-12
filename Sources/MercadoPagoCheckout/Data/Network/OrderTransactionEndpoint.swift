@@ -38,7 +38,7 @@ extension OrderTransactionEndpoint: RequestEndpoint {
             return [
                 "Content-Type": "application/json",
                 "X-Public-Key": MercadoPagoSDK.shared.getPublicKey(),
-                "Authorization": "Bearer \(clientToken)"
+                "Authorization": clientToken
             ]
         }
     }

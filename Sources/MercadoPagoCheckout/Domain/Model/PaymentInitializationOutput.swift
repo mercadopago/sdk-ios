@@ -15,7 +15,6 @@ struct PaymentInitializationOutput: Equatable {
 
     struct Footer: Equatable {
         let totalLabel: String
-        let totalAmount: String
     }
 
     /// A titled group of payment options (e.g. "Mercado Pago", "Outros meios de pagamento").
@@ -32,35 +31,11 @@ struct PaymentInitializationOutput: Equatable {
         let description: String?
         let icon: Icon
         let route: String
-        let cardData: CardData?
-
-        init(
-            id: String,
-            title: String,
-            description: String?,
-            icon: Icon,
-            route: String,
-            cardData: CardData? = nil
-        ) {
-            self.id = id
-            self.title = title
-            self.description = description
-            self.icon = icon
-            self.route = route
-            self.cardData = cardData
-        }
 
         /// Source of the leading thumbnail icon.
         enum Icon: Equatable {
             case remote(URL?)
             case system(String)
-        }
-
-        struct CardData: Equatable {
-            let paymentMethodId: String
-            let paymentTypeId: String
-            let issuerId: Int
-            let securityCodeScreen: SecurityCodeScreenOutput?
         }
     }
 }
@@ -130,7 +105,7 @@ extension PaymentInitializationOutput {
                     ]
                 )
             ],
-            footer: .init(totalLabel: "Total", totalAmount: "$ 15")
+            footer: .init(totalLabel: "Total")
         )
     }
 }

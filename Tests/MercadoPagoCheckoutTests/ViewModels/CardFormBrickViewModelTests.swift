@@ -104,7 +104,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
 
     func test_buildPaymentData_cardTransaction_shouldPropagateOrderId() {
         // Arrange
-        let order = MPOrder(orderId: "order-42", clientToken: "seller_client_token")
+        let order = MPOrder(orderId: "order-42", clientToken: "seller_client_token", amount: 100.0, payer: .init(email: "test@mp.com"))
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
             type: .cardTransaction(order: order),
             paymentMethod: [.card()]

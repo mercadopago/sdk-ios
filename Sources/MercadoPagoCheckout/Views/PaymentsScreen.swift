@@ -66,7 +66,6 @@ struct PaymentsScreen: View {
                         Image(systemName: Logos.chevronRight)
                     )
                 )
-                .listItemStyle(.payment)
             }
             .padding(.horizontal, self.theme.spacings.xnano)
         }
@@ -94,7 +93,7 @@ struct PaymentsScreen: View {
 #if DEBUG
     #Preview {
         PaymentsScreen(
-            viewModel: PaymentsViewModel(),
+            viewModel: PaymentsViewModel(amount: 500),
             onBack: {},
             onSelect: { item in print("selected route:", item.route) }
         )

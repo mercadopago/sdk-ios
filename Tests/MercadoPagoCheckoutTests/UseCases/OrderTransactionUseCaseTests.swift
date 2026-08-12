@@ -26,7 +26,7 @@ final class OrderTransactionUseCaseTests: XCTestCase {
     private func makeParams() -> OrderTransactionParams {
         OrderTransactionParams(
             amount: 100.0,
-            paymentMethodType: .card(paymentMethodId: "master", paymentTypeId: "credit_card", token: "abc123", installments: 1)
+            paymentMethodType: .card(paymentMethodId: "master", token: "abc123", installments: 1)
         )
     }
 
