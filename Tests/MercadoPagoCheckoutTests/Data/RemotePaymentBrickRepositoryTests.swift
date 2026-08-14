@@ -270,6 +270,8 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         XCTAssertEqual(cardData.paymentMethodId, "visa")
         XCTAssertEqual(cardData.paymentTypeId, "credit_card")
         XCTAssertEqual(cardData.issuerId, 25)
+        XCTAssertEqual(cardData.bin, "411111")
+        XCTAssertEqual(cardData.lastFourDigits, "1234")
     }
 
     func testFetch_whenSavedCardWithoutScreen_leavesSecurityCodeScreenNil() async throws {

@@ -18,6 +18,7 @@ package protocol MPListItemTrailingStyle: StyleProtocol, Identifiable
 package struct MPListItemTrailingStyleConfiguration {
     package let text: String?
     package let textColor: TextStyleColorType?
+    package let action: (() -> Void)?
 }
 
 // MARK: - Text-only style (default)
@@ -62,6 +63,28 @@ package struct MPTrailingTextIconStyle: MPListItemTrailingStyle {
     }
 }
 
+// MARK: - Action button style
+
+package struct MPTrailingActionButtonStyle: MPListItemTrailingStyle {
+    package var id: UUID = .init()
+
+    package init() {}
+
+    @MainActor
+    package func makeBody(configuration: MPListItemTrailingStyleConfiguration) -> some View {
+        if let text = configuration.text {
+            if let action = configuration.action {
+                Button(text, action: action)
+                    .mpButtonStyle(variant: .quiet, size: .small)
+                    .fixedSize()
+            } else {
+                Text(text)
+                    .textStyle(.large(colorType: configuration.textColor ?? .primary))
+            }
+        }
+    }
+}
+
 // MARK: - Convenience extensions
 
 extension MPListItemTrailingStyle where Self == MPTrailingTextStyle {
@@ -75,6 +98,13 @@ extension MPListItemTrailingStyle where Self == MPTrailingTextIconStyle {
     /// Text + icon trailing: `.listItemTrailingStyle(.textIcon(Image(...)))`
     package static func textIcon(_ icon: Image) -> MPTrailingTextIconStyle {
         MPTrailingTextIconStyle(icon: icon)
+    }
+}
+
+extension MPListItemTrailingStyle where Self == MPTrailingActionButtonStyle {
+    /// Action button trailing: `.listItemTrailingStyle(.actionButton)`
+    package static var actionButton: MPTrailingActionButtonStyle {
+        MPTrailingActionButtonStyle()
     }
 }
 

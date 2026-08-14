@@ -65,6 +65,25 @@ struct PaymentInitializationOutput: Equatable {
             let paymentTypeId: String
             let issuerId: Int
             let securityCodeScreen: SecurityCodeScreenOutput?
+            let bin: String?
+            /// Last 4 digits of the card, used by the review and confirm screen's request.
+            let lastFourDigits: String?
+
+            init(
+                paymentMethodId: String,
+                paymentTypeId: String,
+                issuerId: Int,
+                securityCodeScreen: SecurityCodeScreenOutput? = nil,
+                bin: String? = nil,
+                lastFourDigits: String? = nil
+            ) {
+                self.paymentMethodId = paymentMethodId
+                self.paymentTypeId = paymentTypeId
+                self.issuerId = issuerId
+                self.securityCodeScreen = securityCodeScreen
+                self.bin = bin
+                self.lastFourDigits = lastFourDigits
+            }
         }
     }
 }

@@ -68,7 +68,7 @@ package struct MPListItem: View {
     private var headerView: some View {
         if let header = contentInfo.header {
             Text(header)
-                .textStyle(.bodyMedium())
+                .textStyle(.bodyMedium(colorType: contentInfo.headerColorType))
         }
     }
 
@@ -114,7 +114,8 @@ package struct MPListItem: View {
         if let trailing {
             let config = MPListItemTrailingStyleConfiguration(
                 text: trailing.text,
-                textColor: trailing.color
+                textColor: trailing.color,
+                action: trailing.action
             )
             let resolved = self.trailingStyle ?? MPTrailingTextStyle()
             AnyView(resolved.resolve(configuration: config))

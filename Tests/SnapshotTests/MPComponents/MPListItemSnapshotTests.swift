@@ -126,6 +126,49 @@ final class MPListItemSnapshotTests: XCTestCase {
         )
     }
 
+    // MARK: - Compact Style
+
+    func test_compactStyle_allStatesComparison() {
+        FontName.registerCustomFonts()
+
+        let view = self.createTestView {
+            VStack(spacing: 12) {
+                self.listItem(
+                    title: "Efectivo en Rapipago",
+                    header: "Medio de pago",
+                    rightText: "Modificar",
+                    onAction: {}
+                )
+
+                self.listItem(
+                    title: "j*******@gmail.com",
+                    header: "E-mail",
+                    rightText: "Modificar",
+                    onAction: {}
+                )
+
+                self.listItem(
+                    title: "Santander Crédito •••• 1234",
+                    header: "Medio de pago"
+                )
+
+                self.listItem(
+                    title: "Title only"
+                )
+            }
+            .listItemStyle(MPListRowCompactStyle())
+            .listItemTrailingStyle(.actionButton)
+        }
+
+        let hostingController = UIHostingController(rootView: view)
+
+        assertSnapshot(
+            of: hostingController,
+            as: .image(precision: 0.95, size: CGSize(width: 360, height: 420)),
+            named: "compact_all_states_comparison"
+        )
+    }
+
     // MARK: - Helper Methods
 
     private func listItem(
@@ -136,14 +179,15 @@ final class MPListItemSnapshotTests: XCTestCase {
         rightTextColor: TextStyleColorType? = nil,
         isSelected: Binding<Bool>? = nil,
         leftImageSystemName: String? = nil,
-        leading: MPListItemLeading? = nil
+        leading: MPListItemLeading? = nil,
+        onAction: (() -> Void)? = nil
     ) -> some View {
         let resolvedLeading: MPListItemLeading? = leading ?? leftImageSystemName.map { .image(Image(systemName: $0)) }
         return MPListItem(
             isSelected: isSelected ?? .constant(false),
             leading: resolvedLeading,
             contentInfo: .init(title: title, header: header, description: description),
-            trailing: .init(text: rightText, color: rightTextColor)
+            trailing: .init(text: rightText, color: rightTextColor, action: onAction)
         )
     }
 
