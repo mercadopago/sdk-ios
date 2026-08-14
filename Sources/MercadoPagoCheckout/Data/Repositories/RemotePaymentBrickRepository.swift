@@ -100,7 +100,9 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
                     paymentMethodId: data.paymentMethodId,
                     paymentTypeId: data.paymentTypeId,
                     issuerId: data.issuerId,
-                    securityCodeScreen: self.mapSecurityCodeScreen(data)
+                    securityCodeScreen: self.mapSecurityCodeScreen(data),
+                    bin: data.bin,
+                    lastFourDigits: data.lastFourDigits
                 )
             },
             screen: self.mapMethodSelectionScreen(method.screen)

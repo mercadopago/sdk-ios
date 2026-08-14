@@ -95,6 +95,20 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             clientToken: order.clientToken,
             params: params
         )
+        return try self.makePaymentResult(from: result)
+    }
+
+    func makePaymentResult(
+        from result: OrderTransactionProcessData
+    ) throws(MercadoPagoCheckoutError) -> T {
+        guard case let .payment(order) = configuration.type.kind else {
+            throw MercadoPagoCheckoutError(
+                code: .unknown,
+                localizedDescription: "ORDER_PROCESS",
+                userInfo: ["checkouType": "payment"],
+                location: .orderProcess
+            )
+        }
         guard let payment = result.payments.first else {
             throw MercadoPagoCheckoutError(
                 code: .serviceError,
@@ -125,5 +139,24 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     func shouldSkipSecurityCode(from item: PaymentInitializationOutput.Item) -> Bool {
         return item.cardData?.securityCodeScreen == nil
+    }
+
+    // MARK: - Review & Confirm
+
+    /// Builds the data the review and confirm screen needs, or `nil` when the integrator did not
+    /// opt into it via `withReviewAndConfirm`.
+    func reviewConfirmInput(
+        for params: OrderTransactionParams,
+        cardDetails: ReviewConfirmCardDetails
+    ) -> PendingReviewConfirmInput? {
+        guard self.configuration.reviewAndConfirmConfig != nil,
+              case let .payment(order) = self.configuration.type.kind
+        else { return nil }
+
+        return PendingReviewConfirmInput(
+            order: order,
+            paymentParams: params,
+            cardDetails: cardDetails
+        )
     }
 }
