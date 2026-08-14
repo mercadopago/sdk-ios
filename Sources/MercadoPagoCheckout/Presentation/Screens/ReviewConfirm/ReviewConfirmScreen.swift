@@ -117,7 +117,6 @@ struct ReviewConfirmScreen: View {
             }
         }
         .listItemStyle(.compact)
-        .listItemTrailingStyle(.actionButton)
     }
 
     private func row(for item: ReviewConfirmItem) -> some View {
@@ -170,9 +169,11 @@ struct ReviewConfirmScreen: View {
     }
 
     private func summaryBreakdown(_ summary: ReviewConfirmFooterSummary?) -> some View {
-        VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {
-            ForEach((summary?.products ?? []).indices, id: \.self) { index in
-                let line = (summary?.products ?? [])[index]
+        let products = summary?.products ?? []
+
+        return VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {
+            ForEach(products.indices, id: \.self) { index in
+                let line = products[index]
                 self.summaryLine(label: line.label, amount: line.amount, amountColor: .secondary)
             }
             if let coupon = summary?.coupon {

@@ -157,7 +157,6 @@ final class MPListItemSnapshotTests: XCTestCase {
                 )
             }
             .listItemStyle(MPListRowCompactStyle())
-            .listItemTrailingStyle(.actionButton)
         }
 
         let hostingController = UIHostingController(rootView: view)

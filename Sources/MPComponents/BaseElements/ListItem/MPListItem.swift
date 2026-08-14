@@ -115,11 +115,16 @@ package struct MPListItem: View {
             let config = MPListItemTrailingStyleConfiguration(
                 text: trailing.text,
                 textColor: trailing.color,
-                action: trailing.action
+                button: self.button(for: trailing)
             )
             let resolved = self.trailingStyle ?? MPTrailingTextStyle()
             AnyView(resolved.resolve(configuration: config))
         }
+    }
+
+    private func button(for trailing: MPListItemTrailing) -> SwiftUI.Button<Text>? {
+        guard let action = trailing.action, let text = trailing.text else { return nil }
+        return Button(text, action: action)
     }
 }
 
