@@ -95,7 +95,7 @@ final class ReviewConfirmScreenSnapshotTests: XCTestCase {
           "type": "payment_method",
           "label": "Medio de pago",
           "value": "Santander Crédito •••• 1234",
-          "change_label": "Modificar"
+          "button": { "label": "Modificar" }
         }
       ],
       "footer_summary": {
@@ -106,7 +106,8 @@ final class ReviewConfirmScreenSnapshotTests: XCTestCase {
       },
       "footer": {
         "button": { "label": "Pagar" },
-        "total_amount": "$ 5.000",
+        "total_amount": 5000,
+        "currency_symbol": "$",
         "installments": {
           "label": "3x $ 1.666,66",
           "secondary_label": "sin interés",
@@ -128,18 +129,19 @@ final class ReviewConfirmScreenSnapshotTests: XCTestCase {
           "type": "payment_method",
           "label": "Medio de pago",
           "value": "Efectivo en Rapipago",
-          "change_label": "Modificar"
+          "button": { "label": "Modificar" }
         },
         {
           "type": "payer_email",
           "label": "E-mail",
           "value": "j*******@gmail.com",
-          "change_label": "Modificar"
+          "button": { "label": "Modificar" }
         }
       ],
       "footer": {
         "button": { "label": "Generar código de pago" },
-        "total_amount": "$ 188.000"
+        "total_amount": 188000,
+        "currency_symbol": "$"
       }
     }
     """

@@ -21,7 +21,7 @@ final class ReviewConfirmResponseTests: XCTestCase {
         XCTAssertEqual(response.items.count, 2)
         XCTAssertEqual(response.items[0].type, "payment_method")
         XCTAssertEqual(response.items[0].value, "Santander •••• 4567")
-        XCTAssertEqual(response.items[0].changeLabel, "Modificar")
+        XCTAssertEqual(response.items[0].button?.label, "Modificar")
         XCTAssertEqual(response.items[1].type, "payer_email")
     }
 
@@ -45,7 +45,7 @@ final class ReviewConfirmResponseTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(response.footer.button.label, "Pagar")
-        XCTAssertEqual(response.footer.totalAmount, "$ 110")
+        XCTAssertEqual(response.footer.totalAmount, Decimal(110))
         XCTAssertEqual(response.footer.installments?.label, "3x $105")
         XCTAssertEqual(response.footer.installments?.secondaryLabel, "Sin interés")
         XCTAssertEqual(response.footer.installments?.state, "success")
@@ -63,7 +63,7 @@ final class ReviewConfirmResponseTests: XCTestCase {
           ],
           "footer": {
             "button": { "label": "Pagar" },
-            "total_amount": "$ 110"
+            "total_amount": 110, "currency_symbol": "$"
           }
         }
         """
@@ -76,7 +76,7 @@ final class ReviewConfirmResponseTests: XCTestCase {
         XCTAssertNil(response.header.sellerName)
         XCTAssertNil(response.header.sellerIconUrl)
         XCTAssertNil(response.footerSummary)
-        XCTAssertNil(response.items[0].changeLabel)
+        XCTAssertNil(response.items[0].button?.label)
         XCTAssertNil(response.footer.installments)
     }
 
@@ -89,7 +89,7 @@ final class ReviewConfirmResponseTests: XCTestCase {
         let item = try JSONDecoder().decode(ReviewConfirmItem.self, from: data)
 
         // Assert
-        XCTAssertNil(item.changeLabel)
+        XCTAssertNil(item.button?.label)
     }
 
     // MARK: - Helpers
@@ -107,13 +107,13 @@ final class ReviewConfirmResponseTests: XCTestCase {
               "type": "payment_method",
               "label": "Medio de pago",
               "value": "Santander •••• 4567",
-              "change_label": "Modificar"
+              "button": { "label": "Modificar" }
             },
             {
               "type": "payer_email",
               "label": "E-mail",
               "value": "t****@g****.com",
-              "change_label": "Modificar"
+              "button": { "label": "Modificar" }
             }
           ],
           "footer_summary": {
@@ -129,7 +129,7 @@ final class ReviewConfirmResponseTests: XCTestCase {
           },
           "footer": {
             "button": { "label": "Pagar" },
-            "total_amount": "$ 110",
+            "total_amount": 110, "currency_symbol": "$",
             "installments": {
               "label": "3x $105",
               "secondary_label": "Sin interés",

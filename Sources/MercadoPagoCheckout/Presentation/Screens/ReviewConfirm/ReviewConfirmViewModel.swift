@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import MPComponents
 
 /// Drives the review and confirm screen: it holds the formatted `screenState` and performs the
 /// backend work, returning results to the screen. Following the other checkout screens
@@ -77,6 +78,27 @@ final class ReviewConfirmViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Installments
+    
+    func installmentsSubtitleData(
+        _ installments: ReviewConfirmFooter.Installments?
+    ) -> MPFooterSubtitleData? {
+        guard let installments else { return nil }
+
+        var segments = [
+            MPFooterSubtitleData.Segment(text: installments.label)
+        ]
+        if let secondaryLabel = installments.secondaryLabel, !secondaryLabel.isEmpty {
+            segments.append(
+                .init(
+                    text: secondaryLabel,
+                    color: installments.state == "success" ? .feedbackPositive : .secondary
+                )
+            )
+        }
+        return .init(segments: segments)
+    }
+    
     // MARK: - Actions
 
     /// Processes the order, returning the result to the screen. Throws on failure so the screen can

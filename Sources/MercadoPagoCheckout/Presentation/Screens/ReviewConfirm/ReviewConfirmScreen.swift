@@ -134,34 +134,39 @@ struct ReviewConfirmScreen: View {
     private func dataRow(_ item: ReviewConfirmItem, onModify: (() -> Void)?) -> some View {
         MPListItem(
             contentInfo: .init(title: item.value, header: item.label),
-            trailing: onModify.map { MPListItemTrailing(text: item.changeLabel, action: $0) }
+            trailing: onModify.map { MPListItemTrailing(text: item.button?.label, action: $0) }
         )
     }
 
     // MARK: - Footer (summary breakdown + total + confirm)
 
     private func footerBlock(summary: ReviewConfirmFooterSummary?, footer: ReviewConfirmFooter) -> some View {
-        VStack(alignment: .leading, spacing: self.theme.spacings.xtiny) {
+        VStack(alignment: .leading, spacing: 0) {
             if self.hasBreakdown(summary) {
                 self.summaryBreakdown(summary)
+                    .padding(.horizontal, self.theme.spacings.xtiny)
+                    .padding(.top, self.theme.spacings.xtiny)
                 Rectangle()
                     .fill(self.theme.colors.border.primary)
                     .frame(height: self.theme.borderWidth.small)
+                    .padding(.horizontal, self.theme.spacings.xtiny)
+                    .padding(.top, self.theme.spacings.xtiny)
             }
-            HStack {
-                Text(MPStrings.Common.total)
-                    .textStyle(.largeEmphasis())
-                Spacer()
-                Text(footer.totalAmount)
-                    .textStyle(.largeEmphasis())
-            }
-            if let installments = footer.installments {
-                self.installmentsLine(installments)
-            }
-            self.confirmButton(footer.button.label)
+            MPFooter(
+                title: MPStrings.Common.total,
+                amount: MPAmountData(
+                    from: footer.totalAmount,
+                    currencySymbol: footer.currencySymbol ?? MPStrings.Common.currency
+                ),
+                subtitleData: self.viewModel.installmentsSubtitleData(footer.installments),
+                buttonData: .init(
+                    text: footer.button.label,
+                    icon: .padlockClose,
+                    onClick: { await self.handleConfirm() }
+                )
+            )
+            .isLoading(self.isConfirming)
         }
-        .padding(.horizontal, self.theme.spacings.xtiny)
-        .padding(.vertical, self.theme.spacings.xtiny)
         .background(self.theme.colors.background.primary)
     }
 
@@ -192,35 +197,6 @@ struct ReviewConfirmScreen: View {
             Text(amount)
                 .textStyle(.smallMedium(colorType: amountColor))
         }
-    }
-
-    private func installmentsLine(_ installments: ReviewConfirmFooter.Installments) -> some View {
-        HStack(spacing: self.theme.spacings.xnano) {
-            Spacer()
-            Text(installments.label)
-                .textStyle(.bodyMedium(colorType: .secondary))
-            if let secondaryLabel = installments.secondaryLabel {
-                Text(secondaryLabel)
-                    .textStyle(.bodyMedium(colorType: self.installmentsHighlightColor(installments.state)))
-            }
-        }
-    }
-
-    private func installmentsHighlightColor(_ state: String?) -> TextStyleColorType {
-        state == "success" ? .feedbackPositive : .secondary
-    }
-
-    private func confirmButton(_ label: String) -> some View {
-        Button {
-            Task { await self.handleConfirm() }
-        } label: {
-            HStack(spacing: self.theme.spacings.xmicro) {
-                MPIcon(assetName: Logos.Icon.padlockClose.assetName, color: .inverse, isDecorative: true)
-                Text(label)
-            }
-        }
-        .mpButtonStyle(variant: .loud)
-        .isLoading(self.isConfirming)
     }
 
     private func handleConfirm() async {
@@ -288,7 +264,7 @@ struct ReviewConfirmScreen: View {
                   "type": "payment_method",
                   "label": "Medio de pago",
                   "value": "Santander Crédito •••• 1234",
-                  "change_label": "Modificar"
+                  "button": { "label": "Modificar" }
                 }
               ],
               "footer_summary": {
@@ -299,7 +275,8 @@ struct ReviewConfirmScreen: View {
               },
               "footer": {
                 "button": { "label": "Pagar" },
-                "total_amount": "$ 5.000",
+                "total_amount": 5000,
+                "currency_symbol": "$",
                 "installments": {
                   "label": "3x $ 1.666,66",
                   "secondary_label": "sin interés",

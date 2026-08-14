@@ -13,7 +13,7 @@ final class EmailFieldStateTests: XCTestCase {
             type: "payment_method",
             label: "Medio de pago",
             value: "Visa •••• 4567",
-            changeLabel: nil
+            button: nil
         )
 
         // Act / Assert
@@ -22,7 +22,7 @@ final class EmailFieldStateTests: XCTestCase {
 
     func test_init_withPayerEmailWithoutValue_shouldReturnNil() {
         // Arrange
-        let item = ReviewConfirmItem(type: "payer_email", label: "E-mail", value: nil, changeLabel: nil)
+        let item = ReviewConfirmItem(type: "payer_email", label: "E-mail", value: nil, button: nil)
 
         // Act / Assert
         XCTAssertNil(EmailFieldState(item: item))
@@ -30,7 +30,7 @@ final class EmailFieldStateTests: XCTestCase {
 
     func test_init_withPayerEmailWithoutChangeLabel_shouldHaveNilChangeLabel() throws {
         // Arrange
-        let item = ReviewConfirmItem(type: "payer_email", label: "E-mail", value: "t****@g****.com", changeLabel: nil)
+        let item = ReviewConfirmItem(type: "payer_email", label: "E-mail", value: "t****@g****.com", button: nil)
 
         // Act
         let state = try XCTUnwrap(EmailFieldState(item: item))
@@ -47,7 +47,7 @@ final class EmailFieldStateTests: XCTestCase {
             type: "payer_email",
             label: "E-mail",
             value: "t****@g****.com",
-            changeLabel: "Modificar"
+            button: .init(label: "Modificar")
         )
 
         // Act

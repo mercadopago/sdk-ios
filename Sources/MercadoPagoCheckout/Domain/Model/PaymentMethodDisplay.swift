@@ -17,6 +17,6 @@ struct PaymentMethodDisplay {
         guard item.type == "payment_method" else { return nil }
         self.label = item.label
         self.value = item.value
-        self.changeLabel = item.changeLabel
+        self.changeLabel = item.button?.label
     }
 }

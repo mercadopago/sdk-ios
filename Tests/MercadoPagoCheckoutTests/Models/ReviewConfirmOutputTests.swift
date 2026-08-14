@@ -15,7 +15,7 @@ final class ReviewConfirmOutputTests: XCTestCase {
           "items": [
             { "type": "payment_method", "label": "Medio de pago", "value": "Visa •••• 4567" }
           ],
-          "footer": { "button": { "label": "Pagar" }, "total_amount": "$ 110" }
+          "footer": { "button": { "label": "Pagar" }, "total_amount": 110, "currency_symbol": "$" }
         }
         """
         let response = try JSONDecoder().decode(ReviewConfirmResponse.self, from: Data(json.utf8))

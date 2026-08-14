@@ -3,6 +3,8 @@
 //  MercadoPagoSDK
 //
 
+import Foundation
+
 /// The confirm button, total amount and installment description shown at the bottom of the review
 /// and confirm screen.
 ///
@@ -12,7 +14,8 @@
 /// sending a raw color. See CHOBK-4695 for the backend rollout.
 struct ReviewConfirmFooter: Codable {
     let button: Button
-    let totalAmount: String
+    let totalAmount: Decimal
+    let currencySymbol: String?
     let installments: Installments?
 
     struct Button: Codable {
@@ -38,6 +41,7 @@ struct ReviewConfirmFooter: Codable {
     enum CodingKeys: String, CodingKey {
         case button
         case totalAmount = "total_amount"
+        case currencySymbol = "currency_symbol"
         case installments
     }
 }

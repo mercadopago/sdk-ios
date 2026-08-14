@@ -18,6 +18,6 @@ struct EmailFieldState {
         guard item.type == "payer_email", let maskedEmail = item.value else { return nil }
         self.label = item.label
         self.maskedEmail = maskedEmail
-        self.changeLabel = item.changeLabel
+        self.changeLabel = item.button?.label
     }
 }

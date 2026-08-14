@@ -51,10 +51,10 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
               "type": "payment_method",
               "label": "Medio de pago",
               "value": "Santander •••• 4567",
-              "change_label": "Modificar"
+              "button": { "label": "Modificar" }
             }
           ],
-          "footer": { "button": { "label": "Pagar" }, "total_amount": "$ 110" }
+          "footer": { "button": { "label": "Pagar" }, "total_amount": 110, "currency_symbol": "$" }
         }
         """
         return Data(json.utf8)
@@ -101,7 +101,7 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(result.items.first?.type, "payment_method")
-        XCTAssertEqual(result.items.first?.changeLabel, "Modificar")
+        XCTAssertEqual(result.items.first?.button?.label, "Modificar")
     }
 
     func testFetchReviewConfirm_whenSuccess_mapsFooter() async throws {
@@ -118,7 +118,7 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(result.footer.button.label, "Pagar")
-        XCTAssertEqual(result.footer.totalAmount, "$ 110")
+        XCTAssertEqual(result.footer.totalAmount, Decimal(110))
     }
 
     // MARK: - Request body
