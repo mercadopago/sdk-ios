@@ -17,6 +17,24 @@ final class ScreenConfigTests: XCTestCase {
         XCTAssertEqual(sut.toScreen(), .reviewAndConfirm)
     }
 
+    // MARK: - screensParameter
+
+    func test_screensParameter_whenEmpty_shouldReturnNil() {
+        // Arrange
+        let sut: [ScreenConfig] = []
+
+        // Act / Assert
+        XCTAssertNil(sut.screensParameter)
+    }
+
+    func test_screensParameter_withReviewAndConfirm_shouldReturnBackendKey() {
+        // Arrange
+        let sut: [ScreenConfig] = [.reviewAndConfirm(seller: nil, onEmailChangeRequested: nil)]
+
+        // Act / Assert
+        XCTAssertEqual(sut.screensParameter, "REVIEW_AND_CONFIRM")
+    }
+
     // MARK: - reviewAndConfirmConfig
 
     func test_reviewAndConfirmConfig_whenNotConfigured_shouldReturnNil() {

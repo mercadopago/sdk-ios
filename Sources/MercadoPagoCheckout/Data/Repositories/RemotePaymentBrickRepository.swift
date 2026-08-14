@@ -18,12 +18,14 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
 
     func fetchInitialization(
         orderId: String,
-        clientToken: String
+        clientToken: String,
+        screens: String? = nil
     ) async throws -> PaymentInitializationOutput {
         let response: PaymentBrickInitializationResponse = try await networkService.request(
             PaymentBrickInitializationEndpoint(
                 orderId: orderId,
-                clientToken: clientToken
+                clientToken: clientToken,
+                screens: screens
             )
         )
         return self.map(response)

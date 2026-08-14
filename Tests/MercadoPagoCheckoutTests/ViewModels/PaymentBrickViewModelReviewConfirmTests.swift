@@ -36,6 +36,50 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         .init(bin: bin, issuerId: issuerId, lastFourDigits: lastFourDigits, installmentAmount: installmentAmount)
     }
 
+    private func makeSUT(
+        screenConfigs: [ScreenConfig],
+        repository: MockPaymentBrickRepository
+    ) -> PaymentBrickViewModel<MPPaymentData.Payment> {
+        let configuration = MPCheckoutConfiguration<MPPaymentData.Payment>(
+            type: .payment(order: self.makeOrder()),
+            paymentMethod: [.card()],
+            screenConfigs: screenConfigs
+        )
+        return PaymentBrickViewModel<MPPaymentData.Payment>(
+            configuration: configuration,
+            fetchInitializationUseCase: FetchPaymentBrickInitializationUseCase(repository: repository)
+        )
+    }
+
+    // MARK: - load screens parameter
+
+    func test_load_whenReviewAndConfirmConfigured_shouldForwardScreensParameter() async throws {
+        // Arrange
+        let repository = MockPaymentBrickRepository()
+        let sut = self.makeSUT(
+            screenConfigs: [.reviewAndConfirm(seller: nil, onEmailChangeRequested: nil)],
+            repository: repository
+        )
+
+        // Act
+        try await sut.load()
+
+        // Assert
+        XCTAssertEqual(repository.capturedScreens, "REVIEW_AND_CONFIRM")
+    }
+
+    func test_load_whenNoOptionalScreens_shouldForwardNilScreensParameter() async throws {
+        // Arrange
+        let repository = MockPaymentBrickRepository()
+        let sut = self.makeSUT(screenConfigs: [], repository: repository)
+
+        // Act
+        try await sut.load()
+
+        // Assert
+        XCTAssertNil(repository.capturedScreens)
+    }
+
     // MARK: - reviewConfirmInput
 
     func test_reviewConfirmInput_whenNotConfigured_shouldReturnNil() {

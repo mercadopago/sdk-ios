@@ -18,4 +18,17 @@ extension ScreenConfig {
         case .reviewAndConfirm: return .reviewAndConfirm
         }
     }
+
+    var screensParameterValue: String {
+        switch self {
+        case .reviewAndConfirm: return "REVIEW_AND_CONFIRM"
+        }
+    }
+}
+
+extension [ScreenConfig] {
+    var screensParameter: String? {
+        let value = self.map(\.screensParameterValue).joined(separator: ",")
+        return value.isEmpty ? nil : value
+    }
 }

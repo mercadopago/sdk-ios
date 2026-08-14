@@ -74,7 +74,8 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.screenState = .loading
         let output = try await fetchInitializationUseCase.execute(
             orderId: order.orderId,
-            clientToken: order.clientToken
+            clientToken: order.clientToken,
+            screens: self.configuration.screenConfigs.screensParameter
         )
         self.screenState = .ready(output)
     }
