@@ -95,7 +95,11 @@ final class OrderTransactionParamsTests: XCTestCase {
         let json = try encodeToJSON(makeTicketParams())
         XCTAssertNil(json["token"])
         XCTAssertNil(json["installments"])
-        XCTAssertNil(json["payment_method_type"])
+    }
+
+    func testEncoding_ticket_paymentMethodType_isFixedTicketValue() throws {
+        let json = try encodeToJSON(makeTicketParams())
+        XCTAssertEqual(json["payment_method_type"] as? String, "ticket")
     }
 
     func testEncoding_ticket_amountInteger_formatsToTwoDecimalPlaces() throws {

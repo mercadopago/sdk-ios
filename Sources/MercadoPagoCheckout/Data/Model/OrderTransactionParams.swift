@@ -24,6 +24,7 @@ struct OrderTransactionParams: Encodable {
                 try container.encode(installments, forKey: .installments)
             case let .ticket(paymentMethodId):
                 try container.encode(paymentMethodId, forKey: .paymentMethodId)
+                try container.encode("ticket", forKey: .paymentTypeId)
             }
         }
 
