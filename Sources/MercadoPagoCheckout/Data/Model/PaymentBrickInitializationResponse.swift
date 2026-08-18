@@ -9,7 +9,7 @@ import Foundation
 struct PaymentBrickInitializationResponse: Codable {
     let headerTitle: String
     let sections: [PaymentSection]
-    let footer: PaymentBrickFooter
+    let footer: Footer
 
     enum CodingKeys: String, CodingKey {
         case headerTitle = "header_title"
@@ -21,7 +21,7 @@ struct PaymentBrickInitializationResponse: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.headerTitle = try container.decode(String.self, forKey: .headerTitle)
         self.sections = try container.decode([PaymentSection].self, forKey: .sections)
-        self.footer = try container.decode(PaymentBrickFooter.self, forKey: .footer)
+        self.footer = try container.decode(Footer.self, forKey: .footer)
     }
 
     // MARK: - PaymentSection
@@ -40,6 +40,7 @@ struct PaymentBrickInitializationResponse: Codable {
         let iconUrl: String
         let cardData: CardData?
         let options: [TicketOption]?
+        let screen: MethodSelectionScreen?
 
         enum CodingKeys: String, CodingKey {
             case type
@@ -48,6 +49,7 @@ struct PaymentBrickInitializationResponse: Codable {
             case iconUrl = "icon_url"
             case cardData = "card_data"
             case options
+            case screen
         }
 
         init(from decoder: Decoder) throws {
@@ -58,6 +60,7 @@ struct PaymentBrickInitializationResponse: Codable {
             self.iconUrl = try container.decode(String.self, forKey: .iconUrl)
             self.cardData = try? container.decodeIfPresent(CardData.self, forKey: .cardData)
             self.options = try? container.decodeIfPresent([TicketOption].self, forKey: .options)
+            self.screen = try? container.decodeIfPresent(MethodSelectionScreen.self, forKey: .screen)
         }
     }
 
@@ -118,14 +121,12 @@ struct PaymentBrickInitializationResponse: Codable {
     // MARK: - SecurityCodeScreen
 
     struct SecurityCodeScreen: Codable {
-        let headerTitle: String
+        let header: Header
         let field: Field
-        let continueButtonLabel: String
+        let button: Button
 
-        enum CodingKeys: String, CodingKey {
-            case headerTitle = "header_title"
-            case field
-            case continueButtonLabel = "continue_button_label"
+        struct Header: Codable {
+            let title: String
         }
 
         struct Field: Codable {
@@ -133,6 +134,10 @@ struct PaymentBrickInitializationResponse: Codable {
             let placeholder: String
             let helper: String
             let error: String
+        }
+
+        struct Button: Codable {
+            let label: String
         }
     }
 
@@ -192,15 +197,51 @@ struct PaymentBrickInitializationResponse: Codable {
         }
     }
 
-    // MARK: - PaymentBrickFooter
+    // MARK: - MethodSelectionScreen
 
-    struct PaymentBrickFooter: Codable {
+    struct MethodSelectionScreen: Codable {
+        let headerTitle: String
+        let selectionType: String
+        let footer: Footer
+        let options: [Option]
+
+        enum CodingKeys: String, CodingKey {
+            case headerTitle = "header_title"
+            case selectionType = "selection_type"
+            case footer
+            case options
+        }
+
+        struct Option: Codable {
+            let id: String
+            let name: String
+            let subtitle: String
+            let iconUrl: String
+
+            enum CodingKeys: String, CodingKey {
+                case id
+                case name
+                case subtitle
+                case iconUrl = "icon_url"
+            }
+        }
+    }
+
+    // MARK: - Footer
+
+    struct Footer: Codable {
         let totalLabel: String
         let totalAmount: String
+        let button: Button?
 
         enum CodingKeys: String, CodingKey {
             case totalLabel = "total_label"
             case totalAmount = "total_amount"
+            case button
+        }
+
+        struct Button: Codable {
+            let label: String
         }
     }
 }
