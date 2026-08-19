@@ -9,7 +9,11 @@
 /// truth for in-flow navigation decisions and the origin of the `screens` query parameter sent to
 /// the backend.
 enum ScreenConfig: Sendable {
-    case reviewAndConfirm(seller: MPSellerInfo?, onEmailChangeRequested: (@MainActor @Sendable () -> Void)?)
+    case reviewAndConfirm(
+        seller: MPSellerInfo?,
+        onPaymentMethodChangeRequested: (@MainActor @Sendable () -> Void)?,
+        onEmailChangeRequested: (@MainActor @Sendable () -> Void)?
+    )
 }
 
 extension ScreenConfig {

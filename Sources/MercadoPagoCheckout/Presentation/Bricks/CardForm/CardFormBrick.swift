@@ -21,6 +21,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var processingTask: Task<Void, Never>?
     @State private var inputCardData: InputCardData?
     @State private var pendingReviewConfirmInput: PendingReviewConfirmInput?
+    @State private var pendingCloseCompletion: (() -> Void)?
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
     private let configuration: MPCheckoutConfiguration<T>
@@ -73,7 +74,13 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         }
         .onDisappear {
             self.processingTask?.cancel()
+            self.firePendingCloseCompletion()
         }
+    }
+
+    private func firePendingCloseCompletion() {
+        self.pendingCloseCompletion?()
+        self.pendingCloseCompletion = nil
     }
 
     private func cardFormScreen(viewModel: CardFormViewModel) -> some View {
@@ -174,7 +181,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 onConfirmed: { processData in self.handleReviewConfirmResult(processData) },
                 onConfirmError: { error in self.fail(error) },
                 onInitializationError: { error in self.handleReviewInitializationError(error) },
-                onModifyPaymentMethod: { self.route = nil },
+                onModifyPaymentMethod: { self.handleModifyPaymentMethod() },
                 onBack: { self.route = nil }
             )
         } else {
@@ -330,5 +337,16 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     /// the seller's `onError` is not called for an initialization error.
     private func handleReviewInitializationError(_: MercadoPagoCheckoutError) {
         self.clearReviewConfirmState()
+    }
+
+    /// "Change" on the payment-method row in the card transaction flow: there is no method
+    /// selector to return to, so close the brick and hand control back to the integrator through
+    /// the required `onPaymentMethodChangeRequested` callback — without reporting a cancellation,
+    /// the same convention used for the email "Change".
+
+    private func handleModifyPaymentMethod() {
+        self.pendingCloseCompletion = self.brickViewModel.onPaymentMethodChangeRequested
+        self.clearReviewConfirmState()
+        self.presentationMode.wrappedValue.dismiss()
     }
 }

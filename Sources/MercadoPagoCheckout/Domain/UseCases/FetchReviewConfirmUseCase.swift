@@ -54,7 +54,7 @@ struct FetchReviewConfirmUseCase {
     ) -> ReviewConfirmRequestBody {
         let seller: MPSellerInfo?
         let emailChangeEnabled: Bool
-        if case let .reviewAndConfirm(configSeller, onEmailChangeRequested) = reviewConfirmConfig {
+        if case let .reviewAndConfirm(configSeller, _, onEmailChangeRequested) = reviewConfirmConfig {
             seller = configSeller
             emailChangeEnabled = onEmailChangeRequested != nil
         } else {

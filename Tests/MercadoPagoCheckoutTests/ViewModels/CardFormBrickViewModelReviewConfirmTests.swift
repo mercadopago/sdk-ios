@@ -57,7 +57,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
     func test_reviewConfirmInput_whenConfigured_shouldReturnInputWithOrderAndCardDetails() throws {
         // Arrange
         let sut = self.makeCardTransactionSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
 
         // Act
@@ -78,7 +78,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
             paymentMethod: [.card()],
-            screenConfigs: [.reviewAndConfirm(seller: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
         let sut = CardFormBrickViewModel<MPPaymentData.CardSave>(configuration: configuration)
 
@@ -113,4 +113,38 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         XCTAssertEqual(result.token, "token")
         XCTAssertEqual(result.installment, 3)
     }
+
+    // MARK: - onPaymentMethodChangeRequested
+
+    func test_onPaymentMethodChangeRequested_whenConfigured_shouldReturnSellerCallback() {
+        // Arrange
+        let recorder = CallRecorder()
+        let sut = self.makeCardTransactionSUT(
+            screenConfigs: [.reviewAndConfirm(
+                seller: nil,
+                onPaymentMethodChangeRequested: { recorder.events.append("callback") },
+                onEmailChangeRequested: nil
+            )]
+        )
+
+        // Act
+        let callback = sut.onPaymentMethodChangeRequested
+        callback?()
+
+        // Assert
+        XCTAssertEqual(recorder.events, ["callback"])
+    }
+
+    func test_onPaymentMethodChangeRequested_whenNotConfigured_shouldReturnNil() {
+        // Arrange
+        let sut = self.makeCardTransactionSUT()
+
+        // Act / Assert
+        XCTAssertNil(sut.onPaymentMethodChangeRequested)
+    }
+}
+
+@MainActor
+private final class CallRecorder {
+    var events: [String] = []
 }

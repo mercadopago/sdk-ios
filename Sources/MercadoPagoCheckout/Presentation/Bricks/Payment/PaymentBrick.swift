@@ -256,7 +256,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 onConfirmed: { processData in self.handleReviewConfirmed(processData) },
                 onConfirmError: { error in self.fail(error) },
                 onInitializationError: { error in self.handleReviewInitializationError(error) },
-                onModifyPaymentMethod: { self.route = nil },
+                onModifyPaymentMethod: { self.handleModifyPaymentMethod() },
                 onBack: { self.route = nil }
             )
         } else {
@@ -328,6 +328,12 @@ private extension PaymentBrick {
         } catch {
             self.fail(error)
         }
+    }
+
+    /// "Modificar" on the payment-method row: always returns to the root payment-method selector,
+    /// regardless of the method type (card or ticket).
+    func handleModifyPaymentMethod() {
+        self.clearReviewConfirmState()
     }
 
     /// Failed `POST /review_confirm`: pop back to the selector and show a snackbar there. Per AC-9

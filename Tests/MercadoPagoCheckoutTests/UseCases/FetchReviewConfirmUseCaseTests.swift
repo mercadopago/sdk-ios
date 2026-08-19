@@ -49,7 +49,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
         seller: MPSellerInfo? = nil,
         onEmailChangeRequested: (@MainActor @Sendable () -> Void)? = nil
     ) -> ScreenConfig {
-        .reviewAndConfirm(seller: seller, onEmailChangeRequested: onEmailChangeRequested)
+        .reviewAndConfirm(seller: seller, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: onEmailChangeRequested)
     }
 
     private func execute(

@@ -57,7 +57,7 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         // Arrange
         let repository = MockPaymentBrickRepository()
         let sut = self.makeSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onEmailChangeRequested: nil)],
+            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)],
             repository: repository
         )
 
@@ -97,7 +97,7 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         // Arrange
         let params = self.makeParams()
         let sut = self.makeSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
 
         // Act
@@ -119,7 +119,7 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
     func test_reviewConfirmInput_withNilBin_shouldReturnInputWithNilBin() throws {
         // Arrange
         let sut = self.makeSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
 
         // Act

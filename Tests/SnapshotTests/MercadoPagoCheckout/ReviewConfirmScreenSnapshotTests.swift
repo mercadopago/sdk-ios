@@ -66,7 +66,7 @@ final class ReviewConfirmScreenSnapshotTests: XCTestCase {
                 amount: 5000,
                 paymentMethodType: .ticket(paymentMethodId: "rapipago")
             ),
-            reviewConfirmConfig: .reviewAndConfirm(seller: nil, onEmailChangeRequested: {}),
+            reviewConfirmConfig: .reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: {}, onEmailChangeRequested: {}),
             cardDetails: .init(bin: nil, issuerId: nil, lastFourDigits: nil, installmentAmount: nil)
         )
         return ReviewConfirmScreen(
