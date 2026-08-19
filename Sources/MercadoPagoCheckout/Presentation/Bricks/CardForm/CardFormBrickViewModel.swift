@@ -102,7 +102,8 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 excludedPaymentMethodIds: self.configuration.paymentMethod.excludedPaymentMethodIds,
                 initResult: result,
                 minInstallments: self.configuration.paymentMethod.installmentConfig?.minInstallments,
-                maxInstallments: self.configuration.paymentMethod.installmentConfig?.maxInstallments
+                maxInstallments: self.configuration.paymentMethod.installmentConfig?.maxInstallments,
+                screens: self.configuration.screenConfigs.screensParameter
             )
 
             let viewModel = CardFormViewModel(
@@ -204,6 +205,39 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         case .payment:
             return nil
         }
+    }
+
+    // MARK: - Review & Confirm
+
+    func reviewConfirmInput(
+        cardTransaction paymentData: MPPaymentData.CardTransaction,
+        inputCardData: InputCardData?
+    ) -> PendingReviewConfirmInput? {
+        guard self.configuration.reviewAndConfirmConfig != nil,
+              case let .cardTransaction(order) = self.configuration.type.kind,
+              let params = OrderTransactionParams(cardTransaction: paymentData)
+        else { return nil }
+
+        let cardDetails = ReviewConfirmCardDetails(
+            bin: inputCardData?.bin,
+            issuerId: paymentData.issuerId.flatMap { Int($0) },
+            lastFourDigits: inputCardData?.lastFourDigits,
+            installmentAmount: nil
+        )
+        return PendingReviewConfirmInput(
+            order: order,
+            paymentParams: params,
+            cardDetails: cardDetails
+        )
+    }
+
+    func makeReviewConfirmResult(
+        from processData: OrderTransactionProcessData,
+        paymentData: MPPaymentData.CardTransaction
+    ) -> T? {
+        var updated = paymentData
+        updated.orderStatus = processData.status
+        return updated as? T
     }
 
     // MARK: - Analytics
