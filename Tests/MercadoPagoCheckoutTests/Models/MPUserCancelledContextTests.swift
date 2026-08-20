@@ -66,6 +66,10 @@ final class MPUserCancelledContextTests: XCTestCase {
         XCTAssertEqual(MPScreen.installments, MPScreen.installments)
     }
 
+    func test_screen_reviewAndConfirm_equatable() {
+        XCTAssertEqual(MPScreen.reviewAndConfirm, MPScreen.reviewAndConfirm)
+    }
+
     // MARK: - Result wiring (typed by checkout type)
 
     func test_result_userCancelled_carriesCardTransactionContext() {

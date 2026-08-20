@@ -56,4 +56,18 @@ final class MPAmountDataTests: XCTestCase {
         // Assert
         XCTAssertEqual(result1, result2)
     }
+
+    // MARK: - init(from:currencySymbol:)
+
+    func test_initFromDecimal_shouldMatchDoubleFormatting() throws {
+        // Arrange / Act
+        let decimalResult = try MPAmountData(
+            from: XCTUnwrap(Decimal(string: "3020.89")),
+            currencySymbol: "$"
+        )
+        let doubleResult = MPAmountData(from: 3020.89, currencySymbol: "$")
+
+        // Assert
+        XCTAssertEqual(decimalResult, doubleResult)
+    }
 }
