@@ -160,4 +160,13 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             cardDetails: cardDetails
         )
     }
+
+    /// The seller's callback for "Modificar" on the email row (ticket flow only), or `nil` when
+    /// review and confirm is not configured or the seller did not opt into email changes.
+    var onEmailChangeRequested: (@MainActor @Sendable () -> Void)? {
+        guard case let .reviewAndConfirm(_, _, callback) = self.configuration.reviewAndConfirmConfig else {
+            return nil
+        }
+        return callback
+    }
 }

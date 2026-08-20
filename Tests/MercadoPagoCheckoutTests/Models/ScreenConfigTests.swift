@@ -162,6 +162,40 @@ final class ScreenConfigTests: XCTestCase {
         XCTAssertNil(onPaymentMethodChangeRequested)
     }
 
+    @MainActor
+    func test_build_withReviewAndConfirmOnPayment_shouldForwardEmailChangeCallback() {
+        // Arrange — the payer_email row only exists in the Payment (ticket) flow.
+        let sut = self.makePaymentBuilder()
+
+        // Act
+        let checkout = sut.withReviewAndConfirm(seller: nil, onEmailChangeRequested: {}).build()
+
+        // Assert
+        guard case let .reviewAndConfirm(_, _, onEmailChangeRequested) = checkout.configuration.reviewAndConfirmConfig else {
+            return XCTFail("Expected a reviewAndConfirm config")
+        }
+        XCTAssertNotNil(onEmailChangeRequested)
+    }
+
+    @MainActor
+    func test_build_withReviewAndConfirmOnCardTransaction_shouldNotSetEmailChangeCallback() {
+        // Arrange — CardTransaction is a card-only flow: it never has a payer_email row, so the
+        // builder doesn't even expose onEmailChangeRequested; the config must always carry nil.
+        let sut = MercadoPagoCheckout<MPPaymentData.CardTransaction>.Builder(
+            checkoutType: .cardTransaction(order: self.makeOrder()),
+            checkoutAppearance: .init()
+        )
+
+        // Act
+        let checkout = sut.withReviewAndConfirm(onPaymentMethodChangeRequested: {}).build()
+
+        // Assert
+        guard case let .reviewAndConfirm(_, _, onEmailChangeRequested) = checkout.configuration.reviewAndConfirmConfig else {
+            return XCTFail("Expected a reviewAndConfirm config")
+        }
+        XCTAssertNil(onEmailChangeRequested)
+    }
+
     // MARK: - Helpers
 
     private func makeOrder() -> MPOrder {

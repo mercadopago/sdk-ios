@@ -22,6 +22,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     @State private var methodSelectionViewModel: MethodSelectionViewModel?
     @State private var pendingReviewConfirmInput: PendingReviewConfirmInput?
     @State private var pendingSnackbarError: String?
+    @State private var pendingCloseCompletion: (() -> Void)?
     @ObservedObject private var viewModel: PaymentBrickViewModel<T>
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -74,6 +75,16 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         .mpTask {
             await self.load()
         }
+        .onDisappear {
+            self.firePendingCloseCompletion()
+        }
+    }
+
+    /// Runs the callback deferred by a "close and hand off" flow (e.g. "Modificar" on the email
+    /// row), once the brick has genuinely left the screen — see `pendingCloseCompletion`.
+    private func firePendingCloseCompletion() {
+        self.pendingCloseCompletion?()
+        self.pendingCloseCompletion = nil
     }
 
     private func paymentsScreen(output: PaymentInitializationOutput) -> some View {
@@ -257,6 +268,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 onConfirmError: { error in self.fail(error) },
                 onInitializationError: { error in self.handleReviewInitializationError(error) },
                 onModifyPaymentMethod: { self.handleModifyPaymentMethod() },
+                onModifyEmail: self.viewModel.onEmailChangeRequested != nil ? { self.handleModifyEmail() } : nil,
                 onBack: { self.route = nil }
             )
         } else {
@@ -334,6 +346,16 @@ private extension PaymentBrick {
     /// regardless of the method type (card or ticket).
     func handleModifyPaymentMethod() {
         self.clearReviewConfirmState()
+    }
+
+    /// "Modificar" on the email row (ticket flow only): there is no way to edit the email inside
+    /// the SDK, so close the brick and hand control back to the integrator through the required
+    /// `onEmailChangeRequested` callback — without reporting a cancellation, the same convention
+    /// used for the payment-method "Modificar" on the card transaction flow.
+    func handleModifyEmail() {
+        self.pendingCloseCompletion = self.viewModel.onEmailChangeRequested
+        self.clearReviewConfirmState()
+        self.presentationMode.wrappedValue.dismiss()
     }
 
     /// Failed `POST /review_confirm`: pop back to the selector and show a snackbar there. Per AC-9

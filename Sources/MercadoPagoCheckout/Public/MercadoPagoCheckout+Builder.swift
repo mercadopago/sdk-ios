@@ -153,21 +153,16 @@ public extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardTransa
     ///     method row. The card transaction flow has no in-SDK method selector, so the checkout
     ///     closes and hands control back to you — without reporting a cancellation — so you can
     ///     re-present your own payment method selection. Required: the button is always shown.
-    ///   - onEmailChangeRequested: Called when the buyer asks to change the email shown on the
-    ///     screen. The checkout closes and hands control back to you without reporting a
-    ///     cancellation, so you can collect the new email and start a new order. When `nil` the
-    ///     email is read-only.
     /// - Returns: The builder instance for chaining.
     @discardableResult
     func withReviewAndConfirm(
         seller: MPSellerInfo? = nil,
-        onPaymentMethodChangeRequested: @MainActor @Sendable @escaping () -> Void,
-        onEmailChangeRequested: (@MainActor @Sendable () -> Void)? = nil
+        onPaymentMethodChangeRequested: @MainActor @Sendable @escaping () -> Void
     ) -> Self {
         self.setReviewAndConfirm(
             seller: seller,
             onPaymentMethodChangeRequested: onPaymentMethodChangeRequested,
-            onEmailChangeRequested: onEmailChangeRequested
+            onEmailChangeRequested: nil
         )
         return self
     }

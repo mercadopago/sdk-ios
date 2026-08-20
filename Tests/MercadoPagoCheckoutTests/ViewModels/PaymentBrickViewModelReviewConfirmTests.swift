@@ -184,4 +184,48 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
             XCTAssertEqual(error.code, .serviceError)
         }
     }
+
+    // MARK: - onEmailChangeRequested
+
+    func test_onEmailChangeRequested_whenConfigured_shouldReturnSellerCallback() {
+        // Arrange
+        let recorder = PaymentBrickCallRecorder()
+        let sut = self.makeSUT(
+            screenConfigs: [.reviewAndConfirm(
+                seller: nil,
+                onPaymentMethodChangeRequested: nil,
+                onEmailChangeRequested: { recorder.events.append("callback") }
+            )]
+        )
+
+        // Act
+        let callback = sut.onEmailChangeRequested
+        callback?()
+
+        // Assert
+        XCTAssertEqual(recorder.events, ["callback"])
+    }
+
+    func test_onEmailChangeRequested_whenNotConfigured_shouldReturnNil() {
+        // Arrange
+        let sut = self.makeSUT()
+
+        // Act / Assert
+        XCTAssertNil(sut.onEmailChangeRequested)
+    }
+
+    func test_onEmailChangeRequested_whenReviewAndConfirmWithoutEmailCallback_shouldReturnNil() {
+        // Arrange
+        let sut = self.makeSUT(
+            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+        )
+
+        // Act / Assert
+        XCTAssertNil(sut.onEmailChangeRequested)
+    }
+}
+
+@MainActor
+private final class PaymentBrickCallRecorder {
+    var events: [String] = []
 }
