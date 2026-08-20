@@ -49,16 +49,17 @@ final class ReviewConfirmViewModelTests: XCTestCase {
 
     private func makeSUT(
         fetchResult: Result<ReviewConfirmResponse, Error>? = nil,
-        processResult: Result<OrderTransactionProcessData, Error>? = nil
+        processResult: Result<OrderTransactionProcessData, Error>? = nil,
+        orderRepository: MockOrderTransactionRepository? = nil
     ) async -> ReviewConfirmViewModel {
         let fetchRepository = MockReviewConfirmRepository()
         if let fetchResult { await fetchRepository.setResult(fetchResult) }
-        let orderRepository = MockOrderTransactionRepository()
-        if let processResult { await orderRepository.setResult(processResult) }
+        let repository = orderRepository ?? MockOrderTransactionRepository()
+        if let processResult { await repository.setResult(processResult) }
 
         return ReviewConfirmViewModel(
             fetchReviewConfirmUseCase: FetchReviewConfirmUseCase(repository: fetchRepository),
-            orderTransactionUseCase: OrderTransactionUseCase(repository: orderRepository),
+            orderTransactionUseCase: OrderTransactionUseCase(repository: repository),
             order: MPOrder(orderId: "ORDER-1", clientToken: "client-token"),
             paymentParams: self.makeParams(),
             reviewConfirmConfig: .reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil),
@@ -104,6 +105,24 @@ final class ReviewConfirmViewModelTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(processData.id, "ORD01")
+    }
+
+    func test_confirm_whenReviewWasLoaded_shouldUseReviewedTotalAmount() async throws {
+        // Arrange
+        let orderRepository = MockOrderTransactionRepository()
+        let sut = await self.makeSUT(
+            fetchResult: .success(try self.makeResponse()),
+            processResult: .success(self.makeProcessData()),
+            orderRepository: orderRepository
+        )
+        await sut.load()
+
+        // Act
+        _ = try await sut.confirm()
+
+        // Assert
+        let params = await orderRepository.lastParams
+        XCTAssertEqual(params?.amount, 110)
     }
 
     func test_confirm_whenFails_shouldThrow() async {

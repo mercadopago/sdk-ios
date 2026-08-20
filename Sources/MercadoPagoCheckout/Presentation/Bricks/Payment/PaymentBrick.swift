@@ -21,6 +21,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     @State private var selectedItem: PaymentInitializationOutput.Item?
     @State private var methodSelectionViewModel: MethodSelectionViewModel?
     @State private var pendingReviewConfirmInput: PendingReviewConfirmInput?
+    @State private var reviewConfirmPreviousRoute: Route?
     @State private var pendingSnackbarError: String?
     @State private var pendingCloseCompletion: (() -> Void)?
     @ObservedObject private var viewModel: PaymentBrickViewModel<T>
@@ -170,6 +171,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         }
 
         self.pendingReviewConfirmInput = input
+        self.reviewConfirmPreviousRoute = self.route
         self.route = .reviewAndConfirm
     }
 
@@ -177,6 +179,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     private func clearReviewConfirmState() {
         self.route = nil
         self.pendingReviewConfirmInput = nil
+        self.reviewConfirmPreviousRoute = nil
         self.selectedItem = nil
     }
 
@@ -269,7 +272,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 onInitializationError: { error in self.handleReviewInitializationError(error) },
                 onModifyPaymentMethod: { self.handleModifyPaymentMethod() },
                 onModifyEmail: self.viewModel.onEmailChangeRequested != nil ? { self.handleModifyEmail() } : nil,
-                onBack: { self.route = nil }
+                onBack: { self.handleReviewConfirmBack() }
             )
         } else {
             EmptyView()
@@ -332,6 +335,16 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
 // MARK: - Review & Confirm
 
 private extension PaymentBrick {
+    /// Back from review and confirm returns to the immediately preceding screen, keeping the
+    /// checkout open while preserving the review screen in the cancellation history.
+    func handleReviewConfirmBack() {
+        self.viewModel.markScreenPresented(.reviewAndConfirm)
+        let previousRoute = self.reviewConfirmPreviousRoute
+        self.pendingReviewConfirmInput = nil
+        self.reviewConfirmPreviousRoute = nil
+        self.route = previousRoute
+    }
+
     /// Confirmed order from the review screen: reuses the same mapping as the direct process path.
     func handleReviewConfirmed(_ processData: OrderTransactionProcessData) {
         do {
