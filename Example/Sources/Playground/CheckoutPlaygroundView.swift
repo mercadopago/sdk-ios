@@ -131,6 +131,23 @@ struct CheckoutPlaygroundView: View {
         }
     }
 
+    private var reviewAndConfirmSection: some View {
+        Section("Optional screens") {
+            Toggle("Enable Review & Confirm", isOn: self.$config.reviewAndConfirmEnabled)
+                .accessibilityIdentifier("playground.reviewAndConfirm.enabled")
+            Toggle("Include seller info", isOn: self.$config.sellerInfoEnabled)
+                .accessibilityIdentifier("playground.reviewAndConfirm.sellerInfo")
+            if self.config.sellerInfoEnabled {
+                TextField("Seller name", text: self.$config.sellerName)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.sellerName")
+                TextField("Seller logo URL", text: self.$config.sellerLogoUrl)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.sellerLogoUrl")
+            }
+        }
+    }
+
     private var installmentsSection: some View {
         Section("Installments") {
             LabeledContent("Min") {
