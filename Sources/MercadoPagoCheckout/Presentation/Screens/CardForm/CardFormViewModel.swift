@@ -20,6 +20,7 @@ final class CardFormViewModel: ObservableObject {
         let initResult: CardFormInitializationOutput
         let minInstallments: Int?
         let maxInstallments: Int?
+        let screens: String?
     }
 
     // MARK: - Dependencies
@@ -272,7 +273,8 @@ final class CardFormViewModel: ObservableObject {
             excludedCardTypes: self.config.excludedPaymentTypeIds,
             excludedCardBrands: self.config.excludedPaymentMethodIds,
             maxInstallments: self.config.maxInstallments,
-            minInstallments: self.config.minInstallments
+            minInstallments: self.config.minInstallments,
+            screens: self.config.screens
         )
     }
 
