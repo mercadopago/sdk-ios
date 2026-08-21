@@ -127,6 +127,7 @@ final class CheckoutConfig: ObservableObject {
 
     // Review & Confirm
     @Published var reviewAndConfirmEnabled = false
+    @Published var emailChangeEnabled = false
     @Published var sellerInfoEnabled = false
     @Published var sellerName = ""
     @Published var sellerLogoUrl = ""
@@ -240,7 +241,10 @@ final class CheckoutConfig: ObservableObject {
             checkoutAppearance: self.checkoutAppearance
         )
         .setPaymentMethodConfiguration(self.paymentMethodConfigs)
-        .build(withReviewAndConfirm: self.reviewAndConfirmEnabled)
+        .build(
+            withReviewAndConfirm: self.reviewAndConfirmEnabled,
+            emailChangeEnabled: self.emailChangeEnabled
+        )
     }
 }
 
@@ -254,8 +258,15 @@ private extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardTrans
 
 private extension MercadoPagoCheckout.Builder where T == MPPaymentData.Payment {
     @MainActor
-    func build(withReviewAndConfirm enabled: Bool) -> MercadoPagoCheckout<T> {
+    func build(
+        withReviewAndConfirm enabled: Bool,
+        emailChangeEnabled: Bool
+    ) -> MercadoPagoCheckout<T> {
         guard enabled else { return self.build() }
+        if emailChangeEnabled {
+            return self.withReviewAndConfirm(onEmailChangeRequested: { print("email change requested") })
+                .build()
+        }
         return self.withReviewAndConfirm().build()
     }
 }

@@ -122,9 +122,17 @@ struct ReviewConfirmScreen: View {
     private func row(for item: ReviewConfirmItem) -> some View {
         switch item.type {
         case "payment_method":
-            self.dataRow(item, onModify: self.onModifyPaymentMethod)
+            self.dataRow(item, onModify: {
+                self.viewModel.modifyPaymentMethod()
+                self.onModifyPaymentMethod()
+            })
         case "payer_email":
-            self.dataRow(item, onModify: self.onModifyEmail)
+            self.dataRow(item, onModify: self.onModifyEmail.map { callback in
+                {
+                    self.viewModel.modifyEmail()
+                    callback()
+                }
+            })
         default:
             self.dataRow(item, onModify: nil)
         }

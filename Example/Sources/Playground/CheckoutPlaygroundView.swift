@@ -135,6 +135,10 @@ struct CheckoutPlaygroundView: View {
         Section("Optional screens") {
             Toggle("Enable Review & Confirm", isOn: self.$config.reviewAndConfirmEnabled)
                 .accessibilityIdentifier("playground.reviewAndConfirm.enabled")
+            if self.config.checkoutType == .payment, self.config.reviewAndConfirmEnabled {
+                Toggle("Enable email change", isOn: self.$config.emailChangeEnabled)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.emailChange")
+            }
             Toggle("Include seller info", isOn: self.$config.sellerInfoEnabled)
                 .accessibilityIdentifier("playground.reviewAndConfirm.sellerInfo")
             if self.config.sellerInfoEnabled {

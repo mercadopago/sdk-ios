@@ -11,4 +11,20 @@ struct ReviewConfirmCardDetails {
     let issuerId: Int?
     let lastFourDigits: String?
     let installmentAmount: String?
+    /// Identifier of a saved card. It is unavailable for a newly entered card and offline methods.
+    let cardId: String?
+
+    init(
+        bin: String?,
+        issuerId: Int?,
+        lastFourDigits: String?,
+        installmentAmount: String?,
+        cardId: String? = nil
+    ) {
+        self.bin = bin
+        self.issuerId = issuerId
+        self.lastFourDigits = lastFourDigits
+        self.installmentAmount = installmentAmount
+        self.cardId = cardId
+    }
 }

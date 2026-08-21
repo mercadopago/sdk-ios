@@ -163,7 +163,8 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             issuerId: cardData?.issuerId,
             lastFourDigits: cardData?.lastFourDigits,
             // Populated once the installments screen destination is wired up (not reachable yet).
-            installmentAmount: nil
+            installmentAmount: nil,
+            cardId: cardData == nil ? nil : self.selectedItem?.id
         )
         guard let input = self.viewModel.reviewConfirmInput(for: params, cardDetails: cardDetails) else {
             Task { await self.process(params: params) }
@@ -255,7 +256,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             EmptyView()
         }
     }
-    
+
     @ViewBuilder
     func reviewConfirmDestination() -> some View {
         if let input = self.pendingReviewConfirmInput,
@@ -279,7 +280,6 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             EmptyView()
         }
     }
-
 
     // MARK: - States
 
