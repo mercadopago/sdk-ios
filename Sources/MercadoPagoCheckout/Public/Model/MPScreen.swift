@@ -22,4 +22,6 @@ public enum MPScreen: Sendable, Equatable {
     case securityCode
     /// The offline payment method selection screen (e.g. choosing a ticket provider).
     case offlineMethodSelector
+    /// The review and confirm screen shown before the user finalises payment.
+    case reviewAndConfirm
 }
