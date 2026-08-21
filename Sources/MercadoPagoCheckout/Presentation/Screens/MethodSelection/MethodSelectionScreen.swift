@@ -46,6 +46,9 @@ struct MethodSelectionScreen: View {
             footer: { self.footerView }
         )
         .background(self.theme.colors.background.primary.edgesIgnoringSafeArea(.all))
+        .onAppear {
+            self.viewModel.trackInitialize()
+        }
     }
 
     private func optionRow(for option: MethodSelectionOutput.Option) -> MPListItem {

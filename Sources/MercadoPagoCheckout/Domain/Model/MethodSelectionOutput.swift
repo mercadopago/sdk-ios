@@ -13,6 +13,13 @@ struct MethodSelectionOutput: Equatable {
         case chevron
         case radioButton
 
+        var analyticsValue: String {
+            switch self {
+            case .chevron: "arrow"
+            case .radioButton: "radio_button"
+            }
+        }
+
         init(_ rawValue: String) {
             switch rawValue {
             case "chevron": self = .chevron
