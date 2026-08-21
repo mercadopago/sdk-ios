@@ -5,23 +5,26 @@
 
 /// Store details displayed at the top of the review and confirm screen.
 ///
-/// Pass an `MPSellerInfo` to `withReviewAndConfirm(seller:onEmailChangeRequested:)` on the
-/// checkout builder to show your store's name and logo while the buyer reviews the payment.
-/// Both fields are optional and independent — supply only the ones you want displayed, or omit
-/// the seller entirely to render the screen without the store section.
+/// Pass an `MPSellerInfo` to the payment or card transaction checkout type to show your store's
+/// name and logo while the buyer reviews the payment.
+/// Both fields are optional and independent. When omitted, the backend resolves the review header
+/// with its default seller icon.
 ///
 /// Products and discount coupons are not part of this type: the SDK resolves them from the order
 /// through the backend.
 ///
 /// ```swift
-/// let checkout = MercadoPagoCheckout.Builder(checkoutType: .payment(order: order))
-///     .withReviewAndConfirm(
-///         seller: MPSellerInfo(
+/// let checkout = MercadoPagoCheckout.Builder(
+///     checkoutType: .payment(
+///         order: order,
+///         sellerInfo: MPSellerInfo(
 ///             name: "Adidas Store",
 ///             logoUrl: "https://cdn.example.com/adidas-logo.png"
 ///         )
 ///     )
-///     .build()
+/// )
+/// .withReviewAndConfirm()
+/// .build()
 /// ```
 public struct MPSellerInfo: Hashable, Sendable {
     /// The store name shown above the payment details.

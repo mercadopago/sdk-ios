@@ -11,7 +11,7 @@ final class ScreenConfigTests: XCTestCase {
 
     func test_toScreen_withReviewAndConfirm_shouldReturnReviewAndConfirmScreen() {
         // Arrange
-        let sut = ScreenConfig.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)
+        let sut = ScreenConfig.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)
 
         // Act / Assert
         XCTAssertEqual(sut.toScreen(), .reviewAndConfirm)
@@ -29,7 +29,7 @@ final class ScreenConfigTests: XCTestCase {
 
     func test_screensParameter_withReviewAndConfirm_shouldReturnBackendKey() {
         // Arrange
-        let sut: [ScreenConfig] = [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+        let sut: [ScreenConfig] = [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
 
         // Act / Assert
         XCTAssertEqual(sut.screensParameter, "REVIEW_AND_CONFIRM")
@@ -45,20 +45,18 @@ final class ScreenConfigTests: XCTestCase {
         XCTAssertNil(sut.reviewAndConfirmConfig)
     }
 
-    func test_reviewAndConfirmConfig_whenConfigured_shouldReturnSellerAndCallback() {
+    func test_reviewAndConfirmConfig_whenConfigured_shouldReturnCallback() {
         // Arrange
-        let seller = MPSellerInfo(name: "Adidas Store", logoUrl: "https://cdn.example.com/logo.png")
         let sut = self.makeConfiguration(
-            screenConfigs: [.reviewAndConfirm(seller: seller, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: {})]
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: {})]
         )
 
         // Act
-        guard case let .reviewAndConfirm(returnedSeller, _, onEmailChangeRequested) = sut.reviewAndConfirmConfig else {
+        guard case let .reviewAndConfirm(_, onEmailChangeRequested) = sut.reviewAndConfirmConfig else {
             return XCTFail("Expected a reviewAndConfirm config")
         }
 
         // Assert
-        XCTAssertEqual(returnedSeller, seller)
         XCTAssertNotNil(onEmailChangeRequested)
     }
 
@@ -78,40 +76,32 @@ final class ScreenConfigTests: XCTestCase {
     }
 
     @MainActor
-    func test_build_withReviewAndConfirm_shouldForwardSellerToConfiguration() {
+    func test_build_withSellerInfo_shouldForwardSellerToConfiguration() {
         // Arrange
         let seller = MPSellerInfo(name: "Adidas Store")
-        let sut = self.makePaymentBuilder()
+        let sut = self.makePaymentBuilder(sellerInfo: seller)
 
         // Act
-        let checkout = sut.withReviewAndConfirm(seller: seller).build()
+        let checkout = sut.withReviewAndConfirm().build()
 
         // Assert
         XCTAssertEqual(checkout.configuration.screenConfigs.count, 1)
-        guard case let .reviewAndConfirm(returnedSeller, _, _) = checkout.configuration.reviewAndConfirmConfig else {
-            return XCTFail("Expected a reviewAndConfirm config")
-        }
-        XCTAssertEqual(returnedSeller, seller)
+        XCTAssertEqual(checkout.configuration.sellerInfo, seller)
     }
 
     @MainActor
-    func test_build_withReviewAndConfirmCalledTwice_shouldKeepOnlyLastConfiguration() {
+    func test_build_withReviewAndConfirmCalledTwice_shouldKeepOnlyOneConfiguration() {
         // Arrange
-        let lastSeller = MPSellerInfo(name: "Last Store")
         let sut = self.makePaymentBuilder()
 
         // Act
         let checkout = sut
-            .withReviewAndConfirm(seller: MPSellerInfo(name: "First Store"))
-            .withReviewAndConfirm(seller: lastSeller)
+            .withReviewAndConfirm()
+            .withReviewAndConfirm()
             .build()
 
         // Assert
         XCTAssertEqual(checkout.configuration.screenConfigs.count, 1)
-        guard case let .reviewAndConfirm(returnedSeller, _, _) = checkout.configuration.reviewAndConfirmConfig else {
-            return XCTFail("Expected a reviewAndConfirm config")
-        }
-        XCTAssertEqual(returnedSeller, lastSeller)
     }
 
     @MainActor
@@ -141,7 +131,7 @@ final class ScreenConfigTests: XCTestCase {
         let checkout = sut.withReviewAndConfirm(onPaymentMethodChangeRequested: {}).build()
 
         // Assert
-        guard case let .reviewAndConfirm(_, onPaymentMethodChangeRequested, _) = checkout.configuration.reviewAndConfirmConfig else {
+        guard case let .reviewAndConfirm(onPaymentMethodChangeRequested, _) = checkout.configuration.reviewAndConfirmConfig else {
             return XCTFail("Expected a reviewAndConfirm config")
         }
         XCTAssertNotNil(onPaymentMethodChangeRequested)
@@ -153,10 +143,10 @@ final class ScreenConfigTests: XCTestCase {
         let sut = self.makePaymentBuilder()
 
         // Act
-        let checkout = sut.withReviewAndConfirm(seller: nil).build()
+        let checkout = sut.withReviewAndConfirm().build()
 
         // Assert
-        guard case let .reviewAndConfirm(_, onPaymentMethodChangeRequested, _) = checkout.configuration.reviewAndConfirmConfig else {
+        guard case let .reviewAndConfirm(onPaymentMethodChangeRequested, _) = checkout.configuration.reviewAndConfirmConfig else {
             return XCTFail("Expected a reviewAndConfirm config")
         }
         XCTAssertNil(onPaymentMethodChangeRequested)
@@ -168,10 +158,10 @@ final class ScreenConfigTests: XCTestCase {
         let sut = self.makePaymentBuilder()
 
         // Act
-        let checkout = sut.withReviewAndConfirm(seller: nil, onEmailChangeRequested: {}).build()
+        let checkout = sut.withReviewAndConfirm(onEmailChangeRequested: {}).build()
 
         // Assert
-        guard case let .reviewAndConfirm(_, _, onEmailChangeRequested) = checkout.configuration.reviewAndConfirmConfig else {
+        guard case let .reviewAndConfirm(_, onEmailChangeRequested) = checkout.configuration.reviewAndConfirmConfig else {
             return XCTFail("Expected a reviewAndConfirm config")
         }
         XCTAssertNotNil(onEmailChangeRequested)
@@ -190,7 +180,7 @@ final class ScreenConfigTests: XCTestCase {
         let checkout = sut.withReviewAndConfirm(onPaymentMethodChangeRequested: {}).build()
 
         // Assert
-        guard case let .reviewAndConfirm(_, _, onEmailChangeRequested) = checkout.configuration.reviewAndConfirmConfig else {
+        guard case let .reviewAndConfirm(_, onEmailChangeRequested) = checkout.configuration.reviewAndConfirmConfig else {
             return XCTFail("Expected a reviewAndConfirm config")
         }
         XCTAssertNil(onEmailChangeRequested)
@@ -203,9 +193,11 @@ final class ScreenConfigTests: XCTestCase {
     }
 
     @MainActor
-    private func makePaymentBuilder() -> MercadoPagoCheckout<MPPaymentData.Payment>.Builder {
+    private func makePaymentBuilder(
+        sellerInfo: MPSellerInfo? = nil
+    ) -> MercadoPagoCheckout<MPPaymentData.Payment>.Builder {
         MercadoPagoCheckout<MPPaymentData.Payment>.Builder(
-            checkoutType: .payment(order: self.makeOrder()),
+            checkoutType: .payment(order: self.makeOrder(), sellerInfo: sellerInfo),
             checkoutAppearance: .init()
         )
     }

@@ -239,7 +239,8 @@ struct ReviewConfirmScreen: View {
                     amount: 188_000,
                     paymentMethodType: .ticket(paymentMethodId: "rapipago")
                 ),
-                reviewConfirmConfig: .reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: {}, onEmailChangeRequested: {}),
+                reviewConfirmConfig: .reviewAndConfirm(onPaymentMethodChangeRequested: {}, onEmailChangeRequested: {}),
+                sellerInfo: nil,
                 cardDetails: .init(bin: nil, issuerId: nil, lastFourDigits: nil, installmentAmount: nil)
             ),
             onModifyPaymentMethod: {},

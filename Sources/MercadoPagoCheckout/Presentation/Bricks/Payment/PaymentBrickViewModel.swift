@@ -52,7 +52,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.fetchInitializationUseCase = fetchInitializationUseCase
         self.orderTransactionUseCase = orderTransactionUseCase
 
-        if case let .payment(order) = configuration.type.kind {
+        if case let .payment(order, _) = configuration.type.kind {
             self.paymentData = .init(orderId: order.orderId, transactionAmount: .zero)
         }
     }
@@ -68,7 +68,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Load
 
     func load() async throws(MercadoPagoCheckoutError) {
-        guard case let .payment(order) = configuration.type.kind else {
+        guard case let .payment(order, _) = configuration.type.kind else {
             return
         }
         self.screenState = .loading
@@ -83,7 +83,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Process Order
 
     func processOrder(params: OrderTransactionParams) async throws(MercadoPagoCheckoutError) -> T {
-        guard case let .payment(order) = configuration.type.kind else {
+        guard case let .payment(order, _) = configuration.type.kind else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
                 localizedDescription: "ORDER_PROCESS",
@@ -102,7 +102,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     func makePaymentResult(
         from result: OrderTransactionProcessData
     ) throws(MercadoPagoCheckoutError) -> T {
-        guard case let .payment(order) = configuration.type.kind else {
+        guard case let .payment(order, _) = configuration.type.kind else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
                 localizedDescription: "ORDER_PROCESS",
@@ -151,11 +151,12 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         cardDetails: ReviewConfirmCardDetails
     ) -> PendingReviewConfirmInput? {
         guard self.configuration.reviewAndConfirmConfig != nil,
-              case let .payment(order) = self.configuration.type.kind
+              case let .payment(order, sellerInfo) = self.configuration.type.kind
         else { return nil }
 
         return PendingReviewConfirmInput(
             order: order,
+            sellerInfo: sellerInfo,
             paymentParams: params,
             cardDetails: cardDetails
         )
@@ -164,7 +165,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     /// The seller's callback for "Modificar" on the email row (ticket flow only), or `nil` when
     /// review and confirm is not configured or the seller did not opt into email changes.
     var onEmailChangeRequested: (@MainActor @Sendable () -> Void)? {
-        guard case let .reviewAndConfirm(_, _, callback) = self.configuration.reviewAndConfirmConfig else {
+        guard case let .reviewAndConfirm(_, callback) = self.configuration.reviewAndConfirmConfig else {
             return nil
         }
         return callback

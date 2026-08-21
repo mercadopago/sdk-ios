@@ -61,7 +61,8 @@ final class ReviewConfirmViewModelTests: XCTestCase {
             orderTransactionUseCase: OrderTransactionUseCase(repository: orderRepository),
             order: MPOrder(orderId: "ORDER-1", clientToken: "client-token"),
             paymentParams: self.makeParams(),
-            reviewConfirmConfig: .reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil),
+            reviewConfirmConfig: .reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil),
+            sellerInfo: nil,
             cardDetails: .init(bin: nil, issuerId: nil, lastFourDigits: nil, installmentAmount: nil)
         )
     }

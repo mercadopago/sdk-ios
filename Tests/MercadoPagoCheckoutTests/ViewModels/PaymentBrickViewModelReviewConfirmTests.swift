@@ -18,9 +18,12 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         OrderTransactionParams(amount: 100, paymentMethodType: .ticket(paymentMethodId: "rapipago"))
     }
 
-    private func makeSUT(screenConfigs: [ScreenConfig] = []) -> PaymentBrickViewModel<MPPaymentData.Payment> {
+    private func makeSUT(
+        screenConfigs: [ScreenConfig] = [],
+        sellerInfo: MPSellerInfo? = nil
+    ) -> PaymentBrickViewModel<MPPaymentData.Payment> {
         let configuration = MPCheckoutConfiguration<MPPaymentData.Payment>(
-            type: .payment(order: self.makeOrder()),
+            type: .payment(order: self.makeOrder(), sellerInfo: sellerInfo),
             paymentMethod: [.card()],
             screenConfigs: screenConfigs
         )
@@ -57,7 +60,7 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         // Arrange
         let repository = MockPaymentBrickRepository()
         let sut = self.makeSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)],
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)],
             repository: repository
         )
 
@@ -97,7 +100,7 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         // Arrange
         let params = self.makeParams()
         let sut = self.makeSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
 
         // Act
@@ -119,7 +122,7 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
     func test_reviewConfirmInput_withNilBin_shouldReturnInputWithNilBin() throws {
         // Arrange
         let sut = self.makeSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
 
         // Act
@@ -129,6 +132,23 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
 
         // Assert
         XCTAssertNil(input.cardDetails.bin)
+    }
+
+    func test_reviewConfirmInput_withSellerInfo_shouldForwardSellerFromCheckoutType() throws {
+        // Arrange
+        let sellerInfo = MPSellerInfo(name: "Adidas Store", logoUrl: "https://cdn.example.com/logo.png")
+        let sut = self.makeSUT(
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)],
+            sellerInfo: sellerInfo
+        )
+
+        // Act
+        let input = try XCTUnwrap(
+            sut.reviewConfirmInput(for: self.makeParams(), cardDetails: self.makeCardDetails())
+        )
+
+        // Assert
+        XCTAssertEqual(input.sellerInfo, sellerInfo)
     }
 
     // MARK: - makePaymentResult
@@ -192,7 +212,6 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         let recorder = PaymentBrickCallRecorder()
         let sut = self.makeSUT(
             screenConfigs: [.reviewAndConfirm(
-                seller: nil,
                 onPaymentMethodChangeRequested: nil,
                 onEmailChangeRequested: { recorder.events.append("callback") }
             )]
@@ -217,7 +236,7 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
     func test_onEmailChangeRequested_whenReviewAndConfirmWithoutEmailCallback_shouldReturnNil() {
         // Arrange
         let sut = self.makeSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
 
         // Act / Assert

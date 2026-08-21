@@ -24,6 +24,7 @@ final class ReviewConfirmViewModel: ObservableObject {
     private let order: MPOrder
     private let paymentParams: OrderTransactionParams
     private let reviewConfirmConfig: ScreenConfig
+    private let sellerInfo: MPSellerInfo?
     private let cardDetails: ReviewConfirmCardDetails
 
     private var loadTask: Task<Void, Never>?
@@ -34,6 +35,7 @@ final class ReviewConfirmViewModel: ObservableObject {
         order: MPOrder,
         paymentParams: OrderTransactionParams,
         reviewConfirmConfig: ScreenConfig,
+        sellerInfo: MPSellerInfo?,
         cardDetails: ReviewConfirmCardDetails
     ) {
         self.fetchReviewConfirmUseCase = fetchReviewConfirmUseCase
@@ -41,6 +43,7 @@ final class ReviewConfirmViewModel: ObservableObject {
         self.order = order
         self.paymentParams = paymentParams
         self.reviewConfirmConfig = reviewConfirmConfig
+        self.sellerInfo = sellerInfo
         self.cardDetails = cardDetails
     }
 
@@ -68,6 +71,7 @@ final class ReviewConfirmViewModel: ObservableObject {
                 clientToken: self.order.clientToken,
                 paymentParams: self.paymentParams,
                 reviewConfirmConfig: self.reviewConfirmConfig,
+                sellerInfo: self.sellerInfo,
                 cardDetails: self.cardDetails
             )
             guard !Task.isCancelled else { return }

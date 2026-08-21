@@ -262,6 +262,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                     order: input.order,
                     paymentParams: input.paymentParams,
                     reviewConfirmConfig: reviewConfirmConfig,
+                    sellerInfo: input.sellerInfo,
                     cardDetails: input.cardDetails
                 ),
                 onConfirmed: { processData in self.handleReviewConfirmed(processData) },

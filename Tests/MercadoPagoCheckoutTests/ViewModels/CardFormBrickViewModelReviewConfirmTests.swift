@@ -28,10 +28,11 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
 
     private func makeCardTransactionSUT(
         screenConfigs: [ScreenConfig] = [],
+        sellerInfo: MPSellerInfo? = nil,
         repository: MockCardFormInitializationRepository = MockCardFormInitializationRepository()
     ) -> CardFormBrickViewModel<MPPaymentData.CardTransaction> {
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
-            type: .cardTransaction(order: self.makeOrder()),
+            type: .cardTransaction(order: self.makeOrder(), sellerInfo: sellerInfo),
             paymentMethod: [.card()],
             screenConfigs: screenConfigs
         )
@@ -57,7 +58,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
     func test_reviewConfirmInput_whenConfigured_shouldReturnInputWithOrderAndCardDetails() throws {
         // Arrange
         let sut = self.makeCardTransactionSUT(
-            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
 
         // Act
@@ -73,12 +74,32 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         XCTAssertEqual(input.cardDetails.lastFourDigits, "1234")
     }
 
+    func test_reviewConfirmInput_withSellerInfo_shouldForwardSellerFromCheckoutType() throws {
+        // Arrange
+        let sellerInfo = MPSellerInfo(name: "Adidas Store", logoUrl: "https://cdn.example.com/logo.png")
+        let sut = self.makeCardTransactionSUT(
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)],
+            sellerInfo: sellerInfo
+        )
+
+        // Act
+        let input = try XCTUnwrap(
+            sut.reviewConfirmInput(
+                cardTransaction: self.makeCardTransaction(),
+                inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234")
+            )
+        )
+
+        // Assert
+        XCTAssertEqual(input.sellerInfo, sellerInfo)
+    }
+
     func test_reviewConfirmInput_whenSaveCard_shouldReturnNil() {
         // Arrange — review and confirm only applies to card transactions.
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
             paymentMethod: [.card()],
-            screenConfigs: [.reviewAndConfirm(seller: nil, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
         )
         let sut = CardFormBrickViewModel<MPPaymentData.CardSave>(configuration: configuration)
 
@@ -121,7 +142,6 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         let recorder = CallRecorder()
         let sut = self.makeCardTransactionSUT(
             screenConfigs: [.reviewAndConfirm(
-                seller: nil,
                 onPaymentMethodChangeRequested: { recorder.events.append("callback") },
                 onEmailChangeRequested: nil
             )]

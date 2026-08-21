@@ -11,6 +11,8 @@
 struct PendingReviewConfirmInput {
     /// The order being paid — carries both `orderId` and `clientToken`.
     let order: MPOrder
+    /// Store details supplied by the checkout type for the backend to resolve the review header.
+    let sellerInfo: MPSellerInfo?
     let paymentParams: OrderTransactionParams
     /// Card fields the review and confirm request needs. All `nil` for non-card methods.
     let cardDetails: ReviewConfirmCardDetails

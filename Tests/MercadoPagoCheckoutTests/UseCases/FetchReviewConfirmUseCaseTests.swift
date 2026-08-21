@@ -46,16 +46,16 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     }
 
     private func makeConfig(
-        seller: MPSellerInfo? = nil,
         onEmailChangeRequested: (@MainActor @Sendable () -> Void)? = nil
     ) -> ScreenConfig {
-        .reviewAndConfirm(seller: seller, onPaymentMethodChangeRequested: nil, onEmailChangeRequested: onEmailChangeRequested)
+        .reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: onEmailChangeRequested)
     }
 
     private func execute(
         sut: FetchReviewConfirmUseCase,
         params: OrderTransactionParams,
         config: ScreenConfig,
+        sellerInfo: MPSellerInfo? = nil,
         cardDetails: ReviewConfirmCardDetails = .init(
             bin: "453998",
             issuerId: 25,
@@ -68,6 +68,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
             clientToken: "seller_client_token",
             paymentParams: params,
             reviewConfirmConfig: config,
+            sellerInfo: sellerInfo,
             cardDetails: cardDetails
         )
     }
@@ -155,10 +156,15 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
         // Arrange
         let (sut, repository) = self.makeSUT()
         await repository.setResult(.success(try self.makeResponse()))
-        let config = self.makeConfig(seller: MPSellerInfo(name: "Adidas Store", logoUrl: "https://cdn/logo.png"))
+        let sellerInfo = MPSellerInfo(name: "Adidas Store", logoUrl: "https://cdn/logo.png")
 
         // Act
-        _ = try await self.execute(sut: sut, params: self.makeCardParams(), config: config)
+        _ = try await self.execute(
+            sut: sut,
+            params: self.makeCardParams(),
+            config: self.makeConfig(),
+            sellerInfo: sellerInfo
+        )
 
         // Assert
         let request = await repository.lastRequest

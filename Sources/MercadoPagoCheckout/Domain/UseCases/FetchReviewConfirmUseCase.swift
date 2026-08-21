@@ -17,12 +17,14 @@ struct FetchReviewConfirmUseCase {
         clientToken: String,
         paymentParams: OrderTransactionParams,
         reviewConfirmConfig: ScreenConfig,
+        sellerInfo: MPSellerInfo?,
         cardDetails: ReviewConfirmCardDetails
     ) async throws(MercadoPagoCheckoutError) -> ReviewConfirmOutput {
         let requestBody = self.makeRequestBody(
             orderId: orderId,
             paymentParams: paymentParams,
             reviewConfirmConfig: reviewConfirmConfig,
+            sellerInfo: sellerInfo,
             cardDetails: cardDetails
         )
 
@@ -50,19 +52,17 @@ struct FetchReviewConfirmUseCase {
         orderId: String,
         paymentParams: OrderTransactionParams,
         reviewConfirmConfig: ScreenConfig,
+        sellerInfo: MPSellerInfo?,
         cardDetails: ReviewConfirmCardDetails
     ) -> ReviewConfirmRequestBody {
-        let seller: MPSellerInfo?
         let emailChangeEnabled: Bool
-        if case let .reviewAndConfirm(configSeller, _, onEmailChangeRequested) = reviewConfirmConfig {
-            seller = configSeller
+        if case let .reviewAndConfirm(_, onEmailChangeRequested) = reviewConfirmConfig {
             emailChangeEnabled = onEmailChangeRequested != nil
         } else {
-            seller = nil
             emailChangeEnabled = false
         }
 
-        let sellerInfo = seller.map {
+        let sellerInfo = sellerInfo.map {
             ReviewConfirmRequestBody.SellerInfo(name: $0.name, iconUrl: $0.logoUrl)
         }
 

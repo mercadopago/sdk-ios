@@ -24,7 +24,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard, .payment:
             return nil
-        case let .cardTransaction(order):
+        case let .cardTransaction(order, _):
             return order.orderId
         }
     }
@@ -33,7 +33,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard:
             return nil
-        case let .payment(order), let .cardTransaction(order):
+        case let .payment(order, _), let .cardTransaction(order, _):
             return order.clientToken
         }
     }
@@ -42,7 +42,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard:
             return nil
-        case let .payment(order), let .cardTransaction(order):
+        case let .payment(order, _), let .cardTransaction(order, _):
             return order
         }
     }
@@ -180,7 +180,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
 
         switch self.configuration.type.kind {
-        case let .cardTransaction(order):
+        case let .cardTransaction(order, _):
             return MPPaymentData.CardTransaction(
                 transactionAmount: self.transactionAmount,
                 token: output.token,
@@ -214,7 +214,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         inputCardData: InputCardData?
     ) -> PendingReviewConfirmInput? {
         guard self.configuration.reviewAndConfirmConfig != nil,
-              case let .cardTransaction(order) = self.configuration.type.kind,
+              case let .cardTransaction(order, sellerInfo) = self.configuration.type.kind,
               let params = OrderTransactionParams(cardTransaction: paymentData)
         else { return nil }
 
@@ -226,6 +226,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         )
         return PendingReviewConfirmInput(
             order: order,
+            sellerInfo: sellerInfo,
             paymentParams: params,
             cardDetails: cardDetails
         )
@@ -243,7 +244,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     /// The seller's callback for "Modificar" on the payment-method row (card transaction), or `nil`
     /// when review and confirm is not configured. The brick closes itself and invokes this.
     var onPaymentMethodChangeRequested: (@MainActor @Sendable () -> Void)? {
-        guard case let .reviewAndConfirm(_, callback, _) = self.configuration.reviewAndConfirmConfig else {
+        guard case let .reviewAndConfirm(callback, _) = self.configuration.reviewAndConfirmConfig else {
             return nil
         }
         return callback
