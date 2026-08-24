@@ -211,7 +211,8 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     func reviewConfirmInput(
         cardTransaction paymentData: MPPaymentData.CardTransaction,
-        inputCardData: InputCardData?
+        inputCardData: InputCardData?,
+        installmentAmount: Decimal? = nil
     ) -> PendingReviewConfirmInput? {
         guard self.configuration.reviewAndConfirmConfig != nil,
               case let .cardTransaction(order, sellerInfo) = self.configuration.type.kind,
@@ -222,7 +223,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             bin: inputCardData?.bin,
             issuerId: paymentData.issuerId.flatMap { Int($0) },
             lastFourDigits: inputCardData?.lastFourDigits,
-            installmentAmount: nil
+            installmentAmount: installmentAmount
         )
         return PendingReviewConfirmInput(
             order: order,

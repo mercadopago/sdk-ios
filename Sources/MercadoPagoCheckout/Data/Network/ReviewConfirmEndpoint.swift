@@ -5,6 +5,7 @@
 
 import Foundation
 #if SWIFT_PACKAGE
+    import CoreMethods
     import MPCore
 #endif
 
@@ -37,7 +38,7 @@ struct ReviewConfirmEndpoint: RequestEndpoint {
     }
 
     var urlParams: [String: any CustomStringConvertible] {
-        [:]
+        ["product_id": MPSDKProduct.id]
     }
 
     var body: Data? {

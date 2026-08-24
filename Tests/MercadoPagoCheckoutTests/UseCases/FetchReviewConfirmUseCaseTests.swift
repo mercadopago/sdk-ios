@@ -60,7 +60,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
             bin: "453998",
             issuerId: 25,
             lastFourDigits: "4567",
-            installmentAmount: "10.00"
+            installmentAmount: 10
         )
     ) async throws -> ReviewConfirmOutput {
         try await sut.execute(
@@ -78,7 +78,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     func test_execute_withCard_buildsRequestWithCardFields() async throws {
         // Arrange
         let (sut, repository) = self.makeSUT()
-        await repository.setResult(.success(try self.makeResponse()))
+        try await repository.setResult(.success(self.makeResponse()))
 
         // Act
         _ = try await self.execute(sut: sut, params: self.makeCardParams(), config: self.makeConfig())
@@ -94,9 +94,32 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
         XCTAssertEqual(request.lastFourDigits, "4567")
         XCTAssertEqual(request.installments, 3)
         XCTAssertEqual(request.installmentAmount, "10.00")
-        XCTAssertEqual(request.productId, MPSDKProduct.id)
         let clientToken = await repository.lastClientToken
         XCTAssertEqual(clientToken, "seller_client_token")
+    }
+
+    func test_execute_withCardWithoutSelectedInstallmentAmount_leavesFieldNil() async throws {
+        // Arrange
+        let (sut, repository) = self.makeSUT()
+        try await repository.setResult(.success(self.makeResponse()))
+        let cardDetails = ReviewConfirmCardDetails(
+            bin: "453998",
+            issuerId: 25,
+            lastFourDigits: "4567",
+            installmentAmount: nil
+        )
+
+        // Act
+        _ = try await self.execute(
+            sut: sut,
+            params: self.makeCardParams(),
+            config: self.makeConfig(),
+            cardDetails: cardDetails
+        )
+
+        // Assert
+        let request = await repository.lastRequest
+        XCTAssertNil(request?.installmentAmount)
     }
 
     // MARK: - Request building — ticket
@@ -104,7 +127,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     func test_execute_withTicket_buildsRequestWithoutCardFields() async throws {
         // Arrange
         let (sut, repository) = self.makeSUT()
-        await repository.setResult(.success(try self.makeResponse()))
+        try await repository.setResult(.success(self.makeResponse()))
 
         // Act — pass card fields to prove ticket ignores them
         _ = try await self.execute(sut: sut, params: self.makeTicketParams(), config: self.makeConfig())
@@ -126,7 +149,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     func test_execute_withEmailChangeCallback_setsEmailChangeEnabledTrue() async throws {
         // Arrange
         let (sut, repository) = self.makeSUT()
-        await repository.setResult(.success(try self.makeResponse()))
+        try await repository.setResult(.success(self.makeResponse()))
         let config = self.makeConfig(onEmailChangeRequested: {})
 
         // Act
@@ -140,7 +163,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     func test_execute_withoutEmailChangeCallback_setsEmailChangeEnabledFalse() async throws {
         // Arrange
         let (sut, repository) = self.makeSUT()
-        await repository.setResult(.success(try self.makeResponse()))
+        try await repository.setResult(.success(self.makeResponse()))
 
         // Act
         _ = try await self.execute(sut: sut, params: self.makeTicketParams(), config: self.makeConfig())
@@ -155,7 +178,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     func test_execute_withSeller_mapsSellerInfo() async throws {
         // Arrange
         let (sut, repository) = self.makeSUT()
-        await repository.setResult(.success(try self.makeResponse()))
+        try await repository.setResult(.success(self.makeResponse()))
         let sellerInfo = MPSellerInfo(name: "Adidas Store", logoUrl: "https://cdn/logo.png")
 
         // Act
@@ -175,7 +198,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     func test_execute_withoutSeller_leavesSellerInfoNil() async throws {
         // Arrange
         let (sut, repository) = self.makeSUT()
-        await repository.setResult(.success(try self.makeResponse()))
+        try await repository.setResult(.success(self.makeResponse()))
 
         // Act
         _ = try await self.execute(sut: sut, params: self.makeCardParams(), config: self.makeConfig())
@@ -190,7 +213,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     func test_execute_whenSuccess_returnsOutputFromResponse() async throws {
         // Arrange
         let (sut, repository) = self.makeSUT()
-        await repository.setResult(.success(try self.makeResponse()))
+        try await repository.setResult(.success(self.makeResponse()))
 
         // Act
         let output = try await self.execute(sut: sut, params: self.makeCardParams(), config: self.makeConfig())

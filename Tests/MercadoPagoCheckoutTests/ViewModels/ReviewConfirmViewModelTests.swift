@@ -118,7 +118,7 @@ final class ReviewConfirmViewModelTests: XCTestCase {
         XCTAssertEqual(processData.id, "ORD01")
     }
 
-    func test_confirm_whenReviewWasLoaded_shouldUseReviewedTotalAmount() async throws {
+    func test_confirm_whenReviewWasLoaded_shouldKeepAmountReceivedFromBrick() async throws {
         // Arrange
         let orderRepository = MockOrderTransactionRepository()
         let sut = try await makeSUT(
@@ -133,7 +133,7 @@ final class ReviewConfirmViewModelTests: XCTestCase {
 
         // Assert
         let params = await orderRepository.lastParams
-        XCTAssertEqual(params?.amount, 110)
+        XCTAssertEqual(params?.amount, 100)
     }
 
     func test_confirm_whenFails_shouldThrow() async {

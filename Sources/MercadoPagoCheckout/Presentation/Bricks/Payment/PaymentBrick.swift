@@ -4,6 +4,7 @@
 //
 //  Created by Guilherme Prata Costa on 28/05/26.
 //
+import Foundation
 import MPComponents
 import MPFoundation
 import SwiftUI
@@ -156,14 +157,16 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
 
     /// Routes to the review and confirm screen when the integrator opted in, and processes the
     /// order straight away otherwise.
-    private func handlePaymentConfirmed(_ params: OrderTransactionParams) {
+    private func handlePaymentConfirmed(
+        _ params: OrderTransactionParams,
+        installmentAmount: Decimal? = nil
+    ) {
         let cardData = self.selectedItem?.cardData
         let cardDetails = ReviewConfirmCardDetails(
             bin: cardData?.bin,
             issuerId: cardData?.issuerId,
             lastFourDigits: cardData?.lastFourDigits,
-            // Populated once the installments screen destination is wired up (not reachable yet).
-            installmentAmount: nil,
+            installmentAmount: installmentAmount,
             cardId: cardData == nil ? nil : self.selectedItem?.id
         )
         guard let input = self.viewModel.reviewConfirmInput(for: params, cardDetails: cardDetails) else {
@@ -231,9 +234,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                         footer: footer
                     )
                 ),
-                onTokenSuccess: {
-                    _ in self.route = .installments
-                },
+                onTokenSuccess: { _ in self.route = .installments },
                 onTokenError: { self.route = nil },
                 onBack: { self.route = nil }
             )

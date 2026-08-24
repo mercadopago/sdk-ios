@@ -13,8 +13,6 @@ struct ReviewConfirmRequestBody: Encodable {
     let issuerId: String?
     /// First 6-8 digits of the card, used by the backend to resolve the issuer name.
     let bin: String?
-    /// Internal SDK constant, needed by the backend to call the Card Issuers API in the right context.
-    let productId: String?
     let lastFourDigits: String?
     let installments: Int?
     let installmentAmount: String?
@@ -28,7 +26,6 @@ struct ReviewConfirmRequestBody: Encodable {
         case paymentMethodId = "payment_method_id"
         case issuerId = "issuer_id"
         case bin
-        case productId = "product_id"
         case lastFourDigits = "last_four_digits"
         case installments
         case installmentAmount = "installment_amount"

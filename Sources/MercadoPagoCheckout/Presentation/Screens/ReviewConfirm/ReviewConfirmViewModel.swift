@@ -116,23 +116,10 @@ final class ReviewConfirmViewModel: ObservableObject {
     /// route it to the seller's `onError`.
     func confirm() async throws(MercadoPagoCheckoutError) -> OrderTransactionProcessData {
         trackContinue()
-        let params = self.paymentParamsWithReviewedAmount()
         return try await self.orderTransactionUseCase.execute(
             orderId: self.order.orderId,
             clientToken: self.order.clientToken,
-            params: params
-        )
-    }
-
-    /// The Review & Confirm response is the authoritative amount presented to the buyer. Keep the
-    /// selected payment method data intact and replace only the amount sent to `/process`.
-    private func paymentParamsWithReviewedAmount() -> OrderTransactionParams {
-        guard case let .success(output) = screenState else {
-            return self.paymentParams
-        }
-        return OrderTransactionParams(
-            amount: output.footer.totalAmount,
-            paymentMethodType: self.paymentParams.paymentMethodType
+            params: self.paymentParams
         )
     }
 

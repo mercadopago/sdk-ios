@@ -33,7 +33,6 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
             paymentMethodId: "visa",
             issuerId: "santander",
             bin: "453998",
-            productId: "BT7L8CCEVKKG01NFMI70",
             lastFourDigits: "4567",
             installments: 3,
             installmentAmount: "10.00",
@@ -135,8 +134,43 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
         XCTAssertEqual(json["order_id"] as? String, "ORDER-1")
         XCTAssertEqual(json["payment_method_type"] as? String, "credit_card")
         XCTAssertEqual(json["bin"] as? String, "453998")
-        XCTAssertEqual(json["product_id"] as? String, "BT7L8CCEVKKG01NFMI70")
+        XCTAssertNil(json["product_id"])
         XCTAssertEqual(json["email_change_enabled"] as? Bool, false)
+    }
+
+    func testEndpoint_whenInstallmentAmountIsNil_omitsFieldFromBody() throws {
+        // Arrange
+        let request = ReviewConfirmRequestBody(
+            orderId: "ORDER-1",
+            paymentMethodType: "credit_card",
+            paymentMethodId: "visa",
+            issuerId: "santander",
+            bin: "453998",
+            lastFourDigits: "4567",
+            installments: 1,
+            installmentAmount: nil,
+            emailChangeEnabled: false,
+            sellerInfo: nil
+        )
+        let endpoint = ReviewConfirmEndpoint(clientToken: self.clientToken, requestBody: request)
+
+        // Act
+        let body = try XCTUnwrap(endpoint.body)
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+
+        // Assert
+        XCTAssertNil(json["installment_amount"])
+    }
+
+    func testEndpoint_sendsProductIdAsQueryParameter() throws {
+        // Arrange
+        let endpoint = ReviewConfirmEndpoint(clientToken: self.clientToken, requestBody: self.makeRequest())
+
+        // Act
+        let params = endpoint.urlParams
+
+        // Assert
+        XCTAssertEqual(try String(describing: XCTUnwrap(params["product_id"])), MPSDKProduct.id)
     }
 
     // MARK: - Authorization Header

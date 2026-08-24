@@ -137,10 +137,16 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 self.presentationMode.wrappedValue.dismiss()
             },
             onFinish: { context in
-                self.completeTransactionCheckout(installments: context.installments)
+                self.completeTransactionCheckout(
+                    installments: context.installments,
+                    installmentAmount: context.installmentAmount
+                )
             },
-            onContinue: { output in
-                self.completeTransactionCheckout(installments: output.installments)
+            onContinue: { context in
+                self.completeTransactionCheckout(
+                    installments: context.installments,
+                    installmentAmount: context.installmentAmount
+                )
             }
         )
     }
@@ -261,7 +267,10 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
 
     /// Routes to the review and confirm screen when the integrator opted in, and processes the order
     /// straight away otherwise.
-    private func completeTransactionCheckout(installments: Int = 1) {
+    private func completeTransactionCheckout(
+        installments: Int = 1,
+        installmentAmount: Decimal? = nil
+    ) {
         guard var paymentData = self.pendingResult as? MPPaymentData.CardTransaction else {
             assertionFailure("completeTransactionCheckout: invalid payment data")
             return
@@ -270,7 +279,8 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
 
         if let input = self.brickViewModel.reviewConfirmInput(
             cardTransaction: paymentData,
-            inputCardData: self.inputCardData
+            inputCardData: self.inputCardData,
+            installmentAmount: installmentAmount
         ) {
             self.pendingResult = paymentData as? T
             self.pendingReviewConfirmInput = input

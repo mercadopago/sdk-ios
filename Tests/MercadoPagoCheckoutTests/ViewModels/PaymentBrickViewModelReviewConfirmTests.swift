@@ -34,7 +34,7 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         bin: String? = "411111",
         issuerId: Int? = nil,
         lastFourDigits: String? = nil,
-        installmentAmount: String? = nil
+        installmentAmount: Decimal? = nil
     ) -> ReviewConfirmCardDetails {
         .init(bin: bin, issuerId: issuerId, lastFourDigits: lastFourDigits, installmentAmount: installmentAmount)
     }

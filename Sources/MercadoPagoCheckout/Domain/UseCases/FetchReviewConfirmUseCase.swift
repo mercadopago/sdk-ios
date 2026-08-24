@@ -3,6 +3,7 @@
 //  MercadoPagoSDK
 //
 
+import Foundation
 import MPCore
 
 struct FetchReviewConfirmUseCase {
@@ -74,10 +75,9 @@ struct FetchReviewConfirmUseCase {
                 paymentMethodId: paymentMethodId,
                 issuerId: cardDetails.issuerId.map(String.init),
                 bin: cardDetails.bin,
-                productId: MPSDKProduct.id,
                 lastFourDigits: cardDetails.lastFourDigits,
                 installments: installments,
-                installmentAmount: cardDetails.installmentAmount,
+                installmentAmount: self.requestAmount(from: cardDetails.installmentAmount),
                 emailChangeEnabled: emailChangeEnabled,
                 sellerInfo: sellerInfo
             )
@@ -88,7 +88,6 @@ struct FetchReviewConfirmUseCase {
                 paymentMethodId: paymentMethodId,
                 issuerId: nil,
                 bin: nil,
-                productId: MPSDKProduct.id,
                 lastFourDigits: nil,
                 installments: nil,
                 installmentAmount: nil,
@@ -96,5 +95,16 @@ struct FetchReviewConfirmUseCase {
                 sellerInfo: sellerInfo
             )
         }
+    }
+
+    private func requestAmount(from amount: Decimal?) -> String? {
+        guard let amount else { return nil }
+
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.decimalSeparator = "."
+        formatter.groupingSeparator = ""
+        return formatter.string(from: amount as NSDecimalNumber) ?? NSDecimalNumber(decimal: amount).stringValue
     }
 }

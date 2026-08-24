@@ -63,7 +63,11 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
 
         // Act
         let input = try XCTUnwrap(
-            sut.reviewConfirmInput(cardTransaction: self.makeCardTransaction(), inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234"))
+            sut.reviewConfirmInput(
+                cardTransaction: self.makeCardTransaction(),
+                inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234"),
+                installmentAmount: 33.34
+            )
         )
 
         // Assert
@@ -72,6 +76,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         XCTAssertEqual(input.cardDetails.bin, "41111111")
         XCTAssertEqual(input.cardDetails.issuerId, 25)
         XCTAssertEqual(input.cardDetails.lastFourDigits, "1234")
+        XCTAssertEqual(input.cardDetails.installmentAmount, 33.34)
     }
 
     func test_reviewConfirmInput_withSellerInfo_shouldForwardSellerFromCheckoutType() throws {
