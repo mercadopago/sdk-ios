@@ -24,7 +24,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard, .payment:
             return nil
-        case let .cardTransaction(order):
+        case let .cardTransaction(order, _):
             return order.orderId
         }
     }
@@ -33,7 +33,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard:
             return nil
-        case let .payment(order), let .cardTransaction(order):
+        case let .payment(order, _), let .cardTransaction(order, _):
             return order.clientToken
         }
     }
@@ -42,7 +42,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case .saveCard:
             return nil
-        case let .payment(order), let .cardTransaction(order):
+        case let .payment(order, _), let .cardTransaction(order, _):
             return order
         }
     }
@@ -102,7 +102,8 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 excludedPaymentMethodIds: self.configuration.paymentMethod.excludedPaymentMethodIds,
                 initResult: result,
                 minInstallments: self.configuration.paymentMethod.installmentConfig?.minInstallments,
-                maxInstallments: self.configuration.paymentMethod.installmentConfig?.maxInstallments
+                maxInstallments: self.configuration.paymentMethod.installmentConfig?.maxInstallments,
+                screens: self.configuration.screenConfigs.screensParameter
             )
 
             let viewModel = CardFormViewModel(
@@ -179,7 +180,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
 
         switch self.configuration.type.kind {
-        case let .cardTransaction(order):
+        case let .cardTransaction(order, _):
             return MPPaymentData.CardTransaction(
                 transactionAmount: self.transactionAmount,
                 token: output.token,
@@ -204,6 +205,50 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         case .payment:
             return nil
         }
+    }
+
+    // MARK: - Review & Confirm
+
+    func reviewConfirmInput(
+        cardTransaction paymentData: MPPaymentData.CardTransaction,
+        inputCardData: InputCardData?,
+        installmentAmount: Decimal? = nil
+    ) -> PendingReviewConfirmInput? {
+        guard self.configuration.reviewAndConfirmConfig != nil,
+              case let .cardTransaction(order, sellerInfo) = self.configuration.type.kind,
+              let params = OrderTransactionParams(cardTransaction: paymentData)
+        else { return nil }
+
+        let cardDetails = ReviewConfirmCardDetails(
+            bin: inputCardData?.bin,
+            issuerId: paymentData.issuerId.flatMap { Int($0) },
+            lastFourDigits: inputCardData?.lastFourDigits,
+            installmentAmount: installmentAmount
+        )
+        return PendingReviewConfirmInput(
+            order: order,
+            sellerInfo: sellerInfo,
+            paymentParams: params,
+            cardDetails: cardDetails
+        )
+    }
+
+    func makeReviewConfirmResult(
+        from processData: OrderTransactionProcessData,
+        paymentData: MPPaymentData.CardTransaction
+    ) -> T? {
+        var updated = paymentData
+        updated.orderStatus = processData.status
+        return updated as? T
+    }
+
+    /// The seller's callback for "Modificar" on the payment-method row (card transaction), or `nil`
+    /// when review and confirm is not configured. The brick closes itself and invokes this.
+    var onPaymentMethodChangeRequested: (@MainActor @Sendable () -> Void)? {
+        guard case let .reviewAndConfirm(callback, _) = self.configuration.reviewAndConfirmConfig else {
+            return nil
+        }
+        return callback
     }
 
     // MARK: - Analytics

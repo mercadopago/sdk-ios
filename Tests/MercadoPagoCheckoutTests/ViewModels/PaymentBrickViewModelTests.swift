@@ -118,7 +118,7 @@ final class PaymentBrickViewModelTests: XCTestCase {
     ) -> PaymentBrickViewModel<MPPaymentData.Payment> {
         let order = MPOrder(orderId: "ORD01", clientToken: "seller_client_token")
         let configuration = MPCheckoutConfiguration<MPPaymentData.Payment>(
-            type: MercadoPagoCheckout<MPPaymentData.Payment>.CheckoutType(kind: .payment(order)),
+            type: MercadoPagoCheckout<MPPaymentData.Payment>.CheckoutType(kind: .payment(order: order, sellerInfo: nil)),
             paymentMethod: [.card()]
         )
         if let repo = orderRepository {
