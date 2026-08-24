@@ -375,10 +375,10 @@ private extension PaymentBrick {
 
     /// Failed `POST /review_confirm`: pop back to the selector and show a snackbar there. Per AC-9
     /// the seller's `onError` is not called for an initialization error.
-    func handleReviewInitializationError(_ error: MercadoPagoCheckoutError) {
+    func handleReviewInitializationError(_: MercadoPagoCheckoutError) {
         self.route = nil
         self.pendingReviewConfirmInput = nil
-        self.pendingSnackbarError = error.localizedDescription
+        self.pendingSnackbarError = MPStrings.Errors.generic
     }
 
     /// Presents the snackbar while `pendingSnackbarError` holds a message; clears it on dismiss.

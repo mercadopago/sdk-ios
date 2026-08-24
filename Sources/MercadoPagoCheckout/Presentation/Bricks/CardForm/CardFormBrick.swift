@@ -21,6 +21,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var processingTask: Task<Void, Never>?
     @State private var inputCardData: InputCardData?
     @State private var pendingReviewConfirmInput: PendingReviewConfirmInput?
+    @State private var pendingSnackbarError: String?
     @State private var pendingCloseCompletion: (() -> Void)?
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
@@ -110,6 +111,11 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             onFailure: { error in
                 self.fail(error)
             }
+        )
+        .messageSnackbar(
+            isPresented: self.snackbarBinding,
+            text: self.pendingSnackbarError ?? String(),
+            state: .negative
         )
     }
 
@@ -347,7 +353,18 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     /// Failed `POST /review_confirm` while opening the screen: pop back to the card form. Per AC-9
     /// the seller's `onError` is not called for an initialization error.
     private func handleReviewInitializationError(_: MercadoPagoCheckoutError) {
-        self.clearReviewConfirmState()
+        self.route = nil
+        self.pendingReviewConfirmInput = nil
+        self.pendingSnackbarError = MPStrings.Errors.generic
+    }
+
+    private var snackbarBinding: Binding<Bool> {
+        Binding(
+            get: { self.pendingSnackbarError != nil },
+            set: { isPresented in
+                if !isPresented { self.pendingSnackbarError = nil }
+            }
+        )
     }
 
     /// "Change" on the payment-method row in the card transaction flow: there is no method
