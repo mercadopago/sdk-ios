@@ -13,6 +13,7 @@ final actor MockCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
     private var result: Result<CardPaymentBrickCardData, Error>?
     private var results: [Result<CardPaymentBrickCardData, Error>] = []
     private(set) var callCount = 0
+    private(set) var capturedParams: CardPaymentBrickCardParams?
 
     func setResult(_ result: Result<CardPaymentBrickCardData, Error>) {
         self.result = result
@@ -22,8 +23,9 @@ final actor MockCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
         self.results = Array(results)
     }
 
-    func fetchCard(params _: CardPaymentBrickCardParams) async throws -> CardPaymentBrickCardData {
+    func fetchCard(params: CardPaymentBrickCardParams) async throws -> CardPaymentBrickCardData {
         self.callCount += 1
+        self.capturedParams = params
         if !self.results.isEmpty {
             let r = self.results.count > 1 ? self.results.removeFirst() : self.results[0]
             return try r.get()

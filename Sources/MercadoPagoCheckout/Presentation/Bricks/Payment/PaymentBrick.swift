@@ -20,6 +20,10 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     @State private var route: Route?
     @State private var selectedItem: PaymentInitializationOutput.Item?
     @State private var methodSelectionViewModel: MethodSelectionViewModel?
+    @State private var pendingReviewConfirmInput: PendingReviewConfirmInput?
+    @State private var reviewConfirmPreviousRoute: Route?
+    @State private var pendingSnackbarError: String?
+    @State private var pendingCloseCompletion: (() -> Void)?
     @ObservedObject private var viewModel: PaymentBrickViewModel<T>
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -72,6 +76,16 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         .mpTask {
             await self.load()
         }
+        .onDisappear {
+            self.firePendingCloseCompletion()
+        }
+    }
+
+    /// Runs the callback deferred by a "close and hand off" flow (e.g. "Modificar" on the email
+    /// row), once the brick has genuinely left the screen — see `pendingCloseCompletion`.
+    private func firePendingCloseCompletion() {
+        self.pendingCloseCompletion?()
+        self.pendingCloseCompletion = nil
     }
 
     private func paymentsScreen(output: PaymentInitializationOutput) -> some View {
@@ -84,6 +98,11 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 self.handleSelection(of: item)
             }
         )
+        .messageSnackbar(
+            isPresented: self.snackbarBinding,
+            text: self.pendingSnackbarError ?? String(),
+            state: .negative
+        )
     }
 
     // MARK: - Navigation
@@ -92,6 +111,11 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     private func handleSelection(of item: PaymentInitializationOutput.Item) {
         switch item.route {
         case "card_form":
+            // Drop any previously selected saved card so its data can't leak into the new-card
+            // flow (selectedItem survives a back-navigation from CVV/installments).
+            // TODO: When card_form is wired to confirmation, feed the new card's details from the
+            // CardFormSubmitResult here instead of relying on selectedItem.
+            self.selectedItem = nil
             self.route = .cardForm
         case "saved_card":
             self.selectedItem = item
@@ -112,33 +136,52 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             self.methodSelectionViewModel = MethodSelectionViewModel(output: screen)
             self.route = .offlineMethodSelector
         } else {
-            Task {
-                await self.process(
-                    params: OrderTransactionParams(
-                        amount: self.viewModel.transactionAmount,
-                        paymentMethodType: .ticket(paymentMethodId: item.id)
-                    )
+            self.handlePaymentConfirmed(
+                OrderTransactionParams(
+                    amount: self.viewModel.transactionAmount,
+                    paymentMethodType: .ticket(paymentMethodId: item.id)
                 )
-            }
+            )
         }
     }
 
     private func handleMethodSelectionOption(_ option: MethodSelectionOutput.Option) {
-        guard let screen = self.methodSelectionViewModel?.output else { return }
+        self.handlePaymentConfirmed(
+            OrderTransactionParams(
+                amount: self.viewModel.transactionAmount,
+                paymentMethodType: .ticket(paymentMethodId: option.id)
+            )
+        )
+    }
 
-        switch screen.selectionType {
-        case .chevron:
-            self.route = .reviewAndConfirm
-        case .radioButton:
-            Task {
-                await self.process(
-                    params: OrderTransactionParams(
-                        amount: self.viewModel.transactionAmount,
-                        paymentMethodType: .ticket(paymentMethodId: option.id)
-                    )
-                )
-            }
+    /// Routes to the review and confirm screen when the integrator opted in, and processes the
+    /// order straight away otherwise.
+    private func handlePaymentConfirmed(_ params: OrderTransactionParams) {
+        let cardData = self.selectedItem?.cardData
+        let cardDetails = ReviewConfirmCardDetails(
+            bin: cardData?.bin,
+            issuerId: cardData?.issuerId,
+            lastFourDigits: cardData?.lastFourDigits,
+            // Populated once the installments screen destination is wired up (not reachable yet).
+            installmentAmount: nil,
+            cardId: cardData == nil ? nil : self.selectedItem?.id
+        )
+        guard let input = self.viewModel.reviewConfirmInput(for: params, cardDetails: cardDetails) else {
+            Task { await self.process(params: params) }
+            return
         }
+
+        self.pendingReviewConfirmInput = input
+        self.reviewConfirmPreviousRoute = self.route
+        self.route = .reviewAndConfirm
+    }
+
+    /// Drops the data held for the review and confirm screen once the flow moves on.
+    private func clearReviewConfirmState() {
+        self.route = nil
+        self.pendingReviewConfirmInput = nil
+        self.reviewConfirmPreviousRoute = nil
+        self.selectedItem = nil
     }
 
     private func navigationLinks() -> some View {
@@ -157,6 +200,16 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 destination: self.methodSelectionDestination()
                     .onAppear { self.viewModel.markScreenPresented(.offlineMethodSelector) },
                 tag: Route.offlineMethodSelector,
+                selection: self.$route
+            ) {
+                EmptyView()
+            }
+            .hidden()
+
+            NavigationLink(
+                destination: self.reviewConfirmDestination()
+                    .onAppear { self.viewModel.markScreenPresented(.reviewAndConfirm) },
+                tag: Route.reviewAndConfirm,
                 selection: self.$route
             ) {
                 EmptyView()
@@ -204,6 +257,30 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         }
     }
 
+    @ViewBuilder
+    func reviewConfirmDestination() -> some View {
+        if let input = self.pendingReviewConfirmInput,
+           let reviewConfirmConfig = self.configuration.reviewAndConfirmConfig {
+            ReviewConfirmScreen(
+                viewModel: ReviewConfirmViewModel(
+                    order: input.order,
+                    paymentParams: input.paymentParams,
+                    reviewConfirmConfig: reviewConfirmConfig,
+                    sellerInfo: input.sellerInfo,
+                    cardDetails: input.cardDetails
+                ),
+                onConfirmed: { processData in self.handleReviewConfirmed(processData) },
+                onConfirmError: { error in self.fail(error) },
+                onInitializationError: { error in self.handleReviewInitializationError(error) },
+                onModifyPaymentMethod: { self.handleModifyPaymentMethod() },
+                onModifyEmail: self.viewModel.onEmailChangeRequested != nil ? { self.handleModifyEmail() } : nil,
+                onBack: { self.handleReviewConfirmBack() }
+            )
+        } else {
+            EmptyView()
+        }
+    }
+
     // MARK: - States
 
     private func load() async {
@@ -224,13 +301,13 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     }
 
     private func complete(with payment: T) {
-        self.route = nil
+        self.clearReviewConfirmState()
         self.onResult(.success(payment))
         self.presentationMode.wrappedValue.dismiss()
     }
 
     private func cancel(screens: [MPScreen] = []) {
-        self.route = nil
+        self.clearReviewConfirmState()
         let context = MPUserCancelledContext.Payment(screens: screens)
         guard let typed = context as? T.Cancellation else {
             self.fail(
@@ -250,8 +327,66 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     }
 
     private func fail(_ error: MercadoPagoCheckoutError) {
-        self.route = nil
+        self.clearReviewConfirmState()
         self.onResult(.error(error))
         self.presentationMode.wrappedValue.dismiss()
+    }
+}
+
+// MARK: - Review & Confirm
+
+private extension PaymentBrick {
+    /// Back from review and confirm returns to the immediately preceding screen, keeping the
+    /// checkout open while preserving the review screen in the cancellation history.
+    func handleReviewConfirmBack() {
+        self.viewModel.markScreenPresented(.reviewAndConfirm)
+        let previousRoute = self.reviewConfirmPreviousRoute
+        self.pendingReviewConfirmInput = nil
+        self.reviewConfirmPreviousRoute = nil
+        self.route = previousRoute
+    }
+
+    /// Confirmed order from the review screen: reuses the same mapping as the direct process path.
+    func handleReviewConfirmed(_ processData: OrderTransactionProcessData) {
+        do {
+            let payment = try self.viewModel.makePaymentResult(from: processData)
+            self.complete(with: payment)
+        } catch {
+            self.fail(error)
+        }
+    }
+
+    /// "Modificar" on the payment-method row: always returns to the root payment-method selector,
+    /// regardless of the method type (card or ticket).
+    func handleModifyPaymentMethod() {
+        self.clearReviewConfirmState()
+    }
+
+    /// "Modificar" on the email row (ticket flow only): there is no way to edit the email inside
+    /// the SDK, so close the brick and hand control back to the integrator through the required
+    /// `onEmailChangeRequested` callback — without reporting a cancellation, the same convention
+    /// used for the payment-method "Modificar" on the card transaction flow.
+    func handleModifyEmail() {
+        self.pendingCloseCompletion = self.viewModel.onEmailChangeRequested
+        self.clearReviewConfirmState()
+        self.presentationMode.wrappedValue.dismiss()
+    }
+
+    /// Failed `POST /review_confirm`: pop back to the selector and show a snackbar there. Per AC-9
+    /// the seller's `onError` is not called for an initialization error.
+    func handleReviewInitializationError(_ error: MercadoPagoCheckoutError) {
+        self.route = nil
+        self.pendingReviewConfirmInput = nil
+        self.pendingSnackbarError = error.localizedDescription
+    }
+
+    /// Presents the snackbar while `pendingSnackbarError` holds a message; clears it on dismiss.
+    var snackbarBinding: Binding<Bool> {
+        Binding(
+            get: { self.pendingSnackbarError != nil },
+            set: { isPresented in
+                if !isPresented { self.pendingSnackbarError = nil }
+            }
+        )
     }
 }

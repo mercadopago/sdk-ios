@@ -119,7 +119,9 @@ final class CardFormBrickViewModelTests: XCTestCase {
             paymentTypeId: "credit_card",
             issuerId: nil,
             payer: nil,
-            installmentsData: nil
+            installmentsData: nil,
+            bin: nil,
+            lastFourDigits: nil
         )
 
         // Act
@@ -150,7 +152,9 @@ final class CardFormBrickViewModelTests: XCTestCase {
             paymentTypeId: "credit_card",
             issuerId: nil,
             payer: nil,
-            installmentsData: nil
+            installmentsData: nil,
+            bin: nil,
+            lastFourDigits: nil
         )
 
         // Act
