@@ -52,7 +52,10 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Published State
 
     @Published private(set) var screenState: ScreenState = .loading
-    @Published private(set) var installmentsWasPresented = false
+
+    private var presentedScreens: [MPScreen] = []
+
+    var screensVisited: [MPScreen] { self.presentedScreens }
 
     // MARK: - Dependencies
 
@@ -78,8 +81,12 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.analytics = analytics
     }
 
-    func markInstallmentsPresented() {
-        self.installmentsWasPresented = true
+    // MARK: - Screen tracking
+
+    func markScreenPresented(_ screen: MPScreen) {
+        if !self.presentedScreens.contains(screen) {
+            self.presentedScreens.append(screen)
+        }
     }
 
     // MARK: - Initialization

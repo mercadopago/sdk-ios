@@ -160,7 +160,9 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private func navigationLinks() -> some View {
         Group {
             NavigationLink(
-                destination: self.installmentScreen().isLoading(self.isProcessingOrder),
+                destination: self.installmentScreen()
+                    .isLoading(self.isProcessingOrder)
+                    .onAppear { self.brickViewModel.markScreenPresented(.installments) },
                 tag: .installments,
                 selection: self.$route
             ) {
@@ -169,7 +171,8 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             .hidden()
 
             NavigationLink(
-                destination: self.reviewConfirmDestination(),
+                destination: self.reviewConfirmDestination()
+                    .onAppear { self.brickViewModel.markScreenPresented(.reviewAndConfirm) },
                 tag: .reviewAndConfirm,
                 selection: self.$route
             ) {
@@ -207,16 +210,15 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private func handleInstallments(_ installmentsData: MPInstallmentsData) {
         if installmentsData.installment.quotas.count > 1 {
             self.installmentsData = installmentsData
-            self.brickViewModel.markInstallmentsPresented()
             self.route = .installments
         } else {
             self.completeTransactionCheckout(installments: installmentsData.installment.quotas.first?.installments ?? 1)
         }
     }
 
-    /// The screens the user reached before cancelling, derived from the brick's navigation state.
+    /// The screens the user reached before cancelling, in presentation order and without duplicates.
     private var screensVisited: [MPScreen] {
-        self.brickViewModel.installmentsWasPresented ? [.installments] : []
+        self.brickViewModel.screensVisited
     }
 
     private func cancelCheckout(cardForm context: MPCardFormUserCancelledContext) {
