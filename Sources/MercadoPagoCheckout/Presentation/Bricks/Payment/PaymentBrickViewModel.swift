@@ -34,7 +34,10 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     var transactionAmount: Decimal { .zero }
 
-    var payerEmail: String { "" }
+    var footer: PaymentInitializationOutput.Footer? {
+        guard case let .ready(output) = self.screenState else { return nil }
+        return output.footer
+    }
 
     init(
         configuration: MPCheckoutConfiguration<T>,
@@ -83,7 +86,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
                 localizedDescription: "ORDER_PROCESS",
-                userInfo: ["checkouType": "payment"],
+                userInfo: ["checkoutType": "payment"],
                 location: .orderProcess
             )
         }
@@ -96,7 +99,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             throw MercadoPagoCheckoutError(
                 code: .serviceError,
                 localizedDescription: "",
-                userInfo: ["checkouType": "payment"],
+                userInfo: ["checkoutType": "payment"],
                 location: .orderProcess
             )
         }
@@ -112,7 +115,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
                 localizedDescription: "Typed Error",
-                userInfo: ["checkouType": "payment"],
+                userInfo: ["checkoutType": "payment"],
                 location: .orderProcess
             )
         }
@@ -120,19 +123,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         return typed
     }
 
-    func makeEmailViewModel() -> EmailViewModel {
-        EmailViewModel(
-            config: .init(
-                initResult: EmailInitializationOutput(
-                    title: "Completá el e-mail",
-                    button: "Continuar",
-                    label: "E-mail",
-                    email: self.payerEmail,
-                    placeholder: "Ejemplo: juan.perez@gmail.com",
-                    errorEmpty: "Completá este campo.",
-                    errorInvalid: "Ingresá un e-mail válido."
-                )
-            )
-        )
+    func shouldSkipSecurityCode(from item: PaymentInitializationOutput.Item) -> Bool {
+        return item.cardData?.securityCodeScreen == nil
     }
 }
