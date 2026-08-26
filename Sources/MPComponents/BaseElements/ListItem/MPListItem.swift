@@ -17,6 +17,7 @@ package struct MPListItem: View {
     @Environment(\.checkoutTheme) private var theme: MPTheme
     @Environment(\.listItemStyle) private var style
     @Environment(\.listItemTrailingStyle) private var trailingStyle
+    @Environment(\.mpThumbnailStyle) private var thumbnailStyle: any MPIconStyle
     @State private var isPressed = false
 
     let isSelected: Binding<Bool>
@@ -102,7 +103,7 @@ package struct MPListItem: View {
             image
         case let .thumbnail(url):
             MPIcon(source: .remote(url: url))
-                .mpIconStyle(.thumbnailFlag)
+                .environment(\.mpIconStyle, self.thumbnailStyle)
         case .none:
             EmptyView()
         }

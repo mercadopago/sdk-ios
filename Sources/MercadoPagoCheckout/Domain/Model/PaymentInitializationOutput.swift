@@ -33,6 +33,8 @@ struct PaymentInitializationOutput: Equatable {
         let icon: Icon
         let route: String
         let cardData: CardData?
+        /// Present on the `ticket` method when the BFF decides to show the Off Payment List screen.
+        let screen: MethodSelectionOutput?
 
         init(
             id: String,
@@ -40,7 +42,8 @@ struct PaymentInitializationOutput: Equatable {
             description: String?,
             icon: Icon,
             route: String,
-            cardData: CardData? = nil
+            cardData: CardData? = nil,
+            screen: MethodSelectionOutput? = nil
         ) {
             self.id = id
             self.title = title
@@ -48,6 +51,7 @@ struct PaymentInitializationOutput: Equatable {
             self.icon = icon
             self.route = route
             self.cardData = cardData
+            self.screen = screen
         }
 
         /// Source of the leading thumbnail icon.
