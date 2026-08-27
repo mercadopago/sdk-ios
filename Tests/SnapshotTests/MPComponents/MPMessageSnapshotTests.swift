@@ -5,15 +5,14 @@
 //  Created by Danielle Nozaki Ogawa on 15/01/26.
 //
 
-import XCTest
-import SwiftUI
-import SnapshotTesting
 @testable import MPComponents
 @testable import MPFoundation
+import SnapshotTesting
+import SwiftUI
+import XCTest
 
 @MainActor
 final class MPMessageSnapshotTests: XCTestCase {
-    
     func testMessageView() throws {
         let view = MPSnackBarViewer(isPresenting: true)
         let hostingController = UIHostingController(rootView: view)

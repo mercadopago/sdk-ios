@@ -4,8 +4,8 @@
 //
 //  Created by Danielle Nozaki Ogawa on 15/01/26.
 //
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 struct MPMessageSnackbarModifier: ViewModifier {
     @Binding var isPresented: Bool
@@ -19,32 +19,33 @@ struct MPMessageSnackbarModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(messageView)
-            .animation(.easeInOut(duration: 0.25), value: isPresented)
+            .overlay(self.messageView)
+            .animation(.easeInOut(duration: 0.25), value: self.isPresented)
     }
 
     @ViewBuilder
     var messageView: some View {
-        if isPresented {
+        if self.isPresented {
             VStack {
                 Spacer()
                 MPMessage(
-                    message: text,
-                    state: state,
-                    isPresenting: $isPresented
+                    message: self.text,
+                    state: self.state,
+                    isPresenting: self.$isPresented
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
-                .onAppear { scheduleHide() }
-                .onDisappear { hideWorkItem?.cancel() }
+                .onAppear { self.scheduleHide() }
+                .onDisappear { self.hideWorkItem?.cancel() }
             }
-            .padding(.bottom, bottomPadding)
+            .padding(.bottom, self.bottomPadding)
         }
     }
+
     private func scheduleHide() {
-        hideWorkItem?.cancel()
-        guard duration != .indefinite else { return }
+        self.hideWorkItem?.cancel()
+        guard self.duration != .indefinite else { return }
         let work = DispatchWorkItem { self.isPresented = false }
-        hideWorkItem = work
+        self.hideWorkItem = work
         let delay: DispatchTime = .now() + .nanoseconds(Int(duration.nanoseconds))
         DispatchQueue.main.asyncAfter(deadline: delay, execute: work)
     }
@@ -52,12 +53,11 @@ struct MPMessageSnackbarModifier: ViewModifier {
 
 /// Presents a message snackbar over the current view (bottom overlay with animation).
 package extension View {
-
-/// - Parameters:
-///   - isPresented: Binding for visibility control.
-///   - text: Text to display.
-///   - state: Visual state (default: `.informative`).
-///   - duration: Display duration (default: `.normal`; use `.indefinite`
+    /// - Parameters:
+    ///   - isPresented: Binding for visibility control.
+    ///   - text: Text to display.
+    ///   - state: Visual state (default: `.informative`).
+    ///   - duration: Display duration (default: `.normal`; use `.indefinite`
     func messageSnackbar(
         isPresented: Binding<Bool>,
         text: String,
@@ -95,13 +95,10 @@ package enum MPMessageDuration {
     case short, normal, long, indefinite
     var nanoseconds: UInt64 {
         switch self {
-        case .short:      return 3_000_000_000
-        case .normal:     return 6_000_000_000
-        case .long:       return 10_000_000_000
+        case .short: return 3_000_000_000
+        case .normal: return 6_000_000_000
+        case .long: return 10_000_000_000
         case .indefinite: return .max
         }
     }
 }
-
-
-

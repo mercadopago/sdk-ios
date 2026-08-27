@@ -173,7 +173,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     // MARK: - Payment Data Mapping
 
-    func buildPaymentData(from output: CardFormOutput) -> T? {
+    func buildPaymentData(from output: CardFormSubmitResult) -> T? {
         let payer = output.payer.map {
             MPPaymentData.Payer(documentType: $0.documentType, documentNumber: $0.documentNumber)
         }

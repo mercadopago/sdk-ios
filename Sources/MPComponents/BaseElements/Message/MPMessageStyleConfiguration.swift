@@ -12,11 +12,11 @@ package struct MPMessageConfiguration {
     package struct CloseButton: View {
         package let body: AnyView
     }
-    
+
     package struct Message: View {
         package let body: AnyView
     }
-    
+
     package let message: Message
     package let state: MPMessageState
     package let closeButton: CloseButton
@@ -28,4 +28,3 @@ package struct MPMessageConfiguration {
         self.closeButton = CloseButton(body: AnyView(closeButton))
     }
 }
-

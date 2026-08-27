@@ -11,22 +11,22 @@ package struct MPRadioButton: View {
     @Binding var selected: Bool
 
     package var body: some View {
-        Toggle(isOn: $selected) { EmptyView() }
+        Toggle(isOn: self.$selected) { EmptyView() }
             .toggleStyle(MPRadioButtonToggleStyle())
             .labelsHidden()
     }
 }
 
 #if DEBUG
-struct MPRadioViewer: View {
-    @State var isOn: Bool = false
+    struct MPRadioViewer: View {
+        @State var isOn = false
 
-    var body: some View {
-        MPRadioButton(selected: $isOn)
+        var body: some View {
+            MPRadioButton(selected: self.$isOn)
+        }
     }
-}
 
-#Preview {
-    MPRadioViewer()
-}
+    #Preview {
+        MPRadioViewer()
+    }
 #endif
