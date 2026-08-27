@@ -7,7 +7,6 @@
 import SwiftUI
 
 package struct MPProgressIndicator: View {
-
     @Environment(\.mpProgressIndicatorSize) private var size: MPProgressIndicatorSize
     @Environment(\.mpProgressViewStyle) private var style: any MPProgressIndicatorStyle
 
@@ -15,6 +14,6 @@ package struct MPProgressIndicator: View {
 
     package var body: some View {
         let configuration = MPProgressIndicatorStyleConfiguration(size: size)
-        return AnyView(style.resolve(configuration: configuration))
+        return AnyView(self.style.resolve(configuration: configuration))
     }
 }

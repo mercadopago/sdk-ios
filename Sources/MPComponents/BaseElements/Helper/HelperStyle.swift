@@ -5,8 +5,8 @@
 //  Created by SDK on 06/01/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 public enum HelperHierarchy: Sendable, Hashable {
     case loud
@@ -37,16 +37,15 @@ package struct HelperDefaultStyle: HelperStyle {
 
     @MainActor
     package func makeBody(configuration: HelperStyleConfiguration) -> some View {
-        HStack(spacing: theme.spacings.xnano) {
+        HStack(spacing: self.theme.spacings.xnano) {
             if let badge = configuration.badge {
                 MPBadgeIcon(badge)
             }
-            
+
             Text(configuration.title)
-                .textStyle(textStyle(config: configuration))
+                .textStyle(self.textStyle(config: configuration))
         }
     }
-    
 
     func textStyle(config: HelperStyleConfiguration) -> BaseTextStyle {
         switch self.hierarchy {
@@ -67,10 +66,10 @@ package struct HelperDefaultStyle: HelperStyle {
             }
         }
     }
-
 }
 
 // MARK: - Style Resolution
+
 package extension HelperStyle {
     @MainActor
     func resolve(configuration: Configuration) -> some View {
@@ -83,11 +82,12 @@ private struct ResolvedHelperStyle<Style: HelperStyle>: View {
     let configuration: Style.Configuration
 
     var body: some View {
-        style.makeBody(configuration: configuration)
+        self.style.makeBody(configuration: self.configuration)
     }
 }
 
 // MARK: - Environment
+
 private struct HelperStyleKey: @preconcurrency EnvironmentKey {
     @MainActor
     static var defaultValue: any HelperStyle = HelperDefaultStyle()
@@ -102,13 +102,13 @@ extension EnvironmentValues {
 
 package extension View {
     /// Sets the style for `Helper` within this view hierarchy.
-    func helperStyle<S: HelperStyle>(_ style: S) -> some View {
+    func helperStyle(_ style: some HelperStyle) -> some View {
         environment(\.helperStyle, style)
     }
 
     /// Convenience overload to apply the default helper style with a given hierarchy.
     func helperStyle(_ hierarchy: HelperHierarchy) -> some View {
-        helperStyle(HelperDefaultStyle(hierarchy: hierarchy))
+        self.helperStyle(HelperDefaultStyle(hierarchy: hierarchy))
     }
 }
 
@@ -120,4 +120,3 @@ package extension HelperStyle where Self == HelperDefaultStyle {
     static func loud() -> Self { HelperDefaultStyle(hierarchy: .loud) }
     static func quiet() -> Self { HelperDefaultStyle(hierarchy: .quiet) }
 }
-

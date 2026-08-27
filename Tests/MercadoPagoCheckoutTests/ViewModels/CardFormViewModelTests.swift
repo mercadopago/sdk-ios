@@ -760,7 +760,7 @@ final class CardFormViewModelTests: XCTestCase {
         let sut = self.makeSUT()
         await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        var capturedOutput: CardFormOutput?
+        var capturedOutput: CardFormSubmitResult?
 
         // Act
         await sut.viewModel.submitCardData(
@@ -778,7 +778,7 @@ final class CardFormViewModelTests: XCTestCase {
         let sut = self.makeSUTWithAmount(100.0)
         await self.setupCardData(sut)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        var capturedOutput: CardFormOutput?
+        var capturedOutput: CardFormSubmitResult?
 
         // Act
         await sut.viewModel.submitCardData(
@@ -931,7 +931,7 @@ final class CardFormViewModelTests: XCTestCase {
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
         var cardForm = CardFormDataStub.validForm
         cardForm.documentHolder = "12345678900"
-        var capturedOutput: CardFormOutput?
+        var capturedOutput: CardFormSubmitResult?
 
         // Act
         await sut.viewModel.submitCardData(
@@ -952,7 +952,7 @@ final class CardFormViewModelTests: XCTestCase {
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardData)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        var capturedOutput: CardFormOutput?
+        var capturedOutput: CardFormSubmitResult?
 
         // Act
         await sut.viewModel.submitCardData(
@@ -973,7 +973,7 @@ final class CardFormViewModelTests: XCTestCase {
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardData)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        var capturedOutput: CardFormOutput?
+        var capturedOutput: CardFormSubmitResult?
 
         // Act
         await sut.viewModel.submitCardData(
@@ -993,7 +993,7 @@ final class CardFormViewModelTests: XCTestCase {
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardData)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        var capturedOutput: CardFormOutput?
+        var capturedOutput: CardFormSubmitResult?
 
         // Act
         await sut.viewModel.submitCardData(
@@ -1015,7 +1015,7 @@ final class CardFormViewModelTests: XCTestCase {
         sut.viewModel.onCardNumberChange("12345678")
         await self.waitForChange(sut.viewModel.$cardData)
         await sut.service.setCreateCardTokenResult(.success(CardTokenStub.valid))
-        var capturedOutput: CardFormOutput?
+        var capturedOutput: CardFormSubmitResult?
 
         // Act
         await sut.viewModel.submitCardData(

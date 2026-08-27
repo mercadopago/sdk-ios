@@ -1,11 +1,11 @@
 //
-//  CardFormOutput.swift
+//  CardFormSubmitResult.swift
 //  MercadoPagoSDK
 //
-//  Created by Guilherme Prata Costa on 29/05/26.
+//  Created by Guilherme Prata Costa on 21/07/26.
 //
 
-struct CardFormOutput: Sendable {
+struct CardFormSubmitResult: Sendable {
     let token: String
     let paymentMethodId: String
     let paymentTypeId: String

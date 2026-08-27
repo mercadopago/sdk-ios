@@ -113,7 +113,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
             configuration: configuration,
             initializeUseCase: InitializeCardFormUseCase(repository: MockCardFormInitializationRepository())
         )
-        let output = CardFormOutput(
+        let output = CardFormSubmitResult(
             token: "token",
             paymentMethodId: "visa",
             paymentTypeId: "credit_card",
@@ -144,7 +144,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
             configuration: configuration,
             initializeUseCase: InitializeCardFormUseCase(repository: repository)
         )
-        let output = CardFormOutput(
+        let output = CardFormSubmitResult(
             token: "token",
             paymentMethodId: "visa",
             paymentTypeId: "credit_card",

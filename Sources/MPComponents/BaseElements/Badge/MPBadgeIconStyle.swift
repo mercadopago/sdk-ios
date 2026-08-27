@@ -1,12 +1,12 @@
 //
-//  BadgeStyle.swift
+//  MPBadgeIconStyle.swift
 //  MercadoPagoSDK
 //
 //  Created by SDK on 07/01/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 package protocol MPBadgeIconStyle: StyleProtocol, Identifiable where Configuration == MPBadgeIconConfiguration {}
 
@@ -20,27 +20,28 @@ package struct BadgeMicroStyle: MPBadgeIconStyle {
             .renderingMode(.template)
             .resizable()
             .frame(width: configuration.size.rawValue, height: configuration.size.rawValue)
-            .background(backgroundColor(for: configuration.kind))
+            .background(self.backgroundColor(for: configuration.kind))
             .clipShape(Circle())
-            .foregroundColor(theme.colors.text.inverse)
-            .accessibility(hidden:true)
+            .foregroundColor(self.theme.colors.text.inverse)
+            .accessibility(hidden: true)
     }
 
     private func backgroundColor(for kind: Logos.Feedback) -> Color {
         switch kind {
         case .positive:
-            return theme.colors.feedback.fillPositiveLoud
+            return self.theme.colors.feedback.fillPositiveLoud
         case .negative:
-            return theme.colors.feedback.fillNegativeLoud
+            return self.theme.colors.feedback.fillNegativeLoud
         case .caution:
-            return theme.colors.feedback.fillCautionLoud
+            return self.theme.colors.feedback.fillCautionLoud
         case .informative:
-            return theme.colors.feedback.fillInformativeLoud
+            return self.theme.colors.feedback.fillInformativeLoud
         }
     }
 }
 
 // MARK: - Style Resolution
+
 package extension MPBadgeIconStyle {
     @MainActor
     func resolve(configuration: Configuration) -> some View {
@@ -53,11 +54,12 @@ private struct ResolvedBadgeStyle<Style: MPBadgeIconStyle>: View {
     let configuration: Style.Configuration
 
     var body: some View {
-        style.makeBody(configuration: configuration)
+        self.style.makeBody(configuration: self.configuration)
     }
 }
 
 // MARK: - Environment
+
 private struct BadgeStyleKey: @preconcurrency EnvironmentKey {
     @MainActor
     static var defaultValue: any MPBadgeIconStyle = BadgeMicroStyle()
@@ -72,7 +74,7 @@ extension EnvironmentValues {
 
 package extension View {
     /// Sets the style for `Badge` within this view hierarchy.
-    func badgeStyle<S: MPBadgeIconStyle>(_ style: S) -> some View {
+    func badgeStyle(_ style: some MPBadgeIconStyle) -> some View {
         environment(\.badgeStyle, style)
     }
 }

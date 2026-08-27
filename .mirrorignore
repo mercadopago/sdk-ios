@@ -4,6 +4,7 @@
 ux-reference/
 Flowbook/
 .github/
+.fury
 
 Example/Example.xcodeproj/project.pbxproj.rej
 
