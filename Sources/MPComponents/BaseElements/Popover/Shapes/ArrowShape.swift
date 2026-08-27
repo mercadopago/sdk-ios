@@ -55,43 +55,43 @@ package struct ArrowShape: Shape {
 }
 
 #if DEBUG
-struct ArrowShape_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 20) {
-            // Basic arrow shape
-            ArrowShape()
-                .fill(Color.blue)
-                .frame(width: 20, height: 10)
-            
-            // Stroked arrow
-            ArrowShape()
-                .stroke(Color.red, lineWidth: 2)
-                .frame(width: 20, height: 10)
-            
-            // Rotated arrows showing different directions
-            HStack(spacing: 20) {
+    struct ArrowShape_Previews: PreviewProvider {
+        static var previews: some View {
+            VStack(spacing: 20) {
+                // Basic arrow shape
                 ArrowShape()
                     .fill(Color.blue)
-                    .frame(width: 15, height: 8)
-                    .rotationEffect(.degrees(0)) // Up
-                
+                    .frame(width: 20, height: 10)
+
+                // Stroked arrow
                 ArrowShape()
-                    .fill(Color.blue)
-                    .frame(width: 15, height: 8)
-                    .rotationEffect(.degrees(90)) // Right
-                
-                ArrowShape()
-                    .fill(Color.blue)
-                    .frame(width: 15, height: 8)
-                    .rotationEffect(.degrees(180)) // Down
-                
-                ArrowShape()
-                    .fill(Color.blue)
-                    .frame(width: 15, height: 8)
-                    .rotationEffect(.degrees(270)) // Left
+                    .stroke(Color.red, lineWidth: 2)
+                    .frame(width: 20, height: 10)
+
+                // Rotated arrows showing different directions
+                HStack(spacing: 20) {
+                    ArrowShape()
+                        .fill(Color.blue)
+                        .frame(width: 15, height: 8)
+                        .rotationEffect(.degrees(0)) // Up
+
+                    ArrowShape()
+                        .fill(Color.blue)
+                        .frame(width: 15, height: 8)
+                        .rotationEffect(.degrees(90)) // Right
+
+                    ArrowShape()
+                        .fill(Color.blue)
+                        .frame(width: 15, height: 8)
+                        .rotationEffect(.degrees(180)) // Down
+
+                    ArrowShape()
+                        .fill(Color.blue)
+                        .frame(width: 15, height: 8)
+                        .rotationEffect(.degrees(270)) // Left
+                }
             }
+            .padding()
         }
-        .padding()
     }
-}
 #endif

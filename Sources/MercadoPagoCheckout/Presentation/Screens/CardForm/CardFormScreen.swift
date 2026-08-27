@@ -11,7 +11,7 @@ import SwiftUI
 struct CardFormScreen: View {
     private let onBack: (MPCardFormUserCancelledContext) -> Void
     private let onDismiss: (MPCardFormUserCancelledContext) -> Void
-    private let onSuccess: (CardFormOutput) -> Void
+    private let onSuccess: (CardFormSubmitResult) -> Void
     private let onFailure: (MercadoPagoCheckoutError) -> Void
 
     @ObservedObject private var viewModel: CardFormViewModel
@@ -35,7 +35,7 @@ struct CardFormScreen: View {
         viewModel: CardFormViewModel,
         onBack: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
         onDismiss: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
-        onSuccess: @escaping (CardFormOutput) -> Void = { _ in },
+        onSuccess: @escaping (CardFormSubmitResult) -> Void = { _ in },
         onFailure: @escaping (MercadoPagoCheckoutError) -> Void = { _ in }
     ) {
         self.onBack = onBack

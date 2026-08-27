@@ -5,8 +5,8 @@
 //  Created by SDK on 06/01/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 /// Inline helper message optionally paired with a semantic badge.
 package struct Helper: View {
@@ -14,7 +14,7 @@ package struct Helper: View {
     private let tone: HelperTone
 
     private var badgeKind: Logos.Feedback? {
-        switch tone {
+        switch self.tone {
         case .informative:
             return .informative
         case .caution:
@@ -36,7 +36,7 @@ package struct Helper: View {
     ///   - tone: Semantic tone driving icon/color rules.
     package init(
         _ text: String,
-        _ tone: HelperTone = .none,
+        _ tone: HelperTone = .none
     ) {
         self.text = text
         self.tone = tone
@@ -50,11 +50,10 @@ package struct Helper: View {
         )
 
         return AnyView(
-            style.resolve(configuration: configuration)
+            self.style.resolve(configuration: configuration)
         )
     }
 }
-
 
 #Preview {
     ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {

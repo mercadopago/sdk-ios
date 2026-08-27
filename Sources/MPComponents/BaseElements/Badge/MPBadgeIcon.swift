@@ -1,12 +1,12 @@
 //
-//  Badge.swift
+//  MPBadgeIcon.swift
 //  MercadoPagoSDK
 //
 //  Created by SDK on 07/01/25.
 //
 
-import SwiftUI
 import MPFoundation
+import SwiftUI
 
 /// Circular badge that displays feedback icons.
 package struct MPBadgeIcon: View {
@@ -33,7 +33,7 @@ package struct MPBadgeIcon: View {
         )
 
         return AnyView(
-            style.resolve(configuration: configuration)
+            self.style.resolve(configuration: configuration)
         )
     }
 }
