@@ -52,6 +52,32 @@ final class CardFormBrickViewModelTests: XCTestCase {
         )
     }
 
+    // MARK: - markScreenPresented / screensVisited
+
+    func test_screensVisited_initiallyEmpty() {
+        let sut = self.makeSUT()
+
+        XCTAssertTrue(sut.viewModel.screensVisited.isEmpty)
+    }
+
+    func test_markScreenPresented_preservesOrderOfVisitedScreens() {
+        let sut = self.makeSUT()
+
+        sut.viewModel.markScreenPresented(.installments)
+        sut.viewModel.markScreenPresented(.reviewAndConfirm)
+
+        XCTAssertEqual(sut.viewModel.screensVisited, [.installments, .reviewAndConfirm])
+    }
+
+    func test_markScreenPresented_doesNotAddDuplicates() {
+        let sut = self.makeSUT()
+
+        sut.viewModel.markScreenPresented(.reviewAndConfirm)
+        sut.viewModel.markScreenPresented(.reviewAndConfirm)
+
+        XCTAssertEqual(sut.viewModel.screensVisited, [.reviewAndConfirm])
+    }
+
     // MARK: - load() retry
 
     func test_load_whenFirstAttemptSucceeds_shouldCallRepositoryOnce() async throws {
@@ -119,7 +145,9 @@ final class CardFormBrickViewModelTests: XCTestCase {
             paymentTypeId: "credit_card",
             issuerId: nil,
             payer: nil,
-            installmentsData: nil
+            installmentsData: nil,
+            bin: nil,
+            lastFourDigits: nil
         )
 
         // Act
@@ -150,7 +178,9 @@ final class CardFormBrickViewModelTests: XCTestCase {
             paymentTypeId: "credit_card",
             issuerId: nil,
             payer: nil,
-            installmentsData: nil
+            installmentsData: nil,
+            bin: nil,
+            lastFourDigits: nil
         )
 
         // Act

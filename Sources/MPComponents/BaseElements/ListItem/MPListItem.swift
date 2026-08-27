@@ -68,7 +68,7 @@ package struct MPListItem: View {
     private var headerView: some View {
         if let header = contentInfo.header {
             Text(header)
-                .textStyle(.bodyMedium())
+                .textStyle(.bodyMedium(colorType: contentInfo.headerColorType))
         }
     }
 
@@ -114,11 +114,17 @@ package struct MPListItem: View {
         if let trailing {
             let config = MPListItemTrailingStyleConfiguration(
                 text: trailing.text,
-                textColor: trailing.color
+                textColor: trailing.color,
+                button: self.button(for: trailing)
             )
             let resolved = self.trailingStyle ?? MPTrailingTextStyle()
             AnyView(resolved.resolve(configuration: config))
         }
+    }
+
+    private func button(for trailing: MPListItemTrailing) -> SwiftUI.Button<Text>? {
+        guard let action = trailing.action, let text = trailing.text else { return nil }
+        return Button(text, action: action)
     }
 }
 

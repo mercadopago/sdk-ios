@@ -17,13 +17,22 @@ package struct MPListItemContentInfo {
     package let titleDecimalSuffix: String?
     /// Secondary label displayed above the title.
     package let header: String?
+    /// Semantic color for `header`. Defaults to `.secondary`, matching its role as a caption.
+    package let headerColorType: TextStyleColorType
     /// Supporting text displayed below the title .
     package let description: String?
 
-    package init(title: String? = nil, titleDecimalSuffix: String? = nil, header: String? = nil, description: String? = nil) {
+    package init(
+        title: String? = nil,
+        titleDecimalSuffix: String? = nil,
+        header: String? = nil,
+        headerColorType: TextStyleColorType = .secondary,
+        description: String? = nil
+    ) {
         self.title = title
         self.titleDecimalSuffix = titleDecimalSuffix
         self.header = header
+        self.headerColorType = headerColorType
         self.description = description
     }
 }
