@@ -49,7 +49,10 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         let sut = self.makeCardTransactionSUT()
 
         // Act
-        let input = sut.reviewConfirmInput(cardTransaction: self.makeCardTransaction(), inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234"))
+        let input = sut.reviewConfirmInput(
+            cardTransaction: self.makeCardTransaction(),
+            inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234")
+        )
 
         // Assert
         XCTAssertNil(input)
@@ -58,7 +61,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
     func test_reviewConfirmInput_whenConfigured_shouldReturnInputWithOrderAndCardDetails() throws {
         // Arrange
         let sut = self.makeCardTransactionSUT(
-            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(onEmailChangeRequested: nil)]
         )
 
         // Act
@@ -73,6 +76,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         // Assert
         XCTAssertEqual(input.order.orderId, "ORDER-1")
         XCTAssertEqual(input.order.clientToken, "client-token")
+        XCTAssertEqual(input.checkoutType, "card_transaction")
         XCTAssertEqual(input.cardDetails.bin, "41111111")
         XCTAssertEqual(input.cardDetails.issuerId, 25)
         XCTAssertEqual(input.cardDetails.lastFourDigits, "1234")
@@ -83,7 +87,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         // Arrange
         let sellerInfo = MPSellerInfo(name: "Adidas Store", logoUrl: "https://cdn.example.com/logo.png")
         let sut = self.makeCardTransactionSUT(
-            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)],
+            screenConfigs: [.reviewAndConfirm(onEmailChangeRequested: nil)],
             sellerInfo: sellerInfo
         )
 
@@ -104,12 +108,15 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
             paymentMethod: [.card()],
-            screenConfigs: [.reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: nil)]
+            screenConfigs: [.reviewAndConfirm(onEmailChangeRequested: nil)]
         )
         let sut = CardFormBrickViewModel<MPPaymentData.CardSave>(configuration: configuration)
 
         // Act
-        let input = sut.reviewConfirmInput(cardTransaction: self.makeCardTransaction(), inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234"))
+        let input = sut.reviewConfirmInput(
+            cardTransaction: self.makeCardTransaction(),
+            inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234")
+        )
 
         // Assert
         XCTAssertNil(input)
@@ -139,37 +146,4 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         XCTAssertEqual(result.token, "token")
         XCTAssertEqual(result.installment, 3)
     }
-
-    // MARK: - onPaymentMethodChangeRequested
-
-    func test_onPaymentMethodChangeRequested_whenConfigured_shouldReturnSellerCallback() {
-        // Arrange
-        let recorder = CallRecorder()
-        let sut = self.makeCardTransactionSUT(
-            screenConfigs: [.reviewAndConfirm(
-                onPaymentMethodChangeRequested: { recorder.events.append("callback") },
-                onEmailChangeRequested: nil
-            )]
-        )
-
-        // Act
-        let callback = sut.onPaymentMethodChangeRequested
-        callback?()
-
-        // Assert
-        XCTAssertEqual(recorder.events, ["callback"])
-    }
-
-    func test_onPaymentMethodChangeRequested_whenNotConfigured_shouldReturnNil() {
-        // Arrange
-        let sut = self.makeCardTransactionSUT()
-
-        // Act / Assert
-        XCTAssertNil(sut.onPaymentMethodChangeRequested)
-    }
-}
-
-@MainActor
-private final class CallRecorder {
-    var events: [String] = []
 }

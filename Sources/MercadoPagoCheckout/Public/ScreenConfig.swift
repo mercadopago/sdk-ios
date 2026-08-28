@@ -10,7 +10,6 @@
 /// the backend.
 enum ScreenConfig: Sendable {
     case reviewAndConfirm(
-        onPaymentMethodChangeRequested: (@MainActor @Sendable () -> Void)?,
         onEmailChangeRequested: (@MainActor @Sendable () -> Void)?
     )
 }

@@ -7,6 +7,7 @@
 protocol ReviewConfirmRepository: Sendable {
     func fetchReviewConfirm(
         request: ReviewConfirmRequestBody,
-        clientToken: String
+        clientToken: String,
+        checkoutType: String
     ) async throws -> ReviewConfirmResponse
 }

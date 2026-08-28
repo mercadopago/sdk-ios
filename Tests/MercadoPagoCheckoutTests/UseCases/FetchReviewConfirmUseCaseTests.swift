@@ -48,13 +48,14 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
     private func makeConfig(
         onEmailChangeRequested: (@MainActor @Sendable () -> Void)? = nil
     ) -> ScreenConfig {
-        .reviewAndConfirm(onPaymentMethodChangeRequested: nil, onEmailChangeRequested: onEmailChangeRequested)
+        .reviewAndConfirm(onEmailChangeRequested: onEmailChangeRequested)
     }
 
     private func execute(
         sut: FetchReviewConfirmUseCase,
         params: OrderTransactionParams,
         config: ScreenConfig,
+        checkoutType: String = "payment",
         sellerInfo: MPSellerInfo? = nil,
         cardDetails: ReviewConfirmCardDetails = .init(
             bin: "453998",
@@ -66,6 +67,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
         try await sut.execute(
             orderId: "ORDER-1",
             clientToken: "seller_client_token",
+            checkoutType: checkoutType,
             paymentParams: params,
             reviewConfirmConfig: config,
             sellerInfo: sellerInfo,
@@ -96,6 +98,8 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
         XCTAssertEqual(request.installmentAmount, "10.00")
         let clientToken = await repository.lastClientToken
         XCTAssertEqual(clientToken, "seller_client_token")
+        let checkoutType = await repository.lastCheckoutType
+        XCTAssertEqual(checkoutType, "payment")
     }
 
     func test_execute_withCardWithoutSelectedInstallmentAmount_leavesFieldNil() async throws {

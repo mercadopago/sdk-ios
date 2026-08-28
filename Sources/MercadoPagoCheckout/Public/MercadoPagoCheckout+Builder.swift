@@ -71,7 +71,6 @@ extension MercadoPagoCheckout.Builder {
     ///
     /// Shared by the `withReviewAndConfirm` overloads exposed on the flows that process a payment.
     private func setReviewAndConfirm(
-        onPaymentMethodChangeRequested: (@MainActor @Sendable () -> Void)? = nil,
         onEmailChangeRequested: (@MainActor @Sendable () -> Void)?
     ) {
         self.screenConfigs.removeAll { config in
@@ -80,7 +79,6 @@ extension MercadoPagoCheckout.Builder {
         }
         self.screenConfigs.append(
             .reviewAndConfirm(
-                onPaymentMethodChangeRequested: onPaymentMethodChangeRequested,
                 onEmailChangeRequested: onEmailChangeRequested
             )
         )
@@ -138,24 +136,14 @@ public extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardTransa
     ///     ),
     ///     checkoutAppearance: .init()
     /// )
-    /// .withReviewAndConfirm(onPaymentMethodChangeRequested: { presentPaymentMethodSelection() })
+    /// .withReviewAndConfirm()
     /// .build()
     /// ```
     ///
-    /// - Parameters:
-    ///   - onPaymentMethodChangeRequested: Called when the buyer taps "Modificar" on the payment
-    ///     method row. The card transaction flow has no in-SDK method selector, so the checkout
-    ///     closes and hands control back to you — without reporting a cancellation — so you can
-    ///     re-present your own payment method selection. Required: the button is always shown.
     /// - Returns: The builder instance for chaining.
     @discardableResult
-    func withReviewAndConfirm(
-        onPaymentMethodChangeRequested: @MainActor @Sendable @escaping () -> Void
-    ) -> Self {
-        self.setReviewAndConfirm(
-            onPaymentMethodChangeRequested: onPaymentMethodChangeRequested,
-            onEmailChangeRequested: nil
-        )
+    func withReviewAndConfirm() -> Self {
+        self.setReviewAndConfirm(onEmailChangeRequested: nil)
         return self
     }
 }

@@ -24,6 +24,7 @@ final class ReviewConfirmViewModel: ObservableObject {
     // MARK: - Input
 
     private let order: MPOrder
+    private let checkoutType: String
     private let paymentParams: OrderTransactionParams
     private let reviewConfirmConfig: ScreenConfig
     private let sellerInfo: MPSellerInfo?
@@ -37,6 +38,7 @@ final class ReviewConfirmViewModel: ObservableObject {
         fetchReviewConfirmUseCase: FetchReviewConfirmUseCase = FetchReviewConfirmUseCase(),
         orderTransactionUseCase: OrderTransactionUseCase = OrderTransactionUseCase(),
         order: MPOrder,
+        checkoutType: String,
         paymentParams: OrderTransactionParams,
         reviewConfirmConfig: ScreenConfig,
         sellerInfo: MPSellerInfo?,
@@ -46,6 +48,7 @@ final class ReviewConfirmViewModel: ObservableObject {
         self.fetchReviewConfirmUseCase = fetchReviewConfirmUseCase
         self.orderTransactionUseCase = orderTransactionUseCase
         self.order = order
+        self.checkoutType = checkoutType
         self.paymentParams = paymentParams
         self.reviewConfirmConfig = reviewConfirmConfig
         self.sellerInfo = sellerInfo
@@ -75,6 +78,7 @@ final class ReviewConfirmViewModel: ObservableObject {
             let output = try await fetchReviewConfirmUseCase.execute(
                 orderId: self.order.orderId,
                 clientToken: self.order.clientToken,
+                checkoutType: self.checkoutType,
                 paymentParams: self.paymentParams,
                 reviewConfirmConfig: self.reviewConfirmConfig,
                 sellerInfo: self.sellerInfo,

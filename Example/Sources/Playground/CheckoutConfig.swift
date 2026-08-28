@@ -252,7 +252,7 @@ private extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardTrans
     @MainActor
     func build(withReviewAndConfirm enabled: Bool) -> MercadoPagoCheckout<T> {
         guard enabled else { return self.build() }
-        return self.withReviewAndConfirm(onPaymentMethodChangeRequested: {}).build()
+        return self.withReviewAndConfirm().build()
     }
 }
 

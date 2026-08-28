@@ -265,6 +265,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             ReviewConfirmScreen(
                 viewModel: ReviewConfirmViewModel(
                     order: input.order,
+                    checkoutType: input.checkoutType,
                     paymentParams: input.paymentParams,
                     reviewConfirmConfig: reviewConfirmConfig,
                     sellerInfo: input.sellerInfo,

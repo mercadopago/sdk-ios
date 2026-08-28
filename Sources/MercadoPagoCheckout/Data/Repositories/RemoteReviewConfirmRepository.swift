@@ -16,10 +16,15 @@ struct RemoteReviewConfirmRepository: ReviewConfirmRepository {
 
     func fetchReviewConfirm(
         request: ReviewConfirmRequestBody,
-        clientToken: String
+        clientToken: String,
+        checkoutType: String
     ) async throws -> ReviewConfirmResponse {
         try await self.dependencies.networkService.request(
-            ReviewConfirmEndpoint(clientToken: clientToken, requestBody: request)
+            ReviewConfirmEndpoint(
+                clientToken: clientToken,
+                checkoutType: checkoutType,
+                requestBody: request
+            )
         )
     }
 }

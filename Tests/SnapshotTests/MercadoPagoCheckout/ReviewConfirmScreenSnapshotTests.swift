@@ -26,6 +26,14 @@ final class ReviewConfirmScreenSnapshotTests: XCTestCase {
         )
     }
 
+    func test_reviewConfirmScreen_withoutCallback_shouldRenderButtonFromBFF() throws {
+        let view = try Self.makeScreen(json: Self.cardJSON, onModifyPaymentMethod: nil)
+        assertSnapshot(
+            of: self.makeHostingController(view: view),
+            as: .image(precision: 0.95, perceptualPrecision: 0.97, size: self.snapshotSize)
+        )
+    }
+
     // MARK: - Host controller
 
     private let snapshotSize = CGSize(width: 390, height: 844)
@@ -55,24 +63,28 @@ final class ReviewConfirmScreenSnapshotTests: XCTestCase {
 
     // MARK: - Screen factory
 
-    private static func makeScreen(json: String) throws -> some View {
+    private static func makeScreen(
+        json: String,
+        onModifyPaymentMethod: (() -> Void)? = {}
+    ) throws -> some View {
         let response = try JSONDecoder().decode(ReviewConfirmResponse.self, from: Data(json.utf8))
         let viewModel = ReviewConfirmViewModel(
             fetchReviewConfirmUseCase: FetchReviewConfirmUseCase(
                 repository: StubReviewConfirmRepository(response: response)
             ),
             order: MPOrder(orderId: "ORDER-1", clientToken: "client-token"),
+            checkoutType: "payment",
             paymentParams: OrderTransactionParams(
                 amount: 5000,
                 paymentMethodType: .ticket(paymentMethodId: "rapipago")
             ),
-            reviewConfirmConfig: .reviewAndConfirm(onPaymentMethodChangeRequested: {}, onEmailChangeRequested: {}),
+            reviewConfirmConfig: .reviewAndConfirm(onEmailChangeRequested: {}),
             sellerInfo: nil,
             cardDetails: .init(bin: nil, issuerId: nil, lastFourDigits: nil, installmentAmount: nil)
         )
         return ReviewConfirmScreen(
             viewModel: viewModel,
-            onModifyPaymentMethod: {},
+            onModifyPaymentMethod: onModifyPaymentMethod,
             onModifyEmail: {}
         )
     }
@@ -153,7 +165,8 @@ private struct StubReviewConfirmRepository: ReviewConfirmRepository {
 
     func fetchReviewConfirm(
         request _: ReviewConfirmRequestBody,
-        clientToken _: String
+        clientToken _: String,
+        checkoutType _: String
     ) async throws -> ReviewConfirmResponse {
         self.response
     }

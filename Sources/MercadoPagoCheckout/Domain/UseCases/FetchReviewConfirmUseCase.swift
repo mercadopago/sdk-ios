@@ -16,6 +16,7 @@ struct FetchReviewConfirmUseCase {
     func execute(
         orderId: String,
         clientToken: String,
+        checkoutType: String,
         paymentParams: OrderTransactionParams,
         reviewConfirmConfig: ScreenConfig,
         sellerInfo: MPSellerInfo?,
@@ -32,7 +33,8 @@ struct FetchReviewConfirmUseCase {
         do {
             let response = try await self.repository.fetchReviewConfirm(
                 request: requestBody,
-                clientToken: clientToken
+                clientToken: clientToken,
+                checkoutType: checkoutType
             )
             return ReviewConfirmOutput(from: response)
         } catch let error as APIClientError {
@@ -57,7 +59,7 @@ struct FetchReviewConfirmUseCase {
         cardDetails: ReviewConfirmCardDetails
     ) -> ReviewConfirmRequestBody {
         let emailChangeEnabled: Bool
-        if case let .reviewAndConfirm(_, onEmailChangeRequested) = reviewConfirmConfig {
+        if case let .reviewAndConfirm(onEmailChangeRequested) = reviewConfirmConfig {
             emailChangeEnabled = onEmailChangeRequested != nil
         } else {
             emailChangeEnabled = false

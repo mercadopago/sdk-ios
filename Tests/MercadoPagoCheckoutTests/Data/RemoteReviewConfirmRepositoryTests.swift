@@ -19,6 +19,7 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
     // MARK: - Helpers
 
     private let clientToken = "seller_client_token"
+    private let checkoutType = "payment"
 
     private func makeSUT() -> SUT {
         let container = MockDependencyContainer()
@@ -79,7 +80,8 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
         // Act
         let result = try await sut.repository.fetchReviewConfirm(
             request: self.makeRequest(),
-            clientToken: self.clientToken
+            clientToken: self.clientToken,
+            checkoutType: self.checkoutType
         )
 
         // Assert
@@ -95,7 +97,8 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
         // Act
         let result = try await sut.repository.fetchReviewConfirm(
             request: self.makeRequest(),
-            clientToken: self.clientToken
+            clientToken: self.clientToken,
+            checkoutType: self.checkoutType
         )
 
         // Assert
@@ -112,7 +115,8 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
         // Act
         let result = try await sut.repository.fetchReviewConfirm(
             request: self.makeRequest(),
-            clientToken: self.clientToken
+            clientToken: self.clientToken,
+            checkoutType: self.checkoutType
         )
 
         // Assert
@@ -124,7 +128,11 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
 
     func testEndpoint_encodesRequestBodyWithOrderIdAndPaymentMethodFields() throws {
         // Arrange
-        let endpoint = ReviewConfirmEndpoint(clientToken: self.clientToken, requestBody: self.makeRequest())
+        let endpoint = ReviewConfirmEndpoint(
+            clientToken: self.clientToken,
+            checkoutType: self.checkoutType,
+            requestBody: self.makeRequest()
+        )
 
         // Act
         let body = try XCTUnwrap(endpoint.body)
@@ -152,7 +160,11 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
             emailChangeEnabled: false,
             sellerInfo: nil
         )
-        let endpoint = ReviewConfirmEndpoint(clientToken: self.clientToken, requestBody: request)
+        let endpoint = ReviewConfirmEndpoint(
+            clientToken: self.clientToken,
+            checkoutType: self.checkoutType,
+            requestBody: request
+        )
 
         // Act
         let body = try XCTUnwrap(endpoint.body)
@@ -164,7 +176,11 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
 
     func testEndpoint_sendsProductIdAsQueryParameter() throws {
         // Arrange
-        let endpoint = ReviewConfirmEndpoint(clientToken: self.clientToken, requestBody: self.makeRequest())
+        let endpoint = ReviewConfirmEndpoint(
+            clientToken: self.clientToken,
+            checkoutType: self.checkoutType,
+            requestBody: self.makeRequest()
+        )
 
         // Act
         let params = endpoint.urlParams
@@ -173,11 +189,30 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
         XCTAssertEqual(try String(describing: XCTUnwrap(params["product_id"])), MPSDKProduct.id)
     }
 
+    func testEndpoint_sendsCheckoutTypeAsQueryParameter() throws {
+        // Arrange
+        let endpoint = ReviewConfirmEndpoint(
+            clientToken: self.clientToken,
+            checkoutType: "card_transaction",
+            requestBody: self.makeRequest()
+        )
+
+        // Act
+        let params = endpoint.urlParams
+
+        // Assert
+        XCTAssertEqual(try String(describing: XCTUnwrap(params["checkout_type"])), "card_transaction")
+    }
+
     // MARK: - Authorization Header
 
     func testEndpoint_setsAuthorizationHeaderToClientToken() {
         // Arrange
-        let endpoint = ReviewConfirmEndpoint(clientToken: self.clientToken, requestBody: self.makeRequest())
+        let endpoint = ReviewConfirmEndpoint(
+            clientToken: self.clientToken,
+            checkoutType: self.checkoutType,
+            requestBody: self.makeRequest()
+        )
 
         // Act
         let headers = endpoint.headers
@@ -196,7 +231,11 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.fetchReviewConfirm(request: self.makeRequest(), clientToken: self.clientToken)
+            _ = try await sut.repository.fetchReviewConfirm(
+                request: self.makeRequest(),
+                clientToken: self.clientToken,
+                checkoutType: self.checkoutType
+            )
             XCTFail("Expected error to be thrown")
         } catch {
             XCTAssertNotNil(error)
@@ -218,7 +257,11 @@ final class RemoteReviewConfirmRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.repository.fetchReviewConfirm(request: self.makeRequest(), clientToken: self.clientToken)
+            _ = try await sut.repository.fetchReviewConfirm(
+                request: self.makeRequest(),
+                clientToken: self.clientToken,
+                checkoutType: self.checkoutType
+            )
             XCTFail("Expected error to be thrown")
         } catch let error as APIClientError {
             if case let .apiError(apiError) = error {

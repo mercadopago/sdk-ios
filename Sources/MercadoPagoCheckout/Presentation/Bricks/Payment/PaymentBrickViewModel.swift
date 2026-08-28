@@ -156,6 +156,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
         return PendingReviewConfirmInput(
             order: order,
+            checkoutType: self.configuration.type.analyticsValue,
             sellerInfo: sellerInfo,
             paymentParams: params,
             cardDetails: cardDetails
@@ -165,7 +166,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     /// The seller's callback for "Modificar" on the email row (ticket flow only), or `nil` when
     /// review and confirm is not configured or the seller did not opt into email changes.
     var onEmailChangeRequested: (@MainActor @Sendable () -> Void)? {
-        guard case let .reviewAndConfirm(_, callback) = self.configuration.reviewAndConfirmConfig else {
+        guard case let .reviewAndConfirm(callback) = self.configuration.reviewAndConfirmConfig else {
             return nil
         }
         return callback

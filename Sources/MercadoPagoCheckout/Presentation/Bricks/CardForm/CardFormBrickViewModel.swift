@@ -234,6 +234,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         )
         return PendingReviewConfirmInput(
             order: order,
+            checkoutType: self.configuration.type.analyticsValue,
             sellerInfo: sellerInfo,
             paymentParams: params,
             cardDetails: cardDetails
@@ -247,15 +248,6 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         var updated = paymentData
         updated.orderStatus = processData.status
         return updated as? T
-    }
-
-    /// The seller's callback for "Modificar" on the payment-method row (card transaction), or `nil`
-    /// when review and confirm is not configured. The brick closes itself and invokes this.
-    var onPaymentMethodChangeRequested: (@MainActor @Sendable () -> Void)? {
-        guard case let .reviewAndConfirm(callback, _) = self.configuration.reviewAndConfirmConfig else {
-            return nil
-        }
-        return callback
     }
 
     // MARK: - Analytics

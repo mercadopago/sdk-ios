@@ -17,7 +17,7 @@ struct ReviewConfirmScreen: View {
     private let onConfirmed: (OrderTransactionProcessData) -> Void
     private let onConfirmError: (MercadoPagoCheckoutError) -> Void
     private let onInitializationError: (MercadoPagoCheckoutError) -> Void
-    private let onModifyPaymentMethod: () -> Void
+    private let onModifyPaymentMethod: (() -> Void)?
     private let onModifyEmail: (() -> Void)?
     private let onBack: () -> Void
 
@@ -26,7 +26,7 @@ struct ReviewConfirmScreen: View {
         onConfirmed: @escaping (OrderTransactionProcessData) -> Void = { _ in },
         onConfirmError: @escaping (MercadoPagoCheckoutError) -> Void = { _ in },
         onInitializationError: @escaping (MercadoPagoCheckoutError) -> Void = { _ in },
-        onModifyPaymentMethod: @escaping () -> Void = {},
+        onModifyPaymentMethod: (() -> Void)? = nil,
         onModifyEmail: (() -> Void)? = nil,
         onBack: @escaping () -> Void = {}
     ) {
@@ -122,9 +122,11 @@ struct ReviewConfirmScreen: View {
     private func row(for item: ReviewConfirmItem) -> some View {
         switch item.type {
         case "payment_method":
-            self.dataRow(item, onModify: {
-                self.viewModel.modifyPaymentMethod()
-                self.onModifyPaymentMethod()
+            self.dataRow(item, onModify: self.onModifyPaymentMethod.map { callback in
+                {
+                    self.viewModel.modifyPaymentMethod()
+                    callback()
+                }
             })
         case "payer_email":
             self.dataRow(item, onModify: self.onModifyEmail.map { callback in
@@ -141,7 +143,9 @@ struct ReviewConfirmScreen: View {
     private func dataRow(_ item: ReviewConfirmItem, onModify: (() -> Void)?) -> some View {
         MPListItem(
             contentInfo: .init(title: item.value, header: item.label),
-            trailing: onModify.map { MPListItemTrailing(text: item.button?.label, action: $0) }
+            trailing: item.button.map { button in
+                MPListItemTrailing(text: button.label, action: { onModify?() })
+            }
         )
     }
 
@@ -229,7 +233,8 @@ struct ReviewConfirmScreen: View {
 
         func fetchReviewConfirm(
             request _: ReviewConfirmRequestBody,
-            clientToken _: String
+            clientToken _: String,
+            checkoutType _: String
         ) async throws -> ReviewConfirmResponse {
             try JSONDecoder().decode(ReviewConfirmResponse.self, from: Data(self.json.utf8))
         }
@@ -243,11 +248,12 @@ struct ReviewConfirmScreen: View {
                     repository: PreviewReviewConfirmRepository(json: json)
                 ),
                 order: MPOrder(orderId: "preview", clientToken: "preview"),
+                checkoutType: "payment",
                 paymentParams: OrderTransactionParams(
                     amount: 188_000,
                     paymentMethodType: .ticket(paymentMethodId: "rapipago")
                 ),
-                reviewConfirmConfig: .reviewAndConfirm(onPaymentMethodChangeRequested: {}, onEmailChangeRequested: {}),
+                reviewConfirmConfig: .reviewAndConfirm(onEmailChangeRequested: {}),
                 sellerInfo: nil,
                 cardDetails: .init(bin: nil, issuerId: nil, lastFourDigits: nil, installmentAmount: nil)
             ),

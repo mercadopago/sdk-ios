@@ -11,6 +11,8 @@
 struct PendingReviewConfirmInput {
     /// The order being paid — carries both `orderId` and `clientToken`.
     let order: MPOrder
+    /// Checkout flow identifier forwarded to the BFF as the `checkout_type` query parameter.
+    let checkoutType: String
     /// Store details supplied by the checkout type for the backend to resolve the review header.
     let sellerInfo: MPSellerInfo?
     let paymentParams: OrderTransactionParams

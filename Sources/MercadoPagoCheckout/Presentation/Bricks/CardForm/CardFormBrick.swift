@@ -21,8 +21,8 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var processingTask: Task<Void, Never>?
     @State private var inputCardData: InputCardData?
     @State private var pendingReviewConfirmInput: PendingReviewConfirmInput?
+    @State private var reviewConfirmPreviousRoute: Route?
     @State private var pendingSnackbarError: String?
-    @State private var pendingCloseCompletion: (() -> Void)?
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
     private let configuration: MPCheckoutConfiguration<T>
@@ -75,13 +75,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         }
         .onDisappear {
             self.processingTask?.cancel()
-            self.firePendingCloseCompletion()
         }
-    }
-
-    private func firePendingCloseCompletion() {
-        self.pendingCloseCompletion?()
-        self.pendingCloseCompletion = nil
     }
 
     private func cardFormScreen(viewModel: CardFormViewModel) -> some View {
@@ -129,10 +123,6 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             checkoutType: self.configuration.type.analyticsValue,
             onBack: {
                 self.route = nil
-                self.emitUserCancelled(
-                    cardForm: MPCardFormUserCancelledContext(fields: []),
-                    screens: [.installments]
-                )
             },
             onDismiss: {
                 self.route = nil
@@ -189,6 +179,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             ReviewConfirmScreen(
                 viewModel: ReviewConfirmViewModel(
                     order: input.order,
+                    checkoutType: input.checkoutType,
                     paymentParams: input.paymentParams,
                     reviewConfirmConfig: reviewConfirmConfig,
                     sellerInfo: input.sellerInfo,
@@ -197,8 +188,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 onConfirmed: { processData in self.handleReviewConfirmResult(processData) },
                 onConfirmError: { error in self.fail(error) },
                 onInitializationError: { error in self.handleReviewInitializationError(error) },
-                onModifyPaymentMethod: { self.handleModifyPaymentMethod() },
-                onBack: { self.route = nil }
+                onBack: { self.handleReviewConfirmBack() }
             )
         } else {
             EmptyView()
@@ -231,6 +221,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private func clearReviewConfirmState() {
         self.route = nil
         self.pendingReviewConfirmInput = nil
+        self.reviewConfirmPreviousRoute = nil
         self.inputCardData = nil
     }
 
@@ -292,6 +283,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         ) {
             self.pendingResult = paymentData as? T
             self.pendingReviewConfirmInput = input
+            self.reviewConfirmPreviousRoute = self.route
             self.route = .reviewAndConfirm
             return
         }
@@ -319,8 +311,6 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             }
         }
     }
-
-
     private func load() async {
         do {
             try await self.brickViewModel.load()
@@ -336,6 +326,15 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     }
 
     // MARK: - Review & Confirm
+
+    /// Returns to the screen that opened review and confirm. Installment flows go back to the
+    /// installment selector; direct flows return to the card form.
+    private func handleReviewConfirmBack() {
+        let previousRoute = self.reviewConfirmPreviousRoute
+        self.pendingReviewConfirmInput = nil
+        self.reviewConfirmPreviousRoute = nil
+        self.route = previousRoute
+    }
 
     /// Confirmed order from the review screen: folds the returned status into the pending card
     /// transaction and completes the checkout with the same success mapping as the direct path.
@@ -357,6 +356,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private func handleReviewInitializationError(_: MercadoPagoCheckoutError) {
         self.route = nil
         self.pendingReviewConfirmInput = nil
+        self.reviewConfirmPreviousRoute = nil
         self.pendingSnackbarError = MPStrings.Errors.generic
     }
 
@@ -367,16 +367,5 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 if !isPresented { self.pendingSnackbarError = nil }
             }
         )
-    }
-
-    /// "Change" on the payment-method row in the card transaction flow: there is no method
-    /// selector to return to, so close the brick and hand control back to the integrator through
-    /// the required `onPaymentMethodChangeRequested` callback — without reporting a cancellation,
-    /// the same convention used for the email "Change".
-
-    private func handleModifyPaymentMethod() {
-        self.pendingCloseCompletion = self.brickViewModel.onPaymentMethodChangeRequested
-        self.clearReviewConfirmState()
-        self.presentationMode.wrappedValue.dismiss()
     }
 }
