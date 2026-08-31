@@ -131,6 +131,27 @@ struct CheckoutPlaygroundView: View {
         }
     }
 
+    private var reviewAndConfirmSection: some View {
+        Section("Optional screens") {
+            Toggle("Enable Review & Confirm", isOn: self.$config.reviewAndConfirmEnabled)
+                .accessibilityIdentifier("playground.reviewAndConfirm.enabled")
+            if self.config.checkoutType == .payment, self.config.reviewAndConfirmEnabled {
+                Toggle("Enable email change", isOn: self.$config.emailChangeEnabled)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.emailChange")
+            }
+            Toggle("Include seller info", isOn: self.$config.sellerInfoEnabled)
+                .accessibilityIdentifier("playground.reviewAndConfirm.sellerInfo")
+            if self.config.sellerInfoEnabled {
+                TextField("Seller name", text: self.$config.sellerName)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.sellerName")
+                TextField("Seller logo URL", text: self.$config.sellerLogoUrl)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.sellerLogoUrl")
+            }
+        }
+    }
+
     private var installmentsSection: some View {
         Section("Installments") {
             LabeledContent("Min") {
@@ -228,6 +249,8 @@ struct CheckoutPlaygroundView: View {
             return AnyView(self.config.makeCardSaveCheckout().show(onResult: self.handleSaveResult))
         case .cardTransaction:
             return AnyView(self.config.makeCardTransactionCheckout().show(onResult: self.handleTransactionResult))
+        case .payment:
+            return AnyView(self.config.makePaymentCheckout().show(onResult: self.handlePaymentResult))
         }
     }
 
@@ -244,6 +267,11 @@ struct CheckoutPlaygroundView: View {
                 checkout: self.config.makeCardTransactionCheckout(),
                 onResult: self.handleTransactionResult
             ))
+        case .payment:
+            return AnyView(CheckoutPushRepresentable(
+                checkout: self.config.makePaymentCheckout(),
+                onResult: self.handlePaymentResult
+            ))
         }
     }
 
@@ -254,6 +282,8 @@ struct CheckoutPlaygroundView: View {
             self.config.makeCardSaveCheckout().present(from: topVC, onResult: self.handleSaveResult)
         case .cardTransaction:
             self.config.makeCardTransactionCheckout().present(from: topVC, onResult: self.handleTransactionResult)
+        case .payment:
+            self.config.makePaymentCheckout().present(from: topVC, onResult: self.handlePaymentResult)
         }
     }
 

@@ -18,12 +18,14 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
 
     func fetchInitialization(
         orderId: String,
-        clientToken: String
+        clientToken: String,
+        screens: String? = nil
     ) async throws -> PaymentInitializationOutput {
         let response: PaymentBrickInitializationResponse = try await networkService.request(
             PaymentBrickInitializationEndpoint(
                 orderId: orderId,
-                clientToken: clientToken
+                clientToken: clientToken,
+                screens: screens
             )
         )
         return self.map(response)
@@ -52,14 +54,32 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
         guard let screen = cardData.securityCode.screen else { return nil }
         return SecurityCodeScreenOutput(
             length: cardData.securityCode.length,
-            headerTitle: screen.headerTitle,
+            headerTitle: screen.header.title,
             field: SecurityCodeScreenOutput.Field(
                 label: screen.field.label,
                 placeholder: screen.field.placeholder,
                 helper: screen.field.helper,
                 error: screen.field.error
             ),
-            buttonLabel: screen.continueButtonLabel
+            buttonLabel: screen.button.label
+        )
+    }
+
+    private func mapMethodSelectionScreen(
+        _ screen: PaymentBrickInitializationResponse.MethodSelectionScreen?
+    ) -> MethodSelectionOutput? {
+        guard let screen else { return nil }
+        return MethodSelectionOutput(
+            headerTitle: screen.headerTitle,
+            selectionType: .init(screen.selectionType),
+            footer: MethodSelectionOutput.Footer(
+                totalLabel: screen.footer.totalLabel,
+                totalAmount: screen.footer.totalAmount,
+                button: screen.footer.button.map { MethodSelectionOutput.Footer.Button(label: $0.label) }
+            ),
+            options: screen.options.map {
+                MethodSelectionOutput.Option(id: $0.id, name: $0.name, subtitle: $0.subtitle, iconUrl: $0.iconUrl)
+            }
         )
     }
 
@@ -82,9 +102,12 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
                     paymentMethodId: data.paymentMethodId,
                     paymentTypeId: data.paymentTypeId,
                     issuerId: data.issuerId,
-                    securityCodeScreen: self.mapSecurityCodeScreen(data)
+                    securityCodeScreen: self.mapSecurityCodeScreen(data),
+                    bin: data.bin,
+                    lastFourDigits: data.lastFourDigits
                 )
-            }
+            },
+            screen: self.mapMethodSelectionScreen(method.screen)
         )
     }
 }

@@ -20,4 +20,8 @@ public enum MPScreen: Sendable, Equatable {
     case installments
     /// The security code (CVV) entry screen shown when paying with a saved card.
     case securityCode
+    /// The offline payment method selection screen (e.g. choosing a ticket provider).
+    case offlineMethodSelector
+    /// The review and confirm screen shown before the user finalises payment.
+    case reviewAndConfirm
 }
