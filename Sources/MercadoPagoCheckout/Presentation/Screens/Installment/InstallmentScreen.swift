@@ -219,7 +219,12 @@ struct InstallmentScreen: View {
     private func finishWithSelectedQuota() {
         self.hasHandledDismiss = true
         self.viewModel.trackSubmit(self.selectedQuota)
-        self.onFinish(InstallmentFinishContext(installments: self.selectedQuota?.installments ?? 1))
+        self.onFinish(
+            InstallmentFinishContext(
+                installments: self.selectedQuota?.installments ?? 1,
+                installmentAmount: self.selectedQuota?.installmentAmount
+            )
+        )
     }
 
     // MARK: - Helper Methods
@@ -244,7 +249,12 @@ struct InstallmentScreen: View {
     private func continueWithSelectedQuota(for installment: CardPaymentBrickCardData.Installment.Quota) {
         self.hasHandledDismiss = true
         self.viewModel.trackSubmit(installment)
-        self.onContinue(InstallmentFinishContext(installments: installment.installments))
+        self.onContinue(
+            InstallmentFinishContext(
+                installments: installment.installments,
+                installmentAmount: installment.installmentAmount
+            )
+        )
     }
 
     private func handleBack() {

@@ -270,6 +270,8 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         XCTAssertEqual(cardData.paymentMethodId, "visa")
         XCTAssertEqual(cardData.paymentTypeId, "credit_card")
         XCTAssertEqual(cardData.issuerId, 25)
+        XCTAssertEqual(cardData.bin, "411111")
+        XCTAssertEqual(cardData.lastFourDigits, "1234")
     }
 
     func testFetch_whenSavedCardWithoutScreen_leavesSecurityCodeScreenNil() async throws {
@@ -475,7 +477,8 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         // Arrange
         let endpoint = PaymentBrickInitializationEndpoint(
             orderId: "ORDER-1",
-            clientToken: "tok"
+            clientToken: "tok",
+            screens: nil
         )
 
         // Act
@@ -489,7 +492,8 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         // Arrange
         let endpoint = PaymentBrickInitializationEndpoint(
             orderId: "ORDER-1",
-            clientToken: "tok"
+            clientToken: "tok",
+            screens: nil
         )
 
         // Act
@@ -501,12 +505,58 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         XCTAssertNil(params["card_ids"])
     }
 
+    func testEndpoint_whenScreensNil_omitsScreensParam() {
+        // Arrange
+        let endpoint = PaymentBrickInitializationEndpoint(
+            orderId: "ORDER-1",
+            clientToken: "tok",
+            screens: nil
+        )
+
+        // Act
+        let params = endpoint.urlParams
+
+        // Assert
+        XCTAssertNil(params["screens"])
+    }
+
+    func testEndpoint_whenScreensEmpty_omitsScreensParam() {
+        // Arrange
+        let endpoint = PaymentBrickInitializationEndpoint(
+            orderId: "ORDER-1",
+            clientToken: "tok",
+            screens: ""
+        )
+
+        // Act
+        let params = endpoint.urlParams
+
+        // Assert
+        XCTAssertNil(params["screens"])
+    }
+
+    func testEndpoint_whenScreensPresent_includesScreensParam() {
+        // Arrange
+        let endpoint = PaymentBrickInitializationEndpoint(
+            orderId: "ORDER-1",
+            clientToken: "tok",
+            screens: "REVIEW_AND_CONFIRM"
+        )
+
+        // Act
+        let params = endpoint.urlParams
+
+        // Assert
+        XCTAssertEqual(String(describing: params["screens"]!), "REVIEW_AND_CONFIRM")
+    }
+
     func testEndpoint_includesAuthorizationHeader() {
         // Arrange
 
         let endpoint = PaymentBrickInitializationEndpoint(
             orderId: "ORDER-1",
-            clientToken: "seller_token"
+            clientToken: "seller_token",
+            screens: nil
         )
 
         // Assert
@@ -517,7 +567,8 @@ final class RemotePaymentBrickRepositoryTests: XCTestCase {
         // Arrange
         let endpoint = PaymentBrickInitializationEndpoint(
             orderId: "ORDER-1",
-            clientToken: "tok"
+            clientToken: "tok",
+            screens: nil
         )
 
         // Assert
