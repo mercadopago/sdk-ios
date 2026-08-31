@@ -192,7 +192,8 @@ final class CardFormViewModelTests: XCTestCase {
         checkoutTypeAnalyticsValue: String = "save_card",
         identificationTypes: [IdentificationType] = [],
         minInstallments: Int? = nil,
-        maxInstallments: Int? = nil
+        maxInstallments: Int? = nil,
+        screens: String? = nil
     ) -> SUT {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
@@ -203,7 +204,8 @@ final class CardFormViewModelTests: XCTestCase {
             excludedPaymentMethodIds: [],
             initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes),
             minInstallments: minInstallments,
-            maxInstallments: maxInstallments
+            maxInstallments: maxInstallments,
+            screens: screens
         )
         let viewModel = CardFormViewModel(
             config: config,
@@ -277,6 +279,34 @@ final class CardFormViewModelTests: XCTestCase {
         // Assert
         XCTAssertEqual(sut.viewModel.cardData, CardDataStub.visa)
         XCTAssertNil(sut.viewModel.cardAcceptanceError)
+    }
+
+    func test_onCardNumberChange_whenScreensConfigured_shouldForwardScreensToCardLookup() async {
+        // Arrange — screens opted-in are sent on the card_payment_brick/card lookup.
+        let sut = self.makeSUT(screens: "REVIEW_AND_CONFIRM")
+        await sut.repository.setResult(.success(CardDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert
+        let capturedScreens = await sut.repository.capturedParams?.screens
+        XCTAssertEqual(capturedScreens, "REVIEW_AND_CONFIRM")
+    }
+
+    func test_onCardNumberChange_whenNoScreens_shouldForwardNilToCardLookup() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(CardDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert
+        let capturedScreens = await sut.repository.capturedParams?.screens
+        XCTAssertNil(capturedScreens)
     }
 
     func test_onCardNumberChange_whenDigitsReach8_withEmptyMethods_shouldSetAcceptanceError() async {

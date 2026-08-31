@@ -34,7 +34,10 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     var transactionAmount: Decimal { .zero }
 
-    var payerEmail: String { "" }
+    var footer: PaymentInitializationOutput.Footer? {
+        guard case let .ready(output) = self.screenState else { return nil }
+        return output.footer
+    }
 
     init(
         configuration: MPCheckoutConfiguration<T>,
@@ -49,7 +52,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.fetchInitializationUseCase = fetchInitializationUseCase
         self.orderTransactionUseCase = orderTransactionUseCase
 
-        if case let .payment(order) = configuration.type.kind {
+        if case let .payment(order, _) = configuration.type.kind {
             self.paymentData = .init(orderId: order.orderId, transactionAmount: .zero)
         }
     }
@@ -65,13 +68,14 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Load
 
     func load() async throws(MercadoPagoCheckoutError) {
-        guard case let .payment(order) = configuration.type.kind else {
+        guard case let .payment(order, _) = configuration.type.kind else {
             return
         }
         self.screenState = .loading
         let output = try await fetchInitializationUseCase.execute(
             orderId: order.orderId,
-            clientToken: order.clientToken
+            clientToken: order.clientToken,
+            screens: self.configuration.screenConfigs.screensParameter
         )
         self.screenState = .ready(output)
     }
@@ -79,11 +83,11 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Process Order
 
     func processOrder(params: OrderTransactionParams) async throws(MercadoPagoCheckoutError) -> T {
-        guard case let .payment(order) = configuration.type.kind else {
+        guard case let .payment(order, _) = configuration.type.kind else {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
                 localizedDescription: "ORDER_PROCESS",
-                userInfo: ["checkouType": "payment"],
+                userInfo: ["checkoutType": "payment"],
                 location: .orderProcess
             )
         }
@@ -92,11 +96,25 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             clientToken: order.clientToken,
             params: params
         )
+        return try self.makePaymentResult(from: result)
+    }
+
+    func makePaymentResult(
+        from result: OrderTransactionProcessData
+    ) throws(MercadoPagoCheckoutError) -> T {
+        guard case let .payment(order, _) = configuration.type.kind else {
+            throw MercadoPagoCheckoutError(
+                code: .unknown,
+                localizedDescription: "ORDER_PROCESS",
+                userInfo: ["checkouType": "payment"],
+                location: .orderProcess
+            )
+        }
         guard let payment = result.payments.first else {
             throw MercadoPagoCheckoutError(
                 code: .serviceError,
                 localizedDescription: "",
-                userInfo: ["checkouType": "payment"],
+                userInfo: ["checkoutType": "payment"],
                 location: .orderProcess
             )
         }
@@ -112,7 +130,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             throw MercadoPagoCheckoutError(
                 code: .unknown,
                 localizedDescription: "Typed Error",
-                userInfo: ["checkouType": "payment"],
+                userInfo: ["checkoutType": "payment"],
                 location: .orderProcess
             )
         }
@@ -120,19 +138,37 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         return typed
     }
 
-    func makeEmailViewModel() -> EmailViewModel {
-        EmailViewModel(
-            config: .init(
-                initResult: EmailInitializationOutput(
-                    title: "Completá el e-mail",
-                    button: "Continuar",
-                    label: "E-mail",
-                    email: self.payerEmail,
-                    placeholder: "Ejemplo: juan.perez@gmail.com",
-                    errorEmpty: "Completá este campo.",
-                    errorInvalid: "Ingresá un e-mail válido."
-                )
-            )
+    func shouldSkipSecurityCode(from item: PaymentInitializationOutput.Item) -> Bool {
+        return item.cardData?.securityCodeScreen == nil
+    }
+
+    // MARK: - Review & Confirm
+
+    /// Builds the data the review and confirm screen needs, or `nil` when the integrator did not
+    /// opt into it via `withReviewAndConfirm`.
+    func reviewConfirmInput(
+        for params: OrderTransactionParams,
+        cardDetails: ReviewConfirmCardDetails
+    ) -> PendingReviewConfirmInput? {
+        guard self.configuration.reviewAndConfirmConfig != nil,
+              case let .payment(order, sellerInfo) = self.configuration.type.kind
+        else { return nil }
+
+        return PendingReviewConfirmInput(
+            order: order,
+            checkoutType: self.configuration.type.analyticsValue,
+            sellerInfo: sellerInfo,
+            paymentParams: params,
+            cardDetails: cardDetails
         )
+    }
+
+    /// The seller's callback for "Modificar" on the email row (ticket flow only), or `nil` when
+    /// review and confirm is not configured or the seller did not opt into email changes.
+    var onEmailChangeRequested: (@MainActor @Sendable () -> Void)? {
+        guard case let .reviewAndConfirm(callback) = self.configuration.reviewAndConfirmConfig else {
+            return nil
+        }
+        return callback
     }
 }

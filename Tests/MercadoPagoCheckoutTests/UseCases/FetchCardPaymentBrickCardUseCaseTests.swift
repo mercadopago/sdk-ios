@@ -33,7 +33,8 @@ final class FetchCardPaymentBrickCardUseCaseTests: XCTestCase {
             excludedCardTypes: [],
             excludedCardBrands: [],
             maxInstallments: nil,
-            minInstallments: nil
+            minInstallments: nil,
+            screens: nil
         )
     }
 
