@@ -140,21 +140,35 @@ struct PaymentBrickInitializationResponse: Codable {
 
     struct Installments: Codable {
         let header: Header
-        let totalLabel: String
-        let payButtonLabel: String
+        let footer: Footer
         let selectionType: String
         let quotas: [Quota]
 
         enum CodingKeys: String, CodingKey {
             case header
-            case totalLabel = "total_label"
-            case payButtonLabel = "pay_button_label"
+            case footer
             case selectionType = "selection_type"
             case quotas
         }
 
         struct Header: Codable {
             let title: String
+        }
+
+        struct Footer: Codable {
+            let button: Button
+            let totalLabel: String
+            let currencySymbol: String
+
+            enum CodingKeys: String, CodingKey {
+                case button
+                case totalLabel = "total_label"
+                case currencySymbol = "currency_symbol"
+            }
+
+            struct Button: Codable {
+                let label: String
+            }
         }
     }
 
@@ -166,7 +180,9 @@ struct PaymentBrickInitializationResponse: Codable {
         let totalAmount: Decimal
         let primaryLabel: String
         let secondaryLabel: String
+        let tertiaryLabel: String?
         let state: String
+        let accessibilityLabel: String?
 
         enum CodingKeys: String, CodingKey {
             case installments
@@ -174,7 +190,9 @@ struct PaymentBrickInitializationResponse: Codable {
             case totalAmount = "total_amount"
             case primaryLabel = "primary_label"
             case secondaryLabel = "secondary_label"
+            case tertiaryLabel = "tertiary_label"
             case state
+            case accessibilityLabel = "accessibility_label"
         }
     }
 
