@@ -22,7 +22,9 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     private var presentedScreens: [MPScreen] = []
 
-    var screensVisited: [MPScreen] { self.presentedScreens }
+    var screensVisited: [MPScreen] {
+        self.presentedScreens
+    }
 
     // MARK: - Dependencies
 
