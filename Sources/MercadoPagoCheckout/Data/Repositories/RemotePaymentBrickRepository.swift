@@ -65,6 +65,33 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
         )
     }
 
+    private func mapInstallments(
+        _ cardData: PaymentBrickInitializationResponse.CardData
+    ) -> InstallmentScreenData? {
+        guard let installments = cardData.installments else { return nil }
+        return InstallmentScreenData(
+            selectionType: installments.selectionType,
+            quotas: installments.quotas.map {
+                InstallmentScreenData.Quota(
+                    installments: $0.installments,
+                    installmentAmount: $0.installmentAmount,
+                    totalAmount: $0.totalAmount,
+                    primaryLabel: $0.primaryLabel,
+                    secondaryLabel: $0.secondaryLabel,
+                    state: .init($0.state),
+                    tertiaryLabel: $0.tertiaryLabel,
+                    accessibilityLabel: $0.accessibilityLabel
+                )
+            },
+            translations: InstallmentScreenData.Translations(
+                headerTitle: installments.header.title,
+                totalLabel: installments.footer.totalLabel,
+                payButtonLabel: installments.footer.button.label,
+                currencySymbol: installments.footer.currencySymbol
+            )
+        )
+    }
+
     private func mapMethodSelectionScreen(
         _ screen: PaymentBrickInitializationResponse.MethodSelectionScreen?
     ) -> MethodSelectionOutput? {
@@ -104,7 +131,8 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
                     issuerId: data.issuerId,
                     securityCodeScreen: self.mapSecurityCodeScreen(data),
                     bin: data.bin,
-                    lastFourDigits: data.lastFourDigits
+                    lastFourDigits: data.lastFourDigits,
+                    installments: self.mapInstallments(data)
                 )
             },
             screen: self.mapMethodSelectionScreen(method.screen)

@@ -22,7 +22,9 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     private var presentedScreens: [MPScreen] = []
 
-    var screensVisited: [MPScreen] { self.presentedScreens }
+    var screensVisited: [MPScreen] {
+        self.presentedScreens
+    }
 
     // MARK: - Dependencies
 
@@ -32,7 +34,9 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     private let fetchInitializationUseCase: FetchPaymentBrickInitializationUseCase
     private let orderTransactionUseCase: OrderTransactionUseCase
 
-    var transactionAmount: Decimal { .zero }
+    var transactionAmount: Decimal {
+        .zero
+    }
 
     var footer: PaymentInitializationOutput.Footer? {
         guard case let .ready(output) = self.screenState else { return nil }
@@ -140,6 +144,37 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     func shouldSkipSecurityCode(from item: PaymentInitializationOutput.Item) -> Bool {
         return item.cardData?.securityCodeScreen == nil
+    }
+
+    func installmentsData(from item: PaymentInitializationOutput.Item) -> MPInstallmentsData? {
+        guard let cardData = item.cardData,
+              let installments = cardData.installments
+        else { return nil }
+
+        return MPInstallmentsData(
+            installment: installments,
+            cardDisplayInfo: CardDisplayInfo(
+                issuerName: item.description ?? String(),
+                paymentTypeId: cardData.paymentTypeId,
+                lastFourDigits: cardData.lastFourDigits ?? String()
+            )
+        )
+    }
+
+    func cardTransaction(
+        from item: PaymentInitializationOutput.Item,
+        token: String?
+    ) -> MPPaymentData.CardTransaction? {
+        guard let cardData = item.cardData else { return nil }
+
+        return MPPaymentData.CardTransaction(
+            transactionAmount: self.transactionAmount,
+            token: token ?? String(),
+            paymentMethodId: cardData.paymentMethodId,
+            paymentTypeId: cardData.paymentTypeId,
+            issuerId: String(cardData.issuerId),
+            orderId: self.paymentData?.orderId ?? String()
+        )
     }
 
     // MARK: - Review & Confirm

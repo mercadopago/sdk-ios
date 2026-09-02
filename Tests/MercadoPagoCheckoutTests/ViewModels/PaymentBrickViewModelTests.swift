@@ -24,6 +24,41 @@ final class PaymentBrickViewModelTests: XCTestCase {
         XCTAssertTrue(sut.shouldSkipSecurityCode(from: item))
     }
 
+    // MARK: - Installments screen data
+
+    func test_installmentsData_whenAvailable_mapsSavedCardDisplayData() throws {
+        let sut = self.makePaymentSUT()
+        let installments = self.makeInstallmentsData()
+        let item = self.makeSavedCardItem(withSecurityCode: false, installments: installments)
+
+        let result = try XCTUnwrap(sut.installmentsData(from: item))
+
+        XCTAssertEqual(result.installment, installments)
+        XCTAssertEqual(result.cardDisplayInfo.issuerName, "Master Crédito")
+        XCTAssertEqual(result.cardDisplayInfo.paymentTypeId, "credit_card")
+        XCTAssertEqual(result.cardDisplayInfo.lastFourDigits, "6351")
+    }
+
+    func test_installmentsData_whenMissing_returnsNil() {
+        let sut = self.makePaymentSUT()
+        let item = self.makeSavedCardItem(withSecurityCode: false)
+
+        XCTAssertNil(sut.installmentsData(from: item))
+    }
+
+    func test_cardTransaction_withToken_mapsSavedCardPaymentData() throws {
+        let sut = self.makePaymentSUT()
+        let item = self.makeSavedCardItem(withSecurityCode: true)
+
+        let result = try XCTUnwrap(sut.cardTransaction(from: item, token: "token-123"))
+
+        XCTAssertEqual(result.token, "token-123")
+        XCTAssertEqual(result.paymentMethodId, "master")
+        XCTAssertEqual(result.paymentTypeId, "credit_card")
+        XCTAssertEqual(result.issuerId, "1")
+        XCTAssertEqual(result.orderId, "ORD01")
+    }
+
     // MARK: - markScreenPresented / screensVisited
 
     func test_screensVisited_initiallyEmpty() {
@@ -127,7 +162,10 @@ final class PaymentBrickViewModelTests: XCTestCase {
         return PaymentBrickViewModel(configuration: configuration)
     }
 
-    private func makeSavedCardItem(withSecurityCode: Bool) -> PaymentInitializationOutput.Item {
+    private func makeSavedCardItem(
+        withSecurityCode: Bool,
+        installments: InstallmentScreenData? = nil
+    ) -> PaymentInitializationOutput.Item {
         let screen: SecurityCodeScreenOutput? = withSecurityCode
             ? SecurityCodeScreenOutput(
                 length: 3,
@@ -146,7 +184,33 @@ final class PaymentBrickViewModelTests: XCTestCase {
                 paymentMethodId: "master",
                 paymentTypeId: "credit_card",
                 issuerId: 1,
-                securityCodeScreen: screen
+                securityCodeScreen: screen,
+                lastFourDigits: "6351",
+                installments: installments
+            )
+        )
+    }
+
+    private func makeInstallmentsData() -> InstallmentScreenData {
+        InstallmentScreenData(
+            selectionType: "radio_button",
+            quotas: [
+                .init(
+                    installments: 3,
+                    installmentAmount: 33.33,
+                    totalAmount: 100,
+                    primaryLabel: "3x $ 33,33",
+                    secondaryLabel: "Sin interés",
+                    state: .success,
+                    tertiaryLabel: nil,
+                    accessibilityLabel: "3 cuotas sin interés"
+                )
+            ],
+            translations: .init(
+                headerTitle: "Elegí la cantidad de cuotas",
+                totalLabel: "Total",
+                payButtonLabel: "Pagar",
+                currencySymbol: "$"
             )
         )
     }

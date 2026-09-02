@@ -23,8 +23,12 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     @State private var methodSelectionViewModel: MethodSelectionViewModel?
     @State private var pendingReviewConfirmInput: PendingReviewConfirmInput?
     @State private var reviewConfirmPreviousRoute: Route?
+    @State private var installmentsPreviousRoute: Route?
+    @State private var securityCodeScreenID = UUID()
     @State private var pendingSnackbarError: String?
     @State private var pendingCloseCompletion: (() -> Void)?
+    @State private var cardTransactionData = MPPaymentData.CardTransaction()
+    @State private var installmentsData: MPInstallmentsData?
     @ObservedObject private var viewModel: PaymentBrickViewModel<T>
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -73,6 +77,11 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 }
             }
             .navigationViewStyle(StackNavigationViewStyle())
+            .messageSnackbar(
+                isPresented: self.snackbarBinding,
+                text: self.pendingSnackbarError ?? String(),
+                state: .negative
+            )
         }
         .mpTask {
             await self.load()
@@ -99,11 +108,6 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 self.handleSelection(of: item)
             }
         )
-        .messageSnackbar(
-            isPresented: self.snackbarBinding,
-            text: self.pendingSnackbarError ?? String(),
-            state: .negative
-        )
     }
 
     // MARK: - Navigation
@@ -120,8 +124,13 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             self.route = .cardForm
         case "saved_card":
             self.selectedItem = item
-            // TODO: Create logic to skip screen of Security Code to go installment/review and confirm or process order
-            self.route = .securityCode
+            self.cardTransactionData = MPPaymentData.CardTransaction()
+            self.installmentsData = nil
+            if self.viewModel.shouldSkipSecurityCode(from: item) {
+                self.handleInstallments(from: item)
+            } else {
+                self.route = .securityCode
+            }
         case "ticket":
             self.selectedItem = item
             self.handleOfflineFlow()
@@ -185,14 +194,27 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         self.pendingReviewConfirmInput = nil
         self.reviewConfirmPreviousRoute = nil
         self.selectedItem = nil
+        self.cardTransactionData = MPPaymentData.CardTransaction()
+        self.installmentsData = nil
     }
 
     private func navigationLinks() -> some View {
         Group {
             NavigationLink(
                 destination: self.securityCodeDestination()
+                    .id(self.securityCodeScreenID)
                     .onAppear { self.viewModel.markScreenPresented(.securityCode) },
                 tag: Route.securityCode,
+                selection: self.$route
+            ) {
+                EmptyView()
+            }
+            .hidden()
+
+            NavigationLink(
+                destination: self.installmentScreen()
+                    .onAppear { self.viewModel.markScreenPresented(.installments) },
+                tag: Route.installments,
                 selection: self.$route
             ) {
                 EmptyView()
@@ -234,13 +256,30 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                         footer: footer
                     )
                 ),
-                onTokenSuccess: { _ in self.route = .installments },
+                onTokenSuccess: { token in
+                    self.handleInstallments(from: item, token: token)
+                },
                 onTokenError: { self.route = nil },
                 onBack: { self.route = nil }
             )
         } else {
             EmptyView()
         }
+    }
+
+    private func installmentScreen() -> some View {
+        InstallmentScreen(
+            paymentData: self.$cardTransactionData,
+            installmentsData: Binding(
+                get: { self.installmentsData ?? .empty },
+                set: { self.installmentsData = $0 }
+            ),
+            checkoutType: self.configuration.type.analyticsValue,
+            onBack: { self.handleInstallmentsBack() },
+            onDismiss: { self.cancel(screens: self.viewModel.screensVisited) },
+            onFinish: { context in self.handleInstallmentSelection(context) },
+            onContinue: { context in self.handleInstallmentSelection(context) }
+        )
     }
 
     @ViewBuilder
@@ -332,6 +371,77 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         self.clearReviewConfirmState()
         self.onResult(.error(error))
         self.presentationMode.wrappedValue.dismiss()
+    }
+}
+
+// MARK: - Installments
+
+extension PaymentBrick {
+    struct InstallmentsBackTransition: Equatable {
+        let destination: Route?
+        let shouldRecreateSecurityCode: Bool
+    }
+
+    /// Resolves Installments back navigation without retaining the prior CVV state (I8 / DD-3a).
+    static func installmentsBackTransition(from previousRoute: Route?) -> InstallmentsBackTransition {
+        let returnsToSecurityCode = previousRoute == .securityCode
+        return InstallmentsBackTransition(
+            destination: returnsToSecurityCode ? .securityCode : nil,
+            shouldRecreateSecurityCode: returnsToSecurityCode
+        )
+    }
+
+    /// Applies the installments availability states returned by payment initialization.
+    private func handleInstallments(
+        from item: PaymentInitializationOutput.Item,
+        token: String? = nil
+    ) {
+        guard let installments = item.cardData?.installments else {
+            // The continuation without installments belongs to the payment-flow orchestration.
+            self.route = nil
+            return
+        }
+        guard !installments.quotas.isEmpty else {
+            self.route = nil
+            self.pendingSnackbarError = MPStrings.Errors.generic
+            return
+        }
+        guard let installmentsData = self.viewModel.installmentsData(from: item),
+              let cardTransactionData = self.viewModel.cardTransaction(from: item, token: token)
+        else {
+            self.route = nil
+            return
+        }
+        self.installmentsData = installmentsData
+        self.cardTransactionData = cardTransactionData
+        self.installmentsPreviousRoute = self.route
+        self.route = .installments
+    }
+
+    private func handleInstallmentSelection(_ context: InstallmentFinishContext) {
+        var cardTransactionData = self.cardTransactionData
+        cardTransactionData.installment = context.installments
+        self.cardTransactionData = cardTransactionData
+
+        guard !cardTransactionData.token.isEmpty,
+              let params = OrderTransactionParams(cardTransaction: cardTransactionData)
+        else {
+            // The saved-card continuation without a token belongs to payment-flow orchestration.
+            self.route = nil
+            return
+        }
+
+        self.handlePaymentConfirmed(params, installmentAmount: context.installmentAmount)
+    }
+
+    private func handleInstallmentsBack() {
+        let transition = Self.installmentsBackTransition(from: self.installmentsPreviousRoute)
+        self.installmentsPreviousRoute = nil
+
+        if transition.shouldRecreateSecurityCode {
+            self.securityCodeScreenID = UUID()
+        }
+        self.route = transition.destination
     }
 }
 
