@@ -1,0 +1,19 @@
+{
+  "event_id": "07503228-d3fd-4da0-9505-f2cb0f49cd7e",
+  "occurred_at": "2026-08-26T14:06:00Z",
+  "source": {
+    "sdk_name": "openplatform_sdk_android",
+    "sdk_version": "1.0.0",
+    "host_platform": "android",
+    "sdk_technology": "native",
+    "module": "checkout",
+    "operation": "card_form_submission"
+  },
+  "site_id": "MLB",
+  "error": {
+    "code": "operation_failed",
+    "category": "unknown",
+    "critical": true,
+    "raw_error": "this field must never be accepted"
+  }
+}

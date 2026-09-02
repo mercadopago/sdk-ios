@@ -1,0 +1,19 @@
+{
+  "event_id": "ddf87080-b427-47cf-a7d0-b7a568d60ea1",
+  "occurred_at": "2026-08-26T14:02:00Z",
+  "source": {
+    "sdk_name": "openplatform_sdk_ios",
+    "sdk_version": "1.0.0",
+    "host_platform": "ios",
+    "sdk_technology": "native",
+    "module": "checkout",
+    "operation": "card_form_cancellation"
+  },
+  "site_id": "MCO",
+  "error": {
+    "code": "user_cancelled",
+    "category": "cancellation",
+    "critical": false,
+    "diagnostic_code": "cancelled"
+  }
+}

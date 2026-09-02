@@ -1,0 +1,26 @@
+{
+  "event_id": "3f6fd694-4ba8-4f45-ae7c-871c4698aace",
+  "occurred_at": "2026-08-26T14:00:00Z",
+  "source": {
+    "sdk_name": "openplatform_sdk_ios",
+    "sdk_version": "1.0.0",
+    "host_platform": "ios",
+    "sdk_technology": "native",
+    "module": "core_methods",
+    "operation": "card_tokenization"
+  },
+  "site_id": "MLB",
+  "error": {
+    "code": "request_timeout",
+    "category": "service",
+    "critical": true,
+    "status_code": 504,
+    "request_correlation_id": "req-5cc7f5",
+    "service_target": "card_tokens",
+    "diagnostic_code": "timeout"
+  },
+  "device": {
+    "os_version": "18.6",
+    "connectivity": "wifi"
+  }
+}

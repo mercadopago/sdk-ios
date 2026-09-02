@@ -14,7 +14,8 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
 
     typealias SUT = (
         viewModel: InstallmentsScreenViewModel,
-        analytics: MockAnalytics
+        analytics: MockAnalytics,
+        errorObservability: MockErrorObservability
     )
 
     // MARK: - Helpers
@@ -24,13 +25,15 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
         installmentsData: MPInstallmentsData = .validMPInstallmentsData
     ) -> SUT {
         let analytics = MockAnalytics()
+        let errorObservability = MockErrorObservability(eventID: "checkout-event")
         var data = installmentsData
         let viewModel = InstallmentsScreenViewModel(
             installmentsData: Binding(get: { data }, set: { data = $0 }),
             checkoutType: checkoutType,
-            analytics: analytics
+            analytics: analytics,
+            errorObservability: errorObservability
         )
-        return (viewModel, analytics)
+        return (viewModel, analytics, errorObservability)
     }
 
     // MARK: - trackInitialize
@@ -156,8 +159,11 @@ final class InstallmentsScreenViewModelTrackingTests: XCTestCase {
 
         // Assert
         let messages = await sut.analytics.mock.getMessages()
+        let eventIDs = await sut.analytics.mock.getObservabilityEventIDs()
         XCTAssertTrue(messages.contains(.track(path: InstallmentAnalyticsPath.userCanceledError)))
         XCTAssertTrue(messages.contains(.send))
+        XCTAssertEqual(eventIDs, ["checkout-event"])
+        XCTAssertEqual(sut.errorObservability.recordedErrors().map(\.operation), [.installmentsCancellation])
     }
 
     func test_trackCanceledError_backPressed_shouldSendBackPressedErrorType() async {

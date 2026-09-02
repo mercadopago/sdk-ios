@@ -112,8 +112,15 @@ package protocol AnalyticsInterface: Sendable {
     @discardableResult
     func trackView(_ path: String) async -> AnalyticsInterface
 
-    /// Sends the current event for processing.
-    func send() async
+    /// Sends the current event for processing, optionally correlating an error
+    /// with the native observability copy created for this send only.
+    func send(observabilityEventID: String?) async
+}
+
+package extension AnalyticsInterface {
+    func send() async {
+        await send(observabilityEventID: nil)
+    }
 }
 
 /// Core analytics implementation for the MercadoPago SDK.
@@ -237,12 +244,12 @@ package final class MPAnalytics: AnalyticsInterface {
     /// 4. Sends the data (currently just prints to console).
     ///
     /// - Note: Actual data sending implementation should be added in the future.
-    package func send() async {
+    package func send(observabilityEventID: String?) async {
         guard await !MPAnalyticsConfiguration.shared.version.isEmpty,
               await !MPAnalyticsConfiguration.shared.siteID.isEmpty else {
             return
         }
-        let payload = await buildPayload()
+        let payload = await buildPayload(observabilityEventID: observabilityEventID)
 
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
@@ -263,7 +270,7 @@ package final class MPAnalytics: AnalyticsInterface {
         } catch {}
     }
 
-    private func buildPayload() async -> [String: Any] {
+    private func buildPayload(observabilityEventID: String?) async -> [String: Any] {
         var identifierVendor = ""
 
         await MainActor.run {
@@ -279,7 +286,7 @@ package final class MPAnalytics: AnalyticsInterface {
             "type": self.track.getType().rawValue,
             "id": UUID().uuidString,
             "user_time": Int64(Date().timeIntervalSince1970 * 1000),
-            "event_data": self.getEventData(),
+            "event_data": self.getEventData(observabilityEventID: observabilityEventID),
             "application": [
                 "app_name": self.sellerInfo.getBundleIdentifier(),
                 "business": "mercadopago",
@@ -308,15 +315,20 @@ extension MPAnalytics {
 
 // MARK: - Private Helpers
 
-private extension MPAnalytics {
+extension MPAnalytics {
     /// Retrieves the current event data in JSON format.
     ///
     /// - Returns: Dictionary containing event data or an empty dictionary if no data is present.
-    func getEventData() async -> [String: Any] {
+    package func getEventData(observabilityEventID: String?) async -> [String: Any] {
         var eventData = await track.getEventData()?.toDictionary() ?? [:]
 
         if let error = await track.getError() {
             eventData["error_type"] = error
+        }
+
+        if let observabilityEventID,
+           UUID(uuidString: observabilityEventID)?.uuidString.lowercased() == observabilityEventID {
+            eventData["observability_event_id"] = observabilityEventID
         }
 
         return eventData
