@@ -64,6 +64,11 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 }
             }
             .navigationViewStyle(StackNavigationViewStyle())
+            .messageSnackbar(
+                isPresented: self.snackbarBinding,
+                text: self.pendingSnackbarError ?? String(),
+                state: .negative
+            )
         }
         .mpTask {
             await self.load()
