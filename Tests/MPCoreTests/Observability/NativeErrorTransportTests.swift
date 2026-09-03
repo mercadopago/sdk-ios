@@ -10,6 +10,14 @@ final class NativeErrorTransportTests: XCTestCase {
     func testSendsExactlyOneCredentialFreePOSTAndAcceptsOnly202() async throws {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [NativeErrorURLProtocol.self]
+        configuration.httpAdditionalHeaders = [
+            "Authorization": "Bearer must-not-escape",
+            "Cookie": "session=must-not-escape",
+            "X-Public-Key": "must-not-escape"
+        ]
+        configuration.httpCookieStorage = .shared
+        configuration.urlCredentialStorage = .shared
+        configuration.urlCache = .shared
         let transport = NativeErrorTransport(configuration: configuration)
         let lock = NSLock()
         var attempts = 0
@@ -18,10 +26,12 @@ final class NativeErrorTransportTests: XCTestCase {
             attempts += 1
             lock.unlock()
             XCTAssertEqual(request.url, NativeErrorTransport.endpoint)
+            XCTAssertEqual(request.url?.scheme, "https")
             XCTAssertEqual(request.httpMethod, "POST")
             XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json")
             XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"))
             XCTAssertNil(request.value(forHTTPHeaderField: "X-Public-Key"))
+            XCTAssertNil(request.value(forHTTPHeaderField: "Cookie"))
             XCTAssertNil(request.url?.query)
             return (HTTPURLResponse(url: request.url!, statusCode: 202, httpVersion: nil, headerFields: nil)!, Data())
         }

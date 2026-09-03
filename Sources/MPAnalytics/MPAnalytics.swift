@@ -326,7 +326,8 @@ extension MPAnalytics {
             eventData["error_type"] = error
         }
 
-        if let observabilityEventID {
+        if let observabilityEventID,
+           UUID(uuidString: observabilityEventID)?.uuidString.lowercased() == observabilityEventID {
             eventData["observability_event_id"] = observabilityEventID
         }
 

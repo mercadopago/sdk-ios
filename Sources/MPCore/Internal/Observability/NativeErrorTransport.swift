@@ -13,11 +13,10 @@ package final class NativeErrorTransport: NativeErrorTransporting, @unchecked Se
     private let session: URLSession
 
     package init(
-        endpoint: URL = NativeErrorTransport.endpoint,
         configuration: URLSessionConfiguration? = nil,
         encoder: JSONEncoder = JSONEncoder()
     ) {
-        self.endpoint = endpoint
+        self.endpoint = Self.endpoint
         self.encoder = encoder
         self.redirectDelegate = NativeErrorRedirectDelegate()
 
@@ -26,6 +25,7 @@ package final class NativeErrorTransport: NativeErrorTransporting, @unchecked Se
         configuration.urlCache = nil
         configuration.httpCookieStorage = nil
         configuration.urlCredentialStorage = nil
+        configuration.httpAdditionalHeaders = nil
         configuration.httpShouldSetCookies = false
         configuration.httpCookieAcceptPolicy = .never
         configuration.waitsForConnectivity = false
