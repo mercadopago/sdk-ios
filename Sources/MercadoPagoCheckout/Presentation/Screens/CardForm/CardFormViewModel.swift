@@ -354,11 +354,15 @@ final class CardFormViewModel: ObservableObject {
 extension CardFormViewModel {
     func cancel(context _: MPCardFormUserCancelledContext, reason: CardFormCancelReason) {
         self.isCancelling = true
+        let receipt = self.errorObservability.capture(
+            MercadoPagoCheckoutError.classifiedUserCancellation(operation: .cardFormCancellation)
+        )
+        guard receipt.shouldSendMelidata else { return }
         let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)
         self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.userCanceledError)
                 .setEventData(eventData)
-                .send()
+                .send(observabilityEventID: receipt.eventID)
         }
     }
 
@@ -397,11 +401,15 @@ extension CardFormViewModel {
     }
 
     private func trackSubmitError(_ error: MercadoPagoCheckoutError) {
+        let receipt = self.errorObservability.capture(
+            error.classifiedNativeError(operation: .cardFormSubmission)
+        )
+        guard receipt.shouldSendMelidata else { return }
         let eventData = CardFormErrorEventData(errorType: error.analyticsErrorType)
         self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.submitError)
                 .setEventData(eventData)
-                .send()
+                .send(observabilityEventID: receipt.eventID)
         }
     }
 

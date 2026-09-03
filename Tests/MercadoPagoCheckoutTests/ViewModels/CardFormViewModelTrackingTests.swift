@@ -17,7 +17,8 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         viewModel: CardFormViewModel,
         service: MockCheckoutService,
         repository: MockCardPaymentBrickCardRepository,
-        analytics: MockAnalytics
+        analytics: MockAnalytics,
+        errorObservability: MockErrorObservability
     )
 
     // MARK: - Properties
@@ -92,11 +93,16 @@ final class CardFormViewModelTrackingTests: XCTestCase {
 
     private func makeSUT(
         amount: Decimal = .zero,
-        identificationTypes: [IdentificationType] = []
+        identificationTypes: [IdentificationType] = [],
+        shouldSendMelidata: Bool = true
     ) -> SUT {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
         let analytics = MockAnalytics()
+        let errorObservability = MockErrorObservability(
+            eventID: "checkout-event",
+            shouldSendMelidata: shouldSendMelidata
+        )
         let config = CardFormViewModel.Configuration(
             amount: amount,
             checkoutTypeAnalyticsValue: "save_card",
@@ -110,9 +116,10 @@ final class CardFormViewModelTrackingTests: XCTestCase {
             config: config,
             service: service,
             fetchCardUseCase: FetchCardPaymentBrickCardUseCase(repository: repository),
-            analytics: analytics
+            analytics: analytics,
+            errorObservability: errorObservability
         )
-        return (viewModel, service, repository, analytics)
+        return (viewModel, service, repository, analytics, errorObservability)
     }
 
     private func setupCardData(_ sut: SUT) async {
@@ -215,8 +222,11 @@ final class CardFormViewModelTrackingTests: XCTestCase {
 
         // Assert
         let messages = await sut.analytics.mock.getMessages()
+        let eventIDs = await sut.analytics.mock.getObservabilityEventIDs()
         XCTAssertTrue(messages.contains(.track(path: CardFormAnalyticsPath.userCanceledError)))
         XCTAssertTrue(messages.contains(.send))
+        XCTAssertEqual(eventIDs, ["checkout-event"])
+        XCTAssertEqual(sut.errorObservability.recordedErrors().map(\.operation), [.cardFormCancellation])
     }
 
     func test_cancel_backButton_shouldSendBackButtonErrorType() async {
@@ -299,8 +309,35 @@ final class CardFormViewModelTrackingTests: XCTestCase {
 
         // Assert
         let messages = await sut.analytics.mock.getMessages()
+        let eventIDs = await sut.analytics.mock.getObservabilityEventIDs()
         XCTAssertTrue(messages.contains(.track(path: CardFormAnalyticsPath.submitError)))
         XCTAssertTrue(messages.contains(.send))
+        XCTAssertEqual(eventIDs, ["checkout-event"])
+        XCTAssertEqual(sut.errorObservability.recordedErrors().map(\.operation), [.cardFormSubmission])
+    }
+
+    func test_submitFailure_whenMelidataDisabled_shouldKeepOriginalCallbackResult() async {
+        let sut = self.makeSUT(shouldSendMelidata: false)
+        await self.setupCardData(sut)
+        let original = MercadoPagoCheckoutError(
+            code: .networkConnectionFailed,
+            localizedDescription: "No connection",
+            location: .tokenization
+        )
+        await sut.service.setCreateCardTokenResult(.failure(original))
+        var received: MercadoPagoCheckoutError?
+
+        await sut.viewModel.submitCardData(
+            cardForm: CardFormDataStub.valid,
+            onSuccess: { _ in XCTFail("Expected failure") },
+            onFailure: { received = $0 }
+        )
+
+        XCTAssertEqual(received?.code, original.code)
+        XCTAssertEqual(received?.errorDescription, original.errorDescription)
+        XCTAssertEqual(sut.errorObservability.recordedErrors().map(\.operation), [.cardFormSubmission])
+        let messages = await sut.analytics.mock.getMessages()
+        XCTAssertTrue(messages.isEmpty)
     }
 
     // MARK: - enqueueAnalytics

@@ -132,11 +132,15 @@ final class InstallmentsScreenViewModel: ObservableObject {
     }
 
     func trackCanceledError(errorType: String) {
+        let receipt = self.errorObservability.capture(
+            MercadoPagoCheckoutError.classifiedUserCancellation(operation: .installmentsCancellation)
+        )
+        guard receipt.shouldSendMelidata else { return }
         let eventData = InstallmentCanceledErrorEventData(errorType: errorType)
         self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(InstallmentAnalyticsPath.userCanceledError)
                 .setEventData(eventData)
-                .send()
+                .send(observabilityEventID: receipt.eventID)
         }
     }
 

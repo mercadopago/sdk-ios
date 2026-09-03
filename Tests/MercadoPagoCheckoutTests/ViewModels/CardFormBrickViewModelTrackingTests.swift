@@ -15,7 +15,8 @@ final class CardFormBrickViewModelTrackingTests: XCTestCase {
     typealias SUT = (
         viewModel: CardFormBrickViewModel<MPPaymentData.CardSave>,
         repository: MockCardFormInitializationRepository,
-        analytics: MockAnalytics
+        analytics: MockAnalytics,
+        errorObservability: MockErrorObservability
     )
 
     // MARK: - Helpers
@@ -26,6 +27,7 @@ final class CardFormBrickViewModelTrackingTests: XCTestCase {
         let repository = MockCardFormInitializationRepository()
         let useCase = InitializeCardFormUseCase(repository: repository)
         let analytics = MockAnalytics()
+        let errorObservability = MockErrorObservability(eventID: "checkout-event")
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
             type: .saveCard,
             paymentMethod: [.card()]
@@ -34,9 +36,10 @@ final class CardFormBrickViewModelTrackingTests: XCTestCase {
             configuration: configuration,
             appearance: appearance,
             initializeUseCase: useCase,
-            analytics: analytics
+            analytics: analytics,
+            errorObservability: errorObservability
         )
-        return (viewModel, repository, analytics)
+        return (viewModel, repository, analytics, errorObservability)
     }
 
     // MARK: - trackInitialize
@@ -85,8 +88,11 @@ final class CardFormBrickViewModelTrackingTests: XCTestCase {
 
         // Assert
         let messages = await sut.analytics.mock.getMessages()
+        let eventIDs = await sut.analytics.mock.getObservabilityEventIDs()
         XCTAssertTrue(messages.contains(.track(path: CardFormAnalyticsPath.initializeError)))
         XCTAssertTrue(messages.contains(.send))
+        XCTAssertEqual(eventIDs, ["checkout-event"])
+        XCTAssertEqual(sut.errorObservability.recordedErrors().map(\.operation), [.cardFormInitialization])
     }
 
     func test_load_whenFailure_shouldTrackUnknownErrorType() async {
