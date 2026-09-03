@@ -61,6 +61,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     private let initializeUseCase: InitializeCardFormUseCase
     private let orderUseCase: OrderTransactionUseCase
     private let analytics: AnalyticsInterface
+    private let errorObservability: ErrorObservabilityReporting
 
     // MARK: - Init
 
@@ -69,13 +70,15 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         appearance: MPCheckoutAppearance = MPCheckoutAppearance(),
         initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase(),
         orderUseCase: OrderTransactionUseCase = OrderTransactionUseCase(),
-        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics,
+        errorObservability: ErrorObservabilityReporting = CoreDependencyContainer.shared.errorObservability
     ) {
         self.configuration = configuration
         self.appearance = appearance
         self.initializeUseCase = initializeUseCase
         self.orderUseCase = orderUseCase
         self.analytics = analytics
+        self.errorObservability = errorObservability
     }
 
     func markInstallmentsPresented() {
@@ -107,7 +110,8 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
             let viewModel = CardFormViewModel(
                 config: configuration,
-                analytics: self.analytics
+                analytics: self.analytics,
+                errorObservability: self.errorObservability
             )
 
             self.screenState = .ready(result, viewModel)

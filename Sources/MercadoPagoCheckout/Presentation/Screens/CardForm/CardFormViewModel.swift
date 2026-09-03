@@ -28,6 +28,7 @@ final class CardFormViewModel: ObservableObject {
     private let service: CheckoutServiceProtocol
     private let fetchCardUseCase: FetchCardPaymentBrickCardUseCase
     private let analytics: AnalyticsInterface
+    private let errorObservability: ErrorObservabilityReporting
 
     // MARK: - Formatters
 
@@ -97,13 +98,15 @@ final class CardFormViewModel: ObservableObject {
         config: Configuration,
         service: CheckoutServiceProtocol = CheckoutService(),
         fetchCardUseCase: FetchCardPaymentBrickCardUseCase = FetchCardPaymentBrickCardUseCase(),
-        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics,
+        errorObservability: ErrorObservabilityReporting = CoreDependencyContainer.shared.errorObservability
     ) {
         self.config = config
         self.service = service
         self.fetchCardUseCase = fetchCardUseCase
         self.fields = config.initResult.fields
         self.analytics = analytics
+        self.errorObservability = errorObservability
         self.identificationTypes = config.initResult.identificationTypes
         self.currencySymbol = config.initResult.currencySymbol
         _selectTypeDocument = Published(wrappedValue: config.initResult.identificationTypes.first)
