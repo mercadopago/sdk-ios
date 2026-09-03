@@ -47,6 +47,23 @@ final class NativeErrorReporterTests: XCTestCase {
         XCTAssertEqual(first.source.sdkVersion, "1.0.0")
         XCTAssertEqual(first.siteID, "MLB")
     }
+
+    func testTransportFailuresAreContainedAndWorkerContinues() async {
+        let transport = FailingNativeErrorTransport()
+        let reporter = NativeErrorReporter(transport: transport)
+        reporter.configure(sdkVersion: "1.0.0", country: .BRA)
+
+        let offlineReceipt = reporter.capture(.init(operation: .paymentMethods, code: .connectionUnavailable))
+        await transport.waitForAttempt(1)
+        let timeoutReceipt = reporter.capture(.init(operation: .issuers, code: .requestTimeout))
+        await transport.waitForAttempt(2)
+
+        XCTAssertTrue(offlineReceipt.shouldSendMelidata)
+        XCTAssertTrue(timeoutReceipt.shouldSendMelidata)
+        XCTAssertNotEqual(offlineReceipt.eventID, timeoutReceipt.eventID)
+        let attempts = await transport.attemptCount
+        XCTAssertEqual(attempts, 2)
+    }
 }
 
 private actor RecordingNativeErrorTransport: NativeErrorTransporting {
@@ -81,5 +98,23 @@ private actor RecordingNativeErrorTransport: NativeErrorTransporting {
         let continuations = suspensionWaiters
         suspensionWaiters.removeAll()
         continuations.forEach { $0.resume() }
+    }
+}
+
+private actor FailingNativeErrorTransport: NativeErrorTransporting {
+    private(set) var attemptCount = 0
+    private var waiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+
+    func send(_ report: NativeErrorReport) async throws -> Bool {
+        attemptCount += 1
+        let ready = waiters.filter { $0.count <= attemptCount }
+        waiters.removeAll { $0.count <= attemptCount }
+        ready.forEach { $0.continuation.resume() }
+        throw URLError(attemptCount == 1 ? .notConnectedToInternet : .timedOut)
+    }
+
+    func waitForAttempt(_ count: Int) async {
+        guard attemptCount < count else { return }
+        await withCheckedContinuation { waiters.append((count, $0)) }
     }
 }

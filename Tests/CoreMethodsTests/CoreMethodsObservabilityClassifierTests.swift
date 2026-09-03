@@ -46,6 +46,25 @@ final class CoreMethodsObservabilityClassifierTests: XCTestCase {
         XCTAssertNil(timeout.serviceTarget)
     }
 
+    func testEveryCurrentOperationHasOnlyItsProvenServiceTarget() {
+        let cases: [(NativeErrorOperation, NativeErrorServiceTarget?)] = [
+            (.identificationTypes, .identificationTypes),
+            (.installments, .installments),
+            (.paymentMethods, .paymentMethods),
+            (.issuers, .issuers),
+            (.cardTokenization, nil)
+        ]
+
+        for (operation, target) in cases {
+            let classified = CoreMethods.classifiedNativeError(
+                from: APIClientError.statusCode(500),
+                operation: operation
+            )
+            XCTAssertEqual(classified.operation, operation)
+            XCTAssertEqual(classified.serviceTarget, target)
+        }
+    }
+
     func testTrackingPreservesOriginalErrorAndSharesReceiptID() async {
         let observability = MockErrorObservability(eventID: "shared-event-id")
         let dependencies = MockDependencyContainer(errorObservability: observability)
