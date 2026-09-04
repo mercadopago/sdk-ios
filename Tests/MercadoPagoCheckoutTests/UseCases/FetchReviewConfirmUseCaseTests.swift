@@ -16,12 +16,15 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
         return (sut, repository)
     }
 
-    private func makeCardParams(installments: Int = 3) -> OrderTransactionParams {
+    private func makeCardParams(
+        paymentTypeId: String = "credit_card",
+        installments: Int = 3
+    ) -> OrderTransactionParams {
         OrderTransactionParams(
             amount: 100,
             paymentMethodType: .card(
                 paymentMethodId: "visa",
-                paymentTypeId: "credit_card",
+                paymentTypeId: paymentTypeId,
                 token: "tok",
                 installments: installments
             )
@@ -61,6 +64,7 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
             bin: "453998",
             issuerId: 25,
             lastFourDigits: "4567",
+            installments: 3,
             installmentAmount: 10
         )
     ) async throws -> ReviewConfirmOutput {
@@ -123,6 +127,31 @@ final class FetchReviewConfirmUseCaseTests: XCTestCase {
 
         // Assert
         let request = await repository.lastRequest
+        XCTAssertNil(request?.installmentAmount)
+    }
+
+    func test_execute_withDebitCard_omitsInstallmentFields() async throws {
+        // Arrange
+        let (sut, repository) = self.makeSUT()
+        try await repository.setResult(.success(self.makeResponse()))
+
+        // Act
+        _ = try await self.execute(
+            sut: sut,
+            params: self.makeCardParams(paymentTypeId: "debit_card", installments: 1),
+            config: self.makeConfig(),
+            cardDetails: .init(
+                bin: "453998",
+                issuerId: 25,
+                lastFourDigits: "4567",
+                installments: nil,
+                installmentAmount: 10
+            )
+        )
+
+        // Assert
+        let request = await repository.lastRequest
+        XCTAssertNil(request?.installments)
         XCTAssertNil(request?.installmentAmount)
     }
 

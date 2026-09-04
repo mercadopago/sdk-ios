@@ -230,6 +230,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             bin: inputCardData?.bin,
             issuerId: paymentData.issuerId.flatMap { Int($0) },
             lastFourDigits: inputCardData?.lastFourDigits,
+            installments: paymentData.paymentTypeId == "debit_card" ? nil : paymentData.installment,
             installmentAmount: installmentAmount
         )
         return PendingReviewConfirmInput(

@@ -14,13 +14,16 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         MPOrder(orderId: "ORDER-1", clientToken: "client-token")
     }
 
-    private func makeCardTransaction(issuerId: String? = "25") -> MPPaymentData.CardTransaction {
+    private func makeCardTransaction(
+        issuerId: String? = "25",
+        paymentTypeId: String = "credit_card"
+    ) -> MPPaymentData.CardTransaction {
         MPPaymentData.CardTransaction(
             transactionAmount: 100,
             token: "token",
             installment: 3,
             paymentMethodId: "visa",
-            paymentTypeId: "credit_card",
+            paymentTypeId: paymentTypeId,
             issuerId: issuerId,
             orderId: "ORDER-1"
         )
@@ -101,6 +104,28 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(input.sellerInfo, sellerInfo)
+    }
+
+    func test_reviewConfirmInput_withDebitCard_omitsInstallments() throws {
+        // Arrange
+        let sut = self.makeCardTransactionSUT(
+            screenConfigs: [.reviewAndConfirm(onEmailChangeRequested: nil)]
+        )
+
+        // Act
+        let input = try XCTUnwrap(
+            sut.reviewConfirmInput(
+                cardTransaction: self.makeCardTransaction(paymentTypeId: "debit_card"),
+                inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234"),
+                installmentAmount: 100
+            )
+        )
+
+        // Assert
+        guard case let .card(_, _, _, installments) = input.paymentParams.paymentMethodType else {
+            return XCTFail("Expected .card case")
+        }
+        XCTAssertEqual(installments, 1)
     }
 
     func test_reviewConfirmInput_whenSaveCard_shouldReturnNil() {

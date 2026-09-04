@@ -171,10 +171,17 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         installmentAmount: Decimal? = nil
     ) {
         let cardData = self.selectedItem?.cardData
+        let installments: Int? = if cardData?.installments != nil,
+                                          case let .card(_, _, _, installments) = params.paymentMethodType {
+            installments
+        } else {
+            nil
+        }
         let cardDetails = ReviewConfirmCardDetails(
             bin: cardData?.bin,
             issuerId: cardData?.issuerId,
             lastFourDigits: cardData?.lastFourDigits,
+            installments: installments,
             installmentAmount: installmentAmount,
             cardId: cardData == nil ? nil : self.selectedItem?.id
         )
@@ -397,8 +404,17 @@ extension PaymentBrick {
         token: String? = nil
     ) {
         guard let installments = item.cardData?.installments else {
-            // The continuation without installments belongs to the payment-flow orchestration.
-            self.route = nil
+            guard self.configuration.reviewAndConfirmConfig != nil,
+                  let cardTransactionData = self.viewModel.cardTransaction(from: item, token: token),
+                  let params = OrderTransactionParams(cardTransaction: cardTransactionData)
+            else {
+                self.route = nil
+                return
+            }
+
+            self.cardTransactionData = cardTransactionData
+            self.handlePaymentConfirmed(params)
+
             return
         }
         guard !installments.quotas.isEmpty else {

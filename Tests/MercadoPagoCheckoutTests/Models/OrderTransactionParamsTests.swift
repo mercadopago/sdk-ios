@@ -138,10 +138,33 @@ final class OrderTransactionParamsTests: XCTestCase {
         XCTAssertNil(OrderTransactionParams(cardTransaction: transaction))
     }
 
-    func testInit_cardTransaction_whenInstallmentNil_returnsNil() {
+    func testInit_cardTransaction_whenInstallmentNil_defaultsToOne() {
         var transaction = MPPaymentData.CardTransaction(transactionAmount: 100)
         transaction.installment = nil
 
-        XCTAssertNil(OrderTransactionParams(cardTransaction: transaction))
+        let params = OrderTransactionParams(cardTransaction: transaction)
+
+        guard case let .card(_, _, _, installments) = params?.paymentMethodType else {
+            return XCTFail("Expected .card case")
+        }
+        XCTAssertEqual(installments, 1)
+    }
+
+    func testInit_debitCardTransaction_withoutInstallments_defaultsToOne() {
+        var transaction = MPPaymentData.CardTransaction(
+            transactionAmount: 100,
+            token: "tok_debit",
+            installment: 1,
+            paymentMethodId: "debvisa",
+            paymentTypeId: "debit_card"
+        )
+        transaction.installment = nil
+
+        let params = OrderTransactionParams(cardTransaction: transaction)
+
+        guard case let .card(_, _, _, installments) = params?.paymentMethodType else {
+            return XCTFail("Expected .card case")
+        }
+        XCTAssertEqual(installments, 1)
     }
 }

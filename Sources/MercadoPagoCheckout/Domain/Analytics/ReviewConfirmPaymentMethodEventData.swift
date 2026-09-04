@@ -13,7 +13,7 @@ struct ReviewConfirmPaymentMethodEventData: AnalyticsEventData {
     let issuerId: String
     let cardId: String
     let transactionAmount: Decimal
-    let installments: Int
+    let installments: Int?
 
     func toDictionary() -> [String: any Sendable] {
         [
@@ -23,7 +23,7 @@ struct ReviewConfirmPaymentMethodEventData: AnalyticsEventData {
             "issuer_id": self.issuerId,
             "card_id": self.cardId,
             "transaction_amount": self.transactionAmount,
-            "installments": self.installments
+            "installments": self.installments ?? 0
         ]
     }
 }

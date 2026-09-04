@@ -55,10 +55,8 @@ struct OrderTransactionParams: Encodable {
 
 extension OrderTransactionParams {
     init?(cardTransaction: MPPaymentData.CardTransaction) {
-        guard
-            let amount = cardTransaction.transactionAmount,
-            let installments = cardTransaction.installment
-        else { return nil }
+        guard let amount = cardTransaction.transactionAmount else { return nil }
+        let installments = cardTransaction.installment ?? 1
 
         self.init(
             amount: amount,

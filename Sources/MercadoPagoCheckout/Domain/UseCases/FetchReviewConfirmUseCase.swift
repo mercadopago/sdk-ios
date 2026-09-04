@@ -70,7 +70,7 @@ struct FetchReviewConfirmUseCase {
         }
 
         switch paymentParams.paymentMethodType {
-        case let .card(paymentMethodId, paymentTypeId, _, installments):
+        case let .card(paymentMethodId, paymentTypeId, _, _):
             return ReviewConfirmRequestBody(
                 orderId: orderId,
                 paymentMethodType: paymentTypeId,
@@ -78,8 +78,8 @@ struct FetchReviewConfirmUseCase {
                 issuerId: cardDetails.issuerId.map(String.init),
                 bin: cardDetails.bin,
                 lastFourDigits: cardDetails.lastFourDigits,
-                installments: installments,
-                installmentAmount: self.requestAmount(from: cardDetails.installmentAmount),
+                installments: cardDetails.installments,
+                installmentAmount: cardDetails.installments == nil ? nil : self.requestAmount(from: cardDetails.installmentAmount),
                 emailChangeEnabled: emailChangeEnabled,
                 sellerInfo: sellerInfo
             )
