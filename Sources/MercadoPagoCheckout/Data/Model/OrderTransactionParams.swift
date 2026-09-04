@@ -12,6 +12,7 @@ struct OrderTransactionParams: Encodable {
 
     enum PaymentMethodType: Encodable, Equatable {
         case card(paymentMethodId: String, paymentTypeId: String, token: String, installments: Int)
+        case ticket(paymentMethodId: String)
 
         func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -21,6 +22,9 @@ struct OrderTransactionParams: Encodable {
                 try container.encode(paymentTypeId, forKey: .paymentTypeId)
                 try container.encode(token, forKey: .token)
                 try container.encode(installments, forKey: .installments)
+            case let .ticket(paymentMethodId):
+                try container.encode(paymentMethodId, forKey: .paymentMethodId)
+                try container.encode("ticket", forKey: .paymentTypeId)
             }
         }
 

@@ -12,6 +12,8 @@ struct CardFormSubmitResult: Sendable {
     let issuerId: String?
     let payer: Payer?
     let installmentsData: MPInstallmentsData?
+    let bin: String?
+    let lastFourDigits: String?
 
     struct Payer: Sendable {
         let documentType: String

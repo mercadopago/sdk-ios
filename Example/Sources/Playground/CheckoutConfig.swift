@@ -15,12 +15,14 @@ import SwiftUI
 enum CheckoutTypeOption: String, CaseIterable, Identifiable {
     case saveCard
     case cardTransaction
+    case payment
 
     var id: String { rawValue }
     var title: String {
         switch self {
         case .saveCard: return "Save Card"
         case .cardTransaction: return "Card Transaction"
+        case .payment: return "Payment"
         }
     }
 }
@@ -123,6 +125,13 @@ final class CheckoutConfig: ObservableObject {
     @Published var orderId = ""
     @Published var clientToken = ""
 
+    // Review & Confirm
+    @Published var reviewAndConfirmEnabled = false
+    @Published var emailChangeEnabled = false
+    @Published var sellerInfoEnabled = false
+    @Published var sellerName = ""
+    @Published var sellerLogoUrl = ""
+
     @Published var minInstallmentsText = ""
     @Published var maxInstallmentsText = ""
 
@@ -180,6 +189,14 @@ final class CheckoutConfig: ObservableObject {
         ]
     }
 
+    private var sellerInfo: MPSellerInfo? {
+        guard self.sellerInfoEnabled else { return nil }
+        return MPSellerInfo(
+            name: self.sellerName.isEmpty ? nil : self.sellerName,
+            logoUrl: self.sellerLogoUrl.isEmpty ? nil : self.sellerLogoUrl
+        )
+    }
+
     @MainActor
     private var checkoutAppearance: MPCheckoutAppearance {
         switch self.appearance {
@@ -206,10 +223,50 @@ final class CheckoutConfig: ObservableObject {
             clientToken: clientToken
         )
         return MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: order),
+            checkoutType: .cardTransaction(order: order, sellerInfo: self.sellerInfo),
             checkoutAppearance: self.checkoutAppearance
         )
         .setPaymentMethodConfiguration(self.paymentMethodConfigs)
-        .build()
+        .build(withReviewAndConfirm: self.reviewAndConfirmEnabled)
+    }
+
+    @MainActor
+    func makePaymentCheckout() -> MercadoPagoCheckout<MPPaymentData.Payment> {
+        let order = MPOrder(
+            orderId: orderId,
+            clientToken: clientToken
+        )
+        return MercadoPagoCheckout.Builder(
+            checkoutType: .payment(order: order, sellerInfo: self.sellerInfo),
+            checkoutAppearance: self.checkoutAppearance
+        )
+        .setPaymentMethodConfiguration(self.paymentMethodConfigs)
+        .build(
+            withReviewAndConfirm: self.reviewAndConfirmEnabled,
+            emailChangeEnabled: self.emailChangeEnabled
+        )
+    }
+}
+
+private extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardTransaction {
+    @MainActor
+    func build(withReviewAndConfirm enabled: Bool) -> MercadoPagoCheckout<T> {
+        guard enabled else { return self.build() }
+        return self.withReviewAndConfirm().build()
+    }
+}
+
+private extension MercadoPagoCheckout.Builder where T == MPPaymentData.Payment {
+    @MainActor
+    func build(
+        withReviewAndConfirm enabled: Bool,
+        emailChangeEnabled: Bool
+    ) -> MercadoPagoCheckout<T> {
+        guard enabled else { return self.build() }
+        if emailChangeEnabled {
+            return self.withReviewAndConfirm(onEmailChangeRequested: { print("email change requested") })
+                .build()
+        }
+        return self.withReviewAndConfirm().build()
     }
 }

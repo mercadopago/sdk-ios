@@ -9,14 +9,16 @@ import SwiftUI
 package struct MPListRowChevronStyle: MPListItemStyle {
     package var id: UUID = .init()
     @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.mpListItemAlignment) private var alignmentOverride: VerticalAlignment?
 
     package init() {}
 
     @MainActor
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let hasDescription = configuration.description != nil
+        let alignment = self.alignmentOverride ?? (hasDescription ? .top : .center)
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xmicro) {
+        HStack(alignment: alignment, spacing: self.theme.spacings.xmicro) {
             if let leftImage = configuration.leading {
                 leftImage
             }
