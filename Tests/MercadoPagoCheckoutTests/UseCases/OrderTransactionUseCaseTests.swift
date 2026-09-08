@@ -117,8 +117,8 @@ final class OrderTransactionUseCaseTests: XCTestCase {
             _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
             XCTFail("Expected error to be thrown")
         } catch {
-            XCTAssertEqual(error.code, .serviceError)
-            XCTAssertEqual(error.locationDescription, MercadoPagoCheckoutError.LocationDescription.orderProcess.rawValue)
+            XCTAssertEqual(error.publicError, originalError)
+            XCTAssertEqual(error.publicError.locationDescription, MercadoPagoCheckoutError.LocationDescription.orderProcess.rawValue)
         }
     }
 
@@ -131,7 +131,7 @@ final class OrderTransactionUseCaseTests: XCTestCase {
             _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
             XCTFail("Expected error to be thrown")
         } catch {
-            XCTAssertEqual(error.code, .unknown)
+            XCTAssertEqual(error.publicError.code, .unknown)
         }
     }
 
@@ -149,8 +149,8 @@ final class OrderTransactionUseCaseTests: XCTestCase {
             _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
             XCTFail("Expected error to be thrown")
         } catch {
-            XCTAssertEqual(error.code, .serviceError)
-            XCTAssertEqual(error.serviceError?.code, "bad_request")
+            XCTAssertEqual(error.publicError.code, .serviceError)
+            XCTAssertEqual(error.publicError.serviceError?.code, "bad_request")
         }
     }
 
