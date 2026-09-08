@@ -22,9 +22,33 @@ final class NativeErrorCatalogTests: XCTestCase {
         }
     }
 
-    func testOperationModulesAndColombiaSiteAreCorrect() {
-        XCTAssertEqual(NativeErrorOperation.identificationTypes.module, .coreMethods)
-        XCTAssertEqual(NativeErrorOperation.orderSubmission.module, .checkout)
+    func testOperationModuleResolutionIsExhaustive() {
+        let expected: [(NativeErrorOperation, NativeErrorModule)] = [
+            (.identificationTypes, .coreMethods),
+            (.installments, .coreMethods),
+            (.paymentMethods, .coreMethods),
+            (.issuers, .coreMethods),
+            (.cardTokenization, .coreMethods),
+            (.cardFormInitialization, .checkout),
+            (.cardFormSubmission, .checkout),
+            (.cardFormCancellation, .checkout),
+            (.installmentsCancellation, .checkout),
+            (.orderSubmission, .checkout)
+        ]
+
+        XCTAssertEqual(expected.map(\.0), NativeErrorOperation.allCases)
+        for (operation, module) in expected {
+            XCTAssertEqual(operation.module, module)
+        }
+    }
+
+    func testDefaultModuleDeliveryPolicyUsesDualWriteIndependently() {
+        let policy = NativeErrorModuleDeliveryPolicy()
+        XCTAssertEqual(policy.mode(for: .coreMethods), .dualWrite)
+        XCTAssertEqual(policy.mode(for: .checkout), .dualWrite)
+    }
+
+    func testColombiaObservabilitySiteDoesNotChangeProductMapping() {
         XCTAssertEqual(NativeErrorSiteMapper.siteID(for: .COL), "MCO")
         XCTAssertEqual(MercadoPagoSDK.Country.COL.getSiteId(), "MLC")
     }

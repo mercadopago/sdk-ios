@@ -5,7 +5,6 @@ final class NativeErrorReporterTests: XCTestCase {
     func testDualWriteUsesOneDeterministicIDAndDelivers() async throws {
         let transport = RecordingNativeErrorTransport()
         let reporter = NativeErrorReporter(
-            deliveryMode: .dualWrite,
             transport: transport,
             eventIDProvider: { UUID(uuidString: "3f6fd694-4ba8-4f45-ae7c-871c4698aace")! },
             dateProvider: { Date(timeIntervalSince1970: 1_777_000_000) }
@@ -23,7 +22,10 @@ final class NativeErrorReporterTests: XCTestCase {
 
     func testDeliveryModesAndMissingConfigurationAreContained() async throws {
         let melidataTransport = RecordingNativeErrorTransport()
-        let melidataOnly = NativeErrorReporter(deliveryMode: .melidataOnly, transport: melidataTransport)
+        let melidataOnly = NativeErrorReporter(
+            deliveryPolicy: .init(coreMethods: .melidataOnly),
+            transport: melidataTransport
+        )
         XCTAssertTrue(
             melidataOnly.capture(operation: .issuers, input: .init(type: .unknown)).shouldSendMelidata
         )
@@ -31,12 +33,50 @@ final class NativeErrorReporterTests: XCTestCase {
         XCTAssertEqual(melidataCount, 0)
 
         let observabilityTransport = RecordingNativeErrorTransport()
-        let observabilityOnly = NativeErrorReporter(deliveryMode: .observabilityOnly, transport: observabilityTransport)
+        let observabilityOnly = NativeErrorReporter(
+            deliveryPolicy: .init(coreMethods: .observabilityOnly),
+            transport: observabilityTransport
+        )
         XCTAssertFalse(
             observabilityOnly.capture(operation: .issuers, input: .init(type: .unknown)).shouldSendMelidata
         )
         let observabilityCount = await observabilityTransport.count
         XCTAssertEqual(observabilityCount, 0)
+    }
+
+    func testAllModuleDeliveryModePairsRemainIndependent() {
+        let modes = NativeErrorDeliveryMode.allCases
+        XCTAssertEqual(modes.count * modes.count, 9)
+
+        for coreMethodsMode in modes {
+            for checkoutMode in modes {
+                let buffer = BoundedNativeErrorBuffer(capacity: 2)
+                let reporter = NativeErrorReporter(
+                    deliveryPolicy: .init(coreMethods: coreMethodsMode, checkout: checkoutMode),
+                    buffer: buffer,
+                    transport: BlockingNativeErrorTransport()
+                )
+                reporter.configure(sdkVersion: "1.0.0", country: .BRA)
+
+                let coreMethodsReceipt = reporter.capture(
+                    operation: .cardTokenization,
+                    input: .init(type: .unknown)
+                )
+                let checkoutReceipt = reporter.capture(
+                    operation: .orderSubmission,
+                    input: .init(type: .unknown)
+                )
+
+                let pair = "\(coreMethodsMode.rawValue)/\(checkoutMode.rawValue)"
+                XCTAssertEqual(coreMethodsReceipt.shouldSendMelidata, coreMethodsMode.sendsMelidata, pair)
+                XCTAssertEqual(checkoutReceipt.shouldSendMelidata, checkoutMode.sendsMelidata, pair)
+                XCTAssertEqual(
+                    buffer.currentCount,
+                    [coreMethodsMode, checkoutMode].filter(\.sendsObservability).count,
+                    pair
+                )
+            }
+        }
     }
 
     func testReconfigurationDoesNotMutateQueuedSnapshot() async throws {
@@ -73,6 +113,13 @@ final class NativeErrorReporterTests: XCTestCase {
         XCTAssertNotEqual(offlineReceipt.eventID, timeoutReceipt.eventID)
         let attempts = await transport.attemptCount
         XCTAssertEqual(attempts, 2)
+    }
+}
+
+private struct BlockingNativeErrorTransport: NativeErrorTransporting {
+    func send(_: NativeErrorReport) async throws -> Bool {
+        try await Task.sleep(nanoseconds: 60_000_000_000)
+        return true
     }
 }
 

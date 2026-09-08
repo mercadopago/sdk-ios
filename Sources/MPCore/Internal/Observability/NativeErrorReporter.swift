@@ -4,21 +4,21 @@ package final class NativeErrorReporter: ErrorObservabilityReporting, @unchecked
     private let environment: NativeErrorEnvironment
     private let buffer: BoundedNativeErrorBuffer
     private let transport: NativeErrorTransporting
-    private let deliveryMode: NativeErrorDeliveryMode
+    private let deliveryPolicy: NativeErrorModuleDeliveryPolicy
     private let eventIDProvider: @Sendable () -> UUID
     private let dateProvider: @Sendable () -> Date
     private let wakeContinuation: AsyncStream<Void>.Continuation
     private let worker: Task<Void, Never>
 
     package init(
-        deliveryMode: NativeErrorDeliveryMode = .dualWrite,
+        deliveryPolicy: NativeErrorModuleDeliveryPolicy = NativeErrorModuleDeliveryPolicy(),
         environment: NativeErrorEnvironment = NativeErrorEnvironment(),
         buffer: BoundedNativeErrorBuffer = BoundedNativeErrorBuffer(),
         transport: NativeErrorTransporting = NativeErrorTransport(),
         eventIDProvider: @escaping @Sendable () -> UUID = UUID.init,
         dateProvider: @escaping @Sendable () -> Date = Date.init
     ) {
-        self.deliveryMode = deliveryMode
+        self.deliveryPolicy = deliveryPolicy
         self.environment = environment
         self.buffer = buffer
         self.transport = transport
@@ -55,6 +55,7 @@ package final class NativeErrorReporter: ErrorObservabilityReporting, @unchecked
     }
 
     private func captureClassified(_ classifiedError: ClassifiedNativeError) -> NativeErrorReceipt {
+        let deliveryMode = self.deliveryPolicy.mode(for: classifiedError.operation.module)
         let eventID = eventIDProvider()
         let receipt = NativeErrorReceipt(
             eventID: eventID.uuidString.lowercased(),

@@ -94,11 +94,31 @@ package enum NativeErrorDiagnosticCode: String, Codable, Sendable {
     case httpForbidden = "http_forbidden"
 }
 
-package enum NativeErrorDeliveryMode: String, Sendable {
+package enum NativeErrorDeliveryMode: String, Sendable, CaseIterable {
     case melidataOnly = "melidata_only"
     case dualWrite = "dual_write"
     case observabilityOnly = "observability_only"
 
     package var sendsMelidata: Bool { self != .observabilityOnly }
     package var sendsObservability: Bool { self != .melidataOnly }
+}
+
+package struct NativeErrorModuleDeliveryPolicy: Sendable, Equatable {
+    package let coreMethods: NativeErrorDeliveryMode
+    package let checkout: NativeErrorDeliveryMode
+
+    package init(
+        coreMethods: NativeErrorDeliveryMode = .dualWrite,
+        checkout: NativeErrorDeliveryMode = .dualWrite
+    ) {
+        self.coreMethods = coreMethods
+        self.checkout = checkout
+    }
+
+    package func mode(for module: NativeErrorModule) -> NativeErrorDeliveryMode {
+        switch module {
+        case .coreMethods: self.coreMethods
+        case .checkout: self.checkout
+        }
+    }
 }
