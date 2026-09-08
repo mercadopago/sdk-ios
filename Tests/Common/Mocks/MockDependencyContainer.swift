@@ -8,12 +8,13 @@ import MPAnalytics
 @testable import MPCore
 import XCTest
 
-package struct MockDependencyContainer: Sendable, HasNetwork, HasAnalytics, HasFingerPrint, HasNoDependency {
+package struct MockDependencyContainer: Sendable, HasNetwork, HasAnalytics, HasFingerPrint, HasNoDependency, HasErrorObservability {
     package let networkService: NetworkServiceProtocol
 
     package var analytics: AnalyticsInterface
 
     package let fingerPrint: FingerPrintProtocol
+    package let errorObservability: ErrorObservabilityReporting
 
     package let mockSession: MockURLSession
     package let mockAnalytics: MockAnalytics
@@ -21,7 +22,8 @@ package struct MockDependencyContainer: Sendable, HasNetwork, HasAnalytics, HasF
     package init(
         session: MockURLSession = MockURLSession(),
         analytics: MockAnalytics = MockAnalytics(),
-        fingerPrint: MockFingerPrint = MockFingerPrint()
+        fingerPrint: MockFingerPrint = MockFingerPrint(),
+        errorObservability: ErrorObservabilityReporting = MockErrorObservability()
     ) {
         self.mockSession = session
         self.mockAnalytics = analytics
@@ -29,5 +31,6 @@ package struct MockDependencyContainer: Sendable, HasNetwork, HasAnalytics, HasF
         self.networkService = NetworkService(session: session)
         self.analytics = analytics
         self.fingerPrint = fingerPrint
+        self.errorObservability = errorObservability
     }
 }

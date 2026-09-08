@@ -101,6 +101,7 @@ package final class MockAnalytics: AnalyticsInterface {
         }
 
         var messages: [Messages] = []
+        var observabilityEventIDs: [String?] = []
 
         package func insert(_ message: Messages) {
             self.messages.append(message)
@@ -115,6 +116,14 @@ package final class MockAnalytics: AnalyticsInterface {
 
         package func getMessages() -> [Messages] {
             self.messages
+        }
+
+        package func getObservabilityEventIDs() -> [String?] {
+            observabilityEventIDs
+        }
+
+        package func recordObservabilityEventID(_ eventID: String?) {
+            observabilityEventIDs.append(eventID)
         }
 
         package func waitForSend() async {
@@ -174,7 +183,8 @@ package final class MockAnalytics: AnalyticsInterface {
         return self
     }
 
-    package func send() async {
+    package func send(observabilityEventID: String?) async {
+        await self.mock.recordObservabilityEventID(observabilityEventID)
         await self.mock.insert(.send)
     }
 }

@@ -6,6 +6,7 @@
 //
 #if SWIFT_PACKAGE
     import MPAnalytics
+    import MPCore
 #endif
 
 // MARK: Execute Operation of Core Methods
@@ -22,6 +23,7 @@ extension CoreMethods {
     func executeWithTracking<T: Sendable>(
         operation: @Sendable () async throws -> T,
         path: String,
+        observabilityOperation: NativeErrorOperation,
         extractEventData: (@Sendable (T?) async -> (any AnalyticsEventData)?)? = nil
     ) async throws -> T {
         do {
@@ -40,17 +42,23 @@ extension CoreMethods {
 
             return result
         } catch {
-            Task(priority: .low) {
-                let event = await self.dependencies.analytics
-                    .trackEvent(path + "/error")
-                    .setError("\(error)")
+            let classified = Self.classifiedNativeError(from: error, operation: observabilityOperation)
+            let receipt = self.dependencies.errorObservability.capture(classified)
+            let legacyError = String(describing: error)
 
-                if let extractEventData,
-                   let eventData = await extractEventData(nil) {
-                    await event.setEventData(eventData)
+            if receipt.shouldSendMelidata {
+                Task(priority: .low) {
+                    let event = await self.dependencies.analytics
+                        .trackEvent(path + "/error")
+                        .setError(legacyError)
+
+                    if let extractEventData,
+                       let eventData = await extractEventData(nil) {
+                        await event.setEventData(eventData)
+                    }
+
+                    await event.send(observabilityEventID: receipt.eventID)
                 }
-
-                await event.send()
             }
 
             throw error
