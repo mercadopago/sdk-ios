@@ -134,10 +134,10 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
         do {
             _ = try await sut.useCase.execute(checkoutType: self.makeConfig())
             XCTFail("Expected repository error to propagate")
-        } catch let error as MercadoPagoCheckoutError {
-            XCTAssertEqual(error.code, .unknown)
+        } catch let observed as ObservedCheckoutError {
+            XCTAssertEqual(observed.publicError.code, .unknown)
         } catch {
-            XCTFail("Expected MercadoPagoCheckoutError, got \(error)")
+            XCTFail("Expected ObservedCheckoutError, got \(error)")
         }
     }
 }

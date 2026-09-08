@@ -87,11 +87,16 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 location: .orderProcess
             )
         }
-        let result = try await orderTransactionUseCase.execute(
-            orderId: order.orderId,
-            clientToken: order.clientToken,
-            params: params
-        )
+        let result: OrderTransactionProcessData
+        do {
+            result = try await orderTransactionUseCase.execute(
+                orderId: order.orderId,
+                clientToken: order.clientToken,
+                params: params
+            )
+        } catch let observed {
+            throw observed.publicError
+        }
         guard let payment = result.payments.first else {
             throw MercadoPagoCheckoutError(
                 code: .serviceError,

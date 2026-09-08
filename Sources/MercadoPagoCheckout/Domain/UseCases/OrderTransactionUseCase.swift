@@ -18,15 +18,11 @@ struct OrderTransactionUseCase {
         orderId: String,
         clientToken: String,
         params: OrderTransactionParams
-    ) async throws(MercadoPagoCheckoutError) -> OrderTransactionProcessData {
+    ) async throws(ObservedCheckoutError) -> OrderTransactionProcessData {
         do {
             return try await self.repository.processOrder(orderId: orderId, clientToken: clientToken, params: params)
-        } catch let error as MercadoPagoCheckoutError {
-            throw error
-        } catch let error as APIClientError {
-            throw MercadoPagoCheckoutError(from: error, location: .orderProcess)
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .orderProcess)
+            throw ObservedCheckoutErrorFactory.make(from: error, location: .orderProcess)
         }
     }
 }

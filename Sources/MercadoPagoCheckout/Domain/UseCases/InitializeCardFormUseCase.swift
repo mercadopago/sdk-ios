@@ -22,7 +22,7 @@ struct InitializeCardFormUseCase {
     func execute(
         order: MPOrder? = nil,
         checkoutType: MercadoPagoCheckout<some MPPaymentData.Kind>.CheckoutType
-    ) async throws(MercadoPagoCheckoutError) -> CardFormInitializationOutput {
+    ) async throws(ObservedCheckoutError) -> CardFormInitializationOutput {
         do {
             let data = try await repository.fetchInitialization(
                 orderId: order?.orderId,
@@ -31,20 +31,12 @@ struct InitializeCardFormUseCase {
             )
 
             return self.mapToResult(data: data)
-        } catch let error as APIClientError {
-            if case let .apiError(response) = error,
-               let errorCode = response.errorCode,
-               CheckoutAPIErrorCode.isIntegrationError(errorCode) {
-                throw MercadoPagoCheckoutError(
-                    code: .integrationError,
-                    localizedDescription: response.message,
-                    userInfo: ["error_code": errorCode, "message": response.message],
-                    location: .initialization
-                )
-            }
-            throw .init(from: error, location: .initialization)
         } catch {
-            throw .init(code: .unknown, localizedDescription: error.localizedDescription, location: .identification)
+            throw ObservedCheckoutErrorFactory.make(
+                from: error,
+                location: error is APIClientError ? .initialization : .identification,
+                recognizeIntegrationError: true
+            )
         }
     }
 

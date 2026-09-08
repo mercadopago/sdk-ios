@@ -61,6 +61,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     private let initializeUseCase: InitializeCardFormUseCase
     private let orderUseCase: OrderTransactionUseCase
     private let analytics: AnalyticsInterface
+    private let errorObservability: ErrorObservabilityReporting
 
     // MARK: - Init
 
@@ -69,13 +70,15 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         appearance: MPCheckoutAppearance = MPCheckoutAppearance(),
         initializeUseCase: InitializeCardFormUseCase = InitializeCardFormUseCase(),
         orderUseCase: OrderTransactionUseCase = OrderTransactionUseCase(),
-        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics,
+        errorObservability: ErrorObservabilityReporting = CoreDependencyContainer.shared.errorObservability
     ) {
         self.configuration = configuration
         self.appearance = appearance
         self.initializeUseCase = initializeUseCase
         self.orderUseCase = orderUseCase
         self.analytics = analytics
+        self.errorObservability = errorObservability
     }
 
     func markInstallmentsPresented() {
@@ -107,22 +110,19 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
             let viewModel = CardFormViewModel(
                 config: configuration,
-                analytics: self.analytics
+                analytics: self.analytics,
+                errorObservability: self.errorObservability
             )
 
             self.screenState = .ready(result, viewModel)
             self.trackInitialize()
-        } catch let error as MercadoPagoCheckoutError {
-            self.trackInitializeError(error)
-            throw error
+        } catch let observed as ObservedCheckoutError {
+            self.trackInitializeError(observed)
+            throw observed.publicError
         } catch {
-            let checkoutError = MercadoPagoCheckoutError(
-                code: .unknown,
-                localizedDescription: error.localizedDescription,
-                location: .initialization
-            )
-            self.trackInitializeError(checkoutError)
-            throw checkoutError
+            let observed = ObservedCheckoutErrorFactory.make(from: error, location: .initialization)
+            self.trackInitializeError(observed)
+            throw observed.publicError
         }
     }
 
@@ -139,9 +139,9 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             updatedPaymentData.orderStatus = data.status
             self.trackOrderSubmit(updatedPaymentData)
             return updatedPaymentData
-        } catch {
-            self.trackOrderError(error, orderId: paymentData.orderId)
-            throw error
+        } catch let observed {
+            self.trackOrderError(observed, orderId: paymentData.orderId)
+            throw observed.publicError
         }
     }
 
@@ -158,16 +158,20 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
     }
 
-    private func trackOrderError(_ error: MercadoPagoCheckoutError, orderId: String) {
+    private func trackOrderError(_ observed: ObservedCheckoutError, orderId: String) {
+        let receipt = self.errorObservability.capture(
+            observed.publicError.classifiedNativeError(operation: .orderSubmission)
+        )
+        guard receipt.shouldSendMelidata else { return }
         let eventData = OrderErrorEventData(
-            errorType: error.analyticsErrorType,
+            errorType: observed.publicError.analyticsErrorType,
             orderId: orderId
         )
         let analytics = self.analytics
         Task(priority: .low) {
             await analytics.trackEvent(OrderAnalyticsPath.orderError)
                 .setEventData(eventData)
-                .send()
+                .send(observabilityEventID: receipt.eventID)
         }
     }
 
@@ -226,13 +230,17 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         }
     }
 
-    private func trackInitializeError(_ error: MercadoPagoCheckoutError) {
-        let eventData = CardFormErrorEventData(errorType: error.analyticsErrorType)
+    private func trackInitializeError(_ observed: ObservedCheckoutError) {
+        let receipt = self.errorObservability.capture(
+            observed.publicError.classifiedNativeError(operation: .cardFormInitialization)
+        )
+        guard receipt.shouldSendMelidata else { return }
+        let eventData = CardFormErrorEventData(errorType: observed.publicError.analyticsErrorType)
         let analytics = self.analytics
         Task(priority: .low) {
             await analytics.trackEvent(CardFormAnalyticsPath.initializeError)
                 .setEventData(eventData)
-                .send()
+                .send(observabilityEventID: receipt.eventID)
         }
     }
 }

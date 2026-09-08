@@ -45,7 +45,7 @@ public final actor CoreMethods {
     private let paymentMethodUseCase: PaymentMethodUseCaseProtocol
     private let issuerUseCase: IssuerUseCaseProtocol
 
-    typealias Dependency = HasAnalytics & HasFingerPrint
+    typealias Dependency = HasAnalytics & HasFingerPrint & HasErrorObservability
 
     let dependencies: Dependency
 
@@ -295,6 +295,7 @@ public final actor CoreMethods {
         return try await executeWithTracking(
             operation: { try await self.identificationTypeUseCase.getIdentificationTypes() },
             path: AnalyticsPath.identificationTypes,
+            observabilityOperation: .identificationTypes,
             extractEventData: { result -> IdentificationTypeEventData? in
                 let documents = result?.map { data in
                     data.name
@@ -334,6 +335,7 @@ public final actor CoreMethods {
         return try await executeWithTracking(
             operation: { try await self.installmentsUseCase.getInstallments(params: params) },
             path: AnalyticsPath.installments,
+            observabilityOperation: .installments,
             extractEventData: { result -> InstallmentEventData? in
                 return InstallmentEventData(
                     amount: amount,
@@ -375,6 +377,7 @@ public final actor CoreMethods {
                 }
             },
             path: AnalyticsPath.paymentMethods,
+            observabilityOperation: .paymentMethods,
             extractEventData: { result -> PaymentMethodEventData? in
                 guard let data = result?.first else {
                     return PaymentMethodEventData()
@@ -433,6 +436,7 @@ public final actor CoreMethods {
                 try await self.issuerUseCase.getIssuers(params: params)
             },
             path: AnalyticsPath.issuers,
+            observabilityOperation: .issuers,
             extractEventData: { result -> IssuersEventData? in
                 guard let data = result else {
                     return IssuersEventData(issuers: [])
@@ -476,6 +480,7 @@ extension CoreMethods {
                     )
             },
             path: AnalyticsPath.tokenization,
+            observabilityOperation: .cardTokenization,
             extractEventData: { _ -> TokenizationEventData? in
                 return TokenizationEventData(
                     isSaveCard: cardID != nil,

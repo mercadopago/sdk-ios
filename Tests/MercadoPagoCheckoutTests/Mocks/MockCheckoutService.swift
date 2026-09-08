@@ -127,17 +127,15 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
         return try result.get()
     }
 
-    func createCardToken(cardParams: CardParams) async throws(MercadoPagoCheckoutError) -> CardToken {
+    func createCardToken(cardParams: CardParams) async throws(ObservedCheckoutError) -> CardToken {
         self.capturedCardParams = cardParams
         guard let result = createCardTokenResult else {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "resultNotSet", location: .tokenization)
+            throw ObservedCheckoutErrorFactory.make(from: MockError.resultNotSet, location: .tokenization)
         }
         do {
             return try result.get()
-        } catch let error as MercadoPagoCheckoutError {
-            throw error
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .tokenization)
+            throw ObservedCheckoutErrorFactory.make(from: error, location: .tokenization)
         }
     }
 }

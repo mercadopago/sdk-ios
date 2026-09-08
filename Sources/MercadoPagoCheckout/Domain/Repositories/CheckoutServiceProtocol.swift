@@ -7,5 +7,5 @@
 import CoreMethods
 
 protocol CheckoutServiceProtocol: Sendable {
-    func createCardToken(cardParams: CardParams) async throws(MercadoPagoCheckoutError) -> CardToken
+    func createCardToken(cardParams: CardParams) async throws(ObservedCheckoutError) -> CardToken
 }
