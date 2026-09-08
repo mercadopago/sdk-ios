@@ -14,13 +14,11 @@ struct CheckoutService: CheckoutServiceProtocol {
         self.coreMethods = coreMethods
     }
 
-    func createCardToken(cardParams: CardParams) async throws(MercadoPagoCheckoutError) -> CardToken {
+    func createCardToken(cardParams: CardParams) async throws(ObservedCheckoutError) -> CardToken {
         do {
-            return try await self.coreMethods.createToken(cardParams)
-        } catch let error as APIClientError {
-            throw MercadoPagoCheckoutError(from: error, location: .tokenization)
+            return try await self.coreMethods.createTokenForCheckout(cardParams)
         } catch {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .tokenization)
+            throw ObservedCheckoutErrorFactory.make(from: error, location: .tokenization)
         }
     }
 }

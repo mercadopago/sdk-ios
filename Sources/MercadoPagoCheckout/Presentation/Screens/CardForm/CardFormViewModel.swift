@@ -28,6 +28,7 @@ final class CardFormViewModel: ObservableObject {
     private let service: CheckoutServiceProtocol
     private let fetchCardUseCase: FetchCardPaymentBrickCardUseCase
     private let analytics: AnalyticsInterface
+    private let errorObservability: ErrorObservabilityReporting
 
     // MARK: - Formatters
 
@@ -97,13 +98,15 @@ final class CardFormViewModel: ObservableObject {
         config: Configuration,
         service: CheckoutServiceProtocol = CheckoutService(),
         fetchCardUseCase: FetchCardPaymentBrickCardUseCase = FetchCardPaymentBrickCardUseCase(),
-        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics,
+        errorObservability: ErrorObservabilityReporting = CoreDependencyContainer.shared.errorObservability
     ) {
         self.config = config
         self.service = service
         self.fetchCardUseCase = fetchCardUseCase
         self.fields = config.initResult.fields
         self.analytics = analytics
+        self.errorObservability = errorObservability
         self.identificationTypes = config.initResult.identificationTypes
         self.currencySymbol = config.initResult.currencySymbol
         _selectTypeDocument = Published(wrappedValue: config.initResult.identificationTypes.first)
@@ -160,7 +163,7 @@ final class CardFormViewModel: ObservableObject {
 
     // MARK: - Card Token
 
-    private func createCardToken(cardForm: CardFormData) async throws(MercadoPagoCheckoutError) -> CardToken {
+    private func createCardToken(cardForm: CardFormData) async throws(ObservedCheckoutError) -> CardToken {
         let params = self.buildCardParams(from: cardForm)
         return try await self.service.createCardToken(cardParams: params)
     }
@@ -338,10 +341,15 @@ final class CardFormViewModel: ObservableObject {
                 transactionAmount: self.config.amount
             )
             onSuccess(output)
+        } catch let observed as ObservedCheckoutError {
+            guard !Task.isCancelled else { return }
+            self.trackSubmitError(observed)
+            onFailure(observed.publicError)
         } catch {
             guard !Task.isCancelled else { return }
-            self.trackSubmitError(error)
-            onFailure(error)
+            let observed = ObservedCheckoutErrorFactory.make(from: error, location: .tokenization)
+            self.trackSubmitError(observed)
+            onFailure(observed.publicError)
         }
     }
 }
@@ -351,11 +359,16 @@ final class CardFormViewModel: ObservableObject {
 extension CardFormViewModel {
     func cancel(context _: MPCardFormUserCancelledContext, reason: CardFormCancelReason) {
         self.isCancelling = true
+        let receipt = self.errorObservability.capture(
+            operation: .cardFormCancellation,
+            input: .checkoutUserCancellation
+        )
+        guard receipt.shouldSendMelidata else { return }
         let eventData = CardFormErrorEventData(errorType: reason.analyticsValue)
         self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.userCanceledError)
                 .setEventData(eventData)
-                .send()
+                .send(observabilityEventID: receipt.eventID)
         }
     }
 
@@ -393,12 +406,17 @@ extension CardFormViewModel {
         }
     }
 
-    private func trackSubmitError(_ error: MercadoPagoCheckoutError) {
-        let eventData = CardFormErrorEventData(errorType: error.analyticsErrorType)
+    private func trackSubmitError(_ observed: ObservedCheckoutError) {
+        let receipt = self.errorObservability.capture(
+            operation: .cardFormSubmission,
+            input: observed.input
+        )
+        guard receipt.shouldSendMelidata else { return }
+        let eventData = CardFormErrorEventData(errorType: observed.publicError.analyticsErrorType)
         self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackEvent(CardFormAnalyticsPath.submitError)
                 .setEventData(eventData)
-                .send()
+                .send(observabilityEventID: receipt.eventID)
         }
     }
 

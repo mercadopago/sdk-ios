@@ -16,7 +16,7 @@ struct SecurityCodeUseCase {
         code: String,
         expectedLength: Int,
         cardId: String
-    ) async throws(MercadoPagoCheckoutError) -> CardToken {
+    ) async throws(ObservedCheckoutError) -> CardToken {
         try self.validateFormat(code: code, expectedLength: expectedLength)
         let params = CardParams(
             cardNumber: "",
@@ -33,15 +33,27 @@ struct SecurityCodeUseCase {
 
     // MARK: - Validation
 
-    private func validateFormat(code: String, expectedLength: Int) throws(MercadoPagoCheckoutError) {
+    private func validateFormat(code: String, expectedLength: Int) throws(ObservedCheckoutError) {
         guard !code.isEmpty else {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "security_code_empty", location: .tokenization)
+            throw ObservedCheckoutErrorFactory.validation(MercadoPagoCheckoutError(
+                code: .unknown,
+                localizedDescription: "security_code_empty",
+                location: .tokenization
+            ))
         }
         guard code.allSatisfy(\.isNumber) else {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "security_code_invalid_format", location: .tokenization)
+            throw ObservedCheckoutErrorFactory.validation(MercadoPagoCheckoutError(
+                code: .unknown,
+                localizedDescription: "security_code_invalid_format",
+                location: .tokenization
+            ))
         }
         guard code.count == expectedLength else {
-            throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "security_code_invalid_length", location: .tokenization)
+            throw ObservedCheckoutErrorFactory.validation(MercadoPagoCheckoutError(
+                code: .unknown,
+                localizedDescription: "security_code_invalid_length",
+                location: .tokenization
+            ))
         }
     }
 }

@@ -3,6 +3,7 @@
 //  MercadoPagoSDK
 //
 
+import CoreMethods
 import MPAnalytics
 import MPCore
 import SwiftUI
@@ -50,11 +51,16 @@ final class SecurityCodeViewModel: ObservableObject {
         self.isTokenizing = true
         defer { self.isTokenizing = false }
 
-        let cardToken = try await securityCodeUseCase.execute(
-            code: code,
-            expectedLength: self.config.expectedLength,
-            cardId: self.config.cardId
-        )
+        let cardToken: CardToken
+        do {
+            cardToken = try await securityCodeUseCase.execute(
+                code: code,
+                expectedLength: self.config.expectedLength,
+                cardId: self.config.cardId
+            )
+        } catch let observed {
+            throw observed.publicError
+        }
         self.trackSubmit()
 
         return cardToken.token

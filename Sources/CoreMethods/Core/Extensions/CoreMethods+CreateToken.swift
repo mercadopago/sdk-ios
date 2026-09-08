@@ -22,4 +22,18 @@ extension CoreMethods {
             cardID: params.cardId
         )
     }
+
+    package func createTokenForCheckout(_ params: CardParams) async throws -> CardToken {
+        try await tokenization(
+            cardNumber: params.cardNumber,
+            expirationDateMonth: params.expirationMonth,
+            expirationDateYear: params.expirationYear,
+            securityCode: params.securityCode,
+            cardHolderName: params.cardHolderName,
+            documentType: params.documentType,
+            documentNumber: params.documentNumber,
+            cardID: params.cardId,
+            capturesNativeError: false
+        )
+    }
 }
