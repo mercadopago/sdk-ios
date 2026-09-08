@@ -22,16 +22,18 @@ private class MockFetchSiteIDUseCase: FetchSiteIDUseCaseProtocol {
 private extension MercadoPagoSDKTests {
     typealias SUT = (
         sut: MercadoPagoSDK,
-        analytics: MockAnalytics
+        analytics: MockAnalytics,
+        observability: MockErrorObservability
     )
 
     func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) -> SUT {
-        let container = MockDependencyContainer()
+        let observability = MockErrorObservability()
+        let container = MockDependencyContainer(errorObservability: observability)
         let analytics = container.mockAnalytics
 
         let sut = MercadoPagoSDK(dependencies: container)
 
-        return (sut, analytics)
+        return (sut, analytics, observability)
     }
 }
 
@@ -39,7 +41,7 @@ final class MercadoPagoSDKTests: XCTestCase {
     // MARK: - Initialization Tests
 
     func test_initializea_WithValidConfiguration_ShouldSetPropertiesCorrectly() async {
-        let (sut, analytics) = self.makeSUT()
+        let (sut, analytics, observability) = self.makeSUT()
         let locale = "pt-BR"
 
         let config = MercadoPagoSDK.Configuration(
@@ -72,12 +74,16 @@ final class MercadoPagoSDKTests: XCTestCase {
 
         sut.initialize(config)
 
+        XCTAssertEqual(observability.recordedConfigurations().first?.0, MPSDKVersion.version)
+        XCTAssertEqual(observability.recordedConfigurations().first?.1, .BRA)
+
         XCTAssertTrue(sut.isInitialized)
         XCTAssertEqual(sut.getPublicKey(), "test_key")
 
         await sut.analyticsMonitoringTask?.value
 
         sut.setNewConfiguration(config2)
+        XCTAssertEqual(observability.recordedConfigurations().last?.1, .ARG)
         XCTAssertEqual(sut.getPublicKey(), "test_key2")
 
         await sut.analyticsMonitoringTask?.value
@@ -100,7 +106,7 @@ final class MercadoPagoSDKTests: XCTestCase {
     }
 
     func test_initialize_WithValidConfiguration_ShouldSetPropertiesCorrectly() async {
-        let (sut, analytics) = self.makeSUT()
+        let (sut, analytics, _) = self.makeSUT()
         let locale = "pt-BR"
 
         let config = MercadoPagoSDK.Configuration(
@@ -138,7 +144,7 @@ final class MercadoPagoSDKTests: XCTestCase {
     }
 
     func test_getPublicKey_Initialized_SDK_ShouldReturnCorrectKey() {
-        let (sut, _) = self.makeSUT()
+        let (sut, _, _) = self.makeSUT()
         let config = MercadoPagoSDK.Configuration(publicKey: "test_key", country: .BRA)
 
         sut.initialize(config)
