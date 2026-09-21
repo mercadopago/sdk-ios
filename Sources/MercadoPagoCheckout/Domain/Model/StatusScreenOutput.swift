@@ -40,8 +40,15 @@ struct StatusScreenOutput: Equatable, Sendable {
             case openPDF(URL)
         }
 
+        enum Style: Equatable, Sendable {
+            case loud
+            case quiet
+            case transparent
+        }
+
         let label: String
         let action: Action
+        let style: Style?
     }
 
     let header: Header
@@ -55,5 +62,4 @@ enum StatusScreenContractError: Error, Equatable, Sendable {
     case invalidBody
     case invalidFooter
     case invalidURL
-    case limitExceeded
 }
