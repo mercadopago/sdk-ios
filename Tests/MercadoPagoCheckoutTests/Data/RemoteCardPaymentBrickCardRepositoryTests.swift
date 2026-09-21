@@ -25,7 +25,7 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
         return (repository, container.mockSession)
     }
 
-    private func makeParams() -> CardPaymentBrickCardParams {
+    private func makeParams(screens: String? = nil) -> CardPaymentBrickCardParams {
         CardPaymentBrickCardParams(
             bin: "411111",
             amount: 300.0,
@@ -34,7 +34,8 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
             excludedCardTypes: [],
             excludedCardBrands: [],
             maxInstallments: nil,
-            minInstallments: nil
+            minInstallments: nil,
+            screens: screens
         )
     }
 
@@ -453,5 +454,22 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
         } catch {
             XCTAssertNotNil(error)
         }
+    }
+
+    // MARK: - Endpoint screens param
+
+    func testEndpoint_whenScreensNil_omitsScreensParam() {
+        let endpoint = CardPaymentBrickEndpoint.getCard(params: self.makeParams(screens: nil))
+        XCTAssertNil(endpoint.urlParams["screens"])
+    }
+
+    func testEndpoint_whenScreensEmpty_omitsScreensParam() {
+        let endpoint = CardPaymentBrickEndpoint.getCard(params: self.makeParams(screens: ""))
+        XCTAssertNil(endpoint.urlParams["screens"])
+    }
+
+    func testEndpoint_whenScreensPresent_includesScreensParam() {
+        let endpoint = CardPaymentBrickEndpoint.getCard(params: self.makeParams(screens: "REVIEW_AND_CONFIRM"))
+        XCTAssertEqual(String(describing: endpoint.urlParams["screens"]!), "REVIEW_AND_CONFIRM")
     }
 }

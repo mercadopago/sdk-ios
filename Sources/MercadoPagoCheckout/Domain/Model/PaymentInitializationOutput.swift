@@ -33,6 +33,8 @@ struct PaymentInitializationOutput: Equatable {
         let icon: Icon
         let route: String
         let cardData: CardData?
+        /// Present on the `ticket` method when the BFF decides to show the Off Payment List screen.
+        let screen: MethodSelectionOutput?
 
         init(
             id: String,
@@ -40,7 +42,8 @@ struct PaymentInitializationOutput: Equatable {
             description: String?,
             icon: Icon,
             route: String,
-            cardData: CardData? = nil
+            cardData: CardData? = nil,
+            screen: MethodSelectionOutput? = nil
         ) {
             self.id = id
             self.title = title
@@ -48,6 +51,7 @@ struct PaymentInitializationOutput: Equatable {
             self.icon = icon
             self.route = route
             self.cardData = cardData
+            self.screen = screen
         }
 
         /// Source of the leading thumbnail icon.
@@ -61,6 +65,28 @@ struct PaymentInitializationOutput: Equatable {
             let paymentTypeId: String
             let issuerId: Int
             let securityCodeScreen: SecurityCodeScreenOutput?
+            let bin: String?
+            /// Last 4 digits of the card, used by the review and confirm screen's request.
+            let lastFourDigits: String?
+            let installments: InstallmentScreenData?
+
+            init(
+                paymentMethodId: String,
+                paymentTypeId: String,
+                issuerId: Int,
+                securityCodeScreen: SecurityCodeScreenOutput? = nil,
+                bin: String? = nil,
+                lastFourDigits: String? = nil,
+                installments: InstallmentScreenData? = nil
+            ) {
+                self.paymentMethodId = paymentMethodId
+                self.paymentTypeId = paymentTypeId
+                self.issuerId = issuerId
+                self.securityCodeScreen = securityCodeScreen
+                self.bin = bin
+                self.lastFourDigits = lastFourDigits
+                self.installments = installments
+            }
         }
     }
 }

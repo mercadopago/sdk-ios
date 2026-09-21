@@ -7,8 +7,8 @@
 
 public struct CardParams: Sendable {
     let cardNumber: String
-    let expirationYear: String
-    let expirationMonth: String
+    let expirationYear: String?
+    let expirationMonth: String?
     let securityCode: String
     let documentType: String?
     let documentNumber: String?
@@ -18,8 +18,8 @@ public struct CardParams: Sendable {
 
     public init(
         cardNumber: String,
-        expirationYear: String,
-        expirationMonth: String,
+        expirationYear: String?,
+        expirationMonth: String?,
         securityCode: String,
         documentType: String?,
         documentNumber: String?,

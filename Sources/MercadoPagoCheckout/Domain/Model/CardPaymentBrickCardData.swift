@@ -8,50 +8,10 @@ import Foundation
 
 struct CardPaymentBrickCardData: Equatable {
     let securityCodeTranslations: CardFormFields.CVVField?
-    let installment: Installment?
+    let installment: InstallmentScreenData?
     let paymentMethods: [PaymentMethod]
 
-    // MARK: - Installment
-
-    struct Installment: Equatable, Sendable {
-        let selectionType: String
-        let quotas: [Quota]
-        let translations: InstallmentTranslations
-
-        struct Quota: Equatable, Identifiable, Sendable {
-            var id: Int {
-                self.installments
-            }
-
-            let installments: Int
-            let installmentAmount: Decimal
-            let totalAmount: Decimal
-            let primaryLabel: String
-            let secondaryLabel: String
-            let state: QuotaState
-            let tertiaryLabel: String?
-            let accessibilityLabel: String?
-        }
-
-        enum QuotaState: Equatable, Sendable {
-            case success
-            case none
-
-            init(_ rawValue: String) {
-                switch rawValue {
-                case "success": self = .success
-                default: self = .none
-                }
-            }
-        }
-
-        struct InstallmentTranslations: Equatable, Sendable {
-            let headerTitle: String
-            let totalLabel: String
-            let payButtonLabel: String
-            let currencySymbol: String
-        }
-    }
+    typealias Installment = InstallmentScreenData
 
     // MARK: - PaymentMethod
 

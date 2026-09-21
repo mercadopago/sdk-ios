@@ -10,6 +10,8 @@ import Foundation
 // The `MPSellerInfo` class provides information about the app's setup environment,
 // such as package manager and target OS version.
 
+package typealias MPAnalyticsSellerInfo = MPSellerInfo
+
 package final class MPSellerInfo: Sendable {
     /// An enumeration defining the possible package managers used to distribute the app.
     package enum PackageManager: String {
@@ -53,7 +55,7 @@ package final class MPSellerInfo: Sendable {
         #endif
     }
 
-    func getBundleIdentifier() -> String {
+    package func getBundleIdentifier() -> String {
         return self.bundle.object(forInfoDictionaryKey: "CFBundleIdentifier") as? String ?? ""
     }
 }

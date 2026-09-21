@@ -16,8 +16,24 @@ package protocol MPListItemTrailingStyle: StyleProtocol, Identifiable
 // MARK: - Configuration
 
 package struct MPListItemTrailingStyleConfiguration {
+    package struct Button: View {
+        package let body: AnyView
+    }
+
     package let text: String?
     package let textColor: TextStyleColorType?
+    package let button: Button?
+
+    @MainActor
+    package init(
+        text: String?,
+        textColor: TextStyleColorType?,
+        button: (some View)?
+    ) {
+        self.text = text
+        self.textColor = textColor
+        self.button = button.map { Button(body: AnyView($0)) }
+    }
 }
 
 // MARK: - Text-only style (default)
@@ -29,7 +45,11 @@ package struct MPTrailingTextStyle: MPListItemTrailingStyle {
 
     @MainActor
     package func makeBody(configuration: MPListItemTrailingStyleConfiguration) -> some View {
-        if let text = configuration.text {
+        if let button = configuration.button {
+            button
+                .mpButtonStyle(variant: .quiet, size: .small)
+                .fixedSize()
+        } else if let text = configuration.text {
             Text(text)
                 .textStyle(.large(colorType: configuration.textColor ?? .primary))
         }
@@ -52,7 +72,11 @@ package struct MPTrailingTextIconStyle: MPListItemTrailingStyle {
     @MainActor
     package func makeBody(configuration: MPListItemTrailingStyleConfiguration) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: self.theme.spacings.xmicro) {
-            if let text = configuration.text {
+            if let button = configuration.button {
+                button
+                    .mpButtonStyle(variant: .quiet, size: .small)
+                    .fixedSize()
+            } else if let text = configuration.text {
                 Text(text)
                     .textStyle(.large(colorType: configuration.textColor ?? .primary))
             }

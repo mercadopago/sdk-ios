@@ -62,6 +62,9 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
             if let maxInstallments = params.maxInstallments {
                 result["max_installments"] = maxInstallments
             }
+            if let screens = params.screens, !screens.isEmpty {
+                result["screens"] = screens
+            }
             return result
         }
     }
