@@ -9,5 +9,6 @@ Flowbook/
 Example/Example.xcodeproj/project.pbxproj.rej
 
 Example/Sources/MainListView.swift
+Example/Sources/Playground/CheckoutPlaygroundView.swift
 .claude/
 meli/
