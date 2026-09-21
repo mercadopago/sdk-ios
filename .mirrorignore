@@ -12,3 +12,8 @@ Example/Sources/MainListView.swift
 Example/Sources/Playground/CheckoutPlaygroundView.swift
 .claude/
 meli/
+
+CLAUDE.md
+.agents/
+AGENTS.md
+**/AGENTS.md
