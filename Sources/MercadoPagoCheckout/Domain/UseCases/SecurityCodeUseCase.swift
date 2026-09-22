@@ -20,9 +20,23 @@ struct SecurityCodeUseCase {
         try self.validateFormat(code: code, expectedLength: expectedLength)
         let params = CardParams(
             cardNumber: "",
-            expirationYear: "",
-            expirationMonth: "",
+            expirationYear: nil,
+            expirationMonth: nil,
             securityCode: code,
+            documentType: nil,
+            documentNumber: nil,
+            cardHolderName: "",
+            cardId: cardId
+        )
+        return try await self.service.createCardToken(cardParams: params)
+    }
+
+    func executeWithoutSecurityCode(cardId: String) async throws(MercadoPagoCheckoutError) -> CardToken {
+        let params = CardParams(
+            cardNumber: "",
+            expirationYear: nil,
+            expirationMonth: nil,
+            securityCode: "",
             documentType: nil,
             documentNumber: nil,
             cardHolderName: "",
