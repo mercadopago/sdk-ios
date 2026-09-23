@@ -17,6 +17,10 @@ final class ScreenConfigTests: XCTestCase {
         XCTAssertEqual(sut.toScreen(), .reviewAndConfirm)
     }
 
+    func test_toScreen_withStatusScreen_shouldNotEnterCancellationHistory() {
+        XCTAssertNil(ScreenConfig.statusScreen.toScreen())
+    }
+
     // MARK: - screensParameter
 
     func test_screensParameter_whenEmpty_shouldReturnNil() {
@@ -33,6 +37,10 @@ final class ScreenConfigTests: XCTestCase {
 
         // Act / Assert
         XCTAssertEqual(sut.screensParameter, "REVIEW_AND_CONFIRM")
+    }
+
+    func test_screensParameter_withStatusScreen_shouldReturnBackendKey() {
+        XCTAssertEqual([ScreenConfig.statusScreen].screensParameter, "STATUS_SCREEN")
     }
 
     // MARK: - reviewAndConfirmConfig
@@ -60,6 +68,16 @@ final class ScreenConfigTests: XCTestCase {
         XCTAssertNotNil(onEmailChangeRequested)
     }
 
+    func test_statusScreenConfig_whenNotConfigured_shouldReturnNil() {
+        XCTAssertNil(self.makeConfiguration(screenConfigs: []).statusScreenConfig)
+    }
+
+    func test_statusScreenConfig_whenConfigured_shouldReturnStatusScreen() {
+        guard case .statusScreen = self.makeConfiguration(screenConfigs: [.statusScreen]).statusScreenConfig else {
+            return XCTFail("Expected a statusScreen config")
+        }
+    }
+
     // MARK: - Builder
 
     @MainActor
@@ -73,6 +91,7 @@ final class ScreenConfigTests: XCTestCase {
         // Assert
         XCTAssertTrue(checkout.configuration.screenConfigs.isEmpty)
         XCTAssertNil(checkout.configuration.reviewAndConfirmConfig)
+        XCTAssertNil(checkout.configuration.statusScreenConfig)
     }
 
     @MainActor
@@ -102,6 +121,41 @@ final class ScreenConfigTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(checkout.configuration.screenConfigs.count, 1)
+    }
+
+    @MainActor
+    func test_build_withStatusScreenCalledTwice_shouldKeepOnlyOneConfiguration() {
+        let checkout = self.makePaymentBuilder()
+            .withStatusScreen()
+            .withStatusScreen()
+            .build()
+
+        XCTAssertEqual(checkout.configuration.screenConfigs.count, 1)
+        XCTAssertNotNil(checkout.configuration.statusScreenConfig)
+    }
+
+    @MainActor
+    func test_build_withStatusScreenOnCardTransaction_shouldConfigureTheScreenAndPreserveSellerInfo() {
+        let seller = MPSellerInfo(name: "Adidas Store", logoUrl: nil)
+        let checkout = MercadoPagoCheckout<MPPaymentData.CardTransaction>.Builder(
+            checkoutType: .cardTransaction(order: self.makeOrder(), sellerInfo: seller),
+            checkoutAppearance: .init()
+        )
+        .withStatusScreen()
+        .build()
+
+        XCTAssertNotNil(checkout.configuration.statusScreenConfig)
+        XCTAssertEqual(checkout.configuration.sellerInfo, seller)
+    }
+
+    @MainActor
+    func test_build_withStatusScreenOnPayment_shouldPreserveIndependentlyNullableSellerInfo() {
+        let seller = MPSellerInfo(name: nil, logoUrl: "https://example.com/logo.png")
+        let checkout = self.makePaymentBuilder(sellerInfo: seller)
+            .withStatusScreen()
+            .build()
+
+        XCTAssertEqual(checkout.configuration.sellerInfo, seller)
     }
 
     @MainActor

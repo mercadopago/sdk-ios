@@ -340,7 +340,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             self.complete(with: payment)
         case let .error(error):
             self.fail(error)
-        case .userCancelled:
+        case .userCancelled, .exit:
             break
         }
     }

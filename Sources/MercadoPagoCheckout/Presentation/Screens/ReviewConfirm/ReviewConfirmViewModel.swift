@@ -36,6 +36,7 @@ final class ReviewConfirmViewModel: ObservableObject {
 
     init(
         fetchReviewConfirmUseCase: FetchReviewConfirmUseCase = FetchReviewConfirmUseCase(),
+        orderTransactionUseCase: OrderTransactionUseCase? = nil,
         feature: OrderTransactionParams.IntegrationData.Feature = .payment,
         order: MPOrder,
         checkoutType: String,
@@ -46,7 +47,7 @@ final class ReviewConfirmViewModel: ObservableObject {
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.fetchReviewConfirmUseCase = fetchReviewConfirmUseCase
-        self.orderTransactionUseCase = OrderTransactionUseCase(feature: feature)
+        self.orderTransactionUseCase = orderTransactionUseCase ?? OrderTransactionUseCase(feature: feature)
         self.order = order
         self.checkoutType = checkoutType
         self.paymentParams = paymentParams

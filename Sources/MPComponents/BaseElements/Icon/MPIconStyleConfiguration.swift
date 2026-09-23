@@ -48,6 +48,7 @@ package enum MPIconSize: CGFloat, Sendable, CaseIterable {
     case medium = 20
     case large = 24
     case xlarge = 32
+    case huge = 72
 
     var dimension: CGFloat { rawValue }
 }

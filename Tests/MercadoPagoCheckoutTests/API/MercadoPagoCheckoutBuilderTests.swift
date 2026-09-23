@@ -121,6 +121,40 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         }
     }
 
+    func test_saveCard_build_shouldKeepStatusScreenDisabled() {
+        let checkout = MercadoPagoCheckout.Builder(
+            checkoutType: .saveCard,
+            checkoutAppearance: .init()
+        ).build()
+
+        XCTAssertNil(checkout.configuration.statusScreenConfig)
+    }
+
+    /// `withStatusScreen()` is intentionally declared only on the Payment and CardTransaction
+    /// constrained builder extensions. Keeping both references here provides positive compile-time
+    /// API coverage; attempting the equivalent reference on a CardSave builder does not compile.
+    func test_withStatusScreen_shouldBeAvailableOnlyForEligibleBuilderSpecializations() {
+        let paymentBuilder = MercadoPagoCheckout.Builder(
+            checkoutType: .payment(order: .init(orderId: "order-1", clientToken: "client-token")),
+            checkoutAppearance: .init()
+        )
+        let cardTransactionBuilder = MercadoPagoCheckout.Builder(
+            checkoutType: .cardTransaction(order: .init(orderId: "order-1", clientToken: "client-token")),
+            checkoutAppearance: .init()
+        )
+
+        XCTAssertTrue(paymentBuilder.withStatusScreen() === paymentBuilder)
+        XCTAssertTrue(cardTransactionBuilder.withStatusScreen() === cardTransactionBuilder)
+    }
+
+    func test_result_exit_shouldExposePayloadlessPublicCase() {
+        let result = MercadoPagoCheckoutResult<MPPaymentData.Payment>.exit
+
+        guard case .exit = result else {
+            return XCTFail("Expected .exit case")
+        }
+    }
+
     // MARK: - CheckoutType type-safety
 
     func test_cardTransaction_checkoutType_analyticsValue() {
