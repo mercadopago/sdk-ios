@@ -30,13 +30,19 @@ extension CardTokenBody {
     func toJSONData() -> Data? {
         var jsonObject: [String: Any] = [
             "card_number": cardNumber as Any,
-            "expiration_month": Double(expirationMonth ?? "") as Any,
-            "expiration_year": Double(expirationYear ?? "") as Any,
             "security_code": securityCode,
             "card_id": cardId as Any,
             "esc": esc as Any,
             "require_esc": requireEsc as Any
         ]
+
+        if let expirationMonth, let month = Double(expirationMonth) {
+            jsonObject["expiration_month"] = month
+        }
+
+        if let expirationYear, let year = Double(expirationYear) {
+            jsonObject["expiration_year"] = year
+        }
 
         if let buyerIdentification {
             let holderDic: [String: Any] = [

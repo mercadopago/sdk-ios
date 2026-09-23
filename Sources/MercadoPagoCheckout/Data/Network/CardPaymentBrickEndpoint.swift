@@ -33,10 +33,17 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
     }
 
     var headers: [String: String] {
-        [
-            "Content-Type": "application/json",
-            "X-Public-Key": MercadoPagoSDK.shared.getPublicKey()
-        ]
+        switch self {
+        case let .getCard(params):
+            var headers = [
+                "Content-Type": "application/json",
+                "X-Public-Key": MercadoPagoSDK.shared.getPublicKey()
+            ]
+            if let clientToken = params.clientToken {
+                headers["Authorization"] = "Bearer \(clientToken)"
+            }
+            return headers
+        }
     }
 
     var urlParams: [String: any CustomStringConvertible] {
@@ -46,21 +53,29 @@ extension CardPaymentBrickEndpoint: RequestEndpoint {
                 "product_id": MPSDKProduct.id,
                 "bin": params.bin,
                 "checkout_type": params.checkoutType,
-                "processing_mode": params.processingMode,
-                "amount": params.amount ?? 0
+                "processing_mode": params.processingMode
             ]
 
+            if let screens = params.screens, !screens.isEmpty {
+                result["screens"] = screens
+            }
             if !params.excludedCardTypes.isEmpty {
                 result["excluded_payment_types"] = params.excludedCardTypes.joined(separator: ",")
             }
             if !params.excludedCardBrands.isEmpty {
                 result["excluded_payment_methods"] = params.excludedCardBrands.joined(separator: ",")
             }
+            if let amount = params.amount {
+                result["amount"] = amount
+            }
             if let minInstallments = params.minInstallments {
                 result["min_installments"] = minInstallments
             }
             if let maxInstallments = params.maxInstallments {
                 result["max_installments"] = maxInstallments
+            }
+            if let orderId = params.orderId {
+                result["order_id"] = orderId
             }
             return result
         }

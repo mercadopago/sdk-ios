@@ -9,7 +9,7 @@ import Foundation
 struct PaymentBrickInitializationResponse: Codable {
     let headerTitle: String
     let sections: [PaymentSection]
-    let footer: PaymentBrickFooter
+    let footer: Footer
 
     enum CodingKeys: String, CodingKey {
         case headerTitle = "header_title"
@@ -21,7 +21,7 @@ struct PaymentBrickInitializationResponse: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.headerTitle = try container.decode(String.self, forKey: .headerTitle)
         self.sections = try container.decode([PaymentSection].self, forKey: .sections)
-        self.footer = try container.decode(PaymentBrickFooter.self, forKey: .footer)
+        self.footer = try container.decode(Footer.self, forKey: .footer)
     }
 
     // MARK: - PaymentSection
@@ -40,6 +40,8 @@ struct PaymentBrickInitializationResponse: Codable {
         let iconUrl: String
         let cardData: CardData?
         let options: [TicketOption]?
+        let screen: MethodSelectionScreen?
+        let config: Config?
 
         enum CodingKeys: String, CodingKey {
             case type
@@ -48,6 +50,8 @@ struct PaymentBrickInitializationResponse: Codable {
             case iconUrl = "icon_url"
             case cardData = "card_data"
             case options
+            case screen
+            case config
         }
 
         init(from decoder: Decoder) throws {
@@ -58,6 +62,35 @@ struct PaymentBrickInitializationResponse: Codable {
             self.iconUrl = try container.decode(String.self, forKey: .iconUrl)
             self.cardData = try? container.decodeIfPresent(CardData.self, forKey: .cardData)
             self.options = try? container.decodeIfPresent([TicketOption].self, forKey: .options)
+            self.screen = try? container.decodeIfPresent(MethodSelectionScreen.self, forKey: .screen)
+            self.config = try? container.decodeIfPresent(Config.self, forKey: .config)
+        }
+    }
+
+    // MARK: - Config
+
+    /// Order-driven configuration for the `new_card` method, e.g. payment method exclusions.
+    struct Config: Codable {
+        let paymentMethod: PaymentMethodConfig?
+
+        enum CodingKeys: String, CodingKey {
+            case paymentMethod = "payment_method"
+        }
+
+        struct PaymentMethodConfig: Codable {
+            let notAllowedIds: [String]
+            let notAllowedTypes: [String]
+
+            enum CodingKeys: String, CodingKey {
+                case notAllowedIds = "not_allowed_ids"
+                case notAllowedTypes = "not_allowed_types"
+            }
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                self.notAllowedIds = try container.decodeIfPresent([String].self, forKey: .notAllowedIds) ?? []
+                self.notAllowedTypes = try container.decodeIfPresent([String].self, forKey: .notAllowedTypes) ?? []
+            }
         }
     }
 
@@ -118,14 +151,12 @@ struct PaymentBrickInitializationResponse: Codable {
     // MARK: - SecurityCodeScreen
 
     struct SecurityCodeScreen: Codable {
-        let headerTitle: String
+        let header: Header
         let field: Field
-        let continueButtonLabel: String
+        let button: Button
 
-        enum CodingKeys: String, CodingKey {
-            case headerTitle = "header_title"
-            case field
-            case continueButtonLabel = "continue_button_label"
+        struct Header: Codable {
+            let title: String
         }
 
         struct Field: Codable {
@@ -134,27 +165,45 @@ struct PaymentBrickInitializationResponse: Codable {
             let helper: String
             let error: String
         }
+
+        struct Button: Codable {
+            let label: String
+        }
     }
 
     // MARK: - Installments
 
     struct Installments: Codable {
         let header: Header
-        let totalLabel: String
-        let payButtonLabel: String
+        let footer: Footer
         let selectionType: String
         let quotas: [Quota]
 
         enum CodingKeys: String, CodingKey {
             case header
-            case totalLabel = "total_label"
-            case payButtonLabel = "pay_button_label"
+            case footer
             case selectionType = "selection_type"
             case quotas
         }
 
         struct Header: Codable {
             let title: String
+        }
+
+        struct Footer: Codable {
+            let button: Button
+            let totalLabel: String
+            let currencySymbol: String
+
+            enum CodingKeys: String, CodingKey {
+                case button
+                case totalLabel = "total_label"
+                case currencySymbol = "currency_symbol"
+            }
+
+            struct Button: Codable {
+                let label: String
+            }
         }
     }
 
@@ -166,7 +215,9 @@ struct PaymentBrickInitializationResponse: Codable {
         let totalAmount: Decimal
         let primaryLabel: String
         let secondaryLabel: String
+        let tertiaryLabel: String?
         let state: String
+        let accessibilityLabel: String?
 
         enum CodingKeys: String, CodingKey {
             case installments
@@ -174,7 +225,9 @@ struct PaymentBrickInitializationResponse: Codable {
             case totalAmount = "total_amount"
             case primaryLabel = "primary_label"
             case secondaryLabel = "secondary_label"
+            case tertiaryLabel = "tertiary_label"
             case state
+            case accessibilityLabel = "accessibility_label"
         }
     }
 
@@ -192,15 +245,51 @@ struct PaymentBrickInitializationResponse: Codable {
         }
     }
 
-    // MARK: - PaymentBrickFooter
+    // MARK: - MethodSelectionScreen
 
-    struct PaymentBrickFooter: Codable {
+    struct MethodSelectionScreen: Codable {
+        let headerTitle: String
+        let selectionType: String
+        let footer: Footer
+        let options: [Option]
+
+        enum CodingKeys: String, CodingKey {
+            case headerTitle = "header_title"
+            case selectionType = "selection_type"
+            case footer
+            case options
+        }
+
+        struct Option: Codable {
+            let id: String
+            let name: String
+            let subtitle: String
+            let iconUrl: String
+
+            enum CodingKeys: String, CodingKey {
+                case id
+                case name
+                case subtitle
+                case iconUrl = "icon_url"
+            }
+        }
+    }
+
+    // MARK: - Footer
+
+    struct Footer: Codable {
         let totalLabel: String
         let totalAmount: String
+        let button: Button?
 
         enum CodingKeys: String, CodingKey {
             case totalLabel = "total_label"
             case totalAmount = "total_amount"
+            case button
+        }
+
+        struct Button: Codable {
+            let label: String
         }
     }
 }

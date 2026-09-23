@@ -11,6 +11,7 @@ import SwiftUI
 package struct MPListRowPickStyle: MPListItemStyle {
     package var id: UUID = .init()
     @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.mpListItemAlignment) private var alignmentOverride: VerticalAlignment?
 
     package init() {}
 
@@ -18,8 +19,9 @@ package struct MPListRowPickStyle: MPListItemStyle {
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let isSelected = configuration.isSelected == true
         let hasDescription = configuration.description != nil
+        let alignment = self.alignmentOverride ?? (hasDescription ? .top : .center)
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xtiny) {
+        HStack(alignment: alignment, spacing: self.theme.spacings.xtiny) {
             if let leading = configuration.leading {
                 leading
             }

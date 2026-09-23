@@ -28,8 +28,10 @@ extension OrderTransactionEndpoint: RequestEndpoint {
         }
     }
 
+    /// Beta base while `payment_processed` is only served there. Remove once production
+    /// answers the same contract.
     var baseURL: String {
-        ConstantsEndpoint.baseURLBricks
+        ConstantsEndpoint.baseURLBricksBeta
     }
 
     var headers: [String: String] {
@@ -44,7 +46,7 @@ extension OrderTransactionEndpoint: RequestEndpoint {
     }
 
     var urlParams: [String: any CustomStringConvertible] {
-        [:]
+        ["product_id": MPSDKProduct.id]
     }
 
     var body: Data? {
