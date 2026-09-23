@@ -12,6 +12,7 @@ final class MockPaymentBrickRepository: PaymentBrickRepository {
     nonisolated(unsafe) var fetchCallCount = 0
     nonisolated(unsafe) var capturedOrderId: String?
     nonisolated(unsafe) var capturedClientToken: String?
+    nonisolated(unsafe) var capturedScreens: String?
 
     /// When `true`, `fetchInitialization` suspends until `resumeFetch()` is called.
     /// Use this to inspect ViewModel state while a fetch is in progress.
@@ -25,11 +26,13 @@ final class MockPaymentBrickRepository: PaymentBrickRepository {
 
     func fetchInitialization(
         orderId: String,
-        clientToken: String
+        clientToken: String,
+        screens: String? = nil
     ) async throws -> PaymentInitializationOutput {
         self.fetchCallCount += 1
         self.capturedOrderId = orderId
         self.capturedClientToken = clientToken
+        self.capturedScreens = screens
 
         if self.shouldSuspendOnFetch {
             await withCheckedContinuation { self.resumeContinuation = $0 }

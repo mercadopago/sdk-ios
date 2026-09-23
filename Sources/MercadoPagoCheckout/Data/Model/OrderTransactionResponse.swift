@@ -5,78 +5,42 @@
 //  Created by Danielle Nozaki Ogawa on 02/06/26.
 //
 
-struct OrderTransactionResponse: Codable {
+/// Order process response. Only the current attempt is read: legacy `transactions` history the
+/// backend may still send stays unknown JSON on purpose.
+struct OrderTransactionResponse: Codable, Sendable {
     let id: String
-    let productId: String
-    let type: String
-    let totalAmount: String
-    let totalPaidAmount: String
-    let siteId: String
     let status: String
     let statusDetail: String
-    let dateCreated: String
-    let lastUpdated: String
-    let userId: String
-    let captureMode: String
-    let processingMode: String
-    let payer: PayerData
-    let transactions: TransactionsData
+    let totalAmount: String
+    let paymentProcessed: PaymentData
 
     enum CodingKeys: String, CodingKey {
         case id
-        case productId = "product_id"
-        case type
-        case totalAmount = "total_amount"
-        case totalPaidAmount = "total_paid_amount"
-        case siteId = "site_id"
         case status
         case statusDetail = "status_detail"
-        case dateCreated = "created_date"
-        case lastUpdated = "last_updated_date"
-        case userId = "user_id"
-        case captureMode = "capture_mode"
-        case processingMode = "processing_mode"
-        case payer
-        case transactions
+        case totalAmount = "total_amount"
+        case paymentProcessed = "payment_processed"
     }
 
-    struct PayerData: Codable {
-        let id: String?
-        let email: String
-    }
+    struct PaymentData: Codable, Sendable {
+        let id: String
+        let status: String
+        let statusDetail: String
+        let amount: String?
+        let paymentMethod: PaymentMethodData
 
-    struct TransactionsData: Codable {
-        let payments: [PaymentData]
+        enum CodingKeys: String, CodingKey {
+            case id
+            case status
+            case statusDetail = "status_detail"
+            case amount
+            case paymentMethod = "payment_method"
+        }
 
-        struct PaymentData: Codable {
+        struct PaymentMethodData: Codable, Sendable {
             let id: String
-            let status: String
-            let statusDetail: String
-            let amount: String
-            let paidAmount: String
-            let paymentMethod: PaymentMethodData
-            let reference: ReferenceData
-
-            enum CodingKeys: String, CodingKey {
-                case id
-                case status
-                case statusDetail = "status_detail"
-                case amount
-                case paidAmount = "paid_amount"
-                case paymentMethod = "payment_method"
-                case reference
-            }
-
-            struct PaymentMethodData: Codable {
-                let id: String
-                let type: String
-                let installments: Int
-            }
-
-            struct ReferenceData: Codable {
-                let id: String
-                let source: String
-            }
+            let type: String
+            let installments: Int?
         }
     }
 }
