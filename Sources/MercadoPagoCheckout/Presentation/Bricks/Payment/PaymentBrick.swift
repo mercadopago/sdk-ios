@@ -380,7 +380,7 @@ private extension PaymentBrick {
             self.complete(with: payment)
         case let .error(error):
             self.fail(error)
-        case .userCancelled:
+        case .userCancelled, .exit:
             break
         }
     }

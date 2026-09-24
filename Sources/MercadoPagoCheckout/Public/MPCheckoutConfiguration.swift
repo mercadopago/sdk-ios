@@ -49,6 +49,14 @@ extension MPCheckoutConfiguration {
             return false
         }
     }
+
+    /// The Status Screen configuration, or `nil` when the integrator did not opt in.
+    var statusScreenConfig: ScreenConfig? {
+        self.screenConfigs.first { config in
+            if case .statusScreen = config { return true }
+            return false
+        }
+    }
 }
 
 extension MPCheckoutConfiguration: Sendable where T: Sendable {}

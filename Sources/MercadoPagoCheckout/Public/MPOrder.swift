@@ -42,7 +42,9 @@ protocol CheckoutTypeConfiguration: Sendable {}
 ///         print(data.orderId, data.orderStatus)
 ///     case .userCancelled:
 ///         break
-///     case .failure:
+///     case .error:
+///         break
+///     case .exit:
 ///         break
 ///     }
 /// }

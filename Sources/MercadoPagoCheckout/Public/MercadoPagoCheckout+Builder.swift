@@ -9,7 +9,8 @@ public extension MercadoPagoCheckout {
     /// A fluent builder for constructing a ``MercadoPagoCheckout`` instance.
     ///
     /// Create a builder with the ``CheckoutType`` and appearance you want, chain optional
-    /// configuration such as ``setPaymentMethodConfiguration(_:)``, then call ``build()``. The
+    /// configuration such as ``setPaymentMethodConfiguration(_:)`` or ``withStatusScreen()``, then
+    /// call ``build()``. The
     /// checkout type you pass determines the type of ``MercadoPagoCheckoutResult`` the resulting
     /// checkout delivers, so you do not specify the generic parameter yourself.
     ///
@@ -83,9 +84,40 @@ extension MercadoPagoCheckout.Builder {
             )
         )
     }
+
+    /// Adds the Status Screen configuration once while preserving its original position.
+    private func enableStatusScreen() {
+        guard !self.screenConfigs.contains(where: { config in
+            if case .statusScreen = config { return true }
+            return false
+        }) else { return }
+        self.screenConfigs.append(.statusScreen)
+    }
 }
 
 public extension MercadoPagoCheckout.Builder where T == MPPaymentData.Payment {
+    /// Shows Status Screen after the payment reaches its successful end state.
+    ///
+    /// Status Screen is disabled unless you call this method. Calling it more than once keeps a
+    /// single configuration. Completion through the existing user-close lifecycle is delivered as
+    /// ``MercadoPagoCheckoutResult/exit`` through the checkout's existing result callback.
+    ///
+    /// ```swift
+    /// let checkout = MercadoPagoCheckout.Builder(
+    ///     checkoutType: .payment(order: order, sellerInfo: sellerInfo),
+    ///     checkoutAppearance: .init()
+    /// )
+    /// .withStatusScreen()
+    /// .build()
+    /// ```
+    ///
+    /// - Returns: The builder instance for chaining.
+    @discardableResult
+    func withStatusScreen() -> Self {
+        self.enableStatusScreen()
+        return self
+    }
+
     /// Shows a review and confirm screen before the payment is processed.
     ///
     /// Without this call the checkout processes the order as soon as the buyer finishes selecting a
@@ -121,6 +153,28 @@ public extension MercadoPagoCheckout.Builder where T == MPPaymentData.Payment {
 }
 
 public extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardTransaction {
+    /// Shows Status Screen after the card transaction reaches its successful end state.
+    ///
+    /// Status Screen is disabled unless you call this method. Calling it more than once keeps a
+    /// single configuration. Completion through the existing user-close lifecycle is delivered as
+    /// ``MercadoPagoCheckoutResult/exit`` through the checkout's existing result callback.
+    ///
+    /// ```swift
+    /// let checkout = MercadoPagoCheckout.Builder(
+    ///     checkoutType: .cardTransaction(order: order, sellerInfo: sellerInfo),
+    ///     checkoutAppearance: .init()
+    /// )
+    /// .withStatusScreen()
+    /// .build()
+    /// ```
+    ///
+    /// - Returns: The builder instance for chaining.
+    @discardableResult
+    func withStatusScreen() -> Self {
+        self.enableStatusScreen()
+        return self
+    }
+
     /// Shows a review and confirm screen before the card transaction is processed.
     ///
     /// Without this call the checkout processes the order as soon as the buyer finishes the card
