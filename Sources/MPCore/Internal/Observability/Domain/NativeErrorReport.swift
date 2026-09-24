@@ -44,6 +44,11 @@ package struct PendingNativeError: Sendable {
 package struct NativeErrorReceipt: Sendable, Equatable {
     package let eventID: String
     package let shouldSendMelidata: Bool
+
+    package init(eventID: String, shouldSendMelidata: Bool) {
+        self.eventID = eventID
+        self.shouldSendMelidata = shouldSendMelidata
+    }
 }
 
 package struct NativeErrorReport: Codable, Sendable, Equatable {

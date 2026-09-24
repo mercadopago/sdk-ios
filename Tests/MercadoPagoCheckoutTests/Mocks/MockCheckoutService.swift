@@ -140,4 +140,8 @@ final actor MockCheckoutService: CheckoutServiceProtocol {
             throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .tokenization)
         }
     }
+
+    func createCardTokenForCheckout(cardParams: CardParams) async throws -> CardToken {
+        try await self.createCardToken(cardParams: cardParams)
+    }
 }

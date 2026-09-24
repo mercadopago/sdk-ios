@@ -45,7 +45,7 @@ public final class MercadoPagoSDK: @unchecked Sendable {
     package var configuration: Configuration?
     private(set) var analyticsMonitoringTask: Task<Void, Never>?
 
-    typealias Dependency = HasAnalytics
+    typealias Dependency = HasAnalytics & HasErrorObservability
 
     private let dependencies: Dependency
 
@@ -67,6 +67,13 @@ public final class MercadoPagoSDK: @unchecked Sendable {
                 version: MPSDKVersion.version,
                 siteID: configuration.country.getSiteId()
             )
+            guard !Task.isCancelled else { return }
+            await self.dependencies.errorObservability.configure(
+                .init(
+                    sdkVersion: MPSDKVersion.version,
+                    siteID: configuration.country.getObservabilitySiteID()
+                )
+            )
 
             await sendInitializeAnalyticsEvent()
         }
@@ -87,6 +94,13 @@ public final class MercadoPagoSDK: @unchecked Sendable {
             await self.dependencies.analytics.initialize(
                 version: MPSDKVersion.version,
                 siteID: configuration.country.getSiteId()
+            )
+            guard !Task.isCancelled else { return }
+            await self.dependencies.errorObservability.configure(
+                .init(
+                    sdkVersion: MPSDKVersion.version,
+                    siteID: configuration.country.getObservabilitySiteID()
+                )
             )
 
             await sendInitializeAnalyticsEvent()

@@ -1,4 +1,5 @@
 @testable import CoreMethods
+import CommonTests
 import Foundation
 import MPCore
 import XCTest
@@ -67,6 +68,39 @@ final class CoreMethodsObservabilityAdapterTests: XCTestCase {
         )
         XCTAssertEqual(invalid.type, .service)
         XCTAssertNil(invalid.httpStatus)
+    }
+
+    func testTrackedErrorCapturesOnceAndReusesTheReceiptIDForMelidata() async {
+        let reporter = MockErrorObservability()
+        let container = MockDependencyContainer(errorObservability: reporter)
+        let repository = MockCoreMethodsRepository()
+        let paymentMethodUseCase = PaymentMethodUseCase(repository: repository)
+        let sut = CoreMethods(
+            dependencies: container,
+            generateTokenUseCase: GenerateCardTokenUseCase(
+                dependencies: container,
+                repository: repository,
+                paymentMethodUseCase: paymentMethodUseCase
+            ),
+            identificationTypeUseCase: IdentificationTypesUseCase(repository: repository),
+            installmentsUseCase: InstallmentsUseCase(repository: repository),
+            paymentMethodUseCase: paymentMethodUseCase,
+            issuerUseCase: IssuerUseCase(repository: repository)
+        )
+        await repository.setIdentificationTypesResult(
+            .failure(APIClientError.apiError(.init(code: "500", message: "not retained")))
+        )
+
+        do {
+            _ = try await sut.identificationTypes()
+            XCTFail("Expected identificationTypes to throw")
+        } catch {}
+        await container.mockAnalytics.mock.waitForSend()
+
+        let captures = await reporter.captures
+        let observabilityEventIDs = await container.mockAnalytics.mock.getObservabilityEventIDs()
+        XCTAssertEqual(captures.map(\.operation), [.identificationTypes])
+        XCTAssertEqual(observabilityEventIDs, ["00000000-0000-4000-8000-000000000001"])
     }
 
     private func assertInput(

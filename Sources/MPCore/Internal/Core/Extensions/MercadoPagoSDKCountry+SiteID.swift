@@ -48,4 +48,15 @@ extension MercadoPagoSDK.Country {
             return "MLU"
         }
     }
+
+    /// Canonical site attribution for the native observability contract. This is
+    /// intentionally independent from the legacy Melidata mapping above.
+    package func getObservabilitySiteID() -> String {
+        switch self {
+        case .COL:
+            return "MCO"
+        default:
+            return self.getSiteId()
+        }
+    }
 }
