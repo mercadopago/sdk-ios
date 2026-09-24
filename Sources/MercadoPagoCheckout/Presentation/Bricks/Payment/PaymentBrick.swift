@@ -9,6 +9,8 @@ import MPComponents
 import MPFoundation
 import SwiftUI
 
+// swiftlint:disable file_length
+// swiftlint:disable:next type_body_length
 struct PaymentBrick<T: MPPaymentData.Kind>: View {
     enum Route: Hashable {
         case cardForm
@@ -16,6 +18,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         case installments
         case reviewAndConfirm
         case offlineMethodSelector
+        case statusScreen
     }
 
     @State private var route: Route?
@@ -30,6 +33,9 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     @State private var securityCodeScreenID = UUID()
     @State private var pendingSnackbarError: String?
     @State private var pendingCloseCompletion: (() -> Void)?
+    @State private var statusScreenViewModel: StatusScreenViewModel?
+    @State private var didCompleteCheckout = false
+    @State private var didFinishStatusScreen = false
     @State private var cardTransactionData = MPPaymentData.CardTransaction()
     @State private var installmentsData: MPInstallmentsData?
     @State private var isProcessingOrder = false
@@ -214,6 +220,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         Group {
             self.cardFormAndSecurityCodeLinks()
             self.installmentsAndSelectionLinks()
+            self.statusScreenLink()
         }
     }
 
@@ -271,6 +278,17 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             destination: self.reviewConfirmDestination()
                 .onAppear { self.viewModel.markScreenPresented(.reviewAndConfirm) },
             tag: Route.reviewAndConfirm,
+            selection: self.$route
+        ) {
+            EmptyView()
+        }
+        .hidden()
+    }
+
+    private func statusScreenLink() -> some View {
+        NavigationLink(
+            destination: self.statusScreenDestination(),
+            tag: Route.statusScreen,
             selection: self.$route
         ) {
             EmptyView()
@@ -359,6 +377,22 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             EmptyView()
         }
     }
+
+    @ViewBuilder
+    private func statusScreenDestination() -> some View {
+        if let statusScreenViewModel = self.statusScreenViewModel {
+            StatusScreenView(
+                viewModel: statusScreenViewModel,
+                onBack: { self.finishStatusScreen(emitExit: true) },
+                onOpenPDF: { _ in },
+                onCopy: {},
+                onUnavailable: { self.finishStatusScreen(emitExit: false) }
+            )
+            .navigationBarBackButtonHidden(true)
+        } else {
+            EmptyView()
+        }
+    }
 }
 
 // MARK: - States
@@ -380,14 +414,48 @@ private extension PaymentBrick {
             self.complete(with: payment)
         case let .error(error):
             self.fail(error)
-        case .userCancelled:
+        case .userCancelled, .exit:
             break
         }
     }
 
     func complete(with payment: T) {
+        guard !self.didCompleteCheckout else { return }
+        self.didCompleteCheckout = true
+        let lastFourDigits = self.newCardResult?.lastFourDigits
+            ?? self.selectedItem?.cardData?.lastFourDigits
+
+        guard self.configuration.statusScreenConfig != nil else {
+            self.clearReviewConfirmState()
+            self.onResult(.success(payment))
+            self.presentationMode.wrappedValue.dismiss()
+            return
+        }
+        guard case let .payment(order, sellerInfo) = self.configuration.type.kind else {
+            assertionFailure("PaymentBrick cannot present Status Screen for this checkout type.")
+            self.clearReviewConfirmState()
+            self.onResult(.success(payment))
+            self.presentationMode.wrappedValue.dismiss()
+            return
+        }
+
+        let statusScreenViewModel = StatusScreenViewModel(
+            orderID: order.orderId,
+            clientToken: order.clientToken,
+            lastFourDigits: lastFourDigits,
+            sellerInfo: sellerInfo
+        )
         self.clearReviewConfirmState()
         self.onResult(.success(payment))
+        self.statusScreenViewModel = statusScreenViewModel
+        self.route = .statusScreen
+    }
+
+    private func finishStatusScreen(emitExit: Bool) {
+        guard self.statusScreenViewModel != nil, !self.didFinishStatusScreen else { return }
+        self.didFinishStatusScreen = true
+        self.statusScreenViewModel = nil
+        if emitExit { self.onResult(.exit) }
         self.presentationMode.wrappedValue.dismiss()
     }
 

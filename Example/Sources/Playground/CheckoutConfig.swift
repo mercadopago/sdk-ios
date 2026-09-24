@@ -125,8 +125,9 @@ final class CheckoutConfig: ObservableObject {
     @Published var orderId = ""
     @Published var clientToken = ""
 
-    // Review & Confirm
+    // Optional screens
     @Published var reviewAndConfirmEnabled = false
+    @Published var statusScreenEnabled = false
     @Published var emailChangeEnabled = false
     @Published var sellerInfoEnabled = false
     @Published var sellerName = ""
@@ -222,12 +223,18 @@ final class CheckoutConfig: ObservableObject {
             orderId: orderId,
             clientToken: clientToken
         )
-        return MercadoPagoCheckout.Builder(
+        let builder = MercadoPagoCheckout.Builder(
             checkoutType: .cardTransaction(order: order, sellerInfo: self.sellerInfo),
             checkoutAppearance: self.checkoutAppearance
         )
-        .setPaymentMethodConfiguration(self.paymentMethodConfigs)
-        .build(withReviewAndConfirm: self.reviewAndConfirmEnabled)
+
+        if self.statusScreenEnabled {
+            builder.withStatusScreen()
+        }
+
+        return builder
+            .setPaymentMethodConfiguration(self.paymentMethodConfigs)
+            .build(withReviewAndConfirm: self.reviewAndConfirmEnabled)
     }
 
     @MainActor

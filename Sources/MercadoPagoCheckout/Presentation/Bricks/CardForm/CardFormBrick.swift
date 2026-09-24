@@ -7,10 +7,13 @@
 import MPComponents
 import SwiftUI
 
+// swiftlint:disable file_length
+// swiftlint:disable:next type_body_length
 struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private enum Route: Hashable {
         case installments
         case reviewAndConfirm
+        case statusScreen
     }
 
     @State private var route: Route?
@@ -24,6 +27,9 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var pendingReviewConfirmInput: PendingReviewConfirmInput?
     @State private var reviewConfirmPreviousRoute: Route?
     @State private var pendingSnackbarError: String?
+    @State private var statusScreenViewModel: StatusScreenViewModel?
+    @State private var didCompleteCheckout = false
+    @State private var didFinishStatusScreen = false
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
     private let configuration: MPCheckoutConfiguration<T>
@@ -176,6 +182,15 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 EmptyView()
             }
             .hidden()
+
+            NavigationLink(
+                destination: self.statusScreenDestination(),
+                tag: .statusScreen,
+                selection: self.$route
+            ) {
+                EmptyView()
+            }
+            .hidden()
         }
     }
 
@@ -198,6 +213,22 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 onInitializationError: { error in self.handleReviewInitializationError(error) },
                 onBack: { self.handleReviewConfirmBack() }
             )
+        } else {
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func statusScreenDestination() -> some View {
+        if let statusScreenViewModel = self.statusScreenViewModel {
+            StatusScreenView(
+                viewModel: statusScreenViewModel,
+                onBack: { self.finishStatusScreen(emitExit: true) },
+                onOpenPDF: { _ in },
+                onCopy: {},
+                onUnavailable: { self.finishStatusScreen(emitExit: false) }
+            )
+            .navigationBarBackButtonHidden(true)
         } else {
             EmptyView()
         }
@@ -307,9 +338,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 let updatedPaymentData = try await self.brickViewModel.processOrderTask(paymentData)
                 self.pendingResult = updatedPaymentData as? T
                 guard let result = self.pendingResult else { return }
-                self.clearReviewConfirmState()
-                self.onResult(.success(result))
-                self.presentationMode.wrappedValue.dismiss()
+                self.completeCardTransaction(result)
             } catch is CancellationError {
                 return
             } catch let error as MercadoPagoCheckoutError {
@@ -355,8 +384,45 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             return
         }
         self.pendingResult = result
+        self.completeCardTransaction(result)
+    }
+
+    private func completeCardTransaction(_ result: T) {
+        guard !self.didCompleteCheckout else { return }
+        self.didCompleteCheckout = true
+        let lastFourDigits = self.inputCardData?.lastFourDigits
+
+        guard self.configuration.statusScreenConfig != nil else {
+            self.clearReviewConfirmState()
+            self.onResult(.success(result))
+            self.presentationMode.wrappedValue.dismiss()
+            return
+        }
+        guard case let .cardTransaction(order, sellerInfo) = self.configuration.type.kind else {
+            assertionFailure("CardFormBrick cannot present Status Screen for this checkout type.")
+            self.clearReviewConfirmState()
+            self.onResult(.success(result))
+            self.presentationMode.wrappedValue.dismiss()
+            return
+        }
+
+        let statusScreenViewModel = StatusScreenViewModel(
+            orderID: order.orderId,
+            clientToken: order.clientToken,
+            lastFourDigits: lastFourDigits,
+            sellerInfo: sellerInfo
+        )
         self.clearReviewConfirmState()
         self.onResult(.success(result))
+        self.statusScreenViewModel = statusScreenViewModel
+        self.route = .statusScreen
+    }
+
+    private func finishStatusScreen(emitExit: Bool) {
+        guard self.statusScreenViewModel != nil, !self.didFinishStatusScreen else { return }
+        self.didFinishStatusScreen = true
+        self.statusScreenViewModel = nil
+        if emitExit { self.onResult(.exit) }
         self.presentationMode.wrappedValue.dismiss()
     }
 
