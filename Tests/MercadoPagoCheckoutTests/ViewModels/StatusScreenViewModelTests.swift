@@ -127,6 +127,7 @@ private extension StatusScreenViewModelTests {
             clientToken: clientToken,
             lastFourDigits: lastFourDigits,
             sellerInfo: sellerInfo,
+            paymentTypeId: "ticket",
             useCase: useCase
         )
         return (viewModel, useCase)

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct StatusScreenContent: View {
     let output: StatusScreenOutput
+    let isPreparingReceipt: Bool
     let onBack: @MainActor @Sendable () -> Void
     let onOpenPDF: @MainActor @Sendable (URL) -> Void
     let onCopy: @MainActor @Sendable () -> Void
@@ -18,11 +19,13 @@ struct StatusScreenContent: View {
 
     init(
         output: StatusScreenOutput,
+        isPreparingReceipt: Bool,
         onBack: @escaping @MainActor @Sendable () -> Void,
         onOpenPDF: @escaping @MainActor @Sendable (URL) -> Void,
         onCopy: @escaping @MainActor @Sendable () -> Void
     ) {
         self.output = output
+        self.isPreparingReceipt = isPreparingReceipt
         self.feedbackIconSource = .remote(url: output.header.iconURL)
         self.onBack = onBack
         self.onOpenPDF = onOpenPDF
@@ -33,11 +36,13 @@ struct StatusScreenContent: View {
         init(
             output: StatusScreenOutput,
             feedbackIconSource: MPIconSource,
+            isPreparingReceipt: Bool = false,
             onBack: @escaping @MainActor @Sendable () -> Void,
             onOpenPDF: @escaping @MainActor @Sendable (URL) -> Void,
             onCopy: @escaping @MainActor @Sendable () -> Void
         ) {
             self.output = output
+            self.isPreparingReceipt = isPreparingReceipt
             self.feedbackIconSource = feedbackIconSource
             self.onBack = onBack
             self.onOpenPDF = onOpenPDF
@@ -111,6 +116,7 @@ struct StatusScreenContent: View {
                     Button(button.label) {
                         self.perform(button.action)
                     }
+                    .isLoading(self.isPreparingReceipt && button.action != .back)
                     .mpButtonStyle(variant: self.variant(for: button))
                     .accessibility(
                         identifier: self.accessibilityIdentifier(for: button.action, index: index)

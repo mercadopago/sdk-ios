@@ -384,7 +384,6 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             StatusScreenView(
                 viewModel: statusScreenViewModel,
                 onBack: { self.finishStatusScreen(emitExit: true) },
-                onOpenPDF: { _ in },
                 onCopy: {},
                 onUnavailable: { self.finishStatusScreen(emitExit: false) }
             )
@@ -443,7 +442,8 @@ private extension PaymentBrick {
             orderID: order.orderId,
             clientToken: order.clientToken,
             lastFourDigits: lastFourDigits,
-            sellerInfo: sellerInfo
+            sellerInfo: sellerInfo,
+            paymentTypeId: (payment as? MPPaymentData.Payment)?.paymentTypeId
         )
         self.clearReviewConfirmState()
         self.onResult(.success(payment))

@@ -224,7 +224,6 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             StatusScreenView(
                 viewModel: statusScreenViewModel,
                 onBack: { self.finishStatusScreen(emitExit: true) },
-                onOpenPDF: { _ in },
                 onCopy: {},
                 onUnavailable: { self.finishStatusScreen(emitExit: false) }
             )
@@ -410,7 +409,8 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             orderID: order.orderId,
             clientToken: order.clientToken,
             lastFourDigits: lastFourDigits,
-            sellerInfo: sellerInfo
+            sellerInfo: sellerInfo,
+            paymentTypeId: (result as? MPPaymentData.CardTransaction)?.paymentTypeId
         )
         self.clearReviewConfirmState()
         self.onResult(.success(result))
