@@ -12,18 +12,21 @@ enum ScreenConfig: Sendable {
     case reviewAndConfirm(
         onEmailChangeRequested: (@MainActor @Sendable () -> Void)?
     )
+    case statusScreen
 }
 
 extension ScreenConfig {
-    func toScreen() -> MPScreen {
+    func toScreen() -> MPScreen? {
         switch self {
         case .reviewAndConfirm: return .reviewAndConfirm
+        case .statusScreen: return nil
         }
     }
 
     var screensParameterValue: String {
         switch self {
         case .reviewAndConfirm: return "REVIEW_AND_CONFIRM"
+        case .statusScreen: return "STATUS_SCREEN"
         }
     }
 }
