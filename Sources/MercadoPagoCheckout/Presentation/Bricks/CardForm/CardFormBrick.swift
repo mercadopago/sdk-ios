@@ -29,7 +29,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var pendingSnackbarError: String?
     @State private var statusScreenViewModel: StatusScreenViewModel?
     @State private var didCompleteCheckout = false
-    @State private var didFinishStatusScreen = false
+    @State private var statusScreenExitCoordinator = StatusScreenExitCoordinator()
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
     private let configuration: MPCheckoutConfiguration<T>
@@ -81,6 +81,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             await self.load()
         }
         .onDisappear {
+            self.statusScreenExitCoordinator.completeExit(from: .brick)
             self.processingTask?.cancel()
         }
     }
@@ -223,11 +224,14 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         if let statusScreenViewModel = self.statusScreenViewModel {
             StatusScreenView(
                 viewModel: statusScreenViewModel,
-                onBack: { self.finishStatusScreen(emitExit: true) },
+                onBack: { self.finishStatusScreen(notifyExit: true) },
                 onCopy: {},
-                onUnavailable: { self.finishStatusScreen(emitExit: false) }
+                onUnavailable: { self.finishStatusScreen(notifyExit: false) }
             )
             .navigationBarBackButtonHidden(true)
+            .onDisappear {
+                self.statusScreenExitCoordinator.completeExit(from: .statusScreen)
+            }
         } else {
             EmptyView()
         }
@@ -418,12 +422,24 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         self.route = .statusScreen
     }
 
-    private func finishStatusScreen(emitExit: Bool) {
-        guard self.statusScreenViewModel != nil, !self.didFinishStatusScreen else { return }
-        self.didFinishStatusScreen = true
-        self.statusScreenViewModel = nil
-        if emitExit { self.onResult(.exit) }
-        self.presentationMode.wrappedValue.dismiss()
+    private func finishStatusScreen(notifyExit: Bool) {
+        let isPresented = self.presentationMode.wrappedValue.isPresented
+        let trigger: StatusScreenExitCoordinator.Trigger = isPresented
+            ? .brick
+            : .statusScreen
+        guard self.statusScreenViewModel != nil,
+              self.statusScreenExitCoordinator.begin(
+                  notifyExit: notifyExit,
+                  exit: self.configuration.statusScreenExit,
+                  trigger: trigger
+              )
+        else { return }
+        if isPresented {
+            self.presentationMode.wrappedValue.dismiss()
+        } else {
+            self.statusScreenViewModel = nil
+            self.route = nil
+        }
     }
 
     /// Failed `POST /review_confirm` while opening the screen: pop back to the card form. Per AC-9

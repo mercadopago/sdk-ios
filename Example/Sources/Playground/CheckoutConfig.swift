@@ -218,7 +218,9 @@ final class CheckoutConfig: ObservableObject {
     }
 
     @MainActor
-    func makeCardTransactionCheckout() -> MercadoPagoCheckout<MPPaymentData.CardTransaction> {
+    func makeCardTransactionCheckout(
+        statusScreenExit: @escaping @MainActor @Sendable () -> Void
+    ) -> MercadoPagoCheckout<MPPaymentData.CardTransaction> {
         let order = MPOrder(
             orderId: orderId,
             clientToken: clientToken
@@ -229,7 +231,7 @@ final class CheckoutConfig: ObservableObject {
         )
 
         if self.statusScreenEnabled {
-            builder.withStatusScreen()
+            builder.withStatusScreen(exit: statusScreenExit)
         }
 
         return builder
@@ -238,20 +240,28 @@ final class CheckoutConfig: ObservableObject {
     }
 
     @MainActor
-    func makePaymentCheckout() -> MercadoPagoCheckout<MPPaymentData.Payment> {
+    func makePaymentCheckout(
+        statusScreenExit: @escaping @MainActor @Sendable () -> Void
+    ) -> MercadoPagoCheckout<MPPaymentData.Payment> {
         let order = MPOrder(
             orderId: orderId,
             clientToken: clientToken
         )
-        return MercadoPagoCheckout.Builder(
+        let builder = MercadoPagoCheckout.Builder(
             checkoutType: .payment(order: order, sellerInfo: self.sellerInfo),
             checkoutAppearance: self.checkoutAppearance
         )
-        .setPaymentMethodConfiguration(self.paymentMethodConfigs)
-        .build(
-            withReviewAndConfirm: self.reviewAndConfirmEnabled,
-            emailChangeEnabled: self.emailChangeEnabled
-        )
+
+        if self.statusScreenEnabled {
+            builder.withStatusScreen(exit: statusScreenExit)
+        }
+
+        return builder
+            .setPaymentMethodConfiguration(self.paymentMethodConfigs)
+            .build(
+                withReviewAndConfirm: self.reviewAndConfirmEnabled,
+                emailChangeEnabled: self.emailChangeEnabled
+            )
     }
 }
 

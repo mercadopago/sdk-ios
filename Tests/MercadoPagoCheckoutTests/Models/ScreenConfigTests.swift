@@ -18,7 +18,7 @@ final class ScreenConfigTests: XCTestCase {
     }
 
     func test_toScreen_withStatusScreen_shouldNotEnterCancellationHistory() {
-        XCTAssertNil(ScreenConfig.statusScreen.toScreen())
+        XCTAssertNil(ScreenConfig.statusScreen(exit: {}).toScreen())
     }
 
     // MARK: - screensParameter
@@ -40,7 +40,7 @@ final class ScreenConfigTests: XCTestCase {
     }
 
     func test_screensParameter_withStatusScreen_shouldReturnBackendKey() {
-        XCTAssertEqual([ScreenConfig.statusScreen].screensParameter, "STATUS_SCREEN")
+        XCTAssertEqual([ScreenConfig.statusScreen(exit: {})].screensParameter, "STATUS_SCREEN")
     }
 
     // MARK: - reviewAndConfirmConfig
@@ -73,9 +73,21 @@ final class ScreenConfigTests: XCTestCase {
     }
 
     func test_statusScreenConfig_whenConfigured_shouldReturnStatusScreen() {
-        guard case .statusScreen = self.makeConfiguration(screenConfigs: [.statusScreen]).statusScreenConfig else {
+        guard case .statusScreen = self.makeConfiguration(
+            screenConfigs: [.statusScreen(exit: {})]
+        ).statusScreenConfig else {
             return XCTFail("Expected a statusScreen config")
         }
+    }
+
+    @MainActor
+    func test_statusScreenExit_whenConfigured_shouldReturnCallback() {
+        let spy = StatusScreenExitSpy()
+        let sut = self.makeConfiguration(screenConfigs: [.statusScreen(exit: spy.call)])
+
+        sut.statusScreenExit?()
+
+        XCTAssertEqual(spy.callCount, 1)
     }
 
     // MARK: - Builder
@@ -124,14 +136,20 @@ final class ScreenConfigTests: XCTestCase {
     }
 
     @MainActor
-    func test_build_withStatusScreenCalledTwice_shouldKeepOnlyOneConfiguration() {
+    func test_build_withStatusScreenCalledTwice_shouldKeepOnlyOneConfigurationAndUseLatestCallback() {
+        let firstSpy = StatusScreenExitSpy()
+        let latestSpy = StatusScreenExitSpy()
         let checkout = self.makePaymentBuilder()
-            .withStatusScreen()
-            .withStatusScreen()
+            .withStatusScreen(exit: firstSpy.call)
+            .withStatusScreen(exit: latestSpy.call)
             .build()
+
+        checkout.configuration.statusScreenExit?()
 
         XCTAssertEqual(checkout.configuration.screenConfigs.count, 1)
         XCTAssertNotNil(checkout.configuration.statusScreenConfig)
+        XCTAssertEqual(firstSpy.callCount, 0)
+        XCTAssertEqual(latestSpy.callCount, 1)
     }
 
     @MainActor
@@ -141,7 +159,7 @@ final class ScreenConfigTests: XCTestCase {
             checkoutType: .cardTransaction(order: self.makeOrder(), sellerInfo: seller),
             checkoutAppearance: .init()
         )
-        .withStatusScreen()
+        .withStatusScreen(exit: {})
         .build()
 
         XCTAssertNotNil(checkout.configuration.statusScreenConfig)
@@ -152,7 +170,7 @@ final class ScreenConfigTests: XCTestCase {
     func test_build_withStatusScreenOnPayment_shouldPreserveIndependentlyNullableSellerInfo() {
         let seller = MPSellerInfo(name: nil, logoUrl: "https://example.com/logo.png")
         let checkout = self.makePaymentBuilder(sellerInfo: seller)
-            .withStatusScreen()
+            .withStatusScreen(exit: {})
             .build()
 
         XCTAssertEqual(checkout.configuration.sellerInfo, seller)
@@ -231,5 +249,14 @@ final class ScreenConfigTests: XCTestCase {
             paymentMethod: [],
             screenConfigs: screenConfigs
         )
+    }
+}
+
+@MainActor
+private final class StatusScreenExitSpy {
+    private(set) var callCount = 0
+
+    func call() {
+        self.callCount += 1
     }
 }

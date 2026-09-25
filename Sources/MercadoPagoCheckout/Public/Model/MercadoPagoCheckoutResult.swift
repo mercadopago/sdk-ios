@@ -33,10 +33,6 @@ import Foundation
 ///         // The user abandoned the flow. Inspect what they had entered:
 ///         print("Cancelled after visiting screens: \(context.screens)")
 ///         print("Card form field states: \(context.cardForm.fields)")
-///
-///     case .exit:
-///         // The buyer closed an enabled Status Screen.
-///         break
 ///     }
 /// }
 /// ```
@@ -52,7 +48,6 @@ import Foundation
 /// - ``success(_:)``
 /// - ``error(_:)``
 /// - ``userCancelled(_:)``
-/// - ``exit``
 public enum MercadoPagoCheckoutResult<T: MPPaymentData.Kind>: Sendable {
     /// The flow completed successfully.
     ///
@@ -73,11 +68,4 @@ public enum MercadoPagoCheckoutResult<T: MPPaymentData.Kind>: Sendable {
     /// checkout type, describing how far the user progressed and what they had entered at the
     /// moment they left — useful for analytics or to pre-fill a retry.
     case userCancelled(T.Cancellation)
-
-    /// The buyer completed an enabled Status Screen through its user-close lifecycle.
-    ///
-    /// This case has no payload and is delivered through the same result callback as every other
-    /// checkout outcome. It is emitted only by Payment and Card Transaction flows that opt in with
-    /// ``MercadoPagoCheckout/Builder/withStatusScreen()``.
-    case exit
 }

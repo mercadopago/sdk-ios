@@ -24,9 +24,6 @@ import Foundation
 ///         break
 ///     case .error(let error):
 ///         print(error)
-///     case .exit:
-///         // The buyer closed an enabled Status Screen.
-///         break
 ///     }
 /// }
 /// ```

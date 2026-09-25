@@ -44,8 +44,6 @@ protocol CheckoutTypeConfiguration: Sendable {}
 ///         break
 ///     case .error:
 ///         break
-///     case .exit:
-///         break
 ///     }
 /// }
 /// ```

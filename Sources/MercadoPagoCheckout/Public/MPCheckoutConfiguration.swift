@@ -57,6 +57,14 @@ extension MPCheckoutConfiguration {
             return false
         }
     }
+
+    /// The callback invoked when the buyer exits Status Screen, or `nil` when it is disabled.
+    var statusScreenExit: (@MainActor @Sendable () -> Void)? {
+        guard let statusScreenConfig,
+              case let .statusScreen(exit) = statusScreenConfig
+        else { return nil }
+        return exit
+    }
 }
 
 extension MPCheckoutConfiguration: Sendable where T: Sendable {}

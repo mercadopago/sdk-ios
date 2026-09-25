@@ -12,7 +12,7 @@ enum ScreenConfig: Sendable {
     case reviewAndConfirm(
         onEmailChangeRequested: (@MainActor @Sendable () -> Void)?
     )
-    case statusScreen
+    case statusScreen(exit: @MainActor @Sendable () -> Void)
 }
 
 extension ScreenConfig {
