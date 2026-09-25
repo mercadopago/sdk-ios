@@ -22,8 +22,8 @@ import Foundation
 ///         break
 ///     case .userCancelled:
 ///         break
-///     case .failure(let error):
-///         break
+///     case .error(let error):
+///         print(error)
 ///     }
 /// }
 /// ```
