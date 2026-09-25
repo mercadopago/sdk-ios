@@ -3,6 +3,7 @@
 //  MercadoPagoSDK
 //
 
+import CommonTests
 import Foundation
 @testable import MercadoPagoCheckout
 import XCTest
@@ -10,8 +11,8 @@ import XCTest
 @MainActor
 final class StatusScreenViewModelTests: XCTestCase {
     func test_load_WhenUseCaseSucceeds_ShouldBecomeReady() async {
-        let output = self.makeOutput()
-        let sut = self.makeSUT(behavior: .success(output))
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .success(output))
 
         await sut.viewModel.load()
 
@@ -23,7 +24,7 @@ final class StatusScreenViewModelTests: XCTestCase {
             name: "Test Store",
             logoUrl: "https://example.com/store.png"
         )
-        let sut = self.makeSUT(
+        let sut = makeSUT(
             orderID: "ORDER-123",
             clientToken: "client-token",
             lastFourDigits: "0000",
@@ -41,8 +42,8 @@ final class StatusScreenViewModelTests: XCTestCase {
     }
 
     func test_load_WhenCalledAfterReady_ShouldFetchOnlyOnce() async {
-        let output = self.makeOutput()
-        let sut = self.makeSUT(behavior: .success(output))
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .success(output))
 
         await sut.viewModel.load()
         await sut.viewModel.load()
@@ -53,8 +54,8 @@ final class StatusScreenViewModelTests: XCTestCase {
     }
 
     func test_load_WhenRequestIsInFlight_ShouldStayLoadingAndFetchOnlyOnce() async {
-        let output = self.makeOutput()
-        let sut = self.makeSUT(behavior: .suspended(output))
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .suspended(output))
         let firstLoad = Task { await sut.viewModel.load() }
         await sut.useCase.waitUntilCalled()
 
@@ -70,7 +71,7 @@ final class StatusScreenViewModelTests: XCTestCase {
     }
 
     func test_load_WhenUseCaseFails_ShouldBecomeUnavailable() async {
-        let sut = self.makeSUT(behavior: .failure(self.makeError()))
+        let sut = makeSUT(behavior: .failure(makeError()))
 
         await sut.viewModel.load()
 
@@ -78,7 +79,7 @@ final class StatusScreenViewModelTests: XCTestCase {
     }
 
     func test_load_WhenCancelled_ShouldReturnToIdle() async {
-        let sut = self.makeSUT(behavior: .suspended(self.makeOutput()))
+        let sut = makeSUT(behavior: .suspended(makeOutput()))
         let load = Task { await sut.viewModel.load() }
         await sut.useCase.waitUntilCalled()
 
@@ -91,7 +92,7 @@ final class StatusScreenViewModelTests: XCTestCase {
     }
 
     func test_load_WhenCancelledAndUseCaseFails_ShouldReturnToIdle() async {
-        let sut = self.makeSUT(behavior: .suspendedFailure(self.makeError()))
+        let sut = makeSUT(behavior: .suspendedFailure(makeError()))
         let load = Task { await sut.viewModel.load() }
         await sut.useCase.waitUntilCalled()
 
@@ -120,7 +121,7 @@ private extension StatusScreenViewModelTests {
         line _: UInt = #line
     ) -> SUT {
         let useCase = MockStatusScreenUseCase(
-            behavior: behavior ?? .success(self.makeOutput())
+            behavior: behavior ?? .success(makeOutput())
         )
         let viewModel = StatusScreenViewModel(
             orderID: orderID,
@@ -128,7 +129,8 @@ private extension StatusScreenViewModelTests {
             lastFourDigits: lastFourDigits,
             sellerInfo: sellerInfo,
             paymentTypeId: "ticket",
-            useCase: useCase
+            useCase: useCase,
+            analytics: MockAnalytics()
         )
         return (viewModel, useCase)
     }
@@ -138,6 +140,7 @@ private extension StatusScreenViewModelTests {
             fatalError("The test URL must be valid")
         }
         return StatusScreenOutput(
+            statusType: "approved",
             header: .init(title: "Approved", iconURL: iconURL),
             body: [.listItem(.init(title: "Seller", subtitle: nil, leading: nil))],
             footerButtons: [.init(label: "Back", action: .back, style: nil)]

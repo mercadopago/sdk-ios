@@ -51,6 +51,7 @@ struct StatusScreenOutput: Equatable, Sendable {
         let style: Style?
     }
 
+    let statusType: String
     let header: Header
     let body: [BodyComponent]
     let footerButtons: [FooterButton]

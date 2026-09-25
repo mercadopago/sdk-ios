@@ -40,8 +40,7 @@ private extension StatusScreenViewTests {
                 output: self.makeOutput(),
                 feedbackIconSource: .system(name: "checkmark.circle.fill"),
                 onBack: {},
-                onOpenPDF: { _ in },
-                onCopy: {}
+                onOpenPDF: { _ in }
             )
             .loadMPFonts()
         }
@@ -51,6 +50,7 @@ private extension StatusScreenViewTests {
     func makeOutput() -> StatusScreenOutput {
         let localImageURL = URL(fileURLWithPath: "/dev/null")
         return StatusScreenOutput(
+            statusType: "approved",
             header: .init(title: "Pagaste $ 900", iconURL: localImageURL),
             body: [
                 .listItem(

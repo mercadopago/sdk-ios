@@ -57,16 +57,47 @@ final class WebKitReceiptDocumentRepositoryTests: XCTestCase {
 
     func test_render_WhenWebPageIsLoaded_ShouldCreatePDF() async throws {
         let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        let loaded = expectation(description: "Web page finished loading")
+        let navigationDelegate = WebViewNavigationDelegate(onCompletion: loaded.fulfill)
+        webView.navigationDelegate = navigationDelegate
         webView.loadHTMLString("<html><body><h1>Comprovante</h1></body></html>", baseURL: nil)
-        let loaded = expectation(for: NSPredicate { object, _ in
-            guard let webView = object as? WKWebView else { return false }
-            return !webView.isLoading && webView.estimatedProgress >= 1
-        }, evaluatedWith: webView)
 
-        await fulfillment(of: [loaded], timeout: 5)
+        await fulfillment(of: [loaded], timeout: 15)
+        withExtendedLifetime(navigationDelegate) {}
+        XCTAssertNil(navigationDelegate.error)
         let data = try ReceiptPDFRenderer().render(formatter: webView.viewPrintFormatter())
 
         XCTAssertTrue(data.starts(with: ReceiptPDFRenderer.pdfSignature))
+    }
+}
+
+@MainActor
+private final class WebViewNavigationDelegate: NSObject, WKNavigationDelegate {
+    private let onCompletion: () -> Void
+    private(set) var error: Error?
+    private var didComplete = false
+
+    init(onCompletion: @escaping () -> Void) {
+        self.onCompletion = onCompletion
+    }
+
+    func webView(_: WKWebView, didFinish _: WKNavigation?) {
+        self.complete()
+    }
+
+    func webView(_: WKWebView, didFail _: WKNavigation?, withError error: Error) {
+        self.complete(error: error)
+    }
+
+    func webView(_: WKWebView, didFailProvisionalNavigation _: WKNavigation?, withError error: Error) {
+        self.complete(error: error)
+    }
+
+    private func complete(error: Error? = nil) {
+        guard !self.didComplete else { return }
+        self.didComplete = true
+        self.error = error
+        self.onCompletion()
     }
 }
 

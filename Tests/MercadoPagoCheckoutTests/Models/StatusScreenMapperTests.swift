@@ -22,6 +22,7 @@ final class StatusScreenMapperTests: XCTestCase {
 
         let output = try sut.map(self.decode(json))
 
+        XCTAssertEqual(output.statusType, "approved")
         XCTAssertEqual(output.header.iconURL, URL(string: "http://http2.mlstatic.com/success.png"))
         guard case let .openPDF(receiptURL) = output.footerButtons[1].action else {
             return XCTFail("Should preserve the open PDF action")

@@ -225,7 +225,6 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             StatusScreenView(
                 viewModel: statusScreenViewModel,
                 onBack: { self.finishStatusScreen(notifyExit: true) },
-                onCopy: {},
                 onUnavailable: { self.finishStatusScreen(notifyExit: false) }
             )
             .navigationBarBackButtonHidden(true)

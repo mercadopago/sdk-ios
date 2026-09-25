@@ -17,6 +17,7 @@ struct StatusScreenMapper: Sendable {
         let body = try response.body.map(self.mapBodyNode)
         let footer = try self.mapFooter(response.footer)
         return StatusScreenOutput(
+            statusType: response.statusType,
             header: .init(title: response.header.title, iconURL: headerURL),
             body: body,
             footerButtons: footer

@@ -12,7 +12,6 @@ struct StatusScreenContent: View {
     let isPreparingReceipt: Bool
     let onBack: @MainActor @Sendable () -> Void
     let onOpenPDF: @MainActor @Sendable (URL) -> Void
-    let onCopy: @MainActor @Sendable () -> Void
     private let feedbackIconSource: MPIconSource
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -21,15 +20,13 @@ struct StatusScreenContent: View {
         output: StatusScreenOutput,
         isPreparingReceipt: Bool,
         onBack: @escaping @MainActor @Sendable () -> Void,
-        onOpenPDF: @escaping @MainActor @Sendable (URL) -> Void,
-        onCopy: @escaping @MainActor @Sendable () -> Void
+        onOpenPDF: @escaping @MainActor @Sendable (URL) -> Void
     ) {
         self.output = output
         self.isPreparingReceipt = isPreparingReceipt
         self.feedbackIconSource = .remote(url: output.header.iconURL)
         self.onBack = onBack
         self.onOpenPDF = onOpenPDF
-        self.onCopy = onCopy
     }
 
     #if DEBUG
@@ -38,15 +35,13 @@ struct StatusScreenContent: View {
             feedbackIconSource: MPIconSource,
             isPreparingReceipt: Bool = false,
             onBack: @escaping @MainActor @Sendable () -> Void,
-            onOpenPDF: @escaping @MainActor @Sendable (URL) -> Void,
-            onCopy: @escaping @MainActor @Sendable () -> Void
+            onOpenPDF: @escaping @MainActor @Sendable (URL) -> Void
         ) {
             self.output = output
             self.isPreparingReceipt = isPreparingReceipt
             self.feedbackIconSource = feedbackIconSource
             self.onBack = onBack
             self.onOpenPDF = onOpenPDF
-            self.onCopy = onCopy
         }
     #endif
 
@@ -101,8 +96,7 @@ struct StatusScreenContent: View {
                 content: barcode.content,
                 codeFormatted: barcode.codeFormatted,
                 copyLabel: barcode.copyLabel,
-                copyFeedback: barcode.copyFeedback,
-                onCopy: self.onCopy
+                copyFeedback: barcode.copyFeedback
             )
             .padding(.horizontal, self.theme.spacings.xtiny)
         }

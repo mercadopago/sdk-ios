@@ -10,7 +10,6 @@ import SwiftUI
 struct StatusScreenView: View {
     @ObservedObject private var viewModel: StatusScreenViewModel
     private let onBack: @MainActor @Sendable () -> Void
-    private let onCopy: @MainActor @Sendable () -> Void
     private let onUnavailable: @MainActor @Sendable () -> Void
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -18,12 +17,10 @@ struct StatusScreenView: View {
     init(
         viewModel: StatusScreenViewModel,
         onBack: @escaping @MainActor @Sendable () -> Void,
-        onCopy: @escaping @MainActor @Sendable () -> Void,
         onUnavailable: @escaping @MainActor @Sendable () -> Void
     ) {
         self.viewModel = viewModel
         self.onBack = onBack
-        self.onCopy = onCopy
         self.onUnavailable = onUnavailable
     }
 
@@ -37,13 +34,19 @@ struct StatusScreenView: View {
                 StatusScreenContent(
                     output: output,
                     isPreparingReceipt: self.viewModel.isPreparingReceipt,
-                    onBack: self.onBack,
-                    onOpenPDF: self.viewModel.prepareReceipt,
-                    onCopy: self.onCopy
+                    onBack: {
+                        self.viewModel.trackClose(source: .back)
+                        self.onBack()
+                    },
+                    onOpenPDF: self.viewModel.prepareReceipt
                 )
+                .onAppear(perform: self.viewModel.trackRender)
             case .unavailable:
                 Color.clear
-                    .onAppear(perform: self.onUnavailable)
+                    .onAppear {
+                        self.viewModel.trackClose(source: .unavailable)
+                        self.onUnavailable()
+                    }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -53,7 +56,10 @@ struct StatusScreenView: View {
                 .mpMediumPresentationDetent()
         }
         .mpTask { await self.viewModel.load() }
-        .onDisappear(perform: self.viewModel.cancelReceipt)
+        .onDisappear {
+            self.viewModel.trackClose(source: .dismiss)
+            self.viewModel.cancelReceipt()
+        }
     }
 
     /// Swipe-to-dismiss writes `nil` back; route it through the view model so the temporary PDF is deleted.
