@@ -19,6 +19,7 @@ package enum Logos: Equatable {
 
     package enum Icon: String, Equatable {
         case padlockClose = "Padlock-Close"
+        case copy = "Copy"
 
         package var assetName: String {
             rawValue
