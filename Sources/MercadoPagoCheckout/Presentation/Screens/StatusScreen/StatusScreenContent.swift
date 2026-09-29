@@ -12,7 +12,6 @@ struct StatusScreenContent: View {
     let isPreparingReceipt: Bool
     let onBack: @MainActor @Sendable () -> Void
     let onOpenPDF: @MainActor @Sendable (URL) -> Void
-    private let feedbackIconSource: MPIconSource
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
 
@@ -24,26 +23,9 @@ struct StatusScreenContent: View {
     ) {
         self.output = output
         self.isPreparingReceipt = isPreparingReceipt
-        self.feedbackIconSource = .remote(url: output.header.iconURL)
         self.onBack = onBack
         self.onOpenPDF = onOpenPDF
     }
-
-    #if DEBUG
-        init(
-            output: StatusScreenOutput,
-            feedbackIconSource: MPIconSource,
-            isPreparingReceipt: Bool = false,
-            onBack: @escaping @MainActor @Sendable () -> Void,
-            onOpenPDF: @escaping @MainActor @Sendable (URL) -> Void
-        ) {
-            self.output = output
-            self.isPreparingReceipt = isPreparingReceipt
-            self.feedbackIconSource = feedbackIconSource
-            self.onBack = onBack
-            self.onOpenPDF = onOpenPDF
-        }
-    #endif
 
     var body: some View {
         VStack(spacing: 0) {
@@ -51,7 +33,7 @@ struct StatusScreenContent: View {
                 VStack(spacing: 0) {
                     MPFeedback(
                         title: self.output.header.title,
-                        iconSource: self.feedbackIconSource
+                        iconSource: .remote(url: self.output.header.iconURL)
                     )
                     .padding(.horizontal, self.theme.spacings.xtiny)
                     .padding(.top, self.theme.spacings.small)

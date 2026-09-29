@@ -42,16 +42,52 @@ final class StatusScreenMapperTests: XCTestCase {
         }
     }
 
-    func test_map_WhenBarcodeContainsImageURL_ShouldRejectPayload() throws {
+    func test_map_WhenBarcodeContainsImageURL_ShouldDropOnlyBarcode() throws {
         let sut = self.makeSUT()
         let json = self.validJSON.replacingOccurrences(
             of: "\"copy_feedback\": \"Copiado\"",
             with: "\"copy_feedback\": \"Copiado\", \"image_url\": \"https://http2.mlstatic.com/barcode.png\""
         )
-        let response = try self.decode(json)
 
-        XCTAssertThrowsError(try sut.map(response)) { error in
-            XCTAssertEqual(error as? StatusScreenContractError, .invalidBody)
+        let output = try sut.map(self.decode(json))
+
+        XCTAssertEqual(output.body.count, 2)
+        guard case .listItem = output.body[0], case .listItem = output.body[1] else {
+            return XCTFail("Should keep both list items and drop the barcode")
+        }
+    }
+
+    func test_map_WhenListItemHasUnsupportedIcon_ShouldDropOnlyThatItem() throws {
+        let sut = self.makeSUT()
+        let json = self.validJSON.replacingOccurrences(
+            of: "\"leading_value\": \"card\"",
+            with: "\"leading_value\": \"ticket\""
+        )
+
+        let output = try sut.map(self.decode(json))
+
+        XCTAssertEqual(output.body.count, 2)
+        guard case let .listItem(seller) = output.body[0],
+              case .barcode = output.body[1]
+        else {
+            return XCTFail("Should keep the seller item and the barcode")
+        }
+        XCTAssertEqual(seller.title, "Seller name")
+        XCTAssertEqual(output.footerButtons.count, 2)
+    }
+
+    func test_map_WhenBodyHasUnknownComponent_ShouldDropOnlyThatItem() throws {
+        let sut = self.makeSUT()
+        let json = self.validJSON.replacingOccurrences(
+            of: "\"component\": \"MPBarcode\"",
+            with: "\"component\": \"MPUnknown\""
+        )
+
+        let output = try sut.map(self.decode(json))
+
+        XCTAssertEqual(output.body.count, 2)
+        guard case .listItem = output.body[0], case .listItem = output.body[1] else {
+            return XCTFail("Should keep both list items and drop the unknown component")
         }
     }
 
@@ -223,7 +259,7 @@ private extension StatusScreenMapperTests {
               {
                 "label": "Ver factura",
                 "action": "open_pdf",
-                "receipt_url": "https://www.mercadopago.com/receipt/test.pdf"
+                "value": "https://www.mercadopago.com/receipt/test.pdf"
               }
             ]
           }

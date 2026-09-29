@@ -78,7 +78,7 @@ final class StatusScreenUseCaseTests: XCTestCase {
 
     func test_execute_WhenMapperThrowsContractError_ShouldThrowContractViolation() async {
         let sut = self.makeSUT()
-        await sut.repository.setResult(.success(self.makeResponse(statusType: "pending")))
+        await sut.repository.setResult(.success(self.makeResponse(icon: "https://[")))
 
         do {
             _ = try await self.execute(sut: sut.useCase)

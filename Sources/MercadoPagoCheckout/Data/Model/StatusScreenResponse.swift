@@ -52,15 +52,8 @@ struct StatusScreenResponse: Codable, Sendable {
 
             let label: String
             let action: Action
-            let receiptURL: String?
+            let value: String?
             let style: String?
-
-            enum CodingKeys: String, CodingKey {
-                case label
-                case action
-                case receiptURL = "receipt_url"
-                case style
-            }
         }
 
         let buttons: [Button]
@@ -76,5 +69,25 @@ struct StatusScreenResponse: Codable, Sendable {
         case header
         case body
         case footer
+    }
+}
+
+extension StatusScreenResponse {
+    /// Decodes `body` item by item so an unknown or malformed node is dropped
+    /// instead of failing the whole screen.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.statusType = try container.decode(String.self, forKey: .statusType)
+        self.header = try container.decode(Header.self, forKey: .header)
+        self.body = try container.decode([LossyBodyNode].self, forKey: .body).compactMap(\.node)
+        self.footer = try container.decode(Footer.self, forKey: .footer)
+    }
+
+    private struct LossyBodyNode: Decodable {
+        let node: BodyNode?
+
+        init(from decoder: Decoder) throws {
+            self.node = try? BodyNode(from: decoder)
+        }
     }
 }

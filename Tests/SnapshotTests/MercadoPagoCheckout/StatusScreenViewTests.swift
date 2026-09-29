@@ -38,7 +38,7 @@ private extension StatusScreenViewTests {
         let view = ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             StatusScreenContent(
                 output: self.makeOutput(),
-                feedbackIconSource: .system(name: "checkmark.circle.fill"),
+                isPreparingReceipt: false,
                 onBack: {},
                 onOpenPDF: { _ in }
             )

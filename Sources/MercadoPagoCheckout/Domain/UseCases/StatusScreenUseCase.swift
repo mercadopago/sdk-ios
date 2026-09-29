@@ -48,10 +48,10 @@ struct StatusScreenUseCase: StatusScreenUseCaseProtocol, Sendable {
                 clientToken: clientToken
             )
             return try self.mapper.map(response)
-        } catch APIClientError.decodingFailed {
-            throw self.contractViolationError()
-        } catch is StatusScreenContractError {
-            throw self.contractViolationError()
+        } catch let APIClientError.decodingFailed(error) {
+            throw self.contractViolationError(error: error)
+        } catch let error as StatusScreenContractError {
+            throw self.contractViolationError(error: error)
         } catch let error as APIClientError {
             throw MercadoPagoCheckoutError(from: error, location: .initialization)
         } catch {
@@ -63,11 +63,11 @@ struct StatusScreenUseCase: StatusScreenUseCaseProtocol, Sendable {
         }
     }
 
-    private func contractViolationError() -> MercadoPagoCheckoutError {
-        MercadoPagoCheckoutError(
+    private func contractViolationError(error: Error) -> MercadoPagoCheckoutError {
+        return MercadoPagoCheckoutError(
             code: .serviceError,
             localizedDescription: "Status Screen contract violation",
-            userInfo: ["status_screen_reason": "contract_violation"],
+            userInfo: ["status_screen_reason": "contract_violation", "error": error],
             location: .initialization
         )
     }

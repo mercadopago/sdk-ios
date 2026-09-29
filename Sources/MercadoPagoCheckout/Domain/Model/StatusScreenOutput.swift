@@ -60,7 +60,6 @@ struct StatusScreenOutput: Equatable, Sendable {
 enum StatusScreenContractError: Error, Equatable, Sendable {
     case unsupportedStatus
     case invalidHeader
-    case invalidBody
     case invalidFooter
     case invalidURL
 }
