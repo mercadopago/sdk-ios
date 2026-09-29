@@ -23,10 +23,12 @@ package struct MPDefaultBarcodeStyle: MPBarcodeStyle {
                     .textStyle(.largeSemibold())
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: self.theme.spacings.xmicro)
-                configuration.action
-                    .buttonStyle(.plain)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
+                if let action = configuration.action {
+                    action
+                        .buttonStyle(.plain)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -73,7 +75,8 @@ package extension View {
                 content: "01234567890123456789012345678901234567890123",
                 codeFormatted: "01234 56789 01234 56789 01234 56789 01234 56789 0123",
                 copyLabel: "Copiar código",
-                copyFeedback: "Código copiado"
+                copyFeedback: "Código copiado",
+                icon: .copy
             )
             .mpBarcodeStyle(MPDefaultBarcodeStyle())
             .padding()

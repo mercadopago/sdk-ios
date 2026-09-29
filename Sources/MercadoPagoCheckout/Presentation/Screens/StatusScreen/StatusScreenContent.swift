@@ -78,7 +78,8 @@ struct StatusScreenContent: View {
                 content: barcode.content,
                 codeFormatted: barcode.codeFormatted,
                 copyLabel: barcode.copyLabel,
-                copyFeedback: barcode.copyFeedback
+                copyFeedback: barcode.copyFeedback,
+                icon: barcode.icon.map(self.localIcon)
             )
             .padding(.horizontal, self.theme.spacings.xtiny)
         }
@@ -115,6 +116,13 @@ struct StatusScreenContent: View {
             return .image(Image(systemName: "creditcard"))
         case .none:
             return nil
+        }
+    }
+
+    private func localIcon(_ icon: StatusScreenOutput.Icon) -> Logos.Icon {
+        switch icon {
+        case .copy:
+            return .copy
         }
     }
 

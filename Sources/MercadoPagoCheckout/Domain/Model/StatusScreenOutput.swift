@@ -6,6 +6,11 @@
 import Foundation
 
 struct StatusScreenOutput: Equatable, Sendable {
+    /// Icons bundled in the SDK. An icon key outside this list is not rendered.
+    enum Icon: Equatable, Sendable {
+        case copy
+    }
+
     struct Header: Equatable, Sendable {
         let title: String
         let iconURL: URL
@@ -27,6 +32,7 @@ struct StatusScreenOutput: Equatable, Sendable {
         let codeFormatted: String
         let copyLabel: String
         let copyFeedback: String
+        let icon: Icon?
     }
 
     enum BodyComponent: Equatable, Sendable {

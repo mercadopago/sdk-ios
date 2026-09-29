@@ -160,7 +160,8 @@ private extension StatusScreenViewModelAnalyticsTests {
                     content: "1234567890123456",
                     codeFormatted: "1234 5678 9012 3456",
                     copyLabel: "Copy",
-                    copyFeedback: "Copied"
+                    copyFeedback: "Copied",
+                    icon: .copy
                 ))
             ],
             footerButtons: [.init(label: "Back", action: .back, style: nil)]

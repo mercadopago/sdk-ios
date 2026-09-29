@@ -76,6 +76,35 @@ final class StatusScreenMapperTests: XCTestCase {
         XCTAssertEqual(output.footerButtons.count, 2)
     }
 
+    func test_map_WhenBarcodeIconIsCopy_ShouldMapLocalCopyIcon() throws {
+        let sut = self.makeSUT()
+
+        let output = try sut.map(self.decode(self.validJSON))
+
+        guard case let .barcode(barcode) = output.body[2] else {
+            return XCTFail("Should map the barcode")
+        }
+        XCTAssertEqual(barcode.icon, .copy)
+    }
+
+    func test_map_WhenBarcodeIconIsUnknownOrMissing_ShouldKeepBarcodeWithoutIcon() throws {
+        let sut = self.makeSUT()
+        let jsons = [
+            self.validJSON.replacingOccurrences(of: "\"icon\": \"COPY\"", with: "\"icon\": \"UNKNOWN\""),
+            self.validJSON.replacingOccurrences(of: "\"icon\": \"COPY\"", with: "\"icon\": \"copy\""),
+            self.validJSON.replacingOccurrences(of: "\"icon\": \"COPY\"", with: "\"icon\": null")
+        ]
+
+        for json in jsons {
+            let output = try sut.map(self.decode(json))
+
+            guard case let .barcode(barcode) = output.body[2] else {
+                return XCTFail("Should keep the barcode")
+            }
+            XCTAssertNil(barcode.icon)
+        }
+    }
+
     func test_map_WhenBodyHasUnknownComponent_ShouldDropOnlyThatItem() throws {
         let sut = self.makeSUT()
         let json = self.validJSON.replacingOccurrences(
@@ -249,7 +278,8 @@ private extension StatusScreenMapperTests {
                 "content": "123456",
                 "code_formatted": "123 456",
                 "copy_label": "Copiar",
-                "copy_feedback": "Copiado"
+                "copy_feedback": "Copiado",
+                "icon": "COPY"
               }
             }
           ],

@@ -25,6 +25,7 @@ struct StatusScreenResponse: Codable, Sendable {
             let codeFormatted: String?
             let copyLabel: String?
             let copyFeedback: String?
+            let icon: String?
 
             enum CodingKeys: String, CodingKey {
                 case title
@@ -36,6 +37,7 @@ struct StatusScreenResponse: Codable, Sendable {
                 case codeFormatted = "code_formatted"
                 case copyLabel = "copy_label"
                 case copyFeedback = "copy_feedback"
+                case icon
             }
         }
 

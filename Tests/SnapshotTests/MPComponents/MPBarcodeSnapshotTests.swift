@@ -16,12 +16,7 @@ final class MPBarcodeSnapshotTests: XCTestCase {
         FontName.registerCustomFonts()
 
         let view = self.createTestView {
-            MPBarcode(
-                content: "12345678901234567890123456789012345678901234",
-                codeFormatted: "1234 5678 9012 3456 7890 1234 5678 9012 3456 7890 1234",
-                copyLabel: "Copiar código",
-                copyFeedback: "Código copiado"
-            )
+            self.makeBarcode(icon: .copy)
         }
 
         assertSnapshot(
@@ -31,17 +26,26 @@ final class MPBarcodeSnapshotTests: XCTestCase {
         )
     }
 
+    func test_barcode_withoutIcon() {
+        FontName.registerCustomFonts()
+
+        let view = self.createTestView {
+            self.makeBarcode(icon: nil)
+        }
+
+        assertSnapshot(
+            of: UIHostingController(rootView: view),
+            as: .image(precision: 0.95, size: CGSize(width: 390, height: 150)),
+            named: "without_icon"
+        )
+    }
+
     func test_barcode_accessibilityDynamicType() {
         FontName.registerCustomFonts()
 
         let view = self.createTestView {
-            MPBarcode(
-                content: "12345678901234567890123456789012345678901234",
-                codeFormatted: "1234 5678 9012 3456 7890 1234 5678 9012 3456 7890 1234",
-                copyLabel: "Copiar código",
-                copyFeedback: "Código copiado"
-            )
-            .environment(\.sizeCategory, .accessibilityExtraExtraExtraLarge)
+            self.makeBarcode(icon: .copy)
+                .environment(\.sizeCategory, .accessibilityExtraExtraExtraLarge)
         }
 
         assertSnapshot(
@@ -67,6 +71,16 @@ final class MPBarcodeSnapshotTests: XCTestCase {
 
         XCTAssertEqual(pasteboard.string, expectedContent)
         XCTAssertEqual(callbackCount, 1)
+    }
+
+    private func makeBarcode(icon: Logos.Icon?) -> MPBarcode {
+        MPBarcode(
+            content: "12345678901234567890123456789012345678901234",
+            codeFormatted: "1234 5678 9012 3456 7890 1234 5678 9012 3456 7890 1234",
+            copyLabel: "Copiar código",
+            copyFeedback: "Código copiado",
+            icon: icon
+        )
     }
 
     private func createTestView(@ViewBuilder content: @escaping () -> some View) -> some View {

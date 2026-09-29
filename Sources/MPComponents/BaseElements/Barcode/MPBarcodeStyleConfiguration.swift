@@ -20,12 +20,13 @@ package struct MPBarcodeStyleConfiguration {
 
     package let label: Label
     package let code: Code
-    package let action: Action
+    /// `nil` when the barcode has no copy action to render.
+    package let action: Action?
 
     @MainActor
-    package init(label: some View, code: some View, action: some View) {
+    package init(label: some View, code: some View, action: (some View)?) {
         self.label = Label(body: AnyView(label))
         self.code = Code(body: AnyView(code))
-        self.action = Action(body: AnyView(action))
+        self.action = action.map { Action(body: AnyView($0)) }
     }
 }

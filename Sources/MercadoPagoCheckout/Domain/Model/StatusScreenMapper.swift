@@ -77,8 +77,16 @@ struct StatusScreenMapper: Sendable {
             content: content,
             codeFormatted: codeFormatted,
             copyLabel: copyLabel,
-            copyFeedback: copyFeedback
+            copyFeedback: copyFeedback,
+            icon: self.mapIcon(data.icon)
         )
+    }
+
+    private func mapIcon(_ rawIcon: String?) -> StatusScreenOutput.Icon? {
+        switch rawIcon {
+        case "COPY": .copy
+        default: nil
+        }
     }
 
     private func mapFooter(_ footer: StatusScreenResponse.Footer) throws -> [StatusScreenOutput.FooterButton] {

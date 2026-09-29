@@ -72,7 +72,8 @@ private extension StatusScreenViewTests {
                         content: "12345678901234567890123456789012345678901234",
                         codeFormatted: "12345.67890 12345.678901 12345.678901 2 34560000090000",
                         copyLabel: "Copiar código",
-                        copyFeedback: "Código copiado"
+                        copyFeedback: "Código copiado",
+                        icon: .copy
                     )
                 )
             ],
