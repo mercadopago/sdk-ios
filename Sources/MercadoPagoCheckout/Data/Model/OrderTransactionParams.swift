@@ -9,12 +9,25 @@ import Foundation
 struct OrderTransactionParams: Encodable, Sendable {
     let amount: Decimal
     let paymentMethodType: PaymentMethodType
+    let paymentMethodSource: PaymentMethodSource?
     var integrationData: IntegrationData?
 
-    init(amount: Decimal = .zero, paymentMethodType: PaymentMethodType, integrationData: IntegrationData? = nil) {
+    init(
+        amount: Decimal = .zero,
+        paymentMethodType: PaymentMethodType,
+        paymentMethodSource: PaymentMethodSource? = nil,
+        integrationData: IntegrationData? = nil
+    ) {
         self.amount = amount
         self.paymentMethodType = paymentMethodType
+        self.paymentMethodSource = paymentMethodSource
         self.integrationData = integrationData
+    }
+
+    enum PaymentMethodSource: String, Encodable, Equatable, Sendable {
+        case savedCard = "saved_card"
+        case newCard = "new_card"
+        case ticket
     }
 
     struct IntegrationData: Encodable, Equatable, Sendable {
@@ -77,17 +90,19 @@ struct OrderTransactionParams: Encodable, Sendable {
 
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(self.paymentMethodSource, forKey: .paymentMethodSource)
         try container.encodeIfPresent(self.integrationData, forKey: .integrationData)
         try self.paymentMethodType.encode(to: encoder)
     }
 
     enum CodingKeys: String, CodingKey {
         case integrationData = "integration_data"
+        case paymentMethodSource = "payment_method_source"
     }
 }
 
 extension OrderTransactionParams {
-    init?(cardTransaction: MPPaymentData.CardTransaction) {
+    init?(cardTransaction: MPPaymentData.CardTransaction, paymentMethodSource: PaymentMethodSource? = nil) {
         let paymentMethodType: PaymentMethodType
         switch MPCardType(paymentTypeId: cardTransaction.paymentTypeId) {
         case .credit:
@@ -107,6 +122,10 @@ extension OrderTransactionParams {
         case .none:
             return nil
         }
-        self.init(amount: cardTransaction.transactionAmount ?? .zero, paymentMethodType: paymentMethodType)
+        self.init(
+            amount: cardTransaction.transactionAmount ?? .zero,
+            paymentMethodType: paymentMethodType,
+            paymentMethodSource: paymentMethodSource
+        )
     }
 }

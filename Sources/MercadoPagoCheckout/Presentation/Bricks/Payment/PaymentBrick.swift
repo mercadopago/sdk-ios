@@ -164,7 +164,8 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 await self.handlePaymentConfirmed(
                     OrderTransactionParams(
                         amount: self.viewModel.paymentData?.transactionAmount ?? .zero,
-                        paymentMethodType: .ticket(paymentMethodId: item.id, paymentTypeId: item.route)
+                        paymentMethodType: .ticket(paymentMethodId: item.id, paymentTypeId: item.route),
+                        paymentMethodSource: .ticket
                     )
                 )
             }
@@ -178,7 +179,8 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
                 paymentMethodType: .ticket(
                     paymentMethodId: option.id,
                     paymentTypeId: self.selectedItem?.route ?? "ticket"
-                )
+                ),
+                paymentMethodSource: .ticket
             )
         )
     }
@@ -457,7 +459,7 @@ extension PaymentBrick {
     ) {
         guard let installments = item.cardData?.installments else {
             guard let cardTransactionData = self.viewModel.cardTransaction(from: item, token: token),
-                  let params = OrderTransactionParams(cardTransaction: cardTransactionData)
+                  let params = OrderTransactionParams(cardTransaction: cardTransactionData, paymentMethodSource: .savedCard)
             else {
                 self.route = nil
                 return
@@ -490,8 +492,10 @@ extension PaymentBrick {
         cardTransactionData.installment = context.installments
         self.cardTransactionData = cardTransactionData
 
+        let source: OrderTransactionParams.PaymentMethodSource = self.newCardResult != nil ? .newCard : .savedCard
+
         guard !cardTransactionData.token.isEmpty,
-              let params = OrderTransactionParams(cardTransaction: cardTransactionData)
+              let params = OrderTransactionParams(cardTransaction: cardTransactionData, paymentMethodSource: source)
         else {
             // The saved-card continuation without a token belongs to payment-flow orchestration.
             self.route = nil
@@ -657,7 +661,7 @@ extension PaymentBrick {
             return
         }
 
-        guard let params = OrderTransactionParams(cardTransaction: self.cardTransactionData) else {
+        guard let params = OrderTransactionParams(cardTransaction: self.cardTransactionData, paymentMethodSource: .newCard) else {
             self.route = nil
             return
         }

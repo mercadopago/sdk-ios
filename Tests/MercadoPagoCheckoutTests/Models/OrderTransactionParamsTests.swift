@@ -284,4 +284,81 @@ final class OrderTransactionParamsTests: XCTestCase {
 
         XCTAssertEqual(params.amount, .zero)
     }
+
+    // MARK: - payment_method_source
+
+    func test_encoding_WhenSourceNotSpecified_ShouldOmitTheKey() throws {
+        // There is no safe guess from paymentMethodType alone: a saved card can be credit or
+        // debit, exactly like a new one — the caller must know the buyer's actual selection.
+        XCTAssertNil(try self.encodeToJSON(self.makeCreditParams())["payment_method_source"])
+        XCTAssertNil(try self.encodeToJSON(self.makeDebitParams())["payment_method_source"])
+        XCTAssertNil(try self.encodeToJSON(self.makeTicketParams())["payment_method_source"])
+    }
+
+    func test_encoding_WhenTicket_ShouldSendTicketSource() throws {
+        let params = OrderTransactionParams(
+            amount: 100,
+            paymentMethodType: .ticket(paymentMethodId: "pec", paymentTypeId: "ticket"),
+            paymentMethodSource: .ticket
+        )
+
+        let json = try self.encodeToJSON(params)
+
+        XCTAssertEqual(json["payment_method_source"] as? String, "ticket")
+    }
+
+    func test_encoding_WhenBuyerSelectedSavedCard_ShouldSendSavedCardSource() throws {
+        let params = OrderTransactionParams(
+            paymentMethodType: .creditCard(
+                paymentMethodId: "visa",
+                paymentTypeId: "credit_card",
+                token: "abc123",
+                installments: 1
+            ),
+            paymentMethodSource: .savedCard
+        )
+
+        let json = try self.encodeToJSON(params)
+
+        XCTAssertEqual(json["payment_method_source"] as? String, "saved_card")
+    }
+
+    func test_encoding_WhenBuyerEnteredNewCard_ShouldSendNewCardSource() throws {
+        let params = OrderTransactionParams(
+            paymentMethodType: .debitCard(paymentMethodId: "debvisa", paymentTypeId: "debit_card", token: "tok_debit"),
+            paymentMethodSource: .newCard
+        )
+
+        let json = try self.encodeToJSON(params)
+
+        XCTAssertEqual(json["payment_method_source"] as? String, "new_card")
+    }
+
+    func test_init_cardTransaction_WhenSourceNotSpecified_ShouldBeNil() throws {
+        let transaction = MPPaymentData.CardTransaction(
+            transactionAmount: 100,
+            token: "tok_credit",
+            installment: 1,
+            paymentMethodId: "visa",
+            paymentTypeId: "credit_card"
+        )
+
+        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction))
+
+        XCTAssertNil(params.paymentMethodSource)
+    }
+
+    func test_init_cardTransaction_WhenSourceIsSavedCard_ShouldPreserveIt() throws {
+        let transaction = MPPaymentData.CardTransaction(
+            transactionAmount: 100,
+            token: "tok_credit",
+            installment: 1,
+            paymentMethodId: "visa",
+            paymentTypeId: "credit_card"
+        )
+
+        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction, paymentMethodSource: .savedCard))
+
+        XCTAssertEqual(params.paymentMethodSource, .savedCard)
+    }
 }

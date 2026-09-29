@@ -139,7 +139,9 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     // MARK: - Process Order
 
     func processOrderTask(_ paymentData: MPPaymentData.CardTransaction) async throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
-        guard let params = OrderTransactionParams(cardTransaction: paymentData), let clientToken = self.clientToken else {
+        guard let params = OrderTransactionParams(cardTransaction: paymentData, paymentMethodSource: .newCard),
+              let clientToken = self.clientToken
+        else {
             assertionFailure("processOrderTask: invalid payment data")
             throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: "invalid payment data", location: .orderProcess)
         }
@@ -225,7 +227,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     ) -> PendingReviewConfirmInput? {
         guard self.configuration.reviewAndConfirmConfig != nil,
               case let .cardTransaction(order, sellerInfo) = self.configuration.type.kind,
-              let params = OrderTransactionParams(cardTransaction: paymentData)
+              let params = OrderTransactionParams(cardTransaction: paymentData, paymentMethodSource: .newCard)
         else { return nil }
 
         let cardDetails = ReviewConfirmCardDetails(
