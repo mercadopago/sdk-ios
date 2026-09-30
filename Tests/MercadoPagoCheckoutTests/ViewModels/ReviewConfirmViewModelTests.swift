@@ -63,7 +63,7 @@ final class ReviewConfirmViewModelTests: XCTestCase {
 
         return ReviewConfirmViewModel(
             fetchReviewConfirmUseCase: FetchReviewConfirmUseCase(repository: fetchRepository),
-            orderTransactionUseCase: OrderTransactionUseCase(repository: repository),
+            orderRepository: repository,
             order: MPOrder(orderId: "ORDER-1", clientToken: "client-token"),
             checkoutType: "payment",
             paymentParams: paymentParams ?? self.makeParams(),

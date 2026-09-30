@@ -38,6 +38,7 @@ final class ReviewConfirmViewModel: ObservableObject {
         fetchReviewConfirmUseCase: FetchReviewConfirmUseCase = FetchReviewConfirmUseCase(),
         orderTransactionUseCase: OrderTransactionUseCase? = nil,
         feature: OrderTransactionParams.IntegrationData.Feature = .payment,
+        orderRepository: OrderTransactionRepository = RemoteOrderTransactionRepository(),
         order: MPOrder,
         checkoutType: String,
         paymentParams: OrderTransactionParams,

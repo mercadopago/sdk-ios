@@ -389,9 +389,9 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         }
     }
 
-    // MARK: - Beta Base URL
+    // MARK: - Base URL
 
-    func test_processEndpoint_WhenBuildingRequest_ShouldUseBetaBase() throws {
+    func test_processEndpoint_WhenBuildingRequest_ShouldUseProductionBase() throws {
         // Arrange
         let endpoint = OrderTransactionEndpoint.process(
             orderId: "ORD01",
@@ -404,8 +404,8 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(
-            url.hasPrefix("https://api.mercadopago.com/cho-off/beta/v1/orders/ORD01/process"),
-            "Expected the beta base while payment_processed is beta-only, got \(url)"
+            url.hasPrefix("https://api.mercadopago.com/cho-off/v1/orders/ORD01/process"),
+            "Expected the production base, got \(url)"
         )
     }
 

@@ -28,10 +28,8 @@ extension OrderTransactionEndpoint: RequestEndpoint {
         }
     }
 
-    /// Beta base while `payment_processed` is only served there. Remove once production
-    /// answers the same contract.
     var baseURL: String {
-        ConstantsEndpoint.baseURLBricksBeta
+        ConstantsEndpoint.baseURLBricks
     }
 
     var headers: [String: String] {
