@@ -125,8 +125,9 @@ final class CheckoutConfig: ObservableObject {
     @Published var orderId = ""
     @Published var clientToken = ""
 
-    // Review & Confirm
+    // Optional screens
     @Published var reviewAndConfirmEnabled = false
+    @Published var statusScreenEnabled = false
     @Published var emailChangeEnabled = false
     @Published var sellerInfoEnabled = false
     @Published var sellerName = ""
@@ -217,34 +218,50 @@ final class CheckoutConfig: ObservableObject {
     }
 
     @MainActor
-    func makeCardTransactionCheckout() -> MercadoPagoCheckout<MPPaymentData.CardTransaction> {
+    func makeCardTransactionCheckout(
+        statusScreenExit: @escaping @MainActor @Sendable () -> Void
+    ) -> MercadoPagoCheckout<MPPaymentData.CardTransaction> {
         let order = MPOrder(
             orderId: orderId,
             clientToken: clientToken
         )
-        return MercadoPagoCheckout.Builder(
+        let builder = MercadoPagoCheckout.Builder(
             checkoutType: .cardTransaction(order: order, sellerInfo: self.sellerInfo),
             checkoutAppearance: self.checkoutAppearance
         )
-        .setPaymentMethodConfiguration(self.paymentMethodConfigs)
-        .build(withReviewAndConfirm: self.reviewAndConfirmEnabled)
+
+        if self.statusScreenEnabled {
+            builder.withStatusScreen(exit: statusScreenExit)
+        }
+
+        return builder
+            .setPaymentMethodConfiguration(self.paymentMethodConfigs)
+            .build(withReviewAndConfirm: self.reviewAndConfirmEnabled)
     }
 
     @MainActor
-    func makePaymentCheckout() -> MercadoPagoCheckout<MPPaymentData.Payment> {
+    func makePaymentCheckout(
+        statusScreenExit: @escaping @MainActor @Sendable () -> Void
+    ) -> MercadoPagoCheckout<MPPaymentData.Payment> {
         let order = MPOrder(
             orderId: orderId,
             clientToken: clientToken
         )
-        return MercadoPagoCheckout.Builder(
+        let builder = MercadoPagoCheckout.Builder(
             checkoutType: .payment(order: order, sellerInfo: self.sellerInfo),
             checkoutAppearance: self.checkoutAppearance
         )
-        .setPaymentMethodConfiguration(self.paymentMethodConfigs)
-        .build(
-            withReviewAndConfirm: self.reviewAndConfirmEnabled,
-            emailChangeEnabled: self.emailChangeEnabled
-        )
+
+        if self.statusScreenEnabled {
+            builder.withStatusScreen(exit: statusScreenExit)
+        }
+
+        return builder
+            .setPaymentMethodConfiguration(self.paymentMethodConfigs)
+            .build(
+                withReviewAndConfirm: self.reviewAndConfirmEnabled,
+                emailChangeEnabled: self.emailChangeEnabled
+            )
     }
 }
 
