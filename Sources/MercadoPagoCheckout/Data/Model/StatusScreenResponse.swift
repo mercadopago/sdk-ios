@@ -6,13 +6,21 @@
 struct StatusScreenResponse: Codable, Sendable {
     struct Header: Codable, Sendable {
         let title: String
+        let subtitle: String?
         let icon: String
+
+        init(title: String, icon: String, subtitle: String? = nil) {
+            self.title = title
+            self.icon = icon
+            self.subtitle = subtitle
+        }
     }
 
     struct BodyNode: Codable, Sendable {
         enum Component: String, Codable, Sendable {
             case listItem = "MPListItem"
             case barcode = "MPBarcode"
+            case message = "MPMessage"
         }
 
         struct Data: Codable, Sendable {
@@ -26,6 +34,7 @@ struct StatusScreenResponse: Codable, Sendable {
             let copyLabel: String?
             let copyFeedback: String?
             let icon: String?
+            let text: String?
 
             enum CodingKeys: String, CodingKey {
                 case title
@@ -38,6 +47,7 @@ struct StatusScreenResponse: Codable, Sendable {
                 case copyLabel = "copy_label"
                 case copyFeedback = "copy_feedback"
                 case icon
+                case text
             }
         }
 
@@ -75,8 +85,6 @@ struct StatusScreenResponse: Codable, Sendable {
 }
 
 extension StatusScreenResponse {
-    /// Decodes `body` item by item so an unknown or malformed node is dropped
-    /// instead of failing the whole screen.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.statusType = try container.decode(String.self, forKey: .statusType)

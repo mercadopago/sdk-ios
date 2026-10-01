@@ -26,6 +26,20 @@ final class StatusScreenViewTests: XCTestCase {
             named: "default"
         )
     }
+
+    func test_statusScreenContent_WhenPendingHasSubtitle_ShouldAlignWithTitle() {
+        let sut = self.makeSUT(output: self.makePendingOutput())
+
+        assertSnapshot(
+            of: sut,
+            as: .image(
+                precision: 0.95,
+                perceptualPrecision: 0.97,
+                size: self.snapshotSize
+            ),
+            named: "pending_subtitle"
+        )
+    }
 }
 
 private extension StatusScreenViewTests {
@@ -33,11 +47,11 @@ private extension StatusScreenViewTests {
 
     var snapshotSize: CGSize { CGSize(width: 390, height: 844) }
 
-    func makeSUT() -> SUT {
+    func makeSUT(output: StatusScreenOutput? = nil) -> SUT {
         FontName.registerCustomFonts()
         let view = ThemeProvider(light: MPLightTheme(), dark: MPLightTheme()) {
             StatusScreenContent(
-                output: self.makeOutput(),
+                output: output ?? self.makeOutput(),
                 isPreparingReceipt: false,
                 onBack: {},
                 onOpenPDF: { _ in }
@@ -45,6 +59,19 @@ private extension StatusScreenViewTests {
             .loadMPFonts()
         }
         return UIHostingController(rootView: AnyView(view))
+    }
+
+    func makePendingOutput() -> StatusScreenOutput {
+        StatusScreenOutput(
+            statusType: "pending",
+            header: .init(
+                title: "Estamos processando o seu pagamento",
+                iconURL: URL(fileURLWithPath: "/dev/null"),
+                subtitle: "Em até 10 minutos, vamos avisar por e-mail se ele foi aprovado."
+            ),
+            body: [],
+            footerButtons: [.init(label: "Voltar", action: .back, style: .transparent)]
+        )
     }
 
     func makeOutput() -> StatusScreenOutput {

@@ -11,12 +11,17 @@ struct StatusScreenMapper: Sendable {
             throw StatusScreenContractError.invalidHeader
         }
 
+        let header = StatusScreenOutput.Header(
+            title: response.header.title,
+            iconURL: headerURL,
+            subtitle: response.header.subtitle
+        )
         // An invalid body item is dropped so the rest of the screen still renders.
         let body = response.body.compactMap(self.mapBodyNode)
         let footer = try self.mapFooter(response.footer)
         return StatusScreenOutput(
             statusType: response.statusType,
-            header: .init(title: response.header.title, iconURL: headerURL),
+            header: header,
             body: body,
             footerButtons: footer
         )
@@ -28,6 +33,8 @@ struct StatusScreenMapper: Sendable {
             return self.mapListItem(node.data).map { .listItem($0) }
         case .barcode:
             return self.mapBarcode(node.data).map { .barcode($0) }
+        case .message:
+            return self.mapMessage(node.data).map { .message($0) }
         }
     }
 
@@ -36,7 +43,8 @@ struct StatusScreenMapper: Sendable {
         guard data.content == nil,
               data.codeFormatted == nil,
               data.copyLabel == nil,
-              data.copyFeedback == nil
+              data.copyFeedback == nil,
+              data.text == nil
         else {
             return nil
         }
@@ -69,7 +77,8 @@ struct StatusScreenMapper: Sendable {
               data.subtitle == nil,
               data.imageURL == nil,
               data.leadingType == nil,
-              data.leadingValue == nil
+              data.leadingValue == nil,
+              data.text == nil
         else {
             return nil
         }
@@ -80,6 +89,24 @@ struct StatusScreenMapper: Sendable {
             copyFeedback: copyFeedback,
             icon: self.mapIcon(data.icon)
         )
+    }
+
+    private func mapMessage(_ data: StatusScreenResponse.BodyNode.Data) -> String? {
+        guard let text = data.text,
+              data.title == nil,
+              data.subtitle == nil,
+              data.imageURL == nil,
+              data.leadingType == nil,
+              data.leadingValue == nil,
+              data.content == nil,
+              data.codeFormatted == nil,
+              data.copyLabel == nil,
+              data.copyFeedback == nil,
+              data.icon == nil
+        else {
+            return nil
+        }
+        return text
     }
 
     private func mapIcon(_ rawIcon: String?) -> StatusScreenOutput.Icon? {

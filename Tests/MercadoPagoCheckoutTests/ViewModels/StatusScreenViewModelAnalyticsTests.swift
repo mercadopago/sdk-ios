@@ -124,6 +124,39 @@ final class StatusScreenViewModelAnalyticsTests: XCTestCase {
             .send
         ])
     }
+
+    func test_pendingRenderAndClose_ShouldUseSharedCategoricalPaths() async {
+        let analytics = MockAnalytics()
+        let output = StatusScreenOutput(
+            statusType: "pending",
+            header: .init(title: "Pending", iconURL: URL(string: "https://example.com/pending.png")!),
+            body: [.message("Check back later")],
+            footerButtons: [.init(label: "Back", action: .back, style: .transparent)]
+        )
+        let sut = makeSUT(behavior: .success(output), analytics: analytics)
+
+        await sut.viewModel.load()
+        await analytics.mock.waitForSend(count: 2)
+        sut.viewModel.trackRender()
+        sut.viewModel.trackClose(source: .back)
+        await analytics.mock.waitForSend(count: 4)
+
+        let messages = await analytics.mock.getMessages()
+        XCTAssertEqual(messages, [
+            .track(path: StatusScreenAnalyticsPath.load),
+            .setEventData(["outcome": "started"]),
+            .send,
+            .track(path: StatusScreenAnalyticsPath.load),
+            .setEventData(["outcome": "success", "status_type": "pending"]),
+            .send,
+            .trackView(StatusScreenAnalyticsPath.render),
+            .setEventData(["status_type": "pending"]),
+            .send,
+            .track(path: StatusScreenAnalyticsPath.close),
+            .setEventData(["source": "back", "status_type": "pending"]),
+            .send
+        ])
+    }
 }
 
 private extension StatusScreenViewModelAnalyticsTests {

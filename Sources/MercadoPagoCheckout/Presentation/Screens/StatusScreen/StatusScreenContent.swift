@@ -39,6 +39,14 @@ struct StatusScreenContent: View {
                     .padding(.top, self.theme.spacings.small)
                     .padding(.bottom, self.theme.spacings.xsmall)
 
+                    if let subtitle = self.output.header.subtitle {
+                        Text(subtitle)
+                            .textStyle(.bodyMedium())
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, self.theme.spacings.xtiny)
+                            .padding(.bottom, self.theme.spacings.xsmall)
+                    }
+
                     self.statusScreenBody
                 }
             }
@@ -82,6 +90,11 @@ struct StatusScreenContent: View {
                 icon: barcode.icon.map(self.localIcon)
             )
             .padding(.horizontal, self.theme.spacings.xtiny)
+        case let .message(text):
+            Text(text)
+                .textStyle(.bodyMedium())
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, self.theme.spacings.xtiny)
         }
     }
 

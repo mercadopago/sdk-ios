@@ -14,6 +14,13 @@ struct StatusScreenOutput: Equatable, Sendable {
     struct Header: Equatable, Sendable {
         let title: String
         let iconURL: URL
+        let subtitle: String?
+
+        init(title: String, iconURL: URL, subtitle: String? = nil) {
+            self.title = title
+            self.iconURL = iconURL
+            self.subtitle = subtitle
+        }
     }
 
     struct ListItem: Equatable, Sendable {
@@ -38,6 +45,7 @@ struct StatusScreenOutput: Equatable, Sendable {
     enum BodyComponent: Equatable, Sendable {
         case listItem(ListItem)
         case barcode(Barcode)
+        case message(String)
     }
 
     struct FooterButton: Equatable, Sendable {
@@ -64,7 +72,6 @@ struct StatusScreenOutput: Equatable, Sendable {
 }
 
 enum StatusScreenContractError: Error, Equatable, Sendable {
-    case unsupportedStatus
     case invalidHeader
     case invalidFooter
     case invalidURL
