@@ -11,6 +11,7 @@ import MPAnalytics
 package final class MockAnalytics: AnalyticsInterface {
     package actor Mock {
         private var sendContinuation: CheckedContinuation<Void, Never>?
+        private var observabilityEventIDs: [String?] = []
 
         package enum Messages: Equatable {
             case initialize(version: String, siteID: String)
@@ -113,8 +114,17 @@ package final class MockAnalytics: AnalyticsInterface {
             }
         }
 
+        package func insertSend(observabilityEventID: String?) {
+            self.observabilityEventIDs.append(observabilityEventID)
+            self.insert(.send)
+        }
+
         package func getMessages() -> [Messages] {
             self.messages
+        }
+
+        package func getObservabilityEventIDs() -> [String?] {
+            self.observabilityEventIDs
         }
 
         package func waitForSend() async {
@@ -174,7 +184,7 @@ package final class MockAnalytics: AnalyticsInterface {
         return self
     }
 
-    package func send() async {
-        await self.mock.insert(.send)
+    package func send(observabilityEventID: String?) async {
+        await self.mock.insertSend(observabilityEventID: observabilityEventID)
     }
 }

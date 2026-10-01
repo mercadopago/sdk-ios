@@ -13,7 +13,7 @@ import Foundation
 package protocol HasNoDependency: Sendable {}
 
 /// Protocol combining core SDK dependencies for analytics and networking
-typealias DI = Sendable & HasNoDependency & HasAnalytics & HasNetwork & HasFingerPrint
+typealias DI = Sendable & HasNoDependency & HasAnalytics & HasNetwork & HasFingerPrint & HasErrorObservability
 
 /// Main dependency container managing SDK services
 ///
@@ -43,14 +43,19 @@ package final class CoreDependencyContainer: DI {
 
     package let fingerPrint: FingerPrintProtocol
 
+    /// Internal best-effort reporter shared by the Open Platform SDK products.
+    package let errorObservability: any ErrorObservabilityReporting
+
     /// Shared singleton instance of the container
     package static let shared = CoreDependencyContainer()
 
     /// Private initializer configuring default services
     package init(
-        networkService: NetworkServiceProtocol = NetworkService()
+        networkService: NetworkServiceProtocol = NetworkService(),
+        errorObservability: any ErrorObservabilityReporting = NativeErrorReporter()
     ) {
         self.networkService = networkService
         self.fingerPrint = FingerPrint()
+        self.errorObservability = errorObservability
     }
 }
