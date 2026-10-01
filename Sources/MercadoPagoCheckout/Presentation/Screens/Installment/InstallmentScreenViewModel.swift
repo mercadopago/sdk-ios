@@ -17,16 +17,19 @@ final class InstallmentsScreenViewModel: ObservableObject {
 
     private let checkoutType: String
     private let analytics: AnalyticsInterface
+    private let errorObservability: any ErrorObservabilityReporting
     private var analyticsTask: Task<Void, Never>?
 
     init(
         installmentsData: Binding<MPInstallmentsData>,
         checkoutType: String,
-        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
+        analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics,
+        errorObservability: any ErrorObservabilityReporting = CoreDependencyContainer.shared.errorObservability
     ) {
         self._installmentsData = installmentsData
         self.checkoutType = checkoutType
         self.analytics = analytics
+        self.errorObservability = errorObservability
     }
 
     // MARK: - Computed Properties
@@ -130,10 +133,15 @@ final class InstallmentsScreenViewModel: ObservableObject {
 
     func trackCanceledError(errorType: String) {
         let eventData = InstallmentCanceledErrorEventData(errorType: errorType)
-        self.enqueueAnalytics { [analytics = self.analytics] in
+        self.enqueueAnalytics { [analytics = self.analytics, errorObservability = self.errorObservability] in
+            let receipt = await errorObservability.capture(
+                operation: .installmentsCancellation,
+                input: .checkoutUserCancellation
+            )
+            guard receipt.shouldSendMelidata else { return }
             await analytics.trackEvent(InstallmentAnalyticsPath.userCanceledError)
                 .setEventData(eventData)
-                .send()
+                .send(observabilityEventID: receipt.eventID)
         }
     }
 

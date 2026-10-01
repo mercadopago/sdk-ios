@@ -23,4 +23,12 @@ struct CheckoutService: CheckoutServiceProtocol {
             throw MercadoPagoCheckoutError(code: .unknown, localizedDescription: error.localizedDescription, location: .tokenization)
         }
     }
+
+    func createCardTokenForCheckout(cardParams: CardParams) async throws -> CardToken {
+        do {
+            return try await self.coreMethods.createTokenForCheckout(cardParams)
+        } catch {
+            throw ObservedCheckoutErrorFactory.make(from: error, location: .tokenization)
+        }
+    }
 }
