@@ -123,13 +123,23 @@ public enum MPPaymentData {
         public var paymentMethodId: String
         /// Payment type identifier of the first payment (e.g. `"credit_card"`, `"ticket"`).
         public var paymentTypeId: String
+        /// Additional detail about the order status, when available.
+        public var orderStatusDetail: String?
 
-        init(orderId: String, orderStatus: String = "", transactionAmount: Decimal, paymentMethodId: String = "", paymentTypeId: String = "") {
+        init(
+            orderId: String,
+            orderStatus: String = "",
+            transactionAmount: Decimal,
+            paymentMethodId: String = "",
+            paymentTypeId: String = "",
+            orderStatusDetail: String? = nil
+        ) {
             self.orderId = orderId
             self.orderStatus = orderStatus
             self.transactionAmount = transactionAmount
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
+            self.orderStatusDetail = orderStatusDetail
         }
     }
 

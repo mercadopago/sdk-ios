@@ -25,7 +25,7 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
         return (repository, container.mockSession)
     }
 
-    private func makeParams() -> CardPaymentBrickCardParams {
+    private func makeParams(screens: String? = nil, orderId: String? = nil) -> CardPaymentBrickCardParams {
         CardPaymentBrickCardParams(
             bin: "411111",
             amount: 300.0,
@@ -34,7 +34,9 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
             excludedCardTypes: [],
             excludedCardBrands: [],
             maxInstallments: nil,
-            minInstallments: nil
+            minInstallments: nil,
+            screens: screens,
+            orderId: orderId
         )
     }
 
@@ -344,6 +346,21 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
         XCTAssertNil(result.installment)
     }
 
+    // MARK: - Button Label (DD-PF-3)
+
+    func testFetchCard_whenSuccess_mapsFooterButtonLabel() async throws {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeValidResponseData())
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.fetchCard(params: self.makeParams())
+
+        // Assert — the SDK renders whatever the BFF returns, it doesn't decide the label itself.
+        XCTAssertEqual(result.buttonLabel, "Pagar")
+    }
+
     // MARK: - Payment Methods
 
     func testFetchCard_whenSuccess_mapsPaymentMethodIdAndType() async throws {
@@ -454,4 +471,5 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
             XCTAssertNotNil(error)
         }
     }
+
 }

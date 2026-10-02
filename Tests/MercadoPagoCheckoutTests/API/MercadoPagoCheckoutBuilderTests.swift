@@ -25,7 +25,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
             checkoutAppearance: .init()
         ).build()
 
-        if case let .cardTransaction(order) = checkout.configuration.type.kind {
+        if case let .cardTransaction(order, _) = checkout.configuration.type.kind {
             XCTAssertEqual(order.orderId, "order-1")
         } else {
             XCTFail("Expected .cardTransaction kind")

@@ -25,6 +25,7 @@ public extension MercadoPagoCheckout {
         private var checkoutType: CheckoutType
         private var checkoutAppearance: MPCheckoutAppearance
         private var paymentMethodConfigs: [MPPaymentMethodConfig]
+        private var screenConfigs: [ScreenConfig]
 
         /// Creates a new builder with the required checkout type and appearance.
         ///
@@ -35,6 +36,7 @@ public extension MercadoPagoCheckout {
             self.checkoutType = checkoutType
             self.checkoutAppearance = checkoutAppearance
             self.paymentMethodConfigs = MPPaymentMethodConfig.defaults
+            self.screenConfigs = []
         }
 
         /// Sets the payment method exclusion configuration for the checkout flow.
@@ -56,9 +58,92 @@ public extension MercadoPagoCheckout {
                 theme: self.checkoutAppearance,
                 configuration: .init(
                     type: self.checkoutType,
-                    paymentMethod: self.paymentMethodConfigs
+                    paymentMethod: self.paymentMethodConfigs,
+                    screenConfigs: self.screenConfigs
                 )
             )
         }
+    }
+}
+
+extension MercadoPagoCheckout.Builder {
+    /// Replaces any previously configured review and confirm screen with a new one.
+    ///
+    /// Shared by the `withReviewAndConfirm` overloads exposed on the flows that process a payment.
+    private func setReviewAndConfirm(
+        onEmailChangeRequested: (@MainActor @Sendable () -> Void)?
+    ) {
+        self.screenConfigs.removeAll { config in
+            if case .reviewAndConfirm = config { return true }
+            return false
+        }
+        self.screenConfigs.append(
+            .reviewAndConfirm(
+                onEmailChangeRequested: onEmailChangeRequested
+            )
+        )
+    }
+}
+
+public extension MercadoPagoCheckout.Builder where T == MPPaymentData.Payment {
+    /// Shows a review and confirm screen before the payment is processed.
+    ///
+    /// Without this call the checkout processes the order as soon as the buyer finishes selecting a
+    /// payment method.
+    ///
+    /// Calling this more than once keeps only the last configuration.
+    ///
+    /// ```swift
+    /// let checkout = MercadoPagoCheckout.Builder(
+    ///     checkoutType: .payment(
+    ///         order: order,
+    ///         sellerInfo: MPSellerInfo(name: "Adidas Store", logoUrl: "https://...")
+    ///     ),
+    ///     checkoutAppearance: .init()
+    /// )
+    /// .withReviewAndConfirm()
+    /// .build()
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - onEmailChangeRequested: Called when the buyer asks to change the email shown on the
+    ///     screen. The checkout closes and hands control back to you without reporting a
+    ///     cancellation, so you can collect the new email and start a new order. When `nil` the
+    ///     email is read-only.
+    /// - Returns: The builder instance for chaining.
+    @discardableResult
+    func withReviewAndConfirm(
+        onEmailChangeRequested: (@MainActor @Sendable () -> Void)? = nil
+    ) -> Self {
+        self.setReviewAndConfirm(onEmailChangeRequested: onEmailChangeRequested)
+        return self
+    }
+}
+
+public extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardTransaction {
+    /// Shows a review and confirm screen before the card transaction is processed.
+    ///
+    /// Without this call the checkout processes the order as soon as the buyer finishes the card
+    /// form.
+    ///
+    /// Calling this more than once keeps only the last configuration.
+    ///
+    /// ```swift
+    /// let checkout = MercadoPagoCheckout.Builder(
+    ///     checkoutType: .cardTransaction(
+    ///         order: order,
+    ///         sellerInfo: MPSellerInfo(name: "Adidas Store", logoUrl: "https://...")
+    ///     ),
+    ///     checkoutAppearance: .init()
+    /// )
+    /// .withReviewAndConfirm()
+    /// .build()
+    /// ```
+    ///
+    /// - Returns: The builder instance for chaining.
+    @discardableResult
+    func withReviewAndConfirm() -> Self {
+        self.setReviewAndConfirm(onEmailChangeRequested: nil)
+        return self
     }
 }
