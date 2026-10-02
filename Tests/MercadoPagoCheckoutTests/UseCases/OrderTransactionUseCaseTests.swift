@@ -4,6 +4,7 @@
 //
 
 @testable import MercadoPagoCheckout
+@testable import MPAnalytics
 @testable import MPCore
 import XCTest
 
@@ -17,16 +18,62 @@ final class OrderTransactionUseCaseTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT() -> SUT {
+    private func makeSUT(
+        feature: OrderTransactionParams.IntegrationData.Feature = .payment,
+        hostAppIdentifier: String = "com.example.host"
+    ) -> SUT {
         let repository = MockOrderTransactionRepository()
-        let useCase = OrderTransactionUseCase(repository: repository)
+        let useCase = OrderTransactionUseCase(
+            repository: repository,
+            feature: feature,
+            hostAppIdentifier: hostAppIdentifier
+        )
         return (useCase, repository)
+    }
+
+    // MARK: - Traceability
+
+    func test_execute_WhenProcessing_ShouldAttachCapturedSessionFeatureAndApp() async throws {
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(self.makeProcessData()))
+
+        _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
+
+        let sentParams = await sut.repository.lastParams
+        let integration = try XCTUnwrap(sentParams?.integrationData)
+        let expectedSession = await MPAnalyticsConfiguration.shared.sessionID
+        XCTAssertEqual(integration.melidataSessionId, expectedSession)
+        XCTAssertEqual(integration.feature, .payment)
+        XCTAssertEqual(integration.platform, "ios")
+        XCTAssertEqual(integration.app, "com.example.host")
+    }
+
+    func test_execute_WhenOriginIsCardForm_ShouldAttachCardFormFeature() async throws {
+        let sut = self.makeSUT(feature: .cardForm)
+        await sut.repository.setResult(.success(self.makeProcessData()))
+
+        _ = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
+
+        let sentParams = await sut.repository.lastParams
+        XCTAssertEqual(sentParams?.integrationData?.feature, .cardForm)
+    }
+
+    func test_execute_WhenHostAppIsEmpty_ShouldOmitAppWithoutBlocking() async throws {
+        let sut = self.makeSUT(hostAppIdentifier: "")
+        await sut.repository.setResult(.success(self.makeProcessData()))
+
+        let result = try await sut.useCase.execute(orderId: "ORD01", clientToken: "token", params: self.makeParams())
+
+        let sentParams = await sut.repository.lastParams
+        let integration = try XCTUnwrap(sentParams?.integrationData)
+        XCTAssertNil(integration.app)
+        XCTAssertEqual(result.id, "ORD01")
     }
 
     private func makeParams() -> OrderTransactionParams {
         OrderTransactionParams(
             amount: 100.0,
-            paymentMethodType: .card(paymentMethodId: "master", paymentTypeId: "credit_card", token: "abc123", installments: 1)
+            paymentMethodType: .creditCard(paymentMethodId: "master", paymentTypeId: "credit_card", token: "abc123", installments: 1)
         )
     }
 
