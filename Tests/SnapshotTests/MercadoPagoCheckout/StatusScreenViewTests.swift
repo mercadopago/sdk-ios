@@ -54,6 +54,7 @@ private extension StatusScreenViewTests {
                 output: output ?? self.makeOutput(),
                 isPreparingReceipt: false,
                 onBack: {},
+                onChangePaymentMethod: {},
                 onOpenPDF: { _ in }
             )
             .loadMPFonts()

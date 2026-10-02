@@ -29,7 +29,9 @@ final class StatusScreenViewModelReceiptTests: XCTestCase {
         XCTAssertTrue(sut.viewModel.isPreparingReceipt)
         await waitForReceiptState(of: sut.viewModel) { $0 != .preparing }
 
-        XCTAssertEqual(sut.viewModel.sharedReceipt?.url.lastPathComponent, "ticket.pdf")
+        let sharedURL = try XCTUnwrap(sut.viewModel.sharedReceipt?.url)
+        XCTAssertTrue(sharedURL.lastPathComponent.hasPrefix("ticket-"))
+        XCTAssertEqual(sharedURL.pathExtension, "pdf")
         XCTAssertEqual(sut.repository.requestedURLs, [self.remoteURL])
     }
 

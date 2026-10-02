@@ -26,11 +26,13 @@ struct StatusScreenEventData: AnalyticsEventData, Equatable, Sendable {
     let outcome: Outcome?
     let source: Source?
     let statusType: String?
+    let canRetry: Bool?
 
-    init(outcome: Outcome? = nil, source: Source? = nil, statusType: String? = nil) {
+    init(outcome: Outcome? = nil, source: Source? = nil, statusType: String? = nil, canRetry: Bool? = nil) {
         self.outcome = outcome
         self.source = source
         self.statusType = statusType
+        self.canRetry = canRetry
     }
 
     func toDictionary() -> [String: any Sendable] {
@@ -43,6 +45,9 @@ struct StatusScreenEventData: AnalyticsEventData, Equatable, Sendable {
         }
         if let statusType {
             data["status_type"] = statusType
+        }
+        if let canRetry {
+            data["can_retry"] = canRetry
         }
         return data
     }

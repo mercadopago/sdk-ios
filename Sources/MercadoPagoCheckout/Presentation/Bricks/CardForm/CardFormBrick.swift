@@ -225,6 +225,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             StatusScreenView(
                 viewModel: statusScreenViewModel,
                 onBack: { self.finishStatusScreen(notifyExit: true) },
+                onChangePaymentMethod: { self.retryWithAnotherPaymentMethod() },
                 onUnavailable: { self.finishStatusScreen(notifyExit: false) }
             )
             .navigationBarBackButtonHidden(true)
@@ -391,19 +392,28 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
 
     private func completeCardTransaction(_ result: T) {
         guard !self.didCompleteCheckout else { return }
+        guard let cardTransaction = result as? MPPaymentData.CardTransaction else {
+            self.fail(MercadoPagoCheckoutError(
+                code: .integrationError,
+                localizedDescription: "Expected CardTransaction payment data",
+                location: .orderProcess
+            ))
+            return
+        }
         self.didCompleteCheckout = true
+        let checkoutResult = MercadoPagoCheckoutResult.processedOrder(result, orderStatus: cardTransaction.orderStatus)
         let lastFourDigits = self.inputCardData?.lastFourDigits
 
         guard self.configuration.statusScreenConfig != nil else {
             self.clearReviewConfirmState()
-            self.onResult(.success(result))
+            self.onResult(checkoutResult)
             self.presentationMode.wrappedValue.dismiss()
             return
         }
         guard case let .cardTransaction(order, sellerInfo) = self.configuration.type.kind else {
             assertionFailure("CardFormBrick cannot present Status Screen for this checkout type.")
             self.clearReviewConfirmState()
-            self.onResult(.success(result))
+            self.onResult(checkoutResult)
             self.presentationMode.wrappedValue.dismiss()
             return
         }
@@ -413,10 +423,10 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             clientToken: order.clientToken,
             lastFourDigits: lastFourDigits,
             sellerInfo: sellerInfo,
-            paymentTypeId: (result as? MPPaymentData.CardTransaction)?.paymentTypeId
+            paymentTypeId: cardTransaction.paymentTypeId
         )
         self.clearReviewConfirmState()
-        self.onResult(.success(result))
+        self.onResult(checkoutResult)
         self.statusScreenViewModel = statusScreenViewModel
         self.route = .statusScreen
     }
@@ -439,6 +449,12 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             self.statusScreenViewModel = nil
             self.route = nil
         }
+    }
+
+    private func retryWithAnotherPaymentMethod() {
+        self.statusScreenViewModel = nil
+        self.clearReviewConfirmState()
+        self.didCompleteCheckout = false
     }
 
     /// Failed `POST /review_confirm` while opening the screen: pop back to the card form. Per AC-9

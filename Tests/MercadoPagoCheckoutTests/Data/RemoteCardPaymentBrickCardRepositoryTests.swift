@@ -471,5 +471,4 @@ final class RemoteCardPaymentBrickCardRepositoryTests: XCTestCase {
             XCTAssertNotNil(error)
         }
     }
-
 }

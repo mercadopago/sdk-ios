@@ -16,14 +16,15 @@ struct StatusScreenMapper: Sendable {
             iconURL: headerURL,
             subtitle: response.header.subtitle
         )
+        let footer = try self.mapFooter(response.footer)
         // An invalid body item is dropped so the rest of the screen still renders.
         let body = response.body.compactMap(self.mapBodyNode)
-        let footer = try self.mapFooter(response.footer)
         return StatusScreenOutput(
             statusType: response.statusType,
             header: header,
             body: body,
-            footerButtons: footer
+            footerButtons: footer,
+            canRetry: response.canRetry
         )
     }
 
@@ -57,15 +58,21 @@ struct StatusScreenMapper: Sendable {
                 return nil
             }
             leading = .remoteImage(url)
-        } else if data.leadingType == "icon", data.leadingValue == "card" {
-            leading = .cardIcon
-        } else if data.leadingType == nil, data.leadingValue == nil {
-            leading = nil
         } else {
-            return nil
+            switch (data.leadingType, data.leadingValue) {
+            case ("icon", "card"): leading = .cardIcon
+            case ("icon", "bill"): leading = .billIcon
+            case (nil, nil): leading = nil
+            default: return nil
+            }
         }
 
-        return .init(title: title, subtitle: data.subtitle, leading: leading)
+        return .init(
+            title: title,
+            subtitle: data.subtitle,
+            leading: leading,
+            style: data.style == "simple" ? .simple : .standard
+        )
     }
 
     private func mapBarcode(_ data: StatusScreenResponse.BodyNode.Data) -> StatusScreenOutput.Barcode? {
@@ -121,15 +128,14 @@ struct StatusScreenMapper: Sendable {
             let style = self.mapStyle(button.style)
             switch button.action {
             case .back:
-                guard button.value == nil else {
-                    throw StatusScreenContractError.invalidFooter
-                }
                 return .init(label: button.label, action: .back, style: style)
             case .openPDF:
                 guard let rawURL = button.value, let url = URL(string: rawURL) else {
                     throw StatusScreenContractError.invalidURL
                 }
                 return .init(label: button.label, action: .openPDF(url), style: style)
+            case .changePaymentMethod:
+                return .init(label: button.label, action: .changePaymentMethod, style: style)
             }
         }
     }

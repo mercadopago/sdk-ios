@@ -29,6 +29,7 @@ struct StatusScreenResponse: Codable, Sendable {
             let imageURL: String?
             let leadingType: String?
             let leadingValue: String?
+            let style: String?
             let content: String?
             let codeFormatted: String?
             let copyLabel: String?
@@ -42,6 +43,7 @@ struct StatusScreenResponse: Codable, Sendable {
                 case imageURL = "image_url"
                 case leadingType = "leading_type"
                 case leadingValue = "leading_value"
+                case style
                 case content
                 case codeFormatted = "code_formatted"
                 case copyLabel = "copy_label"
@@ -60,6 +62,7 @@ struct StatusScreenResponse: Codable, Sendable {
             enum Action: String, Codable, Sendable {
                 case back = "back_action"
                 case openPDF = "open_pdf"
+                case changePaymentMethod = "change_payment_method"
             }
 
             let label: String
@@ -75,9 +78,11 @@ struct StatusScreenResponse: Codable, Sendable {
     let header: Header
     let body: [BodyNode]
     let footer: Footer
+    var canRetry: Bool?
 
     enum CodingKeys: String, CodingKey {
         case statusType = "status_type"
+        case canRetry = "can_retry"
         case header
         case body
         case footer
@@ -88,6 +93,7 @@ extension StatusScreenResponse {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.statusType = try container.decode(String.self, forKey: .statusType)
+        self.canRetry = try container.decodeIfPresent(Bool.self, forKey: .canRetry)
         self.header = try container.decode(Header.self, forKey: .header)
         self.body = try container.decode([LossyBodyNode].self, forKey: .body).compactMap(\.node)
         self.footer = try container.decode(Footer.self, forKey: .footer)

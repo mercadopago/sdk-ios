@@ -11,6 +11,7 @@ struct StatusScreenContent: View {
     let output: StatusScreenOutput
     let isPreparingReceipt: Bool
     let onBack: @MainActor @Sendable () -> Void
+    let onChangePaymentMethod: @MainActor @Sendable () -> Void
     let onOpenPDF: @MainActor @Sendable (URL) -> Void
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -19,11 +20,13 @@ struct StatusScreenContent: View {
         output: StatusScreenOutput,
         isPreparingReceipt: Bool,
         onBack: @escaping @MainActor @Sendable () -> Void,
+        onChangePaymentMethod: @escaping @MainActor @Sendable () -> Void,
         onOpenPDF: @escaping @MainActor @Sendable (URL) -> Void
     ) {
         self.output = output
         self.isPreparingReceipt = isPreparingReceipt
         self.onBack = onBack
+        self.onChangePaymentMethod = onChangePaymentMethod
         self.onOpenPDF = onOpenPDF
     }
 
@@ -71,11 +74,14 @@ struct StatusScreenContent: View {
     ) -> some View {
         switch component {
         case let .listItem(item):
-            MPListItem(
-                leading: self.leading(item.leading),
-                contentInfo: .init(
-                    title: item.title,
-                    description: item.subtitle
+            self.applyingStyle(
+                item.style,
+                to: MPListItem(
+                    leading: self.leading(item.leading),
+                    contentInfo: .init(
+                        title: item.title,
+                        description: item.subtitle
+                    )
                 )
             )
             .mpThumbnailStyle(.thumbnailCircle)
@@ -119,6 +125,19 @@ struct StatusScreenContent: View {
         }
     }
 
+    @ViewBuilder
+    private func applyingStyle(
+        _ style: StatusScreenOutput.ListItem.Style,
+        to row: some View
+    ) -> some View {
+        switch style {
+        case .standard:
+            row
+        case .simple:
+            row.listItemStyle(.simple)
+        }
+    }
+
     private func leading(
         _ leading: StatusScreenOutput.ListItem.Leading?
     ) -> MPListItemLeading? {
@@ -127,6 +146,8 @@ struct StatusScreenContent: View {
             return .thumbnail(url)
         case .cardIcon:
             return .image(Image(systemName: "creditcard"))
+        case .billIcon:
+            return .image(Image(Logos.Icon.bill.assetName, bundle: .bundleMP))
         case .none:
             return nil
         }
@@ -145,6 +166,8 @@ struct StatusScreenContent: View {
             self.onBack()
         case let .openPDF(url):
             self.onOpenPDF(url)
+        case .changePaymentMethod:
+            self.onChangePaymentMethod()
         }
     }
 
@@ -157,6 +180,8 @@ struct StatusScreenContent: View {
             "back"
         case .openPDF:
             "open_pdf"
+        case .changePaymentMethod:
+            "change_payment_method"
         }
         return "mp.status_screen.\(actionName).\(index)"
     }
@@ -175,7 +200,7 @@ struct StatusScreenContent: View {
             switch button.action {
             case .back:
                 return .quiet
-            case .openPDF:
+            case .openPDF, .changePaymentMethod:
                 return .loud
             }
         }

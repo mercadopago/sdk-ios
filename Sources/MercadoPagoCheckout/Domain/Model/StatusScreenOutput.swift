@@ -27,11 +27,25 @@ struct StatusScreenOutput: Equatable, Sendable {
         enum Leading: Equatable, Sendable {
             case remoteImage(URL)
             case cardIcon
+            case billIcon
+        }
+
+        enum Style: Equatable, Sendable {
+            case standard
+            case simple
         }
 
         let title: String
         let subtitle: String?
         let leading: Leading?
+        let style: Style
+
+        init(title: String, subtitle: String?, leading: Leading?, style: Style = .standard) {
+            self.title = title
+            self.subtitle = subtitle
+            self.leading = leading
+            self.style = style
+        }
     }
 
     struct Barcode: Equatable, Sendable {
@@ -52,6 +66,7 @@ struct StatusScreenOutput: Equatable, Sendable {
         enum Action: Equatable, Sendable {
             case back
             case openPDF(URL)
+            case changePaymentMethod
         }
 
         enum Style: Equatable, Sendable {
@@ -69,10 +84,10 @@ struct StatusScreenOutput: Equatable, Sendable {
     let header: Header
     let body: [BodyComponent]
     let footerButtons: [FooterButton]
+    var canRetry: Bool?
 }
 
 enum StatusScreenContractError: Error, Equatable, Sendable {
     case invalidHeader
-    case invalidFooter
     case invalidURL
 }

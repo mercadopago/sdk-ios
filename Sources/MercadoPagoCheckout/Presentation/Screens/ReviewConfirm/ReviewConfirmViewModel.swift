@@ -48,7 +48,7 @@ final class ReviewConfirmViewModel: ObservableObject {
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.fetchReviewConfirmUseCase = fetchReviewConfirmUseCase
-        self.orderTransactionUseCase = orderTransactionUseCase ?? OrderTransactionUseCase(feature: feature)
+        self.orderTransactionUseCase = orderTransactionUseCase ?? OrderTransactionUseCase(repository: orderRepository, feature: feature)
         self.order = order
         self.checkoutType = checkoutType
         self.paymentParams = paymentParams

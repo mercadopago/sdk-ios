@@ -387,6 +387,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             StatusScreenView(
                 viewModel: statusScreenViewModel,
                 onBack: { self.finishStatusScreen(notifyExit: true) },
+                onChangePaymentMethod: { self.retryWithAnotherPaymentMethod() },
                 onUnavailable: { self.finishStatusScreen(notifyExit: false) }
             )
             .navigationBarBackButtonHidden(true)
@@ -425,20 +426,29 @@ private extension PaymentBrick {
 
     func complete(with payment: T) {
         guard !self.didCompleteCheckout else { return }
+        guard let paymentData = payment as? MPPaymentData.Payment else {
+            self.fail(MercadoPagoCheckoutError(
+                code: .integrationError,
+                localizedDescription: "Expected Payment payment data",
+                location: .orderProcess
+            ))
+            return
+        }
         self.didCompleteCheckout = true
+        let result = MercadoPagoCheckoutResult.processedOrder(payment, orderStatus: paymentData.orderStatus)
         let lastFourDigits = self.newCardResult?.lastFourDigits
             ?? self.selectedItem?.cardData?.lastFourDigits
 
         guard self.configuration.statusScreenConfig != nil else {
             self.clearReviewConfirmState()
-            self.onResult(.success(payment))
+            self.onResult(result)
             self.presentationMode.wrappedValue.dismiss()
             return
         }
         guard case let .payment(order, sellerInfo) = self.configuration.type.kind else {
             assertionFailure("PaymentBrick cannot present Status Screen for this checkout type.")
             self.clearReviewConfirmState()
-            self.onResult(.success(payment))
+            self.onResult(result)
             self.presentationMode.wrappedValue.dismiss()
             return
         }
@@ -448,10 +458,10 @@ private extension PaymentBrick {
             clientToken: order.clientToken,
             lastFourDigits: lastFourDigits,
             sellerInfo: sellerInfo,
-            paymentTypeId: (payment as? MPPaymentData.Payment)?.paymentTypeId
+            paymentTypeId: paymentData.paymentTypeId
         )
         self.clearReviewConfirmState()
-        self.onResult(.success(payment))
+        self.onResult(result)
         self.statusScreenViewModel = statusScreenViewModel
         self.route = .statusScreen
     }
@@ -474,6 +484,17 @@ private extension PaymentBrick {
             self.statusScreenViewModel = nil
             self.route = nil
         }
+    }
+
+    private func retryWithAnotherPaymentMethod() {
+        self.statusScreenViewModel = nil
+        self.clearReviewConfirmState()
+        self.methodSelectionViewModel = nil
+        self.cardFormViewModel = nil
+        self.cardFormData = nil
+        self.installmentsPreviousRoute = nil
+        self.pendingSnackbarError = nil
+        self.didCompleteCheckout = false
     }
 
     func cancel(screens: [MPScreen] = []) {

@@ -50,7 +50,8 @@ final class StatusScreenViewModel: ObservableObject {
     private var receiptTask: Task<Void, Never>?
     private var analyticsTask: Task<Void, Never>?
     private var didTrackRender = false
-    private var didTrackClose = false
+    /// Close and retry both leave the screen, so only the first of them is tracked.
+    private var didTrackExit = false
 
     init(
         orderID: String,
@@ -108,16 +109,22 @@ final class StatusScreenViewModel: ObservableObject {
         guard !self.didTrackRender else { return }
         guard case let .ready(output) = self.state else { return }
         self.didTrackRender = true
-        let data = StatusScreenEventData(statusType: output.statusType)
+        let data = StatusScreenEventData(statusType: output.statusType, canRetry: output.canRetry)
         self.enqueueAnalytics { [analytics = self.analytics] in
             await analytics.trackView(StatusScreenAnalyticsPath.render).setEventData(data).send()
         }
     }
 
     func trackClose(source: StatusScreenEventData.Source) {
-        guard !self.didTrackClose else { return }
-        self.didTrackClose = true
+        guard !self.didTrackExit else { return }
+        self.didTrackExit = true
         self.trackEvent(path: StatusScreenAnalyticsPath.close, source: source)
+    }
+
+    func trackRetry() {
+        guard !self.didTrackExit else { return }
+        self.didTrackExit = true
+        self.trackEvent(path: StatusScreenAnalyticsPath.retry, outcome: .success)
     }
 
     func prepareReceipt(from remoteURL: URL) {

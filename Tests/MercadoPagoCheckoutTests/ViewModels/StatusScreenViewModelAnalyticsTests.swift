@@ -157,9 +157,74 @@ final class StatusScreenViewModelAnalyticsTests: XCTestCase {
             .send
         ])
     }
+
+    func test_rejectedRender_ShouldIncludeCanRetry() async {
+        for canRetry in [true, false] {
+            let analytics = MockAnalytics()
+            let sut = makeSUT(behavior: .success(makeRejectedOutput(canRetry: canRetry)), analytics: analytics)
+
+            await sut.viewModel.load()
+            await analytics.mock.waitForSend(count: 2)
+            sut.viewModel.trackRender()
+            await analytics.mock.waitForSend(count: 3)
+
+            let messages = await analytics.mock.getMessages()
+            XCTAssertEqual(Array(messages.suffix(3)), [
+                .trackView(StatusScreenAnalyticsPath.render),
+                .setEventData(["status_type": "rejected", "can_retry": canRetry]),
+                .send
+            ])
+        }
+    }
+
+    func test_rejectedRetry_ShouldTrackOnceAndSuppressClose() async {
+        let analytics = MockAnalytics()
+        let sut = makeSUT(behavior: .success(makeRejectedOutput(canRetry: true)), analytics: analytics)
+
+        await sut.viewModel.load()
+        await analytics.mock.waitForSend(count: 2)
+        sut.viewModel.trackRetry()
+        sut.viewModel.trackRetry()
+        sut.viewModel.trackClose(source: .dismiss)
+        await analytics.mock.waitForSend(count: 3)
+
+        let messages = await analytics.mock.getMessages()
+        XCTAssertEqual(Array(messages.suffix(3)), [
+            .track(path: StatusScreenAnalyticsPath.retry),
+            .setEventData(["outcome": "success", "status_type": "rejected"]),
+            .send
+        ])
+    }
+
+    func test_retry_WhenCanRetryIsFalse_ShouldTrackTap() async {
+        let analytics = MockAnalytics()
+        let sut = makeSUT(behavior: .success(makeRejectedOutput(canRetry: false)), analytics: analytics)
+
+        await sut.viewModel.load()
+        await analytics.mock.waitForSend(count: 2)
+        sut.viewModel.trackRetry()
+        await analytics.mock.waitForSend(count: 3)
+
+        let messages = await analytics.mock.getMessages()
+        XCTAssertEqual(Array(messages.suffix(3)), [
+            .track(path: StatusScreenAnalyticsPath.retry),
+            .setEventData(["outcome": "success", "status_type": "rejected"]),
+            .send
+        ])
+    }
 }
 
 private extension StatusScreenViewModelAnalyticsTests {
+    func makeRejectedOutput(canRetry: Bool) -> StatusScreenOutput {
+        StatusScreenOutput(
+            statusType: "rejected",
+            header: .init(title: "Rejected", iconURL: URL(string: "https://example.com/error.png")!),
+            body: [],
+            footerButtons: [],
+            canRetry: canRetry
+        )
+    }
+
     func makeSUT(
         behavior: MockStatusScreenUseCase.Behavior,
         analytics: MockAnalytics

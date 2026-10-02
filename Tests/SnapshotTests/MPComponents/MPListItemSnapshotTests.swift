@@ -126,6 +126,28 @@ final class MPListItemSnapshotTests: XCTestCase {
         )
     }
 
+    // MARK: - Simple Style
+
+    func test_simpleStyle_billRow() {
+        FontName.registerCustomFonts()
+
+        let view = self.createTestView {
+            MPListItem(
+                leading: .image(Image(Logos.Icon.bill.assetName, bundle: .bundleMP).renderingMode(.template)),
+                contentInfo: .init(title: "N.º de operación 1234567890")
+            )
+            .listItemStyle(.simple)
+        }
+
+        let hostingController = UIHostingController(rootView: view)
+
+        assertSnapshot(
+            of: hostingController,
+            as: .image(precision: 0.95, size: CGSize(width: 360, height: 100)),
+            named: "simple_bill_row"
+        )
+    }
+
     // MARK: - Compact Style
 
     func test_compactStyle_allStatesComparison() {

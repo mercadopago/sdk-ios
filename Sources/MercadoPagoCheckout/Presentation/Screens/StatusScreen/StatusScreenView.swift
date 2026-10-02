@@ -10,6 +10,7 @@ import SwiftUI
 struct StatusScreenView: View {
     @ObservedObject private var viewModel: StatusScreenViewModel
     private let onBack: @MainActor @Sendable () -> Void
+    private let onChangePaymentMethod: @MainActor @Sendable () -> Void
     private let onUnavailable: @MainActor @Sendable () -> Void
 
     @Environment(\.checkoutTheme) private var theme: MPTheme
@@ -17,10 +18,12 @@ struct StatusScreenView: View {
     init(
         viewModel: StatusScreenViewModel,
         onBack: @escaping @MainActor @Sendable () -> Void,
+        onChangePaymentMethod: @escaping @MainActor @Sendable () -> Void,
         onUnavailable: @escaping @MainActor @Sendable () -> Void
     ) {
         self.viewModel = viewModel
         self.onBack = onBack
+        self.onChangePaymentMethod = onChangePaymentMethod
         self.onUnavailable = onUnavailable
     }
 
@@ -37,6 +40,10 @@ struct StatusScreenView: View {
                     onBack: {
                         self.viewModel.trackClose(source: .back)
                         self.onBack()
+                    },
+                    onChangePaymentMethod: {
+                        self.viewModel.trackRetry()
+                        self.onChangePaymentMethod()
                     },
                     onOpenPDF: self.viewModel.prepareReceipt
                 )

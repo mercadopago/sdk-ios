@@ -41,9 +41,9 @@ final class StatusScreenPendingTests: XCTestCase {
     }
 
     func test_map_WhenStatusIsUnrecognized_ShouldUseSharedMapping() throws {
-        let output = try self.map(self.json(body: self.messageNode, statusType: "rejected"))
+        let output = try self.map(self.json(body: self.messageNode, statusType: "unknown"))
 
-        XCTAssertEqual(output.statusType, "rejected")
+        XCTAssertEqual(output.statusType, "unknown")
         XCTAssertEqual(output.body, [.message("Check back later")])
         XCTAssertEqual(output.footerButtons.map(\.action), [.back])
     }
