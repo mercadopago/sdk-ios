@@ -20,6 +20,33 @@ final class CardFormViewModel: ObservableObject {
         let initResult: CardFormInitializationOutput
         let minInstallments: Int?
         let maxInstallments: Int?
+        let screens: String?
+        let orderId: String?
+        let clientToken: String?
+
+        init(
+            amount: Decimal,
+            checkoutTypeAnalyticsValue: String,
+            excludedPaymentTypeIds: [String],
+            excludedPaymentMethodIds: [String],
+            initResult: CardFormInitializationOutput,
+            minInstallments: Int?,
+            maxInstallments: Int?,
+            screens: String?,
+            orderId: String? = nil,
+            clientToken: String? = nil
+        ) {
+            self.amount = amount
+            self.checkoutTypeAnalyticsValue = checkoutTypeAnalyticsValue
+            self.excludedPaymentTypeIds = excludedPaymentTypeIds
+            self.excludedPaymentMethodIds = excludedPaymentMethodIds
+            self.initResult = initResult
+            self.minInstallments = minInstallments
+            self.maxInstallments = maxInstallments
+            self.screens = screens
+            self.orderId = orderId
+            self.clientToken = clientToken
+        }
     }
 
     // MARK: - Dependencies
@@ -80,6 +107,23 @@ final class CardFormViewModel: ObservableObject {
 
     var initResult: CardFormInitializationOutput {
         self.config.initResult
+    }
+
+    var amount: Decimal {
+        self.config.amount
+    }
+
+    var footerButtonLabel: String {
+        self.cardData?.buttonLabel ?? self.config.initResult.button
+    }
+
+    func makeInitialCardFormData() -> CardFormData {
+        var formData = CardFormData(fields: self.initResult.fields)
+        if let firstType = self.selectTypeDocument {
+            formData.setDocumentLength(firstType.minLenght, firstType.maxLenght)
+            formData.setDocumentType(isNumeric: firstType.type != "string")
+        }
+        return formData
     }
 
     // MARK: - Private
@@ -272,7 +316,10 @@ final class CardFormViewModel: ObservableObject {
             excludedCardTypes: self.config.excludedPaymentTypeIds,
             excludedCardBrands: self.config.excludedPaymentMethodIds,
             maxInstallments: self.config.maxInstallments,
-            minInstallments: self.config.minInstallments
+            minInstallments: self.config.minInstallments,
+            screens: self.config.screens,
+            orderId: self.config.orderId,
+            clientToken: self.config.clientToken
         )
     }
 
@@ -296,13 +343,19 @@ final class CardFormViewModel: ObservableObject {
             return .init(documentType: selectTypeDocument.id, documentNumber: docNumber)
         }()
 
+        let cardDigits = cardFormData.cardNumber.filter(\.isNumber)
+        let bin = cardDigits.count >= 8 ? String(cardDigits.prefix(8)) : nil
+        let lastFourDigits = cardDigits.count >= 4 ? String(cardDigits.suffix(4)) : nil
+
         return CardFormSubmitResult(
             token: cardToken.token,
             paymentMethodId: paymentMethod.id,
             paymentTypeId: paymentMethod.paymentTypeId,
             issuerId: paymentMethod.issuers.first?.id,
             payer: payer,
-            installmentsData: self.makeInstallmentsData(cardFormData: cardFormData)
+            installmentsData: self.makeInstallmentsData(cardFormData: cardFormData),
+            bin: bin,
+            lastFourDigits: lastFourDigits
         )
     }
 
