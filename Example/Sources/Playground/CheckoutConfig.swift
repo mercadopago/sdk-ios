@@ -231,7 +231,7 @@ final class CheckoutConfig: ObservableObject {
         )
 
         if self.statusScreenEnabled {
-            builder.withStatusScreen(exit: statusScreenExit)
+            builder.withStatusScreen(onExit: statusScreenExit)
         }
 
         return builder
@@ -253,7 +253,7 @@ final class CheckoutConfig: ObservableObject {
         )
 
         if self.statusScreenEnabled {
-            builder.withStatusScreen(exit: statusScreenExit)
+            builder.withStatusScreen(onExit: statusScreenExit)
         }
 
         return builder

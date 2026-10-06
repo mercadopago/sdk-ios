@@ -9,7 +9,7 @@ public extension MercadoPagoCheckout {
     /// A fluent builder for constructing a ``MercadoPagoCheckout`` instance.
     ///
     /// Create a builder with the ``CheckoutType`` and appearance you want, chain optional
-    /// configuration such as ``setPaymentMethodConfiguration(_:)`` or ``withStatusScreen(exit:)``, then
+    /// configuration such as ``setPaymentMethodConfiguration(_:)`` or ``withStatusScreen(onExit:)``, then
     /// call ``build()``. The
     /// checkout type you pass determines the type of ``MercadoPagoCheckoutResult`` the resulting
     /// checkout delivers, so you do not specify the generic parameter yourself.
@@ -87,16 +87,16 @@ extension MercadoPagoCheckout.Builder {
 
     /// Adds or replaces the Status Screen configuration while preserving its original position.
     private func enableStatusScreen(
-        exit: @escaping @MainActor @Sendable () -> Void
+        onExit: @escaping @MainActor @Sendable () -> Void
     ) {
         if let index = self.screenConfigs.firstIndex(where: { config in
             if case .statusScreen = config { return true }
             return false
         }) {
-            self.screenConfigs[index] = .statusScreen(exit: exit)
+            self.screenConfigs[index] = .statusScreen(onExit: onExit)
             return
         }
-        self.screenConfigs.append(.statusScreen(exit: exit))
+        self.screenConfigs.append(.statusScreen(onExit: onExit))
     }
 }
 
@@ -104,27 +104,27 @@ public extension MercadoPagoCheckout.Builder where T == MPPaymentData.Payment {
     /// Shows Status Screen after the payment reaches its successful end state.
     ///
     /// Status Screen is disabled unless you call this method. Calling it more than once keeps a
-    /// single configuration, replacing the previous `exit` callback.
+    /// single configuration, replacing the previous `onExit` callback.
     ///
     /// ```swift
     /// let checkout = MercadoPagoCheckout.Builder(
     ///     checkoutType: .payment(order: order, sellerInfo: sellerInfo),
     ///     checkoutAppearance: .init()
     /// )
-    /// .withStatusScreen(exit: {
+    /// .withStatusScreen(onExit: {
     ///     // Resume your app flow after the buyer closes Status Screen.
     /// })
     /// .build()
     /// ```
     ///
-    /// - Parameter exit: Called once after the buyer leaves an available Status Screen. It is not
+    /// - Parameter onExit: Called once after the buyer leaves an available Status Screen. It is not
     ///   called when Status Screen cannot be loaded.
     /// - Returns: The builder instance for chaining.
     @discardableResult
     func withStatusScreen(
-        exit: @escaping @MainActor @Sendable () -> Void
+        onExit: @escaping @MainActor @Sendable () -> Void
     ) -> Self {
-        self.enableStatusScreen(exit: exit)
+        self.enableStatusScreen(onExit: onExit)
         return self
     }
 
@@ -166,27 +166,27 @@ public extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardTransa
     /// Shows Status Screen after the card transaction reaches its successful end state.
     ///
     /// Status Screen is disabled unless you call this method. Calling it more than once keeps a
-    /// single configuration, replacing the previous `exit` callback.
+    /// single configuration, replacing the previous `onExit` callback.
     ///
     /// ```swift
     /// let checkout = MercadoPagoCheckout.Builder(
     ///     checkoutType: .cardTransaction(order: order, sellerInfo: sellerInfo),
     ///     checkoutAppearance: .init()
     /// )
-    /// .withStatusScreen(exit: {
+    /// .withStatusScreen(onExit: {
     ///     // Resume your app flow after the buyer closes Status Screen.
     /// })
     /// .build()
     /// ```
     ///
-    /// - Parameter exit: Called once after the buyer leaves an available Status Screen. It is not
+    /// - Parameter onExit: Called once after the buyer leaves an available Status Screen. It is not
     ///   called when Status Screen cannot be loaded.
     /// - Returns: The builder instance for chaining.
     @discardableResult
     func withStatusScreen(
-        exit: @escaping @MainActor @Sendable () -> Void
+        onExit: @escaping @MainActor @Sendable () -> Void
     ) -> Self {
-        self.enableStatusScreen(exit: exit)
+        self.enableStatusScreen(onExit: onExit)
         return self
     }
 

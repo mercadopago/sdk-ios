@@ -61,9 +61,9 @@ extension MPCheckoutConfiguration {
     /// The callback invoked when the buyer exits Status Screen, or `nil` when it is disabled.
     var statusScreenExit: (@MainActor @Sendable () -> Void)? {
         guard let statusScreenConfig,
-              case let .statusScreen(exit) = statusScreenConfig
+              case let .statusScreen(onExit) = statusScreenConfig
         else { return nil }
-        return exit
+        return onExit
     }
 }
 

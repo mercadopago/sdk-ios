@@ -130,7 +130,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         XCTAssertNil(checkout.configuration.statusScreenConfig)
     }
 
-    /// `withStatusScreen(exit:)` is intentionally declared only on the Payment and CardTransaction
+    /// `withStatusScreen(onExit:)` is intentionally declared only on the Payment and CardTransaction
     /// constrained builder extensions. Keeping both references here provides positive compile-time
     /// API coverage; attempting the equivalent reference on a CardSave builder does not compile.
     func test_withStatusScreen_shouldBeAvailableOnlyForEligibleBuilderSpecializations() {
@@ -143,8 +143,8 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
             checkoutAppearance: .init()
         )
 
-        XCTAssertTrue(paymentBuilder.withStatusScreen(exit: {}) === paymentBuilder)
-        XCTAssertTrue(cardTransactionBuilder.withStatusScreen(exit: {}) === cardTransactionBuilder)
+        XCTAssertTrue(paymentBuilder.withStatusScreen(onExit: {}) === paymentBuilder)
+        XCTAssertTrue(cardTransactionBuilder.withStatusScreen(onExit: {}) === cardTransactionBuilder)
     }
 
     // MARK: - CheckoutType type-safety
