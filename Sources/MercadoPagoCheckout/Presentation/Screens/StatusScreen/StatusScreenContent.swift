@@ -34,10 +34,7 @@ struct StatusScreenContent: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 0) {
-                    MPFeedback(
-                        title: self.output.header.title,
-                        iconSource: .remote(url: self.output.header.iconURL)
-                    )
+                    self.headerFeedback
                     .padding(.horizontal, self.theme.spacings.xtiny)
                     .padding(.top, self.theme.spacings.small)
                     .padding(.bottom, self.theme.spacings.xsmall)
@@ -150,6 +147,47 @@ struct StatusScreenContent: View {
             return .image(Image(Logos.Icon.bill.assetName, bundle: .bundleMP))
         case .none:
             return nil
+        }
+    }
+
+    @ViewBuilder
+    private var headerFeedback: some View {
+        switch self.output.header.icon {
+        case let .remote(url):
+            MPFeedback(title: self.output.header.title, iconSource: .remote(url: url))
+        case let .badge(tone):
+            VStack(alignment: .leading, spacing: self.theme.spacings.xtiny) {
+                Circle()
+                    .fill(self.badgeColor(for: tone))
+                    .frame(width: 72, height: 72)
+                    .overlay(
+                        Image(self.badgeGlyph(for: tone).assetName, bundle: .bundleMP)
+                            .resizable()
+                            .frame(width: 56, height: 56)
+                    )
+                    .accessibility(hidden: true)
+                Text(self.output.header.title)
+                    .textStyle(.headingHuge())
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .accessibilityElement(children: .combine)
+        }
+    }
+
+    private func badgeGlyph(for tone: StatusScreenOutput.Header.Tone) -> Logos.Icon {
+        switch tone {
+        case .positive: return .statusCheck
+        case .pending: return .statusMinus
+        case .negative: return .statusExclamation
+        }
+    }
+
+    private func badgeColor(for tone: StatusScreenOutput.Header.Tone) -> Color {
+        switch tone {
+        case .positive: return self.theme.colors.feedback.fillPositiveLoud
+        case .pending: return self.theme.colors.feedback.fillCautionLoud
+        case .negative: return self.theme.colors.feedback.fillNegativeLoud
         }
     }
 

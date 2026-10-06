@@ -37,6 +37,7 @@ struct RemoteOrderTransactionRepository: OrderTransactionRepository {
             status: response.status,
             statusDetail: response.statusDetail,
             totalAmount: response.totalAmount,
+            totalPaidAmount: response.totalPaidAmount,
             payments: [self.mapPayment(response.paymentProcessed)]
         )
     }
@@ -49,7 +50,10 @@ struct RemoteOrderTransactionRepository: OrderTransactionRepository {
             amount: data.amount,
             paymentMethodId: data.paymentMethod.id,
             paymentTypeId: data.paymentMethod.type,
-            installments: data.paymentMethod.installments
+            installments: data.paymentMethod.installments,
+            barcodeContent: data.paymentMethod.barcodeContent,
+            ticketURL: data.paymentMethod.ticketURL,
+            redirectURL: data.paymentMethod.redirectURL
         )
     }
 }

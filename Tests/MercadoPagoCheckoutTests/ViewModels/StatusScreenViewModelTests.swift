@@ -103,9 +103,73 @@ final class StatusScreenViewModelTests: XCTestCase {
 
         XCTAssertEqual(sut.viewModel.state, .idle)
     }
+
+    // MARK: - Cached /process result
+
+    func test_init_WhenCachedPaymentIsProvided_ShouldKeepItAvailable() {
+        let cached = makeCachedPayment()
+        let sut = makeSUT(cachedPayment: cached)
+
+        XCTAssertEqual(sut.viewModel.cachedPayment?.id, cached.id)
+        XCTAssertEqual(sut.viewModel.cachedPayment?.payments.first?.barcodeContent, "0123456789")
+    }
+
+    func test_init_WhenNoCachedPayment_ShouldHaveNone() {
+        XCTAssertNil(makeSUT().viewModel.cachedPayment)
+    }
+
+    func test_load_WhenUseCaseSucceedsWithCachedPayment_ShouldUseBFFOutput() async {
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .success(output), cachedPayment: makeCachedPayment())
+
+        await sut.viewModel.load()
+
+        XCTAssertEqual(sut.viewModel.state, .ready(output))
+    }
+
+    func test_load_WhenUseCaseFailsWithCachedPayment_ShouldShowFallbackInsteadOfUnavailable() async {
+        let sut = makeSUT(behavior: .failure(makeError()), cachedPayment: makeCachedPayment())
+
+        await sut.viewModel.load()
+
+        guard case let .ready(output) = sut.viewModel.state else {
+            return XCTFail("Should render the fallback built from the cached payment")
+        }
+        XCTAssertEqual(output.statusType, "pending")
+        XCTAssertEqual(output.footerButtons.count, 2)
+        XCTAssertEqual(output.footerButtons.last?.action, .back)
+    }
+
+    func test_load_WhenUseCaseFailsWithoutCachedPayment_ShouldBecomeUnavailable() async {
+        let sut = makeSUT(behavior: .failure(makeError()))
+
+        await sut.viewModel.load()
+
+        XCTAssertEqual(sut.viewModel.state, .unavailable)
+    }
 }
 
 private extension StatusScreenViewModelTests {
+    func makeCachedPayment(status: String = "action_required") -> OrderTransactionProcessData {
+        OrderTransactionProcessData(
+            id: "ORDER-TEST",
+            status: status,
+            statusDetail: "waiting_payment",
+            totalAmount: "250.50",
+            payments: [.init(
+                id: "PAY-1",
+                status: status,
+                statusDetail: "pending_waiting_payment",
+                amount: "250.50",
+                paymentMethodId: "rapipago",
+                paymentTypeId: "ticket",
+                installments: nil,
+                barcodeContent: "0123456789",
+                ticketURL: "https://example.invalid/ticket"
+            )]
+        )
+    }
+
     typealias SUT = (
         viewModel: StatusScreenViewModel,
         useCase: MockStatusScreenUseCase
@@ -117,6 +181,7 @@ private extension StatusScreenViewModelTests {
         lastFourDigits: String? = "0000",
         sellerInfo: MPSellerInfo? = nil,
         behavior: MockStatusScreenUseCase.Behavior? = nil,
+        cachedPayment: OrderTransactionProcessData? = nil,
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
@@ -129,6 +194,7 @@ private extension StatusScreenViewModelTests {
             lastFourDigits: lastFourDigits,
             sellerInfo: sellerInfo,
             paymentTypeId: "ticket",
+            cachedPayment: cachedPayment,
             useCase: useCase,
             analytics: MockAnalytics()
         )

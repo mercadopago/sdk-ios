@@ -23,6 +23,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
 
     @State private var route: Route?
     @State private var selectedItem: PaymentInitializationOutput.Item?
+    @State private var selectedTicketName: String?
     @State private var methodSelectionViewModel: MethodSelectionViewModel?
     @State private var cardFormViewModel: CardFormViewModel?
     @State private var cardFormData: CardFormData?
@@ -167,6 +168,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             self.methodSelectionViewModel = MethodSelectionViewModel(output: screen)
             self.route = .offlineMethodSelector
         } else {
+            self.selectedTicketName = item.title
             self.processingTask = Task {
                 await self.handlePaymentConfirmed(
                     OrderTransactionParams(
@@ -180,6 +182,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     }
 
     private func handleMethodSelectionOption(_ option: MethodSelectionOutput.Option) async {
+        self.selectedTicketName = option.name
         await self.handlePaymentConfirmed(
             OrderTransactionParams(
                 amount: self.viewModel.paymentData?.transactionAmount ?? .zero,
@@ -414,17 +417,18 @@ private extension PaymentBrick {
     func process(params: OrderTransactionParams) async {
         self.isProcessingOrder = true
         defer { self.isProcessingOrder = false }
-        switch await self.viewModel.processOrderResult(params: params) {
-        case let .success(payment):
-            self.complete(with: payment)
-        case let .error(error):
+        do {
+            let processData = try await self.viewModel.processOrderData(params: params)
+            let payment = try self.viewModel.makePaymentResult(from: processData)
+            self.complete(with: payment, processData: processData)
+        } catch {
             self.fail(error)
-        case .userCancelled:
-            break
         }
     }
 
-    func complete(with payment: T) {
+    /// `processData` is the raw `/process` result; it is kept for Status Screen's fallback because the
+    /// public `payment` does not carry every field that fallback needs (ticket barcode and URLs).
+    func complete(with payment: T, processData: OrderTransactionProcessData? = nil) {
         guard !self.didCompleteCheckout else { return }
         guard let paymentData = payment as? MPPaymentData.Payment else {
             self.fail(MercadoPagoCheckoutError(
@@ -458,7 +462,9 @@ private extension PaymentBrick {
             clientToken: order.clientToken,
             lastFourDigits: lastFourDigits,
             sellerInfo: sellerInfo,
-            paymentTypeId: paymentData.paymentTypeId
+            paymentTypeId: paymentData.paymentTypeId,
+            cachedPayment: processData,
+            paymentMethodName: self.selectedTicketName
         )
         self.clearReviewConfirmState()
         self.onResult(result)
@@ -670,7 +676,7 @@ private extension PaymentBrick {
     func handleReviewConfirmed(_ processData: OrderTransactionProcessData) {
         do {
             let payment = try self.viewModel.makePaymentResult(from: processData)
-            self.complete(with: payment)
+            self.complete(with: payment, processData: processData)
         } catch {
             self.fail(error)
         }

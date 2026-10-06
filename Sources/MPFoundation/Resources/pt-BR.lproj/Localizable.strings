@@ -90,3 +90,14 @@
 /* MARK: - Errors */
 "error.generic" = "Ocorreu um erro. Por favor, tente novamente.";
 "error.network" = "Erro de conexão. Verifique sua conexão com a internet.";
+
+/* MARK: - Status Screen fallback */
+"status_screen.fallback.approved.title" = "Você pagou %@";
+"status_screen.fallback.pending.title" = "Estamos analisando seu pagamento";
+"status_screen.fallback.ticket.title" = "Pague %1$@ com %2$@";
+"status_screen.fallback.back" = "Voltar";
+"status_screen.fallback.open_ticket" = "Baixar boleto";
+"status_screen.fallback.copy_feedback" = "Código copiado.";
+"status_screen.fallback.installments_no_interest" = "%1$@ (%2$dx %3$@ sem acréscimo)";
+"status_screen.fallback.installments_with_interest" = "%1$@ (%2$dx %3$@)";
+"status_screen.fallback.ticket.code_label" = "Linha digitável";

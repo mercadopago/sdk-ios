@@ -4,8 +4,11 @@
 //
 
 import Foundation
+import MPFoundation
 
 struct StatusScreenMapper: Sendable {
+    private typealias Strings = MPStrings.StatusScreenFallback
+
     func map(_ response: StatusScreenResponse) throws -> StatusScreenOutput {
         guard let headerURL = URL(string: response.header.icon) else {
             throw StatusScreenContractError.invalidHeader
@@ -26,6 +29,129 @@ struct StatusScreenMapper: Sendable {
             footerButtons: footer,
             canRetry: response.canRetry
         )
+    }
+
+    func map(
+        _ processData: OrderTransactionProcessData,
+        lastFourDigits: String?,
+        paymentMethodName: String? = nil
+    ) -> StatusScreenOutput? {
+        // `rejected` belongs to the Error Status Screen and is deliberately not mapped here.
+        guard let payment = processData.payments.first, payment.status != "rejected" else { return nil }
+        let amount = payment.amount ?? processData.totalAmount
+
+        switch self.fallbackScenario(for: payment) {
+        case .approved:
+            let isDebit = payment.paymentTypeId == "debit_card"
+            let paidAmount = processData.totalPaidAmount ?? amount
+            return StatusScreenOutput(
+                statusType: "approved",
+                header: .init(
+                    title: Strings.approvedTitle(self.formattedAmount(paidAmount)),
+                     tone: .positive
+                ),
+                body: [.listItem(.init(
+                    title: self.paymentMethodTitle(payment.paymentMethodId, lastFourDigits: lastFourDigits),
+                    subtitle: self.approvedSubtitle(
+                        installments: isDebit ? nil : payment.installments,
+                        paidAmount: processData.totalPaidAmount,
+                        fallbackAmount: amount,
+                        orderTotal: processData.totalAmount
+                    ),
+                    leading: nil,
+                    style: .simple
+                ))],
+                footerButtons: [self.backButton()]
+            )
+        case .ticket:
+            let methodName = paymentMethodName ?? self.capitalizedFirst(payment.paymentMethodId)
+            var body: [StatusScreenOutput.BodyComponent] = []
+            if let barcode = payment.barcodeContent, !barcode.isEmpty {
+                body.append(.barcode(.init(
+                    content: barcode,
+                    codeFormatted: barcode,
+                    copyLabel: Strings.ticketCodeLabel,
+                    copyFeedback: Strings.copyFeedback,
+                    icon: .copy
+                )))
+            }
+            // The primary action comes first, "back" is the quiet one below it.
+            var footer: [StatusScreenOutput.FooterButton] = []
+            if let ticketURL = (payment.ticketURL ?? payment.redirectURL).flatMap(URL.init(string:)) {
+                footer.append(.init(label: Strings.openTicket, action: .openPDF(ticketURL), style: .loud))
+            }
+            footer.append(self.backButton())
+            return StatusScreenOutput(
+                statusType: "pending",
+                header: .init(
+                    title: Strings.ticketTitle(amount: self.formattedAmount(amount), method: methodName),
+                     tone: .positive
+                ),
+                body: body,
+                footerButtons: footer
+            )
+        case .pending:
+            return StatusScreenOutput(
+                statusType: "pending",
+                header: .init(title: Strings.pendingTitle, tone: .pending),
+                body: [.listItem(.init(
+                    title: self.formattedAmount(amount),
+                    subtitle: payment.paymentMethodId,
+                    leading: nil
+                ))],
+                footerButtons: [self.backButton()]
+            )
+        }
+    }
+
+    private enum FallbackScenario {
+        case approved, ticket, pending
+    }
+
+    private func fallbackScenario(for payment: OrderTransactionProcessData.Payment) -> FallbackScenario {
+        switch payment.status {
+        case "processed": .approved
+        case "action_required": .ticket
+        default: .pending
+        }
+    }
+
+    private func paymentMethodTitle(_ methodId: String, lastFourDigits: String?) -> String {
+        let name = self.capitalizedFirst(methodId)
+        guard let lastFourDigits, !lastFourDigits.isEmpty else { return name }
+        return "\(name) •••• \(lastFourDigits)"
+    }
+
+    private func approvedSubtitle(
+        installments: Int?,
+        paidAmount: String?,
+        fallbackAmount: String,
+        orderTotal: String
+    ) -> String {
+        guard let count = installments, count > 1,
+              let paidRaw = paidAmount, let paid = Double(paidRaw)
+        else {
+            return self.formattedAmount(paidAmount ?? fallbackAmount)
+        }
+        let isInterestFree = Double(orderTotal).map { paid <= $0 + 0.005 } ?? false
+        return Strings.installments(
+            count,
+            amount: MPStrings.formatPrice(paid / Double(count)),
+            total: self.formattedAmount(paidRaw),
+            hasInterest: !isInterestFree
+        )
+    }
+
+    private func capitalizedFirst(_ value: String) -> String {
+        value.prefix(1).uppercased() + value.dropFirst()
+    }
+
+    private func backButton() -> StatusScreenOutput.FooterButton {
+        .init(label: MPStrings.StatusScreenFallback.back, action: .back, style: .transparent)
+    }
+
+    private func formattedAmount(_ raw: String) -> String {
+        Double(raw).map(MPStrings.formatPrice) ?? raw
     }
 
     private func mapBodyNode(_ node: StatusScreenResponse.BodyNode) -> StatusScreenOutput.BodyComponent? {

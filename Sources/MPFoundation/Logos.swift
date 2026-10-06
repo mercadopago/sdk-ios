@@ -21,6 +21,10 @@ package enum Logos: Equatable {
         case padlockClose = "Padlock-Close"
         case copy = "Copy"
         case bill = "Bill"
+        /// White 56pt glyphs for the Status Screen fallback badge; the colored circle is drawn by the view.
+        case statusCheck = "Status-Check"
+        case statusMinus = "Status-Minus"
+        case statusExclamation = "Status-Exclamation"
 
         package var assetName: String {
             rawValue

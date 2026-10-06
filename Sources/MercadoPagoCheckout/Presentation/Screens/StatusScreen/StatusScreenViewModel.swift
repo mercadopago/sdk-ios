@@ -44,8 +44,11 @@ final class StatusScreenViewModel: ObservableObject {
     private let lastFourDigits: String?
     private let sellerInfo: MPSellerInfo?
     private let paymentTypeId: String?
+    let cachedPayment: OrderTransactionProcessData?
+    private let paymentMethodName: String?
     private let useCase: any StatusScreenUseCaseProtocol
     private let receiptUseCase: GenerateReceiptDocumentUseCase
+    private let mapper: StatusScreenMapper
     private let analytics: AnalyticsInterface
     private var receiptTask: Task<Void, Never>?
     private var analyticsTask: Task<Void, Never>?
@@ -59,8 +62,11 @@ final class StatusScreenViewModel: ObservableObject {
         lastFourDigits: String?,
         sellerInfo: MPSellerInfo?,
         paymentTypeId: String?,
+        cachedPayment: OrderTransactionProcessData? = nil,
+        paymentMethodName: String? = nil,
         useCase: any StatusScreenUseCaseProtocol = StatusScreenUseCase(),
         receiptUseCase: GenerateReceiptDocumentUseCase = GenerateReceiptDocumentUseCase(),
+        mapper: StatusScreenMapper = StatusScreenMapper(),
         analytics: AnalyticsInterface = CoreDependencyContainer.shared.analytics
     ) {
         self.orderID = orderID
@@ -68,8 +74,11 @@ final class StatusScreenViewModel: ObservableObject {
         self.lastFourDigits = lastFourDigits
         self.sellerInfo = sellerInfo
         self.paymentTypeId = paymentTypeId
+        self.cachedPayment = cachedPayment
+        self.paymentMethodName = paymentMethodName
         self.useCase = useCase
         self.receiptUseCase = receiptUseCase
+        self.mapper = mapper
         self.analytics = analytics
     }
 
@@ -100,9 +109,22 @@ final class StatusScreenViewModel: ObservableObject {
                 self.trackEvent(path: StatusScreenAnalyticsPath.load, outcome: .cancelled)
                 return
             }
-            self.state = .unavailable
+            if let fallback = self.fallbackOutput() {
+                self.state = .ready(fallback)
+            } else {
+                self.state = .unavailable
+            }
             self.trackEvent(path: StatusScreenAnalyticsPath.load, outcome: .failure)
         }
+    }
+
+    private func fallbackOutput() -> StatusScreenOutput? {
+        guard let cachedPayment else { return nil }
+        return self.mapper.map(
+            cachedPayment,
+            lastFourDigits: self.lastFourDigits,
+            paymentMethodName: self.paymentMethodName
+        )
     }
 
     func trackRender() {

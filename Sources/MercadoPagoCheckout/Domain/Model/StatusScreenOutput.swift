@@ -12,13 +12,35 @@ struct StatusScreenOutput: Equatable, Sendable {
     }
 
     struct Header: Equatable, Sendable {
+        enum HeaderIcon: Equatable, Sendable {
+            case remote(URL)
+            case badge(Tone)
+        }
+
+        enum Tone: Equatable, Sendable {
+            case positive
+            case pending
+            case negative
+        }
+
         let title: String
-        let iconURL: URL
+        let icon: HeaderIcon
         let subtitle: String?
+
+        var iconURL: URL? {
+            guard case let .remote(url) = self.icon else { return nil }
+            return url
+        }
 
         init(title: String, iconURL: URL, subtitle: String? = nil) {
             self.title = title
-            self.iconURL = iconURL
+            self.icon = .remote(iconURL)
+            self.subtitle = subtitle
+        }
+
+        init(title: String, tone: Tone, subtitle: String? = nil) {
+            self.title = title
+            self.icon = .badge(tone)
             self.subtitle = subtitle
         }
     }

@@ -91,3 +91,14 @@
 "error.generic" = "Ocurrió un error. Por favor, intenta de nuevo.";
 "error.network" = "Error de conexión. Verifica tu conexión a internet.";
 
+
+/* MARK: - Status Screen fallback */
+"status_screen.fallback.approved.title" = "Pagaste %@";
+"status_screen.fallback.pending.title" = "Estamos revisando tu pago";
+"status_screen.fallback.ticket.title" = "Paga %1$@ en un punto de %2$@";
+"status_screen.fallback.back" = "Volver";
+"status_screen.fallback.open_ticket" = "Ver cómo pagar";
+"status_screen.fallback.copy_feedback" = "Código copiado.";
+"status_screen.fallback.installments_no_interest" = "%1$@ (%2$dx %3$@ sin interés)";
+"status_screen.fallback.installments_with_interest" = "%1$@ (%2$dx %3$@)";
+"status_screen.fallback.ticket.code_label" = "Referencia de pago";

@@ -323,6 +323,37 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         XCTAssertEqual(result.payments.first?.paymentMethodId, "master")
     }
 
+    func test_processOrder_WhenInstallmentsHaveInterest_ShouldMapPaidAmountSeparatelyFromPrincipal() async throws {
+        // Arrange
+        let json = """
+        {
+            "id": "ORD01MOCKINTEREST00000001A",
+            "total_amount": "1000.00",
+            "total_paid_amount": "1167.50",
+            "status": "processed",
+            "status_detail": "accredited",
+            "payment_processed": {
+                "id": "PAY01MOCKINTEREST00000001A",
+                "status": "processed",
+                "status_detail": "accredited",
+                "amount": "1000.00",
+                "payment_method": { "id": "master", "type": "credit_card", "installments": 2 }
+            }
+        }
+        """
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(Data(json.utf8))
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        // Act
+        let result = try await sut.repository.processOrder(orderId: "ORD01", clientToken: "seller_client_token", params: self.makeParams())
+
+        // Assert: the principal stays in `amount`; what was charged lives in `totalPaidAmount`
+        XCTAssertEqual(result.totalAmount, "1000.00")
+        XCTAssertEqual(result.totalPaidAmount, "1167.50")
+        XCTAssertEqual(result.payments.first?.amount, "1000.00")
+    }
+
     func testProcessOrder_whenSuccess_mapsInstallments() async throws {
         // Arrange
         let sut = self.makeSUT()
@@ -356,7 +387,11 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         XCTAssertEqual(payment.status, "action_required")
         XCTAssertEqual(payment.statusDetail, "pending_waiting_payment")
         XCTAssertEqual(payment.amount, "250.50")
+        XCTAssertNil(result.totalPaidAmount)
         XCTAssertNil(payment.installments)
+        XCTAssertEqual(payment.barcodeContent, "0123456789")
+        XCTAssertEqual(payment.ticketURL, "https://example.invalid/ticket")
+        XCTAssertNil(payment.redirectURL)
     }
 
     func test_processOrder_WhenOptionalPaymentFieldsAreAbsent_ShouldKeepThemNil() async throws {
@@ -372,6 +407,9 @@ final class RemoteOrderTransactionRepositoryTests: XCTestCase {
         let payment = try XCTUnwrap(result.payments.first)
         XCTAssertNil(payment.amount)
         XCTAssertNil(payment.installments)
+        XCTAssertNil(payment.barcodeContent)
+        XCTAssertNil(payment.ticketURL)
+        XCTAssertNil(payment.redirectURL)
     }
 
     func test_processOrder_WhenCurrentPaymentIsMissing_ShouldFailWithoutUsingLegacyHistory() async {
