@@ -22,6 +22,13 @@ package final class FingerPrint: FingerPrintProtocol {
 
     @MainActor
     package func getDeviceData() async -> Data? {
-        return Device.getInfoAsJsonData()
+        #if targetEnvironment(simulator)
+            // The vendored DeviceFingerPrint framework traps when collecting device data in the simulator.
+            // Fingerprint data is optional for tokenization, so keep simulator flows usable without changing
+            // the physical-device behavior.
+            return nil
+        #else
+            return Device.getInfoAsJsonData()
+        #endif
     }
 }

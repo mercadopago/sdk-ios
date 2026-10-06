@@ -193,8 +193,12 @@ final class CoreMethodsTests: XCTestCase {
 
     // MARK: - Setup SUT
 
-    private func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) async -> SUT {
-        let container = MockDependencyContainer()
+    private func makeSUT(
+        errorObservability: any ErrorObservabilityReporting = MockErrorObservability(),
+        file _: StaticString = #filePath,
+        line _: UInt = #line
+    ) async -> SUT {
+        let container = MockDependencyContainer(errorObservability: errorObservability)
         let analytics = container.mockAnalytics
         let repository = MockCoreMethodsRepository()
 
@@ -218,6 +222,18 @@ final class CoreMethodsTests: XCTestCase {
         )
 
         return (coreMethodsService, repository, analytics)
+    }
+
+    private func makeCheckoutCardParams() -> CardParams {
+        return CardParams(
+            cardNumber: "4222222222222",
+            expirationYear: "2032",
+            expirationMonth: "10",
+            securityCode: "123",
+            documentType: "DNI",
+            documentNumber: "12345678",
+            cardHolderName: "APRO"
+        )
     }
 
     // MARK: - Error assertion helpers
@@ -510,6 +526,50 @@ final class CoreMethodsTests: XCTestCase {
         } catch {
             XCTFail("Should not throw error: \(error)")
         }
+    }
+
+    func test_createTokenForCheckout_whenNetworkReturnsSuccess_shouldSendTokenizationEvent() async throws {
+        let (sut, repository, analytics) = await self.makeSUT()
+        let params = makeCheckoutCardParams()
+        let expectedEventData = TokenizationEventData(isSaveCard: false, documentType: "DNI")
+
+        await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
+        await repository.setGenerateCardTokenResult(.success(CardTokenStub.responseModel))
+
+        let result = try await sut.createTokenForCheckout(params)
+
+        await analytics.mock.waitForSend()
+        let messages = await analytics.mock.getMessages()
+        XCTAssertEqual(result, CardTokenStub.expectedToken)
+        XCTAssertEqual(
+            messages,
+            [
+                .track(path: CoreMethods.AnalyticsPath.tokenization),
+                .setEventData(expectedEventData.toDictionary()),
+                .send
+            ]
+        )
+    }
+
+    func test_createTokenForCheckout_whenNetworkReturnsError_shouldNotDuplicateErrorEvents() async {
+        let errorObservability = MockErrorObservability()
+        let (sut, repository, analytics) = await self.makeSUT(errorObservability: errorObservability)
+        let params = makeCheckoutCardParams()
+
+        await repository.setPaymentMethodsResult(.success(PaymentMethodStub.expectedResponse))
+        await repository.setGenerateCardTokenResult(.failure(APIClientError.apiError(APIErrorStub.badRequest)))
+
+        do {
+            _ = try await sut.createTokenForCheckout(params)
+            XCTFail("Expected tokenization to fail")
+        } catch {
+            // Checkout owns the error event for this path.
+        }
+
+        let messages = await analytics.mock.getMessages()
+        let captures = await errorObservability.captures
+        XCTAssertTrue(messages.isEmpty)
+        XCTAssertTrue(captures.isEmpty)
     }
 
     // MARK: - Tests for createToken with cardID and expirationDate

@@ -17,7 +17,8 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         viewModel: CardFormViewModel,
         service: MockCheckoutService,
         repository: MockCardPaymentBrickCardRepository,
-        analytics: MockAnalytics
+        analytics: MockAnalytics,
+        errorObservability: MockErrorObservability
     )
 
     // MARK: - Properties
@@ -97,6 +98,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
         let analytics = MockAnalytics()
+        let errorObservability = MockErrorObservability()
         let config = CardFormViewModel.Configuration(
             amount: amount,
             checkoutTypeAnalyticsValue: "save_card",
@@ -110,9 +112,10 @@ final class CardFormViewModelTrackingTests: XCTestCase {
             config: config,
             service: service,
             fetchCardUseCase: FetchCardPaymentBrickCardUseCase(repository: repository),
-            analytics: analytics
+            analytics: analytics,
+            errorObservability: errorObservability
         )
-        return (viewModel, service, repository, analytics)
+        return (viewModel, service, repository, analytics, errorObservability)
     }
 
     private func setupCardData(_ sut: SUT) async {
@@ -299,8 +302,25 @@ final class CardFormViewModelTrackingTests: XCTestCase {
 
         // Assert
         let messages = await sut.analytics.mock.getMessages()
+        let captures = await sut.errorObservability.captures
+        let observabilityEventIDs = await sut.analytics.mock.getObservabilityEventIDs()
         XCTAssertTrue(messages.contains(.track(path: CardFormAnalyticsPath.submitError)))
         XCTAssertTrue(messages.contains(.send))
+        XCTAssertEqual(captures.map(\.operation), [.cardFormSubmission])
+        XCTAssertEqual(observabilityEventIDs, ["00000000-0000-4000-8000-000000000001"])
+    }
+
+    func test_cancel_reportsCheckoutCancellationWithTheMelidataEventID() async {
+        let sut = self.makeSUT()
+
+        sut.viewModel.cancel(context: MPCardFormUserCancelledContext(fields: []), reason: .backButton)
+        await sut.analytics.mock.waitForSend()
+
+        let captures = await sut.errorObservability.captures
+        let observabilityEventIDs = await sut.analytics.mock.getObservabilityEventIDs()
+        XCTAssertEqual(captures.map(\.operation), [.cardFormCancellation])
+        XCTAssertEqual(captures.first?.input, .checkoutUserCancellation)
+        XCTAssertEqual(observabilityEventIDs, ["00000000-0000-4000-8000-000000000001"])
     }
 
     // MARK: - enqueueAnalytics
