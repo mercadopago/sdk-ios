@@ -52,6 +52,32 @@ final class CardFormBrickViewModelTests: XCTestCase {
         )
     }
 
+    // MARK: - markScreenPresented / screensVisited
+
+    func test_screensVisited_initiallyEmpty() {
+        let sut = self.makeSUT()
+
+        XCTAssertTrue(sut.viewModel.screensVisited.isEmpty)
+    }
+
+    func test_markScreenPresented_preservesOrderOfVisitedScreens() {
+        let sut = self.makeSUT()
+
+        sut.viewModel.markScreenPresented(.installments)
+        sut.viewModel.markScreenPresented(.reviewAndConfirm)
+
+        XCTAssertEqual(sut.viewModel.screensVisited, [.installments, .reviewAndConfirm])
+    }
+
+    func test_markScreenPresented_doesNotAddDuplicates() {
+        let sut = self.makeSUT()
+
+        sut.viewModel.markScreenPresented(.reviewAndConfirm)
+        sut.viewModel.markScreenPresented(.reviewAndConfirm)
+
+        XCTAssertEqual(sut.viewModel.screensVisited, [.reviewAndConfirm])
+    }
+
     // MARK: - load() retry
 
     func test_load_whenFirstAttemptSucceeds_shouldCallRepositoryOnce() async throws {
@@ -119,7 +145,9 @@ final class CardFormBrickViewModelTests: XCTestCase {
             paymentTypeId: "credit_card",
             issuerId: nil,
             payer: nil,
-            installmentsData: nil
+            installmentsData: nil,
+            bin: nil,
+            lastFourDigits: nil
         )
 
         // Act
@@ -150,7 +178,9 @@ final class CardFormBrickViewModelTests: XCTestCase {
             paymentTypeId: "credit_card",
             issuerId: nil,
             payer: nil,
-            installmentsData: nil
+            installmentsData: nil,
+            bin: nil,
+            lastFourDigits: nil
         )
 
         // Act
@@ -192,5 +222,39 @@ final class CardFormBrickViewModelTests: XCTestCase {
         // Assert
         let lastClientToken = await orderRepository.lastClientToken
         XCTAssertEqual(lastClientToken, "seller_client_token")
+    }
+
+    // MARK: - processOrder keeps the /process result
+
+    func test_processOrder_shouldReturnTheProcessResultAlongsideThePaymentData() async throws {
+        // Arrange
+        let order = MPOrder(orderId: "order-99", clientToken: "seller_client_token")
+        let configuration = MPCheckoutConfiguration<MPPaymentData.CardTransaction>(
+            type: .cardTransaction(order: order),
+            paymentMethod: [.card()]
+        )
+        let orderRepository = MockOrderTransactionRepository()
+        let processData = self.makeProcessData()
+        await orderRepository.setResult(.success(processData))
+        let viewModel = CardFormBrickViewModel<MPPaymentData.CardTransaction>(
+            configuration: configuration,
+            initializeUseCase: InitializeCardFormUseCase(repository: MockCardFormInitializationRepository()),
+            orderUseCase: OrderTransactionUseCase(repository: orderRepository)
+        )
+        let paymentData = MPPaymentData.CardTransaction(
+            transactionAmount: 100.0,
+            token: "tok",
+            installment: 1,
+            paymentMethodId: "visa",
+            paymentTypeId: "credit_card",
+            orderId: "order-99"
+        )
+
+        // Act
+        let processed = try await viewModel.processOrder(paymentData)
+
+        // Assert
+        XCTAssertEqual(processed.processData.id, processData.id)
+        XCTAssertEqual(processed.paymentData.orderStatus, processData.status)
     }
 }

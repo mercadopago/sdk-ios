@@ -5,8 +5,9 @@
 //  Created by Danielle Nozaki Ogawa on 02/06/26.
 //
 
-import MPCore
-import MPFoundation
+#if SWIFT_PACKAGE
+    import MPCore
+#endif
 
 struct RemoteOrderTransactionRepository: OrderTransactionRepository {
     typealias Dependency = HasNetwork
@@ -17,7 +18,11 @@ struct RemoteOrderTransactionRepository: OrderTransactionRepository {
         self.dependencies = dependencies
     }
 
-    func processOrder(orderId: String, clientToken: String, params: OrderTransactionParams) async throws -> OrderTransactionProcessData {
+    func processOrder(
+        orderId: String,
+        clientToken: String,
+        params: OrderTransactionParams
+    ) async throws -> OrderTransactionProcessData {
         let response: OrderTransactionResponse = try await dependencies.networkService.request(
             OrderTransactionEndpoint.process(orderId: orderId, clientToken: clientToken, params: params)
         )
@@ -32,11 +37,12 @@ struct RemoteOrderTransactionRepository: OrderTransactionRepository {
             status: response.status,
             statusDetail: response.statusDetail,
             totalAmount: response.totalAmount,
-            payments: response.transactions.payments.map { self.mapPayment($0) }
+            totalPaidAmount: response.totalPaidAmount,
+            payments: [self.mapPayment(response.paymentProcessed)]
         )
     }
 
-    private func mapPayment(_ data: OrderTransactionResponse.TransactionsData.PaymentData) -> OrderTransactionProcessData.Payment {
+    private func mapPayment(_ data: OrderTransactionResponse.PaymentData) -> OrderTransactionProcessData.Payment {
         OrderTransactionProcessData.Payment(
             id: data.id,
             status: data.status,
@@ -44,7 +50,10 @@ struct RemoteOrderTransactionRepository: OrderTransactionRepository {
             amount: data.amount,
             paymentMethodId: data.paymentMethod.id,
             paymentTypeId: data.paymentMethod.type,
-            installments: data.paymentMethod.installments
+            installments: data.paymentMethod.installments,
+            barcodeContent: data.paymentMethod.barcodeContent,
+            ticketURL: data.paymentMethod.ticketURL,
+            redirectURL: data.paymentMethod.redirectURL
         )
     }
 }

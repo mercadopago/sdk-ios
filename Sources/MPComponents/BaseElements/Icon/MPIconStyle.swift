@@ -83,3 +83,30 @@ package extension View {
 package extension MPIconStyle where Self == MPThumbnailFlagIconStyle {
     static var thumbnailFlag: MPThumbnailFlagIconStyle { .init() }
 }
+
+package extension MPIconStyle where Self == MPThumbnailCircleIconStyle {
+    static var thumbnailCircle: MPThumbnailCircleIconStyle { .init() }
+}
+
+// MARK: - Thumbnail style (composable via the view hierarchy)
+
+/// Icon style applied to `MPListItem`'s `.thumbnail` leading. Set it up the hierarchy with
+/// `.mpThumbnailStyle(_:)`; defaults to `.thumbnailFlag`, so existing consumers are unaffected.
+private struct MPThumbnailStyleKey: @preconcurrency EnvironmentKey {
+    @MainActor
+    static var defaultValue: any MPIconStyle = MPThumbnailFlagIconStyle()
+}
+
+extension EnvironmentValues {
+    var mpThumbnailStyle: any MPIconStyle {
+        get { self[MPThumbnailStyleKey.self] }
+        set { self[MPThumbnailStyleKey.self] = newValue }
+    }
+}
+
+package extension View {
+    /// Sets the thumbnail icon style for `MPListItem`s below in the hierarchy (e.g. `.thumbnailCircle`).
+    func mpThumbnailStyle(_ style: some MPIconStyle) -> some View {
+        environment(\.mpThumbnailStyle, style)
+    }
+}
