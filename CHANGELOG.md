@@ -1,3 +1,11 @@
+## [1.0.1] - 2026-10-06
+
+### Added
+- Privacy-safe native error observability for CoreMethods and Checkout, preserving existing public SDK behavior and legacy Melidata reporting.
+
+### Changed
+- Updated the SDK release metadata to `1.0.1`.
+
 ## [1.0.0] - 2026-07-10
 
 - Merge pull request #128 from melisource/feature/card-form-order
