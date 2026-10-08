@@ -4,16 +4,16 @@
 //
 
 struct MPInstallmentsData: Equatable, Sendable {
-    let installment: CardPaymentBrickCardData.Installment
+    let installment: InstallmentScreenData
     let cardDisplayInfo: CardDisplayInfo
 }
 
 extension MPInstallmentsData {
     static var empty: MPInstallmentsData {
-        let translations = CardPaymentBrickCardData.Installment.InstallmentTranslations(
+        let translations = InstallmentScreenData.Translations(
             headerTitle: String(), totalLabel: String(), payButtonLabel: String(), currencySymbol: String()
         )
-        let installment = CardPaymentBrickCardData.Installment(
+        let installment = InstallmentScreenData(
             selectionType: String(), quotas: [], translations: translations
         )
         return MPInstallmentsData(

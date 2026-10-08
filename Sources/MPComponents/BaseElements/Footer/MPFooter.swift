@@ -27,7 +27,7 @@ package struct MPFooter: View {
 
     private let title: String
     private let amount: MPAmountData?
-    private let subtitle: String?
+    private let subtitleData: MPFooterSubtitleData?
     private let buttonData: MPFixedFooterButtonData?
 
     // MARK: - Environment
@@ -56,7 +56,20 @@ package struct MPFooter: View {
     ) {
         self.title = title
         self.amount = amount
-        self.subtitle = subtitle
+        self.subtitleData = subtitle.map { .init(text: $0) }
+        self.buttonData = buttonData
+    }
+
+    /// Creates a footer whose subtitle can contain independently styled text segments.
+    package init(
+        title: String = String(),
+        amount: MPAmountData? = nil,
+        subtitleData: MPFooterSubtitleData?,
+        buttonData: MPFixedFooterButtonData? = nil
+    ) {
+        self.title = title
+        self.amount = amount
+        self.subtitleData = subtitleData
         self.buttonData = buttonData
     }
 
@@ -67,7 +80,7 @@ package struct MPFooter: View {
     ) {
         self.title = title
         self.amount = amount
-        self.subtitle = subtitle
+        self.subtitleData = subtitle.map { .init(text: $0) }
         self.buttonData = nil
     }
 
@@ -78,7 +91,7 @@ package struct MPFooter: View {
             summaryLine: summaryLineView,
             descriptionLine: descriptionLineView,
             button: button,
-            hasDescription: subtitle != nil
+            hasDescription: self.subtitleData?.segments.isEmpty == false
         )
 
         return AnyView(
@@ -111,13 +124,15 @@ package struct MPFooter: View {
 
     @ViewBuilder
     private var descriptionLineView: some View {
-        if let descriptionText = subtitle {
-            HStack {
+        if let subtitleData, !subtitleData.segments.isEmpty {
+            HStack(spacing: self.theme.spacings.xnano) {
                 Spacer()
 
-                Text(descriptionText)
-                    .textStyle(.bodyMedium(colorType: .secondary))
-                    .lineLimit(1)
+                ForEach(subtitleData.segments) { segment in
+                    Text(segment.text)
+                        .textStyle(.bodyMedium(colorType: segment.color))
+                        .lineLimit(1)
+                }
             }
         }
     }

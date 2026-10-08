@@ -17,6 +17,7 @@ package struct MPListItem: View {
     @Environment(\.checkoutTheme) private var theme: MPTheme
     @Environment(\.listItemStyle) private var style
     @Environment(\.listItemTrailingStyle) private var trailingStyle
+    @Environment(\.mpThumbnailStyle) private var thumbnailStyle: any MPIconStyle
     @State private var isPressed = false
 
     let isSelected: Binding<Bool>
@@ -43,7 +44,7 @@ package struct MPListItem: View {
             leading: self.leadingView,
             title: self.contentInfo.title.map { _ in self.titleView },
             header: self.contentInfo.header.map { _ in self.headerView },
-            description: self.contentInfo.description.map { _ in self.descriptionView },
+            description: self.contentInfo.hasDescription ? self.descriptionView : nil,
             trailing: self.trailingView
         )
 
@@ -67,7 +68,7 @@ package struct MPListItem: View {
     private var headerView: some View {
         if let header = contentInfo.header {
             Text(header)
-                .textStyle(.bodyMedium())
+                .textStyle(.bodyMedium(colorType: self.contentInfo.headerColorType))
         }
     }
 
@@ -89,9 +90,22 @@ package struct MPListItem: View {
 
     @ViewBuilder
     private var descriptionView: some View {
-        if let description = contentInfo.description {
+        if !contentInfo.descriptionSegments.isEmpty {
+            self.segmentedDescription(contentInfo.descriptionSegments)
+                .textStyle(.bodyMedium())
+        } else if let description = contentInfo.description {
             Text(description)
                 .textStyle(.bodyMedium())
+        }
+    }
+
+    private func segmentedDescription(_ segments: [MPListItemTextSegment]) -> Text {
+        segments.reduce(Text("")) { result, segment in
+            var text = Text(segment.text)
+            if let colorType = segment.colorType {
+                text = text.foregroundColor(colorType.color(from: self.theme.colors))
+            }
+            return result + text
         }
     }
 
@@ -102,7 +116,7 @@ package struct MPListItem: View {
             image
         case let .thumbnail(url):
             MPIcon(source: .remote(url: url))
-                .mpIconStyle(.thumbnailFlag)
+                .environment(\.mpIconStyle, self.thumbnailStyle)
         case .none:
             EmptyView()
         }
@@ -113,11 +127,17 @@ package struct MPListItem: View {
         if let trailing {
             let config = MPListItemTrailingStyleConfiguration(
                 text: trailing.text,
-                textColor: trailing.color
+                textColor: trailing.color,
+                button: self.button(for: trailing)
             )
             let resolved = self.trailingStyle ?? MPTrailingTextStyle()
             AnyView(resolved.resolve(configuration: config))
         }
+    }
+
+    private func button(for trailing: MPListItemTrailing) -> SwiftUI.Button<Text>? {
+        guard let action = trailing.action, let text = trailing.text else { return nil }
+        return Button(text, action: action)
     }
 }
 
@@ -149,6 +169,17 @@ package struct MPListItem: View {
                             description: "Visa Crédito"
                         ),
                         trailing: .init(text: "")
+                    )
+
+                    MPListItem(
+                        contentInfo: .init(
+                            title: "Visa Crédito •••• 1234",
+                            descriptionSegments: [
+                                .init(text: "$ 12.000 (3x $ 4.000 "),
+                                .init(text: "sin interés", colorType: .feedbackPositive),
+                                .init(text: ")")
+                            ]
+                        )
                     )
 
                     MPListItem(

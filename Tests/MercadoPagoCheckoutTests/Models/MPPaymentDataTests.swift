@@ -95,6 +95,60 @@ final class MPPaymentDataTests: XCTestCase {
         XCTAssertEqual(a, b)
     }
 
+    // MARK: - Payment
+
+    func test_paymentInit_WhenOnlyRequiredArgumentsProvided_ShouldPreserveDefaults() throws {
+        let amount = try XCTUnwrap(Decimal(string: "123456789012345678.91"))
+        let sut = makeSUT(transactionAmount: amount)
+
+        XCTAssertEqual(sut.orderId, "order_test")
+        XCTAssertEqual(sut.orderStatus, "")
+        XCTAssertEqual(sut.transactionAmount, amount)
+        XCTAssertEqual(sut.paymentMethodId, "")
+        XCTAssertEqual(sut.paymentTypeId, "")
+        assertNewPaymentFieldsAreNil(sut)
+    }
+
+    func test_paymentDecode_WhenLegacyJSON_ShouldPreserveExactAmountAndDefaultNewFields() throws {
+        let json = Data("""
+        {
+            "orderId": "order_legacy",
+            "orderStatus": "processed",
+            "transactionAmount": 123456789012345678.91,
+            "paymentMethodId": "visa",
+            "paymentTypeId": "credit_card"
+        }
+        """.utf8)
+
+        let decoded = try JSONDecoder().decode(MPPaymentData.Payment.self, from: json)
+
+        XCTAssertEqual(decoded.orderId, "order_legacy")
+        XCTAssertEqual(decoded.orderStatus, "processed")
+        XCTAssertEqual(decoded.transactionAmount, try XCTUnwrap(Decimal(string: "123456789012345678.91")))
+        XCTAssertEqual(decoded.paymentMethodId, "visa")
+        XCTAssertEqual(decoded.paymentTypeId, "credit_card")
+        assertNewPaymentFieldsAreNil(decoded)
+    }
+
+    func test_paymentCodable_WhenAllFieldsProvided_ShouldRoundTripWithoutLosingPrecision() throws {
+        let amount = try XCTUnwrap(Decimal(string: "123456789012345678.91"))
+        let original = MPPaymentData.Payment(
+            orderId: "order_test",
+            orderStatus: "action_required",
+            transactionAmount: amount,
+            paymentMethodId: "rapipago",
+            paymentTypeId: "ticket",
+            orderStatusDetail: "waiting_payment"
+        )
+
+        let encoded = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(MPPaymentData.Payment.self, from: encoded)
+
+        XCTAssertEqual(decoded, original)
+        XCTAssertEqual(decoded.transactionAmount, amount)
+        XCTAssertEqual(decoded.orderStatusDetail, "waiting_payment")
+    }
+
     // MARK: - Payer (nested inside CardTransaction)
 
     func test_payer_codable_roundtrip() throws {
@@ -118,5 +172,19 @@ final class MPPaymentDataTests: XCTestCase {
             token: "t", paymentMethodId: "visa", paymentTypeId: "credit_card"
         )
         XCTAssertNil(txn as? MPPaymentData.CardSave)
+    }
+}
+
+private extension MPPaymentDataTests {
+    func makeSUT(transactionAmount: Decimal) -> MPPaymentData.Payment {
+        MPPaymentData.Payment(orderId: "order_test", transactionAmount: transactionAmount)
+    }
+
+    func assertNewPaymentFieldsAreNil(
+        _ payment: MPPaymentData.Payment,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertNil(payment.orderStatusDetail, file: file, line: line)
     }
 }
