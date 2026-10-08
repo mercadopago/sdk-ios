@@ -18,12 +18,14 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
 
     func fetchInitialization(
         orderId: String,
-        clientToken: String
+        clientToken: String,
+        screens: String? = nil
     ) async throws -> PaymentInitializationOutput {
         let response: PaymentBrickInitializationResponse = try await networkService.request(
             PaymentBrickInitializationEndpoint(
                 orderId: orderId,
-                clientToken: clientToken
+                clientToken: clientToken,
+                screens: screens
             )
         )
         return self.map(response)
@@ -52,14 +54,59 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
         guard let screen = cardData.securityCode.screen else { return nil }
         return SecurityCodeScreenOutput(
             length: cardData.securityCode.length,
-            headerTitle: screen.headerTitle,
+            headerTitle: screen.header.title,
             field: SecurityCodeScreenOutput.Field(
                 label: screen.field.label,
                 placeholder: screen.field.placeholder,
                 helper: screen.field.helper,
                 error: screen.field.error
             ),
-            buttonLabel: screen.continueButtonLabel
+            buttonLabel: screen.button.label
+        )
+    }
+
+    private func mapInstallments(
+        _ cardData: PaymentBrickInitializationResponse.CardData
+    ) -> InstallmentScreenData? {
+        guard let installments = cardData.installments else { return nil }
+        return InstallmentScreenData(
+            selectionType: installments.selectionType,
+            quotas: installments.quotas.map {
+                InstallmentScreenData.Quota(
+                    installments: $0.installments,
+                    installmentAmount: $0.installmentAmount,
+                    totalAmount: $0.totalAmount,
+                    primaryLabel: $0.primaryLabel,
+                    secondaryLabel: $0.secondaryLabel,
+                    state: .init($0.state),
+                    tertiaryLabel: $0.tertiaryLabel,
+                    accessibilityLabel: $0.accessibilityLabel
+                )
+            },
+            translations: InstallmentScreenData.Translations(
+                headerTitle: installments.header.title,
+                totalLabel: installments.footer.totalLabel,
+                payButtonLabel: installments.footer.button.label,
+                currencySymbol: installments.footer.currencySymbol
+            )
+        )
+    }
+
+    private func mapMethodSelectionScreen(
+        _ screen: PaymentBrickInitializationResponse.MethodSelectionScreen?
+    ) -> MethodSelectionOutput? {
+        guard let screen else { return nil }
+        return MethodSelectionOutput(
+            headerTitle: screen.headerTitle,
+            selectionType: .init(screen.selectionType),
+            footer: MethodSelectionOutput.Footer(
+                totalLabel: screen.footer.totalLabel,
+                totalAmount: screen.footer.totalAmount,
+                button: screen.footer.button.map { MethodSelectionOutput.Footer.Button(label: $0.label) }
+            ),
+            options: screen.options.map {
+                MethodSelectionOutput.Option(id: $0.id, name: $0.name, subtitle: $0.subtitle, iconUrl: $0.iconUrl)
+            }
         )
     }
 
@@ -82,8 +129,24 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
                     paymentMethodId: data.paymentMethodId,
                     paymentTypeId: data.paymentTypeId,
                     issuerId: data.issuerId,
-                    securityCodeScreen: self.mapSecurityCodeScreen(data)
+                    securityCodeScreen: self.mapSecurityCodeScreen(data),
+                    bin: data.bin,
+                    lastFourDigits: data.lastFourDigits,
+                    installments: self.mapInstallments(data)
                 )
+            },
+            screen: self.mapMethodSelectionScreen(method.screen),
+            config: self.mapConfig(method.config)
+        )
+    }
+
+    private func mapConfig(
+        _ config: PaymentBrickInitializationResponse.Config?
+    ) -> PaymentInitializationOutput.Item.Config? {
+        guard let config else { return nil }
+        return .init(
+            paymentMethod: config.paymentMethod.map {
+                .init(notAllowedIds: $0.notAllowedIds, notAllowedTypes: $0.notAllowedTypes)
             }
         )
     }
