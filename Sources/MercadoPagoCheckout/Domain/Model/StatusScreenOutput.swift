@@ -57,14 +57,27 @@ struct StatusScreenOutput: Equatable, Sendable {
             case simple
         }
 
+        struct SubtitleSegment: Equatable, Sendable {
+            let text: String
+            let isPositive: Bool
+        }
+
         let title: String
         let subtitle: String?
+        let subtitleSegments: [SubtitleSegment]
         let leading: Leading?
         let style: Style
 
-        init(title: String, subtitle: String?, leading: Leading?, style: Style = .standard) {
+        init(
+            title: String,
+            subtitle: String?,
+            subtitleSegments: [SubtitleSegment] = [],
+            leading: Leading?,
+            style: Style = .standard
+        ) {
             self.title = title
             self.subtitle = subtitle
+            self.subtitleSegments = subtitleSegments
             self.leading = leading
             self.style = style
         }

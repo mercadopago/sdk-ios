@@ -44,7 +44,7 @@ package struct MPListItem: View {
             leading: self.leadingView,
             title: self.contentInfo.title.map { _ in self.titleView },
             header: self.contentInfo.header.map { _ in self.headerView },
-            description: self.contentInfo.description.map { _ in self.descriptionView },
+            description: self.contentInfo.hasDescription ? self.descriptionView : nil,
             trailing: self.trailingView
         )
 
@@ -90,9 +90,22 @@ package struct MPListItem: View {
 
     @ViewBuilder
     private var descriptionView: some View {
-        if let description = contentInfo.description {
+        if !contentInfo.descriptionSegments.isEmpty {
+            self.segmentedDescription(contentInfo.descriptionSegments)
+                .textStyle(.bodyMedium())
+        } else if let description = contentInfo.description {
             Text(description)
                 .textStyle(.bodyMedium())
+        }
+    }
+
+    private func segmentedDescription(_ segments: [MPListItemTextSegment]) -> Text {
+        segments.reduce(Text("")) { result, segment in
+            var text = Text(segment.text)
+            if let colorType = segment.colorType {
+                text = text.foregroundColor(colorType.color(from: self.theme.colors))
+            }
+            return result + text
         }
     }
 
@@ -156,6 +169,17 @@ package struct MPListItem: View {
                             description: "Visa Crédito"
                         ),
                         trailing: .init(text: "")
+                    )
+
+                    MPListItem(
+                        contentInfo: .init(
+                            title: "Visa Crédito •••• 1234",
+                            descriptionSegments: [
+                                .init(text: "$ 12.000 (3x $ 4.000 "),
+                                .init(text: "sin interés", colorType: .feedbackPositive),
+                                .init(text: ")")
+                            ]
+                        )
                     )
 
                     MPListItem(

@@ -42,6 +42,58 @@ final class StatusScreenMapperTests: XCTestCase {
         }
     }
 
+    func test_map_WhenSubtitleHasSegments_ShouldMapSuccessStateAsPositive() throws {
+        let sut = self.makeSUT()
+        let json = self.cardJSON(segments: """
+        [
+          { "text": "$ 12.000 (3x $ 4.000 " },
+          { "text": "sin interés", "state": "success" },
+          { "text": ")" }
+        ]
+        """)
+
+        let item = try self.cardItem(sut.map(self.decode(json)))
+
+        XCTAssertEqual(item.subtitleSegments, [
+            .init(text: "$ 12.000 (3x $ 4.000 ", isPositive: false),
+            .init(text: "sin interés", isPositive: true),
+            .init(text: ")", isPositive: false)
+        ])
+    }
+
+    func test_map_WhenSegmentStateIsNoneOrUnknown_ShouldNotHighlight() throws {
+        let sut = self.makeSUT()
+        let json = self.cardJSON(segments: """
+        [{ "text": "con interés", "state": "none" }, { "text": "x", "state": "future" }]
+        """)
+
+        let item = try self.cardItem(sut.map(self.decode(json)))
+
+        XCTAssertEqual(item.subtitleSegments.map(\.isPositive), [false, false])
+    }
+
+    func test_map_WhenSegmentTextIsEmpty_ShouldDropSegmentsAndKeepSubtitle() throws {
+        let sut = self.makeSUT()
+        let json = self.cardJSON(
+            subtitle: "$ 900 sin interés",
+            segments: #"[{ "text": "ok" }, { "text": "" }]"#
+        )
+
+        let item = try self.cardItem(sut.map(self.decode(json)))
+
+        XCTAssertTrue(item.subtitleSegments.isEmpty)
+        XCTAssertEqual(item.subtitle, "$ 900 sin interés")
+    }
+
+    func test_map_WhenSubtitleHasNoSegments_ShouldKeepPlainSubtitle() throws {
+        let sut = self.makeSUT()
+
+        let item = try self.cardItem(sut.map(self.decode(self.validJSON)))
+
+        XCTAssertTrue(item.subtitleSegments.isEmpty)
+        XCTAssertEqual(item.subtitle, "$ 900 sin interés")
+    }
+
     func test_map_WhenBarcodeContainsImageURL_ShouldDropOnlyBarcode() throws {
         let sut = self.makeSUT()
         let json = self.validJSON.replacingOccurrences(
@@ -245,6 +297,22 @@ private extension StatusScreenMapperTests {
 
     func decode(_ json: String) throws -> StatusScreenResponse {
         try JSONDecoder().decode(StatusScreenResponse.self, from: Data(json.utf8))
+    }
+
+    func cardItem(_ output: StatusScreenOutput) throws -> StatusScreenOutput.ListItem {
+        let item = output.body.compactMap { component -> StatusScreenOutput.ListItem? in
+            if case let .listItem(item) = component, item.leading == .cardIcon { return item }
+            return nil
+        }.first
+        return try XCTUnwrap(item)
+    }
+
+    func cardJSON(subtitle: String? = nil, segments: String) -> String {
+        let subtitleField = subtitle.map { "\"subtitle\": \"\($0)\"," } ?? ""
+        return validJSON.replacingOccurrences(
+            of: "\"subtitle\": \"$ 900 sin interés\",",
+            with: "\(subtitleField) \"subtitle_segments\": \(segments),"
+        )
     }
 
     var validJSON: String {

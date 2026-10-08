@@ -148,6 +148,42 @@ final class MPListItemSnapshotTests: XCTestCase {
         )
     }
 
+    // MARK: - Segmented Description
+
+    func test_segmentedDescription_highlightsOnlyPositiveSegment() {
+        FontName.registerCustomFonts()
+
+        let view = self.createTestView {
+            MPListItem(
+                contentInfo: .init(
+                    title: "Visa Crédito •••• 1234",
+                    descriptionSegments: [
+                        .init(text: "$ 12.000 (3x $ 4.000 "),
+                        .init(text: "sin interés", colorType: .feedbackPositive),
+                        .init(text: ")")
+                    ]
+                )
+            )
+            .listItemStyle(.simple)
+
+            MPListItem(
+                contentInfo: .init(
+                    title: "Visa Crédito •••• 1234",
+                    descriptionSegments: [.init(text: "$ 12.000 (3x $ 4.000 con interés)")]
+                )
+            )
+            .listItemStyle(.simple)
+        }
+
+        let hostingController = UIHostingController(rootView: view)
+
+        assertSnapshot(
+            of: hostingController,
+            as: .image(precision: 0.95, size: CGSize(width: 360, height: 160)),
+            named: "segmented_description"
+        )
+    }
+
     // MARK: - Compact Style
 
     func test_compactStyle_allStatesComparison() {

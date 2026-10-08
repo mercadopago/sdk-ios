@@ -193,9 +193,17 @@ struct StatusScreenMapper: Sendable {
         return .init(
             title: title,
             subtitle: data.subtitle,
+            subtitleSegments: self.mapSubtitleSegments(data.subtitleSegments),
             leading: leading,
             style: data.style == "simple" ? .simple : .standard
         )
+    }
+
+    private func mapSubtitleSegments(
+        _ segments: [StatusScreenResponse.BodyNode.SubtitleSegment]?
+    ) -> [StatusScreenOutput.ListItem.SubtitleSegment] {
+        guard let segments, !segments.isEmpty, segments.allSatisfy({ !$0.text.isEmpty }) else { return [] }
+        return segments.map { .init(text: $0.text, isPositive: $0.state == "success") }
     }
 
     private func mapBarcode(_ data: StatusScreenResponse.BodyNode.Data) -> StatusScreenOutput.Barcode? {

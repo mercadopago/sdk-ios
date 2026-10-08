@@ -23,9 +23,15 @@ struct StatusScreenResponse: Codable, Sendable {
             case message = "MPMessage"
         }
 
+        struct SubtitleSegment: Codable, Sendable {
+            let text: String
+            let state: String?
+        }
+
         struct Data: Codable, Sendable {
             let title: String?
             let subtitle: String?
+            let subtitleSegments: [SubtitleSegment]?
             let imageURL: String?
             let leadingType: String?
             let leadingValue: String?
@@ -40,6 +46,7 @@ struct StatusScreenResponse: Codable, Sendable {
             enum CodingKeys: String, CodingKey {
                 case title
                 case subtitle
+                case subtitleSegments = "subtitle_segments"
                 case imageURL = "image_url"
                 case leadingType = "leading_type"
                 case leadingValue = "leading_value"

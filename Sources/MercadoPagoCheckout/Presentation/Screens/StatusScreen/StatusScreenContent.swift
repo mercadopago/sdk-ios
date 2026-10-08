@@ -77,7 +77,10 @@ struct StatusScreenContent: View {
                     leading: self.leading(item.leading),
                     contentInfo: .init(
                         title: item.title,
-                        description: item.subtitle
+                        description: item.subtitle,
+                        descriptionSegments: item.subtitleSegments.map {
+                            .init(text: $0.text, colorType: $0.isPositive ? .feedbackPositive : nil)
+                        }
                     )
                 )
             )
