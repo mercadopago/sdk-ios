@@ -103,6 +103,39 @@ final class InstallmentsMappingTests: XCTestCase {
         """
     }
 
+    private func installmentsWithDefault(_ defaultInstallments: String) -> String {
+        """
+        , "installments": {
+            "header": { "title": "Elegí la cantidad de cuotas" },
+            "footer": {
+                "button": { "label": "Pagar" },
+                "total_label": "Total",
+                "currency_symbol": "$"
+            },
+            "selection_type": "radio_button",
+            "quotas": [
+                {
+                    "installments": 1,
+                    "installment_amount": 100,
+                    "total_amount": 100,
+                    "primary_label": "1x $ 100",
+                    "secondary_label": "",
+                    "state": "none"
+                },
+                {
+                    "installments": 3,
+                    "installment_amount": 33.33,
+                    "total_amount": 100,
+                    "primary_label": "3x $ 33,33",
+                    "secondary_label": "",
+                    "state": "none"
+                }
+            ]
+            \(defaultInstallments)
+        }
+        """
+    }
+
     private func installmentsWithQuotas(_ quotas: String?) -> String {
         let quotasField = quotas.map { ", \"quotas\": \($0)" } ?? ""
         return """
@@ -140,6 +173,50 @@ final class InstallmentsMappingTests: XCTestCase {
         XCTAssertEqual(installments.quotas[0].state, .success)
         XCTAssertEqual(installments.quotas[0].tertiaryLabel, "Sin interés")
         XCTAssertEqual(installments.quotas[0].accessibilityLabel, "3 cuotas sin interés de 33,33 pesos")
+    }
+
+    func testFetch_whenInstallmentsHasDefaultInstallments_defaultQuotaIsPreselected() async throws {
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeResponseData(installments: self.installmentsWithDefault(", \"default_installments\": 3")))
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        let result = try await sut.repository.fetchInitialization(
+            orderId: "ORDER-1",
+            clientToken: "tok"
+        )
+
+        let installments = try XCTUnwrap(result.sections[0].items[0].cardData?.installments)
+        XCTAssertEqual(installments.defaultInstallments, 3)
+        XCTAssertEqual(installments.defaultQuota?.installments, 3)
+    }
+
+    func testFetch_whenDefaultInstallmentsIsMissing_defaultQuotaFallsBackToFirst() async throws {
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeResponseData(installments: self.installmentsWithDefault("")))
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        let result = try await sut.repository.fetchInitialization(
+            orderId: "ORDER-1",
+            clientToken: "tok"
+        )
+
+        let installments = try XCTUnwrap(result.sections[0].items[0].cardData?.installments)
+        XCTAssertNil(installments.defaultInstallments)
+        XCTAssertEqual(installments.defaultQuota?.installments, 1)
+    }
+
+    func testFetch_whenDefaultInstallmentsIsNotInQuotas_defaultQuotaFallsBackToFirst() async throws {
+        let sut = self.makeSUT()
+        await sut.session.mock.setData(self.makeResponseData(installments: self.installmentsWithDefault(", \"default_installments\": 6")))
+        await sut.session.mock.setResponse(self.makeHTTPResponse())
+
+        let result = try await sut.repository.fetchInitialization(
+            orderId: "ORDER-1",
+            clientToken: "tok"
+        )
+
+        let installments = try XCTUnwrap(result.sections[0].items[0].cardData?.installments)
+        XCTAssertEqual(installments.defaultQuota?.installments, 1)
     }
 
     func testFetch_whenSavedCardHasNoInstallments_keepsInstallmentsNil() async throws {

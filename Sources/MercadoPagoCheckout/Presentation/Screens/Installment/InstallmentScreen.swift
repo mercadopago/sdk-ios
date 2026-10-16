@@ -140,7 +140,7 @@ struct InstallmentScreen: View {
         onContinue: @escaping (InstallmentFinishContext) -> Void = { _ in }
     ) {
         self._paymentData = paymentData
-        self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.quotas.first)
+        self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.defaultQuota)
         self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData, checkoutType: checkoutType)
         self.style = style ?? installmentsData.wrappedValue.installment.resolvedInteractionStyle
         self.onBack = onBack

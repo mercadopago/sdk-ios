@@ -88,7 +88,8 @@ struct RemotePaymentBrickRepository: PaymentBrickRepository {
                 totalLabel: installments.footer.totalLabel,
                 payButtonLabel: installments.footer.button.label,
                 currencySymbol: installments.footer.currencySymbol
-            )
+            ),
+            defaultInstallments: installments.defaultInstallments
         )
     }
 

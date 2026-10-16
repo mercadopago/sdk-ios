@@ -244,7 +244,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         guard let cardData = item.cardData else { return nil }
 
         return MPPaymentData.CardTransaction(
-            transactionAmount: cardData.installments?.quotas.first?.totalAmount ?? .zero,
+            transactionAmount: cardData.installments?.defaultQuota?.totalAmount ?? .zero,
             token: token ?? String(),
             paymentMethodId: cardData.paymentMethodId,
             paymentTypeId: cardData.paymentTypeId,

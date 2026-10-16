@@ -178,12 +178,14 @@ struct PaymentBrickInitializationResponse: Codable {
         let footer: Footer
         let selectionType: String
         let quotas: [Quota]
+        let defaultInstallments: Int?
 
         enum CodingKeys: String, CodingKey {
             case header
             case footer
             case selectionType = "selection_type"
             case quotas
+            case defaultInstallments = "default_installments"
         }
 
         struct Header: Codable {

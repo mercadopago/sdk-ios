@@ -11,6 +11,11 @@ struct InstallmentScreenData: Equatable, Sendable {
     let selectionType: String
     let quotas: [Quota]
     let translations: Translations
+    var defaultInstallments: Int?
+
+    var defaultQuota: Quota? {
+        self.quotas.first { $0.installments == self.defaultInstallments } ?? self.quotas.first
+    }
 
     struct Quota: Equatable, Identifiable, Sendable {
         var id: Int {
