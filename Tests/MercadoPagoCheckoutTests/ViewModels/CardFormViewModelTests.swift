@@ -55,6 +55,7 @@ final class CardFormViewModelTests: XCTestCase {
     private enum CardDataStub {
         static let visa = makeCardData(id: "visa")
         static let master = makeCardData(id: "master")
+        static let debitWithButtonLabel = makeCardData(id: "debit", paymentTypeId: "debit_card", buttonLabel: "Pagar")
 
         static let visaWithSecurityCode = makeCardData(
             id: "visa",
@@ -108,12 +109,14 @@ final class CardFormViewModelTests: XCTestCase {
         private static func makeCardData(
             id: String,
             paymentTypeId: String = "credit_card",
-            securityCode: CardPaymentBrickCardData.PaymentMethod.SecurityCodeInfo? = nil
+            securityCode: CardPaymentBrickCardData.PaymentMethod.SecurityCodeInfo? = nil,
+            buttonLabel: String = String()
         ) -> CardPaymentBrickCardData {
             CardPaymentBrickCardData(
                 securityCodeTranslations: nil,
                 installment: nil,
-                paymentMethods: [self.makePaymentMethod(id: id, paymentTypeId: paymentTypeId, securityCode: securityCode)]
+                paymentMethods: [self.makePaymentMethod(id: id, paymentTypeId: paymentTypeId, securityCode: securityCode)],
+                buttonLabel: buttonLabel
             )
         }
 
@@ -192,7 +195,9 @@ final class CardFormViewModelTests: XCTestCase {
         checkoutTypeAnalyticsValue: String = "save_card",
         identificationTypes: [IdentificationType] = [],
         minInstallments: Int? = nil,
-        maxInstallments: Int? = nil
+        maxInstallments: Int? = nil,
+        screens: String? = nil,
+        orderId: String? = nil
     ) -> SUT {
         let service = MockCheckoutService()
         let repository = MockCardPaymentBrickCardRepository()
@@ -203,7 +208,9 @@ final class CardFormViewModelTests: XCTestCase {
             excludedPaymentMethodIds: [],
             initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes),
             minInstallments: minInstallments,
-            maxInstallments: maxInstallments
+            maxInstallments: maxInstallments,
+            screens: screens,
+            orderId: orderId
         )
         let viewModel = CardFormViewModel(
             config: config,
@@ -251,6 +258,32 @@ final class CardFormViewModelTests: XCTestCase {
         XCTAssertNil(sut.viewModel.selectTypeDocument)
     }
 
+    // MARK: - footerButtonLabel (DD-PF-3)
+
+    func test_footerButtonLabel_beforeCardDataFetched_fallsBackToInitResultButton() {
+        // Arrange / Act — BIN identification hasn't resolved yet.
+        let sut = self.makeSUT()
+
+        // Assert
+        XCTAssertNil(sut.viewModel.cardData)
+        XCTAssertEqual(sut.viewModel.footerButtonLabel, sut.viewModel.initResult.button)
+    }
+
+    func test_footerButtonLabel_afterCardDataFetched_usesServerResolvedLabel() async {
+        // Arrange — the BFF resolves the label from the identified card type × screens; the SDK
+        // just renders it, it doesn't decide "Pagar" vs "Continuar" on its own.
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(CardDataStub.debitWithButtonLabel))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert
+        XCTAssertEqual(sut.viewModel.footerButtonLabel, "Pagar")
+        XCTAssertNotEqual(sut.viewModel.footerButtonLabel, sut.viewModel.initResult.button)
+    }
+
     // MARK: - onCardNumberChange
 
     func test_onCardNumberChange_whenDigitsLessThan8_shouldNotFetchCardData() {
@@ -277,6 +310,62 @@ final class CardFormViewModelTests: XCTestCase {
         // Assert
         XCTAssertEqual(sut.viewModel.cardData, CardDataStub.visa)
         XCTAssertNil(sut.viewModel.cardAcceptanceError)
+    }
+
+    func test_onCardNumberChange_whenScreensConfigured_shouldForwardScreensToCardLookup() async {
+        // Arrange — screens opted-in are sent on the card_payment_brick/card lookup.
+        let sut = self.makeSUT(screens: "REVIEW_AND_CONFIRM")
+        await sut.repository.setResult(.success(CardDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert
+        let capturedScreens = await sut.repository.capturedParams?.screens
+        XCTAssertEqual(capturedScreens, "REVIEW_AND_CONFIRM")
+    }
+
+    func test_onCardNumberChange_whenNoScreens_shouldForwardNilToCardLookup() async {
+        // Arrange
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(CardDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert
+        let capturedScreens = await sut.repository.capturedParams?.screens
+        XCTAssertNil(capturedScreens)
+    }
+
+    func test_onCardNumberChange_whenOrderIdConfigured_shouldForwardOrderIdToCardLookup() async {
+        // Arrange — the BFF needs order_id to resolve the caller's identity for card_payment_brick/card.
+        let sut = self.makeSUT(orderId: "ORD01")
+        await sut.repository.setResult(.success(CardDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert
+        let capturedOrderId = await sut.repository.capturedParams?.orderId
+        XCTAssertEqual(capturedOrderId, "ORD01")
+    }
+
+    func test_onCardNumberChange_whenNoOrderId_shouldForwardNilToCardLookup() async {
+        // Arrange — e.g. .saveCard, which has no Order.
+        let sut = self.makeSUT()
+        await sut.repository.setResult(.success(CardDataStub.visa))
+
+        // Act
+        sut.viewModel.onCardNumberChange("12345678")
+        await self.waitForChange(sut.viewModel.$cardData)
+
+        // Assert
+        let capturedOrderId = await sut.repository.capturedParams?.orderId
+        XCTAssertNil(capturedOrderId)
     }
 
     func test_onCardNumberChange_whenDigitsReach8_withEmptyMethods_shouldSetAcceptanceError() async {

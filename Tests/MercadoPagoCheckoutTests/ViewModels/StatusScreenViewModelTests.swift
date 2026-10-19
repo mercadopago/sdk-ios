@@ -1,0 +1,272 @@
+//
+//  StatusScreenViewModelTests.swift
+//  MercadoPagoSDK
+//
+
+import CommonTests
+import Foundation
+@testable import MercadoPagoCheckout
+import XCTest
+
+@MainActor
+final class StatusScreenViewModelTests: XCTestCase {
+    func test_load_WhenUseCaseSucceeds_ShouldBecomeReady() async {
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .success(output))
+
+        await sut.viewModel.load()
+
+        XCTAssertEqual(sut.viewModel.state, .ready(output))
+    }
+
+    func test_load_WhenCheckoutTypeIsSet_ShouldForwardItToUseCase() async {
+        for checkoutType in ["payment", "card_transaction"] {
+            let sut = makeSUT(checkoutType: checkoutType)
+
+            await sut.viewModel.load()
+
+            let invocations = await sut.useCase.invocations
+            XCTAssertEqual(invocations.first?.checkoutType, checkoutType)
+        }
+    }
+
+    func test_load_WhenCheckoutTypeIsUnknown_ShouldForwardNil() async {
+        let sut = makeSUT()
+
+        await sut.viewModel.load()
+
+        let invocations = await sut.useCase.invocations
+        XCTAssertEqual(invocations.count, 1)
+        XCTAssertNil(invocations.first?.checkoutType)
+    }
+
+    func test_load_WhenCalled_ShouldForwardInputsToUseCase() async throws {
+        let sellerInfo = MPSellerInfo(
+            name: "Test Store",
+            logoUrl: "https://example.com/store.png"
+        )
+        let sut = makeSUT(
+            orderID: "ORDER-123",
+            clientToken: "client-token",
+            lastFourDigits: "0000",
+            sellerInfo: sellerInfo
+        )
+
+        await sut.viewModel.load()
+
+        let invocations = await sut.useCase.invocations
+        let invocation = try XCTUnwrap(invocations.first)
+        XCTAssertEqual(invocation.orderID, "ORDER-123")
+        XCTAssertEqual(invocation.clientToken, "client-token")
+        XCTAssertEqual(invocation.lastFourDigits, "0000")
+        XCTAssertEqual(invocation.sellerInfo, sellerInfo)
+    }
+
+    func test_load_WhenCalledAfterReady_ShouldFetchOnlyOnce() async {
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .success(output))
+
+        await sut.viewModel.load()
+        await sut.viewModel.load()
+
+        let callCount = await sut.useCase.callCount
+        XCTAssertEqual(sut.viewModel.state, .ready(output))
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func test_load_WhenRequestIsInFlight_ShouldStayLoadingAndFetchOnlyOnce() async {
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .suspended(output))
+        let firstLoad = Task { await sut.viewModel.load() }
+        await sut.useCase.waitUntilCalled()
+
+        await sut.viewModel.load()
+
+        let callCount = await sut.useCase.callCount
+        XCTAssertEqual(sut.viewModel.state, .loading)
+        XCTAssertEqual(callCount, 1)
+
+        await sut.useCase.resume()
+        await firstLoad.value
+        XCTAssertEqual(sut.viewModel.state, .ready(output))
+    }
+
+    func test_load_WhenUseCaseFails_ShouldBecomeUnavailable() async {
+        let sut = makeSUT(behavior: .failure(makeError()))
+
+        await sut.viewModel.load()
+
+        XCTAssertEqual(sut.viewModel.state, .unavailable)
+    }
+
+    func test_load_WhenCancelled_ShouldReturnToIdle() async {
+        let sut = makeSUT(behavior: .suspended(makeOutput()))
+        let load = Task { await sut.viewModel.load() }
+        await sut.useCase.waitUntilCalled()
+
+        load.cancel()
+        XCTAssertEqual(sut.viewModel.state, .loading)
+        await sut.useCase.resume()
+        await load.value
+
+        XCTAssertEqual(sut.viewModel.state, .idle)
+    }
+
+    func test_load_WhenCancelledAndUseCaseFails_ShouldReturnToIdle() async {
+        let sut = makeSUT(behavior: .suspendedFailure(makeError()))
+        let load = Task { await sut.viewModel.load() }
+        await sut.useCase.waitUntilCalled()
+
+        load.cancel()
+        XCTAssertEqual(sut.viewModel.state, .loading)
+        await sut.useCase.resume()
+        await load.value
+
+        XCTAssertEqual(sut.viewModel.state, .idle)
+    }
+
+    // MARK: - Cached /process result
+
+    func test_init_WhenCachedPaymentIsProvided_ShouldKeepItAvailable() {
+        let cached = makeCachedPayment()
+        let sut = makeSUT(cachedPayment: cached)
+
+        XCTAssertEqual(sut.viewModel.cachedPayment?.id, cached.id)
+        XCTAssertEqual(sut.viewModel.cachedPayment?.payments.first?.barcodeContent, "0123456789")
+    }
+
+    func test_init_WhenNoCachedPayment_ShouldHaveNone() {
+        XCTAssertNil(makeSUT().viewModel.cachedPayment)
+    }
+
+    func test_load_WhenUseCaseSucceedsWithCachedPayment_ShouldUseBFFOutput() async {
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .success(output), cachedPayment: makeCachedPayment())
+
+        await sut.viewModel.load()
+
+        XCTAssertEqual(sut.viewModel.state, .ready(output))
+    }
+
+    func test_load_WhenUseCaseFailsWithCachedPayment_ShouldShowFallbackInsteadOfUnavailable() async {
+        let sut = makeSUT(behavior: .failure(makeError()), cachedPayment: makeCachedPayment())
+
+        await sut.viewModel.load()
+
+        guard case let .ready(output) = sut.viewModel.state else {
+            return XCTFail("Should render the fallback built from the cached payment")
+        }
+        XCTAssertEqual(output.statusType, "pending")
+        XCTAssertEqual(output.footerButtons.count, 2)
+        XCTAssertEqual(output.footerButtons.last?.action, .back)
+    }
+
+    func test_load_WhenUseCaseFailsAfterProcessFailure_ShouldShowGenericFallback() async {
+        let sut = makeSUT(
+            behavior: .failure(makeError()),
+            processFailed: true
+        )
+
+        await sut.viewModel.load()
+
+        guard case let .ready(output) = sut.viewModel.state else {
+            return XCTFail("Should render the rejected fallback")
+        }
+        XCTAssertEqual(output.statusType, "rejected")
+        XCTAssertEqual(output.footerButtons.map(\.action), [.back])
+    }
+
+    func test_load_WhenUseCaseSucceedsAfterProcessFailure_ShouldUseBFFOutput() async {
+        let output = makeOutput()
+        let sut = makeSUT(behavior: .success(output), processFailed: true)
+
+        await sut.viewModel.load()
+
+        XCTAssertEqual(sut.viewModel.state, .ready(output))
+    }
+
+    func test_load_WhenUseCaseFailsWithoutCachedPayment_ShouldBecomeUnavailable() async {
+        let sut = makeSUT(behavior: .failure(makeError()))
+
+        await sut.viewModel.load()
+
+        XCTAssertEqual(sut.viewModel.state, .unavailable)
+    }
+}
+
+private extension StatusScreenViewModelTests {
+    func makeCachedPayment(status: String = "action_required") -> OrderTransactionProcessData {
+        OrderTransactionProcessData(
+            id: "ORDER-TEST",
+            status: status,
+            statusDetail: "waiting_payment",
+            totalAmount: "250.50",
+            payments: [.init(
+                id: "PAY-1",
+                status: status,
+                statusDetail: "pending_waiting_payment",
+                amount: "250.50",
+                paymentMethodId: "rapipago",
+                paymentTypeId: "ticket",
+                installments: nil,
+                barcodeContent: "0123456789",
+                ticketURL: "https://example.invalid/ticket"
+            )]
+        )
+    }
+
+    typealias SUT = (
+        viewModel: StatusScreenViewModel,
+        useCase: MockStatusScreenUseCase
+    )
+
+    func makeSUT(
+        orderID: String = "ORDER-TEST",
+        clientToken: String = "client-token",
+        lastFourDigits: String? = "0000",
+        sellerInfo: MPSellerInfo? = nil,
+        checkoutType: String? = nil,
+        behavior: MockStatusScreenUseCase.Behavior? = nil,
+        cachedPayment: OrderTransactionProcessData? = nil,
+        processFailed: Bool = false,
+        file _: StaticString = #filePath,
+        line _: UInt = #line
+    ) -> SUT {
+        let useCase = MockStatusScreenUseCase(
+            behavior: behavior ?? .success(makeOutput())
+        )
+        let viewModel = StatusScreenViewModel(
+            orderID: orderID,
+            clientToken: clientToken,
+            lastFourDigits: lastFourDigits,
+            sellerInfo: sellerInfo,
+            paymentTypeId: "ticket",
+            checkoutType: checkoutType,
+            cachedPayment: cachedPayment,
+            processFailed: processFailed,
+            useCase: useCase,
+            analytics: MockAnalytics()
+        )
+        return (viewModel, useCase)
+    }
+
+    func makeOutput() -> StatusScreenOutput {
+        guard let iconURL = URL(string: "https://example.com/status.png") else {
+            fatalError("The test URL must be valid")
+        }
+        return StatusScreenOutput(
+            statusType: "approved",
+            header: .init(title: "Approved", iconURL: iconURL),
+            body: [.listItem(.init(title: "Seller", subtitle: nil, leading: nil))],
+            footerButtons: [.init(label: "Back", action: .back, style: nil)]
+        )
+    }
+
+    func makeError() -> MercadoPagoCheckoutError {
+        MercadoPagoCheckoutError(
+            code: .serviceError,
+            localizedDescription: "Unavailable",
+            location: .initialization
+        )
+    }
+}
