@@ -175,13 +175,12 @@ final class OrderTransactionParamsTests: XCTestCase {
     func test_init_WhenCreditWithInstallments_ShouldBuildCreditCase() throws {
         let transaction = MPPaymentData.CardTransaction(
             transactionAmount: 150,
-            token: "tok_xyz",
             installment: 6,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card"
         )
 
-        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction))
+        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction, token: "tok_xyz"))
 
         XCTAssertEqual(params.amount, 150)
         guard case let .creditCard(paymentMethodId, paymentTypeId, token, installments) = params.paymentMethodType else {
@@ -196,37 +195,34 @@ final class OrderTransactionParamsTests: XCTestCase {
     func test_init_WhenCreditWithoutInstallments_ShouldReturnNil() {
         var transaction = MPPaymentData.CardTransaction(
             transactionAmount: 100,
-            token: "tok_credit",
             paymentMethodId: "visa",
             paymentTypeId: "credit_card"
         )
         transaction.installment = nil
 
-        XCTAssertNil(OrderTransactionParams(cardTransaction: transaction))
+        XCTAssertNil(OrderTransactionParams(cardTransaction: transaction, token: "tok_credit"))
     }
 
     func test_init_WhenCreditInstallmentsAreNotPositive_ShouldReturnNil() {
         let transaction = MPPaymentData.CardTransaction(
             transactionAmount: 100,
-            token: "tok_credit",
             installment: 0,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card"
         )
 
-        XCTAssertNil(OrderTransactionParams(cardTransaction: transaction))
+        XCTAssertNil(OrderTransactionParams(cardTransaction: transaction, token: "tok_credit"))
     }
 
     func test_init_WhenDebit_ShouldBuildDebitCaseWithoutInstallments() throws {
         var transaction = MPPaymentData.CardTransaction(
             transactionAmount: 100,
-            token: "tok_debit",
             paymentMethodId: "debvisa",
             paymentTypeId: "debit_card"
         )
         transaction.installment = nil
 
-        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction))
+        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction, token: "tok_debit"))
 
         guard case let .debitCard(paymentMethodId, paymentTypeId, token) = params.paymentMethodType else {
             return XCTFail("Expected .debitCard case")
@@ -239,13 +235,12 @@ final class OrderTransactionParamsTests: XCTestCase {
     func test_init_WhenPrepaid_ShouldBuildCardCaseWithoutInstallments() throws {
         var transaction = MPPaymentData.CardTransaction(
             transactionAmount: 100,
-            token: "tok_prepaid",
             paymentMethodId: "prepvisa",
             paymentTypeId: "prepaid_card"
         )
         transaction.installment = nil
 
-        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction))
+        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction, token: "tok_prepaid"))
 
         guard case let .debitCard(_, paymentTypeId, _) = params.paymentMethodType else {
             return XCTFail("Expected the no-installments card case")
@@ -263,24 +258,22 @@ final class OrderTransactionParamsTests: XCTestCase {
     func test_init_WhenPaymentTypeIsUnknown_ShouldReturnNil() {
         let transaction = MPPaymentData.CardTransaction(
             transactionAmount: 100,
-            token: "tok",
             installment: 1,
             paymentMethodId: "pix",
             paymentTypeId: "bank_transfer"
         )
 
-        XCTAssertNil(OrderTransactionParams(cardTransaction: transaction))
+        XCTAssertNil(OrderTransactionParams(cardTransaction: transaction, token: "tok"))
     }
 
     func test_init_WhenTransactionAmountIsNil_ShouldFallBackToZero() throws {
         var transaction = MPPaymentData.CardTransaction(
-            token: "tok_debit",
             paymentMethodId: "debvisa",
             paymentTypeId: "debit_card"
         )
         transaction.transactionAmount = nil
 
-        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction))
+        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction, token: "tok_debit"))
 
         XCTAssertEqual(params.amount, .zero)
     }
@@ -337,13 +330,12 @@ final class OrderTransactionParamsTests: XCTestCase {
     func test_init_cardTransaction_WhenSourceNotSpecified_ShouldBeNil() throws {
         let transaction = MPPaymentData.CardTransaction(
             transactionAmount: 100,
-            token: "tok_credit",
             installment: 1,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card"
         )
 
-        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction))
+        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction, token: "tok_credit"))
 
         XCTAssertNil(params.paymentMethodSource)
     }
@@ -351,13 +343,12 @@ final class OrderTransactionParamsTests: XCTestCase {
     func test_init_cardTransaction_WhenSourceIsSavedCard_ShouldPreserveIt() throws {
         let transaction = MPPaymentData.CardTransaction(
             transactionAmount: 100,
-            token: "tok_credit",
             installment: 1,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card"
         )
 
-        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction, paymentMethodSource: .savedCard))
+        let params = try XCTUnwrap(OrderTransactionParams(cardTransaction: transaction, token: "tok_credit", paymentMethodSource: .savedCard))
 
         XCTAssertEqual(params.paymentMethodSource, .savedCard)
     }

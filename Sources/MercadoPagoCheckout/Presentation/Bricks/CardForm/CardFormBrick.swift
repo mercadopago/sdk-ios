@@ -20,6 +20,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var pendingResult: T?
     @State private var cardFormData: CardFormData?
     @State private var cardTransactionData = MPPaymentData.CardTransaction()
+    @State private var cardToken = String()
     @State private var installmentsData: MPInstallmentsData?
     @State private var isProcessingOrder = false
     @State private var processingTask: Task<Void, Never>?
@@ -104,6 +105,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             },
             onSuccess: { output in
                 self.inputCardData = InputCardData(bin: output.bin, lastFourDigits: output.lastFourDigits)
+                self.cardToken = output.token
                 self.pendingResult = self.brickViewModel.buildPaymentData(from: output)
                 if let transaction = self.pendingResult as? MPPaymentData.CardTransaction {
                     self.cardTransactionData = transaction
@@ -320,6 +322,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
 
         if let input = self.brickViewModel.reviewConfirmInput(
             cardTransaction: paymentData,
+            token: self.cardToken,
             inputCardData: self.inputCardData,
             installmentAmount: installmentAmount
         ) {
@@ -338,7 +341,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             self.isProcessingOrder = true
             defer { self.isProcessingOrder = false }
             do {
-                let processed = try await self.brickViewModel.processOrder(paymentData)
+                let processed = try await self.brickViewModel.processOrder(paymentData, token: self.cardToken)
                 self.pendingResult = processed.paymentData as? T
                 guard let result = self.pendingResult else { return }
                 self.completeCardTransaction(result, processData: processed.processData)

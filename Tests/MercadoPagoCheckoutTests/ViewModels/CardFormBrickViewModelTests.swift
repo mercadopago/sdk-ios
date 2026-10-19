@@ -209,7 +209,6 @@ final class CardFormBrickViewModelTests: XCTestCase {
         )
         let paymentData = MPPaymentData.CardTransaction(
             transactionAmount: 100.0,
-            token: "tok",
             installment: 1,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card",
@@ -217,7 +216,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
         )
 
         // Act
-        _ = try await viewModel.processOrderTask(paymentData)
+        _ = try await viewModel.processOrderTask(paymentData, token: "tok")
 
         // Assert
         let lastClientToken = await orderRepository.lastClientToken
@@ -243,7 +242,6 @@ final class CardFormBrickViewModelTests: XCTestCase {
         )
         let paymentData = MPPaymentData.CardTransaction(
             transactionAmount: 100.0,
-            token: "tok",
             installment: 1,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card",
@@ -251,7 +249,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
         )
 
         // Act
-        let processed = try await viewModel.processOrder(paymentData)
+        let processed = try await viewModel.processOrder(paymentData, token: "tok")
 
         // Assert
         XCTAssertEqual(processed.processData.id, processData.id)

@@ -102,7 +102,11 @@ struct OrderTransactionParams: Encodable, Sendable {
 }
 
 extension OrderTransactionParams {
-    init?(cardTransaction: MPPaymentData.CardTransaction, paymentMethodSource: PaymentMethodSource? = nil) {
+    init?(
+        cardTransaction: MPPaymentData.CardTransaction,
+        token: String,
+        paymentMethodSource: PaymentMethodSource? = nil
+    ) {
         let paymentMethodType: PaymentMethodType
         switch MPCardType(paymentTypeId: cardTransaction.paymentTypeId) {
         case .credit:
@@ -110,14 +114,14 @@ extension OrderTransactionParams {
             paymentMethodType = .creditCard(
                 paymentMethodId: cardTransaction.paymentMethodId,
                 paymentTypeId: cardTransaction.paymentTypeId,
-                token: cardTransaction.token,
+                token: token,
                 installments: installments
             )
         case .debit, .prepaid:
             paymentMethodType = .debitCard(
                 paymentMethodId: cardTransaction.paymentMethodId,
                 paymentTypeId: cardTransaction.paymentTypeId,
-                token: cardTransaction.token
+                token: token
             )
         case .none:
             return nil

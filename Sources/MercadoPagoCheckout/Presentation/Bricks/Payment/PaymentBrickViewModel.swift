@@ -238,14 +238,12 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     }
 
     func cardTransaction(
-        from item: PaymentInitializationOutput.Item,
-        token: String?
+        from item: PaymentInitializationOutput.Item
     ) -> MPPaymentData.CardTransaction? {
         guard let cardData = item.cardData else { return nil }
 
         return MPPaymentData.CardTransaction(
             transactionAmount: cardData.installments?.defaultQuota?.totalAmount ?? .zero,
-            token: token ?? String(),
             paymentMethodId: cardData.paymentMethodId,
             paymentTypeId: cardData.paymentTypeId,
             issuerId: String(cardData.issuerId),
@@ -256,7 +254,6 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     func cardTransaction(from result: CardFormSubmitResult, amount: Decimal) -> MPPaymentData.CardTransaction {
         MPPaymentData.CardTransaction(
             transactionAmount: amount,
-            token: result.token,
             paymentMethodId: result.paymentMethodId,
             paymentTypeId: result.paymentTypeId,
             issuerId: result.issuerId,

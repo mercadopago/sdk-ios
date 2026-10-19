@@ -38,6 +38,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     @State private var didCompleteCheckout = false
     @State private var statusScreenExitCoordinator = StatusScreenExitCoordinator()
     @State private var cardTransactionData = MPPaymentData.CardTransaction()
+    @State private var cardToken = String()
     @State private var installmentsData: MPInstallmentsData?
     @State private var isProcessingOrder = false
     @State private var processingTask: Task<Void, Never>?
@@ -144,6 +145,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
 
             self.processingTask?.cancel()
             self.selectedItem = item
+            self.cardToken = String()
             self.cardTransactionData = MPPaymentData.CardTransaction()
             self.installmentsData = nil
             if skipsSecurityCode {
@@ -219,6 +221,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         self.selectedItem = nil
         self.newCardResult = nil
         self.cardTransactionData = MPPaymentData.CardTransaction()
+        self.cardToken = String()
         self.installmentsData = nil
     }
 
@@ -598,9 +601,14 @@ extension PaymentBrick {
         from item: PaymentInitializationOutput.Item,
         token: String? = nil
     ) {
+        self.cardToken = token ?? String()
         guard let installments = item.cardData?.installments else {
-            guard let cardTransactionData = self.viewModel.cardTransaction(from: item, token: token),
-                  let params = OrderTransactionParams(cardTransaction: cardTransactionData, paymentMethodSource: .savedCard)
+            guard let cardTransactionData = self.viewModel.cardTransaction(from: item),
+                  let params = OrderTransactionParams(
+                      cardTransaction: cardTransactionData,
+                      token: self.cardToken,
+                      paymentMethodSource: .savedCard
+                  )
             else {
                 self.route = nil
                 return
@@ -617,7 +625,7 @@ extension PaymentBrick {
             return
         }
         guard let installmentsData = self.viewModel.installmentsData(from: item),
-              let cardTransactionData = self.viewModel.cardTransaction(from: item, token: token)
+              let cardTransactionData = self.viewModel.cardTransaction(from: item)
         else {
             self.route = nil
             return
@@ -635,8 +643,12 @@ extension PaymentBrick {
 
         let source: OrderTransactionParams.PaymentMethodSource = self.newCardResult != nil ? .newCard : .savedCard
 
-        guard !cardTransactionData.token.isEmpty,
-              let params = OrderTransactionParams(cardTransaction: cardTransactionData, paymentMethodSource: source)
+        guard !self.cardToken.isEmpty,
+              let params = OrderTransactionParams(
+                  cardTransaction: cardTransactionData,
+                  token: self.cardToken,
+                  paymentMethodSource: source
+              )
         else {
             // The saved-card continuation without a token belongs to payment-flow orchestration.
             self.route = nil
@@ -794,6 +806,7 @@ extension PaymentBrick {
         self.newCardResult = result
         let amount = self.cardFormViewModel?.amount ?? .zero
         self.cardTransactionData = self.viewModel.cardTransaction(from: result, amount: amount)
+        self.cardToken = result.token
 
         if let installmentsData = result.installmentsData {
             self.installmentsData = installmentsData
@@ -802,7 +815,11 @@ extension PaymentBrick {
             return
         }
 
-        guard let params = OrderTransactionParams(cardTransaction: self.cardTransactionData, paymentMethodSource: .newCard) else {
+        guard let params = OrderTransactionParams(
+            cardTransaction: self.cardTransactionData,
+            token: self.cardToken,
+            paymentMethodSource: .newCard
+        ) else {
             self.route = nil
             return
         }

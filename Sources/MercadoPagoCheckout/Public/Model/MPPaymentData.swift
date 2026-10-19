@@ -82,11 +82,8 @@ public enum MPPaymentData {
         /// Order status returned by the Orders API.
         public var orderStatus: String
 
-        var token: String
-
         init(
             transactionAmount: Decimal = .zero,
-            token: String = "",
             installment: Int = 1,
             paymentMethodId: String = "",
             paymentTypeId: String = "",
@@ -96,7 +93,6 @@ public enum MPPaymentData {
             payer: Payer? = nil
         ) {
             self.transactionAmount = transactionAmount
-            self.token = token
             self.installment = installment
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId

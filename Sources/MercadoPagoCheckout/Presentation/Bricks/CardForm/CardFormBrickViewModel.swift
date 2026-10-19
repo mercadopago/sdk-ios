@@ -139,14 +139,22 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     // MARK: - Process Order
 
-    func processOrderTask(_ paymentData: MPPaymentData.CardTransaction) async throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
-        try await self.processOrder(paymentData).paymentData
+    func processOrderTask(
+        _ paymentData: MPPaymentData.CardTransaction,
+        token: String
+    ) async throws(MercadoPagoCheckoutError) -> MPPaymentData.CardTransaction {
+        try await self.processOrder(paymentData, token: token).paymentData
     }
 
     func processOrder(
-        _ paymentData: MPPaymentData.CardTransaction
+        _ paymentData: MPPaymentData.CardTransaction,
+        token: String
     ) async throws(MercadoPagoCheckoutError) -> (paymentData: MPPaymentData.CardTransaction, processData: OrderTransactionProcessData) {
-        guard let params = OrderTransactionParams(cardTransaction: paymentData, paymentMethodSource: .newCard),
+        guard let params = OrderTransactionParams(
+            cardTransaction: paymentData,
+            token: token,
+            paymentMethodSource: .newCard
+        ),
               let clientToken = self.clientToken
         else {
             assertionFailure("processOrderTask: invalid payment data")
@@ -206,7 +214,6 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         case let .cardTransaction(order, _):
             return MPPaymentData.CardTransaction(
                 transactionAmount: self.transactionAmount,
-                token: output.token,
                 installment: 1,
                 paymentMethodId: output.paymentMethodId,
                 paymentTypeId: output.paymentTypeId,
@@ -234,12 +241,17 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     func reviewConfirmInput(
         cardTransaction paymentData: MPPaymentData.CardTransaction,
+        token: String,
         inputCardData: InputCardData?,
         installmentAmount: Decimal? = nil
     ) -> PendingReviewConfirmInput? {
         guard self.configuration.reviewAndConfirmConfig != nil,
               case let .cardTransaction(order, sellerInfo) = self.configuration.type.kind,
-              let params = OrderTransactionParams(cardTransaction: paymentData, paymentMethodSource: .newCard)
+              let params = OrderTransactionParams(
+                  cardTransaction: paymentData,
+                  token: token,
+                  paymentMethodSource: .newCard
+              )
         else { return nil }
 
         let cardDetails = ReviewConfirmCardDetails(

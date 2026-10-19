@@ -272,7 +272,6 @@ struct InstallmentScreen: View {
             paymentData: .constant(
                 MPPaymentData.CardTransaction(
                     transactionAmount: 100,
-                    token: "",
                     paymentMethodId: "",
                     paymentTypeId: ""
                 )

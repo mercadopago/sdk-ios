@@ -21,7 +21,6 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
     ) -> MPPaymentData.CardTransaction {
         MPPaymentData.CardTransaction(
             transactionAmount: 100,
-            token: "token",
             installment: installment,
             paymentMethodId: "visa",
             paymentTypeId: paymentTypeId,
@@ -55,6 +54,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         // Act
         let input = sut.reviewConfirmInput(
             cardTransaction: self.makeCardTransaction(),
+            token: "token",
             inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234")
         )
 
@@ -72,6 +72,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         let input = try XCTUnwrap(
             sut.reviewConfirmInput(
                 cardTransaction: self.makeCardTransaction(),
+            token: "token",
                 inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234"),
                 installmentAmount: 33.34
             )
@@ -99,6 +100,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         let input = try XCTUnwrap(
             sut.reviewConfirmInput(
                 cardTransaction: self.makeCardTransaction(),
+            token: "token",
                 inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234")
             )
         )
@@ -117,6 +119,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         let input = try XCTUnwrap(
             sut.reviewConfirmInput(
                 cardTransaction: self.makeCardTransaction(paymentTypeId: "debit_card", installment: 1),
+                token: "token",
                 inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234"),
                 installmentAmount: 100
             )
@@ -144,6 +147,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         // Act
         let input = sut.reviewConfirmInput(
             cardTransaction: self.makeCardTransaction(),
+            token: "token",
             inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234")
         )
 
@@ -172,7 +176,6 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         // Assert
         XCTAssertEqual(result.orderStatus, "processed")
         XCTAssertEqual(result.orderId, "ORDER-1")
-        XCTAssertEqual(result.token, "token")
         XCTAssertEqual(result.installment, 3)
     }
 }

@@ -50,13 +50,11 @@ final class MPPaymentDataTests: XCTestCase {
     func test_cardTransaction_defaultsAndFields() {
         let data = MPPaymentData.CardTransaction(
             transactionAmount: 150.0,
-            token: "tok_txn",
             installment: 3,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card"
         )
         XCTAssertEqual(data.transactionAmount, 150.0)
-        XCTAssertEqual(data.token, "tok_txn")
         XCTAssertEqual(data.installment, 3)
         XCTAssertEqual(data.paymentMethodId, "visa")
         XCTAssertEqual(data.paymentTypeId, "credit_card")
@@ -67,7 +65,6 @@ final class MPPaymentDataTests: XCTestCase {
     func test_cardTransaction_codable_roundtrip() throws {
         let original = MPPaymentData.CardTransaction(
             transactionAmount: 1500.75,
-            token: "tok_123",
             installment: 6,
             paymentMethodId: "master",
             paymentTypeId: "credit_card",
@@ -82,7 +79,6 @@ final class MPPaymentDataTests: XCTestCase {
     func test_cardTransaction_codable_missingOptionalFields_shouldNotFail() throws {
         let json = #"{"token":"tok","paymentMethodId":"visa","paymentTypeId":"credit_card","orderId":"","orderStatus":""}"#.data(using: .utf8)!
         let decoded = try JSONDecoder().decode(MPPaymentData.CardTransaction.self, from: json)
-        XCTAssertEqual(decoded.token, "tok")
         XCTAssertNil(decoded.transactionAmount)
         XCTAssertNil(decoded.installment)
         XCTAssertNil(decoded.issuerId)
@@ -90,8 +86,8 @@ final class MPPaymentDataTests: XCTestCase {
     }
 
     func test_cardTransaction_equatable_sameValues_shouldBeEqual() {
-        let a = MPPaymentData.CardTransaction(token: "t", paymentMethodId: "visa", paymentTypeId: "credit_card")
-        let b = MPPaymentData.CardTransaction(token: "t", paymentMethodId: "visa", paymentTypeId: "credit_card")
+        let a = MPPaymentData.CardTransaction(paymentMethodId: "visa", paymentTypeId: "credit_card")
+        let b = MPPaymentData.CardTransaction(paymentMethodId: "visa", paymentTypeId: "credit_card")
         XCTAssertEqual(a, b)
     }
 
@@ -169,7 +165,7 @@ final class MPPaymentDataTests: XCTestCase {
 
     func test_cardTransaction_isNotCardSave() {
         let txn: any MPPaymentData.Kind = MPPaymentData.CardTransaction(
-            token: "t", paymentMethodId: "visa", paymentTypeId: "credit_card"
+            paymentMethodId: "visa", paymentTypeId: "credit_card"
         )
         XCTAssertNil(txn as? MPPaymentData.CardSave)
     }

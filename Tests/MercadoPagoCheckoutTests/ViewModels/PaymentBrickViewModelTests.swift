@@ -47,13 +47,12 @@ final class PaymentBrickViewModelTests: XCTestCase {
         XCTAssertNil(sut.installmentsData(from: item))
     }
 
-    func test_cardTransaction_withToken_mapsSavedCardPaymentData() throws {
+    func test_cardTransaction_mapsSavedCardPaymentData() throws {
         let sut = self.makePaymentSUT()
         let item = self.makeSavedCardItem(withSecurityCode: true)
 
-        let result = try XCTUnwrap(sut.cardTransaction(from: item, token: "token-123"))
+        let result = try XCTUnwrap(sut.cardTransaction(from: item))
 
-        XCTAssertEqual(result.token, "token-123")
         XCTAssertEqual(result.paymentMethodId, "master")
         XCTAssertEqual(result.paymentTypeId, "credit_card")
         XCTAssertEqual(result.issuerId, "1")
@@ -68,7 +67,7 @@ final class PaymentBrickViewModelTests: XCTestCase {
             installments: self.makeInstallmentsData()
         )
 
-        let result = try XCTUnwrap(sut.cardTransaction(from: item, token: "token-123"))
+        let result = try XCTUnwrap(sut.cardTransaction(from: item))
 
         XCTAssertEqual(result.transactionAmount, 100)
     }
@@ -83,7 +82,6 @@ final class PaymentBrickViewModelTests: XCTestCase {
 
         // AC: the payload is built from the tokenized card_token, not raw card fields —
         // CardFormSubmitResult carries no PAN/CVV/holder/expiry to begin with.
-        XCTAssertEqual(transaction.token, "new-card-token-456")
         XCTAssertEqual(transaction.paymentMethodId, "visa")
         XCTAssertEqual(transaction.paymentTypeId, "credit_card")
         XCTAssertEqual(transaction.issuerId, "1")
