@@ -432,7 +432,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             return
         }
         self.didCompleteCheckout = true
-        let checkoutResult = MercadoPagoCheckoutResult.processedOrder(result, orderStatus: cardTransaction.orderStatus)
+        let checkoutResult = MercadoPagoCheckoutResult.success(result)
         let lastFourDigits = self.inputCardData?.lastFourDigits
 
         guard self.configuration.statusScreenConfig != nil else {

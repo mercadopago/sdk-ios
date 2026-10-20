@@ -472,7 +472,7 @@ private extension PaymentBrick {
             return
         }
         self.didCompleteCheckout = true
-        let result = MercadoPagoCheckoutResult.processedOrder(payment, orderStatus: paymentData.orderStatus)
+        let result = MercadoPagoCheckoutResult.success(payment)
         let lastFourDigits = self.newCardResult?.lastFourDigits
             ?? self.selectedItem?.cardData?.lastFourDigits
 
