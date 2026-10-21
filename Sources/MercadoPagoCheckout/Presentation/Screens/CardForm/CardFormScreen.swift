@@ -30,6 +30,7 @@ struct CardFormScreen: View {
     // MARK: Enviroments
 
     @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.isLoading) private var isParentLoading: Bool
 
     init(
         viewModel: CardFormViewModel,
@@ -76,7 +77,7 @@ struct CardFormScreen: View {
                         }
                     )
                 )
-                .isLoading(self.viewModel.isTokenizing)
+                .isLoading(self.viewModel.isTokenizing || self.isParentLoading)
                 .disabled(
                     !self.cardForm.isFormValid(
                         isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory,

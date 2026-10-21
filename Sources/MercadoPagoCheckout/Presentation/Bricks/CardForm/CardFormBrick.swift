@@ -30,6 +30,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     @State private var pendingSnackbarError: String?
     @State private var statusScreenViewModel: StatusScreenViewModel?
     @State private var didCompleteCheckout = false
+    @State private var isCardFormSubmitted = false
     @State private var statusScreenExitCoordinator = StatusScreenExitCoordinator()
     @ObservedObject private var brickViewModel: CardFormBrickViewModel<T>
 
@@ -72,6 +73,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                         }
                     case let .ready(initResult, cardFormViewModel):
                         self.cardFormScreen(viewModel: cardFormViewModel)
+                            .isLoading(self.isProcessingOrder || self.isCardFormSubmitted)
                     }
                     self.navigationLinks()
                 }
@@ -104,6 +106,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 self.emitUserCancelled(cardForm: context, screens: self.screensVisited)
             },
             onSuccess: { output in
+                self.isCardFormSubmitted = true
                 self.inputCardData = InputCardData(bin: output.bin, lastFourDigits: output.lastFourDigits)
                 self.cardToken = output.token
                 self.pendingResult = self.brickViewModel.buildPaymentData(from: output)
@@ -138,6 +141,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             ),
             checkoutType: self.configuration.type.analyticsValue,
             onBack: {
+                self.isCardFormSubmitted = false
                 self.route = nil
             },
             onDismiss: {
@@ -337,8 +341,9 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     }
 
     private func processCardTransaction(_ paymentData: MPPaymentData.CardTransaction) {
+        guard !self.isProcessingOrder else { return }
+        self.isProcessingOrder = true
         self.processingTask = Task {
-            self.isProcessingOrder = true
             defer { self.isProcessingOrder = false }
             do {
                 let processed = try await self.brickViewModel.processOrder(paymentData, token: self.cardToken)
@@ -404,6 +409,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
         let previousRoute = self.reviewConfirmPreviousRoute
         self.pendingReviewConfirmInput = nil
         self.reviewConfirmPreviousRoute = nil
+        self.isCardFormSubmitted = false
         self.route = previousRoute
     }
 
@@ -493,6 +499,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     /// Failed `POST /review_confirm` while opening the screen: pop back to the card form. Per AC-9
     /// the seller's `onError` is not called for an initialization error.
     private func handleReviewInitializationError(_: MercadoPagoCheckoutError) {
+        self.isCardFormSubmitted = false
         self.route = nil
         self.pendingReviewConfirmInput = nil
         self.reviewConfirmPreviousRoute = nil
