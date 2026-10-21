@@ -39,7 +39,8 @@ struct RemoteCardPaymentBrickCardRepository: CardPaymentBrickCardRepository {
                     currencySymbol: response.translations.currencySymbol
                 )
             },
-            paymentMethods: response.paymentMethods.map { self.mapPaymentMethod($0) }
+            paymentMethods: response.paymentMethods.map { self.mapPaymentMethod($0) },
+            buttonLabel: response.translations.cardFormFooterButtonLabel
         )
     }
 

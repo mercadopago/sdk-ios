@@ -13,7 +13,7 @@ import XCTest
 @MainActor
 final class InstallmentsViewTests: XCTestCase {
     func test_installmentScreen() {
-        var paymentData = MPPaymentData.CardTransaction(transactionAmount: 1000, token: "", paymentMethodId: "", paymentTypeId: "")
+        var paymentData = MPPaymentData.CardTransaction(transactionAmount: 1000, paymentMethodId: "", paymentTypeId: "")
         var installmentsData = Self.validMPInstallmentsData
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
@@ -32,7 +32,7 @@ final class InstallmentsViewTests: XCTestCase {
     }
 
     func test_installmentScreen_chevron() {
-        var paymentData = MPPaymentData.CardTransaction(transactionAmount: 1000, token: "")
+        var paymentData = MPPaymentData.CardTransaction(transactionAmount: 1000)
         var installmentsData = Self.validMPInstallmentsData
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
