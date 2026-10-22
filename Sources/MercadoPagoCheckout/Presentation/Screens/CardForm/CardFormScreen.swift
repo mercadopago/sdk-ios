@@ -18,7 +18,7 @@ struct CardFormScreen: View {
 
     // MARK: States View
 
-    @State private var cardForm: CardFormData
+    @Binding private var cardForm: CardFormData
     @State private var isSnackbarPresented = false
     @State private var footerHeight: CGFloat = 0
     @State private var isCardNumberFocused = false
@@ -30,9 +30,11 @@ struct CardFormScreen: View {
     // MARK: Enviroments
 
     @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.isLoading) private var isParentLoading: Bool
 
     init(
         viewModel: CardFormViewModel,
+        cardForm: Binding<CardFormData>,
         onBack: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
         onDismiss: @escaping (MPCardFormUserCancelledContext) -> Void = { _ in },
         onSuccess: @escaping (CardFormSubmitResult) -> Void = { _ in },
@@ -44,13 +46,7 @@ struct CardFormScreen: View {
         self.onFailure = onFailure
 
         self._viewModel = ObservedObject(wrappedValue: viewModel)
-
-        var formData = CardFormData(fields: viewModel.initResult.fields)
-        if let firstType = viewModel.selectTypeDocument {
-            formData.setDocumentLength(firstType.minLenght, firstType.maxLenght)
-            formData.setDocumentType(isNumeric: firstType.type != "string")
-        }
-        self._cardForm = State(initialValue: formData)
+        self._cardForm = cardForm
     }
 
     var body: some View {
@@ -65,7 +61,7 @@ struct CardFormScreen: View {
                     title: MPStrings.Common.total,
                     amount: self.viewModel.footerAmount(),
                     buttonData: .init(
-                        text: self.viewModel.initResult.button,
+                        text: self.viewModel.footerButtonLabel,
                         onClick: {
                             await self.viewModel.submitCardData(
                                 cardForm: self.cardForm,
@@ -81,7 +77,7 @@ struct CardFormScreen: View {
                         }
                     )
                 )
-                .isLoading(self.viewModel.isTokenizing)
+                .isLoading(self.viewModel.isTokenizing || self.isParentLoading)
                 .disabled(
                     !self.cardForm.isFormValid(
                         isSecurityCodeMandatory: self.viewModel.isSecurityCodeMandatory,
