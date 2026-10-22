@@ -101,7 +101,7 @@ final class CardFormViewModelTrackingTests: XCTestCase {
         let errorObservability = MockErrorObservability()
         let config = CardFormViewModel.Configuration(
             amount: amount,
-            checkoutTypeAnalyticsValue: "save_card",
+            checkoutTypeAnalyticsValue: "card_save",
             excludedPaymentTypeIds: [],
             excludedPaymentMethodIds: [],
             initResult: CardFormInitializationOutputStub.make(identificationTypes: identificationTypes),

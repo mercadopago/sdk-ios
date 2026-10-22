@@ -28,7 +28,7 @@ public extension MercadoPagoCheckout {
         var analyticsValue: String {
             switch self.kind {
             case .cardTransaction: return "card_transaction"
-            case .saveCard: return "save_card"
+            case .saveCard: return "card_save"
             case .payment: return "payment"
             }
         }

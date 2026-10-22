@@ -158,7 +158,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_saveCard_checkoutType_analyticsValue() {
         let checkoutType = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType.saveCard
-        XCTAssertEqual(checkoutType.analyticsValue, "save_card")
+        XCTAssertEqual(checkoutType.analyticsValue, "card_save")
     }
 
     func test_saveCard_checkoutType_hasSaveCardKind() {

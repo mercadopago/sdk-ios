@@ -637,7 +637,6 @@ extension PaymentBrick {
     }
 
     private func handleInstallmentSelection(_ context: InstallmentFinishContext) {
-        guard !self.isProcessingOrder else { return }
         var cardTransactionData = self.cardTransactionData
         cardTransactionData.installment = context.installments
         self.cardTransactionData = cardTransactionData
@@ -656,9 +655,7 @@ extension PaymentBrick {
             return
         }
 
-        self.isProcessingOrder = true
         self.processingTask = Task {
-            defer { self.isProcessingOrder = false }
             await self.handlePaymentConfirmed(params, installmentAmount: context.installmentAmount)
         }
     }

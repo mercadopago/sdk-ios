@@ -382,7 +382,6 @@ final class CardFormViewModel: ObservableObject {
         onSuccess: (CardFormSubmitResult) -> Void,
         onFailure: (MercadoPagoCheckoutError) -> Void
     ) async {
-        guard !self.isTokenizing else { return }
         self.isTokenizing = true
         defer { self.isTokenizing = false }
 

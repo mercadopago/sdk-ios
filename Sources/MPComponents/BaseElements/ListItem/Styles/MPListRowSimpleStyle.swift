@@ -25,7 +25,7 @@ package struct MPListRowSimpleStyle: MPListItemStyle {
                 if let header = configuration.header { header }
                 if let title = configuration.title {
                     title
-                        .textStyle(.bodyMedium())
+                        .textStyle(.bodyMediumEmphasis())
                 }
                 if let description = configuration.description { description }
             }

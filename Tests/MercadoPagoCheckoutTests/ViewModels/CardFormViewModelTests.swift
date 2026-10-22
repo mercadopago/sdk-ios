@@ -192,7 +192,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     private func makeSUT(
         amount: Decimal = .zero,
-        checkoutTypeAnalyticsValue: String = "save_card",
+        checkoutTypeAnalyticsValue: String = "card_save",
         identificationTypes: [IdentificationType] = [],
         minInstallments: Int? = nil,
         maxInstallments: Int? = nil,

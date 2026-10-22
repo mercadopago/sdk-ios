@@ -12,6 +12,8 @@ struct ReviewConfirmScreen: View {
 
     @ObservedObject private var viewModel: ReviewConfirmViewModel
 
+    @State private var isConfirming = false
+
     private let onConfirmed: (OrderTransactionProcessData) -> Void
     private let onConfirmError: (MercadoPagoCheckoutError) -> Void
     private let onInitializationError: (MercadoPagoCheckoutError) -> Void
@@ -174,7 +176,7 @@ struct ReviewConfirmScreen: View {
                     onClick: { await self.handleConfirm() }
                 )
             )
-            .isLoading(self.viewModel.isConfirming)
+            .isLoading(self.isConfirming)
         }
         .background(self.theme.colors.background.primary)
     }
@@ -211,8 +213,9 @@ struct ReviewConfirmScreen: View {
     }
 
     private func handleConfirm() async {
-        guard self.viewModel.beginConfirm() else { return }
-        defer { self.viewModel.endConfirm() }
+        guard !self.isConfirming else { return }
+        self.isConfirming = true
+        defer { self.isConfirming = false }
         do {
             let processData = try await self.viewModel.confirm()
             self.onConfirmed(processData)

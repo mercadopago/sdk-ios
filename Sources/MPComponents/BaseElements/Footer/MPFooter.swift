@@ -34,7 +34,6 @@ package struct MPFooter: View {
 
     @Environment(\.mpFooterStyle) private var style: any MPFooterStyle
     @Environment(\.checkoutTheme) var theme: MPTheme
-    @Environment(\.isLoading) private var isLoading: Bool
 
     // MARK: - Tasks
 
@@ -142,11 +141,8 @@ package struct MPFooter: View {
     private var button: some View {
         if let buttonData {
             Button {
-                // Set synchronously so a second tap before the first task starts is ignored.
-                guard self.submitTask == nil, !self.isLoading else { return }
-                self.submitTask = Task {
+                Task {
                     await buttonData.onClick()
-                    self.submitTask = nil
                 }
             } label: {
                 HStack(spacing: self.theme.spacings.xmicro) {

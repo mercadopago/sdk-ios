@@ -15,7 +15,6 @@ import MPCore
 @MainActor
 final class ReviewConfirmViewModel: ObservableObject {
     @Published private(set) var screenState: ReviewConfirmScreenState = .loading
-    @Published private(set) var isConfirming = false
 
     // MARK: - Dependencies
 
@@ -118,16 +117,6 @@ final class ReviewConfirmViewModel: ObservableObject {
     }
 
     // MARK: - Actions
-
-    func beginConfirm() -> Bool {
-        guard !self.isConfirming else { return false }
-        self.isConfirming = true
-        return true
-    }
-
-    func endConfirm() {
-        self.isConfirming = false
-    }
 
     /// Processes the order, returning the result to the screen. Throws on failure so the screen can
     /// route it to the seller's `onError`.
