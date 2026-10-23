@@ -14,7 +14,7 @@ import XCTest
 /// silent regression (e.g. configuration not persisting) fails here rather than
 /// in production. The generic T parameter is also exercised to confirm that
 /// `.cardTransaction` produces `MercadoPagoCheckout<CardTransaction>` and
-/// `.cardSave` produces `MercadoPagoCheckout<CardSave>`.
+/// `.saveCard` produces `MercadoPagoCheckout<CardSave>`.
 @MainActor
 final class MercadoPagoCheckoutBuilderTests: XCTestCase {
     // MARK: - cardTransaction flow
@@ -54,7 +54,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         ]
 
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardSave,
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         )
         .setPaymentMethodConfiguration(customConfig)
@@ -71,7 +71,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_setPaymentMethodConfiguration_withNoArgument_shouldResetToEmpty() {
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardSave,
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         )
         builder.setPaymentMethodConfiguration([.card(excludedTypes: [.credit])])
@@ -83,7 +83,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_setPaymentMethodConfiguration_shouldBeDiscardableAndReturnSameBuilder() {
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardSave,
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         )
 
@@ -92,22 +92,22 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         XCTAssertTrue(chained === builder)
     }
 
-    // MARK: - cardSave flow
+    // MARK: - saveCard flow
 
-    func test_cardSave_build_kindIsSaveCard() {
+    func test_saveCard_build_kindIsSaveCard() {
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardSave,
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         ).build()
 
-        if case .cardSave = checkout.configuration.type.kind {} else {
-            XCTFail("Expected .cardSave kind")
+        if case .saveCard = checkout.configuration.type.kind {} else {
+            XCTFail("Expected .saveCard kind")
         }
     }
 
-    func test_cardSave_build_withoutSettingPaymentMethodConfiguration_shouldHaveDefaultConfiguration() {
+    func test_saveCard_build_withoutSettingPaymentMethodConfiguration_shouldHaveDefaultConfiguration() {
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardSave,
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         ).build()
 
@@ -121,9 +121,9 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         }
     }
 
-    func test_cardSave_build_shouldKeepStatusScreenDisabled() {
+    func test_saveCard_build_shouldKeepStatusScreenDisabled() {
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardSave,
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         ).build()
 
@@ -156,15 +156,15 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         XCTAssertEqual(checkoutType.analyticsValue, "card_transaction")
     }
 
-    func test_cardSave_checkoutType_analyticsValue() {
-        let checkoutType = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType.cardSave
+    func test_saveCard_checkoutType_analyticsValue() {
+        let checkoutType = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType.saveCard
         XCTAssertEqual(checkoutType.analyticsValue, "card_save")
     }
 
-    func test_cardSave_checkoutType_hasSaveCardKind() {
-        let checkoutType = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType.cardSave
-        guard case .cardSave = checkoutType.kind else {
-            return XCTFail("Expected .cardSave kind")
+    func test_saveCard_checkoutType_hasSaveCardKind() {
+        let checkoutType = MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType.saveCard
+        guard case .saveCard = checkoutType.kind else {
+            return XCTFail("Expected .saveCard kind")
         }
     }
 }

@@ -135,7 +135,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
     func test_reviewConfirmInput_whenSaveCard_shouldReturnNil() {
         // Arrange — review and confirm only applies to card transactions.
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
-            type: .cardSave,
+            type: .saveCard,
             paymentMethod: [.card()],
             screenConfigs: [.reviewAndConfirm(onEmailChangeRequested: nil)]
         )

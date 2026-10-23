@@ -9,7 +9,7 @@
 /// dismisses the checkout before completing it. This namespace groups the cancellation variants;
 /// the one you actually get is fixed by the ``MercadoPagoCheckout/CheckoutType`` you configured,
 /// so you never need to cast: `.cardTransaction(order:)` delivers a ``CardTransaction``, and
-/// `.cardSave` delivers a ``CardSave``.
+/// `.saveCard` delivers a ``CardSave``.
 ///
 /// Use this context to power retry experiences (for example, pre-filling fields the user already
 /// entered) or to report cancellation analytics.
@@ -30,7 +30,7 @@ public enum MPUserCancelledContext {
     /// Marker protocol adopted by every cancellation variant in this namespace.
     public protocol Kind: Sendable, Equatable {}
 
-    /// Cancellation context delivered when the user abandons the `.cardSave` flow.
+    /// Cancellation context delivered when the user abandons the `.saveCard` flow.
     public struct CardSave: Kind {
         /// The per-field state of the card form at the moment of cancellation.
         ///

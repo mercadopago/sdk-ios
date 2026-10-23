@@ -142,7 +142,7 @@ final class PaymentBrickViewModelTests: XCTestCase {
     func test_processOrder_skipsForNonPaymentCheckoutType_throws() async {
         let repository = MockOrderTransactionRepository()
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
-            type: .cardSave,
+            type: .saveCard,
             paymentMethod: []
         )
         let sut = PaymentBrickViewModel(

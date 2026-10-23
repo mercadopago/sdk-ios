@@ -55,7 +55,7 @@ final class PaymentBrickViewModelCardFormTests: XCTestCase {
     func test_loadCardForm_skipsForNonPaymentCheckoutType_throws() async {
         let repository = MockCardFormInitializationRepository()
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
-            type: .cardSave,
+            type: .saveCard,
             paymentMethod: []
         )
         let viewModel = PaymentBrickViewModel(

@@ -22,7 +22,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     private var orderId: String? {
         switch self.configuration.type.kind {
-        case .cardSave, .payment:
+        case .saveCard, .payment:
             return nil
         case let .cardTransaction(order, _):
             return order.orderId
@@ -31,7 +31,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     private var clientToken: String? {
         switch self.configuration.type.kind {
-        case .cardSave:
+        case .saveCard:
             return nil
         case let .payment(order, _), let .cardTransaction(order, _):
             return order.clientToken
@@ -40,7 +40,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
     private var order: MPOrder? {
         switch self.configuration.type.kind {
-        case .cardSave:
+        case .saveCard:
             return nil
         case let .payment(order, _), let .cardTransaction(order, _):
             return order
@@ -222,7 +222,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 payer: payer
             ) as? T
 
-        case .cardSave:
+        case .saveCard:
             return MPPaymentData.CardSave(
                 token: output.token,
                 paymentMethodId: output.paymentMethodId,

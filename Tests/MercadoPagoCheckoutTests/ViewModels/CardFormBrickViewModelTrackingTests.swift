@@ -29,7 +29,7 @@ final class CardFormBrickViewModelTrackingTests: XCTestCase {
         let analytics = MockAnalytics()
         let errorObservability = MockErrorObservability()
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
-            type: .cardSave,
+            type: .saveCard,
             paymentMethod: [.card()]
         )
         let viewModel = CardFormBrickViewModel<MPPaymentData.CardSave>(

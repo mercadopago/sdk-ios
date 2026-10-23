@@ -210,7 +210,7 @@ final class CheckoutConfig: ObservableObject {
     @MainActor
     func makeCardSaveCheckout() -> MercadoPagoCheckout<MPPaymentData.CardSave> {
         MercadoPagoCheckout.Builder(
-            checkoutType: .cardSave,
+            checkoutType: .saveCard,
             checkoutAppearance: self.checkoutAppearance
         )
         .setPaymentMethodConfiguration(self.paymentMethodConfigs)

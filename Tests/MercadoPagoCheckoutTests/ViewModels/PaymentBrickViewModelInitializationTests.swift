@@ -88,7 +88,7 @@ import XCTest
         func test_load_skipsForNonPaymentCheckoutType() async throws {
             let repository = MockPaymentBrickRepository()
             let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
-                type: .cardSave,
+                type: .saveCard,
                 paymentMethod: []
             )
             let viewModel = PaymentBrickViewModel(
