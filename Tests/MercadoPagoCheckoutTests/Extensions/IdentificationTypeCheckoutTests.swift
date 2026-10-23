@@ -35,6 +35,33 @@ final class IdentificationTypeCheckoutTests: XCTestCase {
         XCTAssertEqual(type.getKeyboardType(), .default)
     }
 
+    // MARK: - isNumeric
+
+    func test_isNumeric_whenLowercaseStringType_shouldReturnFalse() {
+        let type = IdentificationType(id: "CNPJ", name: "CNPJ", type: "string", minLenght: 14, maxLenght: 14)
+
+        XCTAssertFalse(type.isNumeric)
+    }
+
+    func test_isNumeric_whenCapitalizedStringType_shouldReturnFalse() {
+        // Backend sends "String" for CNPJ — casing must not turn it into a numeric field
+        let type = IdentificationType(id: "CNPJ", name: "CNPJ", type: "String", minLenght: 14, maxLenght: 14)
+
+        XCTAssertFalse(type.isNumeric)
+    }
+
+    func test_isNumeric_whenCapitalizedNumberType_shouldReturnTrue() {
+        let type = IdentificationType(id: "CPF", name: "CPF", type: "Number", minLenght: 11, maxLenght: 11)
+
+        XCTAssertTrue(type.isNumeric)
+    }
+
+    func test_isNumeric_whenUnknownType_shouldFallBackToTrue() {
+        let type = IdentificationType(id: "OTHER", name: "Other", type: "numeric", minLenght: 8, maxLenght: 10)
+
+        XCTAssertTrue(type.isNumeric)
+    }
+
     // MARK: - getPlaceholder
 
     func test_getPlaceholder_whenInitializedWithPlaceholder_shouldReturnIt() {

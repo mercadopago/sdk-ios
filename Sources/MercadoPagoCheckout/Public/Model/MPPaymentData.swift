@@ -22,8 +22,8 @@ import Foundation
 ///         break
 ///     case .userCancelled:
 ///         break
-///     case .failure(let error):
-///         break
+///     case .error(let error):
+///         print(error)
 ///     }
 /// }
 /// ```
@@ -73,8 +73,6 @@ public enum MPPaymentData {
         public var paymentMethodId: String
         /// Payment type identifier (e.g. `"credit_card"`, `"debit_card"`).
         public var paymentTypeId: String
-        /// Card issuer identifier, when available.
-        public var issuerId: String?
         /// Payer identification collected during the flow, when available.
         public var payer: Payer?
         /// Order identifier. Use this to look up the transaction on your side.
@@ -82,25 +80,19 @@ public enum MPPaymentData {
         /// Order status returned by the Orders API.
         public var orderStatus: String
 
-        var token: String
-
         init(
             transactionAmount: Decimal = .zero,
-            token: String = "",
             installment: Int = 1,
             paymentMethodId: String = "",
             paymentTypeId: String = "",
-            issuerId: String? = "",
             orderId: String = "",
             orderStatus: String = "",
             payer: Payer? = nil
         ) {
             self.transactionAmount = transactionAmount
-            self.token = token
             self.installment = installment
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
-            self.issuerId = issuerId
             self.orderId = orderId
             self.orderStatus = orderStatus
             self.payer = payer
@@ -123,13 +115,23 @@ public enum MPPaymentData {
         public var paymentMethodId: String
         /// Payment type identifier of the first payment (e.g. `"credit_card"`, `"ticket"`).
         public var paymentTypeId: String
+        /// Additional detail about the order status, when available.
+        public var orderStatusDetail: String?
 
-        init(orderId: String, orderStatus: String = "", transactionAmount: Decimal, paymentMethodId: String = "", paymentTypeId: String = "") {
+        init(
+            orderId: String,
+            orderStatus: String = "",
+            transactionAmount: Decimal,
+            paymentMethodId: String = "",
+            paymentTypeId: String = "",
+            orderStatusDetail: String? = nil
+        ) {
             self.orderId = orderId
             self.orderStatus = orderStatus
             self.transactionAmount = transactionAmount
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
+            self.orderStatusDetail = orderStatusDetail
         }
     }
 
