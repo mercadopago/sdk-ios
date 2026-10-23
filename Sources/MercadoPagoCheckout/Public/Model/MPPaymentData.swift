@@ -18,12 +18,12 @@ import Foundation
 ///         // data is typed to the variant you configured:
 ///         //   .payment(order:)        → MPPaymentData.Payment
 ///         //   .cardTransaction(order:) → MPPaymentData.CardTransaction
-///         //   .saveCard               → MPPaymentData.CardSave
+///         //   .cardSave               → MPPaymentData.CardSave
 ///         break
 ///     case .userCancelled:
 ///         break
-///     case .failure(let error):
-///         break
+///     case .error(let error):
+///         print(error)
 ///     }
 /// }
 /// ```
@@ -40,7 +40,7 @@ public enum MPPaymentData {
         associatedtype Cancellation: MPUserCancelledContext.Kind
     }
 
-    /// Result of a `.saveCard` checkout.
+    /// Result of a `.cardSave` checkout.
     ///
     /// Use the card `token` to charge the saved card later without requiring the user to re-enter
     /// their card details.
@@ -65,16 +65,12 @@ public enum MPPaymentData {
     public struct CardTransaction: Kind, Equatable, Codable, Sendable {
         public typealias Cancellation = MPUserCancelledContext.CardTransaction
 
-        /// Amount charged for the transaction.
-        public var transactionAmount: Decimal?
         /// Number of installments the user selected.
         public var installment: Int?
         /// Payment method identifier (e.g. `"visa"`, `"master"`).
         public var paymentMethodId: String
         /// Payment type identifier (e.g. `"credit_card"`, `"debit_card"`).
         public var paymentTypeId: String
-        /// Card issuer identifier, when available.
-        public var issuerId: String?
         /// Payer identification collected during the flow, when available.
         public var payer: Payer?
         /// Order identifier. Use this to look up the transaction on your side.
@@ -82,25 +78,17 @@ public enum MPPaymentData {
         /// Order status returned by the Orders API.
         public var orderStatus: String
 
-        var token: String
-
         init(
-            transactionAmount: Decimal = .zero,
-            token: String = "",
             installment: Int = 1,
             paymentMethodId: String = "",
             paymentTypeId: String = "",
-            issuerId: String? = "",
             orderId: String = "",
             orderStatus: String = "",
             payer: Payer? = nil
         ) {
-            self.transactionAmount = transactionAmount
-            self.token = token
             self.installment = installment
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
-            self.issuerId = issuerId
             self.orderId = orderId
             self.orderStatus = orderStatus
             self.payer = payer
@@ -117,19 +105,25 @@ public enum MPPaymentData {
         public var orderId: String
         /// Order status returned by the Orders API (e.g. `"approved"`, `"action_required"`).
         public var orderStatus: String
-        /// Amount charged for the transaction.
-        public var transactionAmount: Decimal
         /// Payment method identifier of the first payment (e.g. `"visa"`, `"rapipago"`).
         public var paymentMethodId: String
         /// Payment type identifier of the first payment (e.g. `"credit_card"`, `"ticket"`).
         public var paymentTypeId: String
+        /// Additional detail about the order status, when available.
+        public var orderStatusDetail: String?
 
-        init(orderId: String, orderStatus: String = "", transactionAmount: Decimal, paymentMethodId: String = "", paymentTypeId: String = "") {
+        init(
+            orderId: String,
+            orderStatus: String = "",
+            paymentMethodId: String = "",
+            paymentTypeId: String = "",
+            orderStatusDetail: String? = nil
+        ) {
             self.orderId = orderId
             self.orderStatus = orderStatus
-            self.transactionAmount = transactionAmount
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
+            self.orderStatusDetail = orderStatusDetail
         }
     }
 

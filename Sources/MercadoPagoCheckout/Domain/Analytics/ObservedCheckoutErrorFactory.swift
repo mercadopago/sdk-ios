@@ -99,7 +99,7 @@ enum ObservedCheckoutErrorFactory {
 
     private static func isValidation(_ code: CheckoutAPIErrorCode?) -> Bool {
         switch code {
-        case .emptyPaymentMethods?, .paymentMethodUnavailable?, .installmentsUnavailable?: true
+        case .emptyPaymentMethods?, .paymentMethodUnavailable?, .installmentsUnavailable?, .waitingRetry?: true
         default: false
         }
     }
