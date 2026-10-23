@@ -107,7 +107,11 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
             },
             onSuccess: { output in
                 self.isCardFormSubmitted = true
-                self.inputCardData = InputCardData(bin: output.bin, lastFourDigits: output.lastFourDigits)
+                self.inputCardData = InputCardData(
+                    bin: output.bin,
+                    lastFourDigits: output.lastFourDigits,
+                    issuerId: output.issuerId.flatMap { Int($0) }
+                )
                 self.cardToken = output.token
                 self.pendingResult = self.brickViewModel.buildPaymentData(from: output)
                 if let transaction = self.pendingResult as? MPPaymentData.CardTransaction {

@@ -246,7 +246,6 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             transactionAmount: cardData.installments?.defaultQuota?.totalAmount ?? .zero,
             paymentMethodId: cardData.paymentMethodId,
             paymentTypeId: cardData.paymentTypeId,
-            issuerId: String(cardData.issuerId),
             orderId: self.paymentData?.orderId ?? String()
         )
     }
@@ -256,7 +255,6 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             transactionAmount: amount,
             paymentMethodId: result.paymentMethodId,
             paymentTypeId: result.paymentTypeId,
-            issuerId: result.issuerId,
             orderId: self.paymentData?.orderId ?? String()
         )
     }

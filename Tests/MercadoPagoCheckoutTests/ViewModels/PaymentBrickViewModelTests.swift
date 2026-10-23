@@ -55,7 +55,6 @@ final class PaymentBrickViewModelTests: XCTestCase {
 
         XCTAssertEqual(result.paymentMethodId, "master")
         XCTAssertEqual(result.paymentTypeId, "credit_card")
-        XCTAssertEqual(result.issuerId, "1")
         XCTAssertEqual(result.orderId, "ORD01")
         XCTAssertEqual(result.transactionAmount, .zero)
     }
@@ -84,7 +83,6 @@ final class PaymentBrickViewModelTests: XCTestCase {
         // CardFormSubmitResult carries no PAN/CVV/holder/expiry to begin with.
         XCTAssertEqual(transaction.paymentMethodId, "visa")
         XCTAssertEqual(transaction.paymentTypeId, "credit_card")
-        XCTAssertEqual(transaction.issuerId, "1")
         XCTAssertEqual(transaction.orderId, "ORD01")
     }
 

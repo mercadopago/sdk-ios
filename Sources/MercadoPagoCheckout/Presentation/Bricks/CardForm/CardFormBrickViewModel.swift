@@ -217,7 +217,6 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 installment: 1,
                 paymentMethodId: output.paymentMethodId,
                 paymentTypeId: output.paymentTypeId,
-                issuerId: output.issuerId,
                 orderId: order.orderId,
                 orderStatus: "",
                 payer: payer
@@ -256,7 +255,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
 
         let cardDetails = ReviewConfirmCardDetails(
             bin: inputCardData?.bin,
-            issuerId: paymentData.issuerId.flatMap { Int($0) },
+            issuerId: inputCardData?.issuerId,
             lastFourDigits: inputCardData?.lastFourDigits,
             installments: paymentData.paymentTypeId == "debit_card" ? nil : paymentData.installment,
             installmentAmount: installmentAmount

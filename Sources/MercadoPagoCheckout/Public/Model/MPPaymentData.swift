@@ -73,8 +73,6 @@ public enum MPPaymentData {
         public var paymentMethodId: String
         /// Payment type identifier (e.g. `"credit_card"`, `"debit_card"`).
         public var paymentTypeId: String
-        /// Card issuer identifier, when available.
-        public var issuerId: String?
         /// Payer identification collected during the flow, when available.
         public var payer: Payer?
         /// Order identifier. Use this to look up the transaction on your side.
@@ -87,7 +85,6 @@ public enum MPPaymentData {
             installment: Int = 1,
             paymentMethodId: String = "",
             paymentTypeId: String = "",
-            issuerId: String? = "",
             orderId: String = "",
             orderStatus: String = "",
             payer: Payer? = nil
@@ -96,7 +93,6 @@ public enum MPPaymentData {
             self.installment = installment
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
-            self.issuerId = issuerId
             self.orderId = orderId
             self.orderStatus = orderStatus
             self.payer = payer

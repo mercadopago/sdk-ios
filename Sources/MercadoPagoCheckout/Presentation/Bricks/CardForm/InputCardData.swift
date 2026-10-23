@@ -7,11 +7,13 @@
 /// beyond the payment data.
 ///
 /// Held in the brick's state until the review and confirm screen is presented, so card data never
-/// travels through the navigation route. Both fields are `nil` for non-card flows or when too few
+/// travels through the navigation route. The fields are `nil` for non-card flows or when too few
 /// digits were entered.
 struct InputCardData {
     /// First 8 digits of the entered card.
     let bin: String?
     /// Last 4 digits of the entered card.
     let lastFourDigits: String?
+    /// Card issuer identifier, when the card form resolved one.
+    var issuerId: Int? = nil
 }

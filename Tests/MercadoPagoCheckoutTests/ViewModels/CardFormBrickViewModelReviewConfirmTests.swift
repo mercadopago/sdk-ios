@@ -15,7 +15,6 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
     }
 
     private func makeCardTransaction(
-        issuerId: String? = "25",
         paymentTypeId: String = "credit_card",
         installment: Int = 3
     ) -> MPPaymentData.CardTransaction {
@@ -24,7 +23,6 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
             installment: installment,
             paymentMethodId: "visa",
             paymentTypeId: paymentTypeId,
-            issuerId: issuerId,
             orderId: "ORDER-1"
         )
     }
@@ -73,7 +71,7 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
             sut.reviewConfirmInput(
                 cardTransaction: self.makeCardTransaction(),
             token: "token",
-                inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234"),
+                inputCardData: InputCardData(bin: "41111111", lastFourDigits: "1234", issuerId: 25),
                 installmentAmount: 33.34
             )
         )

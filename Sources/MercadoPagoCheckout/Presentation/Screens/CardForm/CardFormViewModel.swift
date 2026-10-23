@@ -122,7 +122,7 @@ final class CardFormViewModel: ObservableObject {
         var formData = CardFormData(fields: self.initResult.fields)
         if let firstType = self.selectTypeDocument {
             formData.setDocumentLength(firstType.minLenght, firstType.maxLenght)
-            formData.setDocumentType(isNumeric: firstType.isNumeric)
+            formData.setDocumentType(isNumeric: firstType.type != "string")
         }
         return formData
     }
@@ -166,7 +166,7 @@ final class CardFormViewModel: ObservableObject {
         self.documentFormatter = DocumentFormatter(
             mask: firstType?.getFormat() ?? String(),
             maxLength: firstType?.maxLenght ?? 20,
-            isNumericType: firstType?.isNumeric ?? true
+            isNumericType: firstType?.type != "string"
         )
     }
 
@@ -176,7 +176,7 @@ final class CardFormViewModel: ObservableObject {
         self.documentFormatter = DocumentFormatter(
             mask: self.selectTypeDocument?.getFormat() ?? String(),
             maxLength: self.selectTypeDocument?.maxLenght ?? 20,
-            isNumericType: self.selectTypeDocument?.isNumeric ?? true
+            isNumericType: self.selectTypeDocument?.type != "string"
         )
     }
 

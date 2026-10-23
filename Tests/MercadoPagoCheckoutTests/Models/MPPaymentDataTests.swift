@@ -58,7 +58,6 @@ final class MPPaymentDataTests: XCTestCase {
         XCTAssertEqual(data.installment, 3)
         XCTAssertEqual(data.paymentMethodId, "visa")
         XCTAssertEqual(data.paymentTypeId, "credit_card")
-        XCTAssertEqual(data.issuerId, "")
         XCTAssertNil(data.payer)
     }
 
@@ -68,7 +67,6 @@ final class MPPaymentDataTests: XCTestCase {
             installment: 6,
             paymentMethodId: "master",
             paymentTypeId: "credit_card",
-            issuerId: "10",
             payer: .init(documentType: "DNI", documentNumber: "40123456")
         )
         let encoded = try JSONEncoder().encode(original)
@@ -81,7 +79,6 @@ final class MPPaymentDataTests: XCTestCase {
         let decoded = try JSONDecoder().decode(MPPaymentData.CardTransaction.self, from: json)
         XCTAssertNil(decoded.transactionAmount)
         XCTAssertNil(decoded.installment)
-        XCTAssertNil(decoded.issuerId)
         XCTAssertNil(decoded.payer)
     }
 
