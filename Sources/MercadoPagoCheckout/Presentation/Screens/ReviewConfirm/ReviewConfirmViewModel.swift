@@ -165,7 +165,7 @@ private extension ReviewConfirmViewModel {
     func trackInitialize(transactionAmount: Decimal) {
         let eventData = self.paymentMethodEventData(transactionAmount: transactionAmount)
         self.enqueueAnalytics { [analytics = self.analytics] in
-            await analytics.trackView(ReviewConfirmAnalyticsPath.initialize)
+            await analytics.trackEvent(ReviewConfirmAnalyticsPath.initialize)
                 .setEventData(eventData)
                 .send()
         }

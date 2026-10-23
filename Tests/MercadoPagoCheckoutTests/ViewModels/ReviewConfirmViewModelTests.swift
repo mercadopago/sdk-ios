@@ -163,7 +163,7 @@ final class ReviewConfirmViewModelTests: XCTestCase {
 
         // Assert
         let messages = await analytics.mock.getMessages()
-        XCTAssertTrue(messages.contains(.trackView(ReviewConfirmAnalyticsPath.initialize)))
+        XCTAssertTrue(messages.contains(.track(path: ReviewConfirmAnalyticsPath.initialize)))
         XCTAssertTrue(messages.contains(.setEventData([
             "type": "ticket",
             "payment_method_id": "rapipago",
