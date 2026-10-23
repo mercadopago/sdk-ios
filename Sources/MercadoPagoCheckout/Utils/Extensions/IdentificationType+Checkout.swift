@@ -14,6 +14,14 @@ extension IdentificationType: MPBottomSheetListOption {
 }
 
 extension IdentificationType {
+    var isNumeric: Bool {
+        switch type.lowercased() {
+        case "number": return true
+        case "string": return false
+        default: return true
+        }
+    }
+
     func getPlaceholder() -> String? {
         return placeholder
     }

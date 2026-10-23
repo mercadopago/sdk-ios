@@ -48,8 +48,7 @@ struct CardFormInitializationEndpoint: RequestEndpoint {
     var urlParams: [String: any CustomStringConvertible] {
         var params: [String: any CustomStringConvertible] = [
             "product_id": MPSDKProduct.id,
-            "checkout_type": self.checkoutType,
-            "amount": 0
+            "checkout_type": self.checkoutType
         ]
 
         if let orderId {
