@@ -49,6 +49,23 @@ final class ObservedCheckoutErrorFactoryTests: XCTestCase {
         XCTAssertEqual(observed.input, .init(type: .validation, code: .integration))
     }
 
+    func testWaitingRetryIsMappedToItsOwnCodeAndIsNotAServiceError() {
+        let response = APIErrorResponse(
+            code: "payment_required",
+            message: "Waiting the user to retry the payment",
+            errorCode: "WAITING_RETRY"
+        )
+        let observed = ObservedCheckoutErrorFactory.make(
+            from: APIClientError.apiError(response),
+            location: .orderProcess
+        )
+
+        XCTAssertEqual(observed.publicError.code, .paymentWaitingRetry)
+        XCTAssertEqual(observed.publicError.errorDescription, "Waiting the user to retry the payment")
+        XCTAssertEqual(observed.publicError.analyticsErrorType, "unknown_error")
+        XCTAssertEqual(observed.input, .init(type: .validation))
+    }
+
     func testResponseFailuresRetainOnlyClosedState() {
         let empty = ObservedCheckoutErrorFactory.make(
             from: APIClientError.invalidResponse(Data()),

@@ -33,6 +33,10 @@ struct PaymentInitializationOutput: Equatable {
         let icon: Icon
         let route: String
         let cardData: CardData?
+        /// Present on the `ticket` method when the BFF decides to show the Off Payment List screen.
+        let screen: MethodSelectionOutput?
+        /// Present on the `new_card` method — carries the Order-driven exclusions to apply to the CardForm.
+        let config: Config?
 
         init(
             id: String,
@@ -40,7 +44,9 @@ struct PaymentInitializationOutput: Equatable {
             description: String?,
             icon: Icon,
             route: String,
-            cardData: CardData? = nil
+            cardData: CardData? = nil,
+            screen: MethodSelectionOutput? = nil,
+            config: Config? = nil
         ) {
             self.id = id
             self.title = title
@@ -48,6 +54,8 @@ struct PaymentInitializationOutput: Equatable {
             self.icon = icon
             self.route = route
             self.cardData = cardData
+            self.screen = screen
+            self.config = config
         }
 
         /// Source of the leading thumbnail icon.
@@ -61,6 +69,39 @@ struct PaymentInitializationOutput: Equatable {
             let paymentTypeId: String
             let issuerId: Int
             let securityCodeScreen: SecurityCodeScreenOutput?
+            let bin: String?
+            /// Last 4 digits of the card, used by the review and confirm screen's request.
+            let lastFourDigits: String?
+            let installments: InstallmentScreenData?
+
+            init(
+                paymentMethodId: String,
+                paymentTypeId: String,
+                issuerId: Int,
+                securityCodeScreen: SecurityCodeScreenOutput? = nil,
+                bin: String? = nil,
+                lastFourDigits: String? = nil,
+                installments: InstallmentScreenData? = nil
+            ) {
+                self.paymentMethodId = paymentMethodId
+                self.paymentTypeId = paymentTypeId
+                self.issuerId = issuerId
+                self.securityCodeScreen = securityCodeScreen
+                self.bin = bin
+                self.lastFourDigits = lastFourDigits
+                self.installments = installments
+            }
+        }
+
+        /// Order-driven configuration for a payment method, resolved server-side by the BFF.
+        struct Config: Equatable {
+            let paymentMethod: PaymentMethodConfig?
+
+            /// Payment method exclusions configured by the seller on the Order.
+            struct PaymentMethodConfig: Equatable {
+                let notAllowedIds: [String]
+                let notAllowedTypes: [String]
+            }
         }
     }
 }
@@ -125,7 +166,7 @@ extension PaymentInitializationOutput {
                             title: "Novo cartão",
                             description: "Crédito ou pré-pago",
                             icon: .remote(resource("cho_off-add-card_xxxhdpi")),
-                            route: "card_form"
+                            route: "new_card"
                         )
                     ]
                 )
