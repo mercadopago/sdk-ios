@@ -78,6 +78,15 @@ final class CardFormBrickViewModelTests: XCTestCase {
         XCTAssertEqual(sut.viewModel.screensVisited, [.reviewAndConfirm])
     }
 
+    func test_markScreenPresented_statusScreen_isIncludedInVisitedScreens() {
+        let sut = self.makeSUT()
+
+        sut.viewModel.markScreenPresented(.reviewAndConfirm)
+        sut.viewModel.markScreenPresented(.statusScreen)
+
+        XCTAssertEqual(sut.viewModel.screensVisited, [.reviewAndConfirm, .statusScreen])
+    }
+
     // MARK: - load() retry
 
     func test_load_whenFirstAttemptSucceeds_shouldCallRepositoryOnce() async throws {

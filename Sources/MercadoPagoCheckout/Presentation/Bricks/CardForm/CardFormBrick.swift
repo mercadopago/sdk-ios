@@ -240,6 +240,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
                 onUnavailable: { self.finishStatusScreen(notifyExit: false) }
             )
             .navigationBarBackButtonHidden(true)
+            .onAppear { self.brickViewModel.markScreenPresented(.statusScreen) }
             .onDisappear {
                 self.statusScreenExitCoordinator.completeExit(from: .statusScreen)
             }

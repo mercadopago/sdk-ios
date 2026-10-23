@@ -26,4 +26,6 @@ public enum MPScreen: Sendable, Equatable {
     case reviewAndConfirm
     /// The new card form screen.
     case cardForm
+    /// The status screen shown after the payment result is known.
+    case statusScreen
 }
