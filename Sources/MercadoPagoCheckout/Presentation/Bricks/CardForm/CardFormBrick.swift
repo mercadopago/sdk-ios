@@ -139,6 +139,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     private func installmentScreen() -> some View {
         InstallmentScreen(
             paymentData: self.$cardTransactionData,
+            transactionAmount: self.brickViewModel.transactionAmount,
             installmentsData: Binding(
                 get: { self.installmentsData ?? .empty },
                 set: { self.installmentsData = $0 }

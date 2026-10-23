@@ -13,10 +13,11 @@ import XCTest
 @MainActor
 final class InstallmentsViewTests: XCTestCase {
     func test_installmentScreen() {
-        var paymentData = MPPaymentData.CardTransaction(transactionAmount: 1000, paymentMethodId: "", paymentTypeId: "")
+        var paymentData = MPPaymentData.CardTransaction(paymentMethodId: "", paymentTypeId: "")
         var installmentsData = Self.validMPInstallmentsData
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
+            transactionAmount: 1000,
             installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
             checkoutType: "",
             style: .radioButton,
@@ -32,10 +33,11 @@ final class InstallmentsViewTests: XCTestCase {
     }
 
     func test_installmentScreen_chevron() {
-        var paymentData = MPPaymentData.CardTransaction(transactionAmount: 1000)
+        var paymentData = MPPaymentData.CardTransaction()
         var installmentsData = Self.validMPInstallmentsData
         let view = InstallmentScreen(
             paymentData: Binding(get: { paymentData }, set: { paymentData = $0 }),
+            transactionAmount: 1000,
             installmentsData: Binding(get: { installmentsData }, set: { installmentsData = $0 }),
             checkoutType: "",
             style: .chevron,

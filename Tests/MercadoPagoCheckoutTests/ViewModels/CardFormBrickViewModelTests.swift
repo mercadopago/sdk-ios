@@ -188,7 +188,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
         let result = viewModel.buildPaymentData(from: output)
 
         // Assert
-        XCTAssertEqual(result?.transactionAmount, 250.50)
+        XCTAssertEqual(viewModel.transactionAmount, 250.50)
     }
 
     // MARK: - processOrderTask clientToken propagation
@@ -208,7 +208,6 @@ final class CardFormBrickViewModelTests: XCTestCase {
             orderUseCase: OrderTransactionUseCase(repository: orderRepository)
         )
         let paymentData = MPPaymentData.CardTransaction(
-            transactionAmount: 100.0,
             installment: 1,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card",
@@ -241,7 +240,6 @@ final class CardFormBrickViewModelTests: XCTestCase {
             orderUseCase: OrderTransactionUseCase(repository: orderRepository)
         )
         let paymentData = MPPaymentData.CardTransaction(
-            transactionAmount: 100.0,
             installment: 1,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card",

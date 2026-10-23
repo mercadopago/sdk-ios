@@ -187,7 +187,6 @@ final class PaymentBrickViewModelReviewConfirmTests: XCTestCase {
         // Assert
         XCTAssertEqual(payment.orderId, "ORDER-1")
         XCTAssertEqual(payment.orderStatus, "processed")
-        XCTAssertEqual(payment.transactionAmount, Decimal(string: "110.00"))
         XCTAssertEqual(payment.paymentMethodId, "visa")
         XCTAssertEqual(payment.paymentTypeId, "credit_card")
     }

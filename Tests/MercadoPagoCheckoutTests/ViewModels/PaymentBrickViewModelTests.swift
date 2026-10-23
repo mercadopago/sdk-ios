@@ -56,52 +56,31 @@ final class PaymentBrickViewModelTests: XCTestCase {
         XCTAssertEqual(result.paymentMethodId, "master")
         XCTAssertEqual(result.paymentTypeId, "credit_card")
         XCTAssertEqual(result.orderId, "ORD01")
-        XCTAssertEqual(result.transactionAmount, .zero)
     }
 
-    func test_cardTransaction_whenInstallmentsAreAvailable_setsTransactionAmountFromFirstQuota() throws {
+    func test_amount_whenInstallmentsAreAvailable_usesFirstQuotaTotal() {
         let sut = self.makePaymentSUT()
         let item = self.makeSavedCardItem(
             withSecurityCode: true,
             installments: self.makeInstallmentsData()
         )
 
-        let result = try XCTUnwrap(sut.cardTransaction(from: item))
-
-        XCTAssertEqual(result.transactionAmount, 100)
+        XCTAssertEqual(sut.amount(from: item), 100)
     }
 
-    // MARK: - cardTransaction(from: CardFormSubmitResult, amount:)
+    // MARK: - cardTransaction(from: CardFormSubmitResult)
 
     func test_cardTransaction_fromCardFormSubmitResult_mapsTokenizedPaymentData() {
         let sut = self.makePaymentSUT()
         let result = self.makeCardFormSubmitResult(token: "new-card-token-456")
 
-        let transaction = sut.cardTransaction(from: result, amount: 250)
+        let transaction = sut.cardTransaction(from: result)
 
         // AC: the payload is built from the tokenized card_token, not raw card fields —
         // CardFormSubmitResult carries no PAN/CVV/holder/expiry to begin with.
         XCTAssertEqual(transaction.paymentMethodId, "visa")
         XCTAssertEqual(transaction.paymentTypeId, "credit_card")
         XCTAssertEqual(transaction.orderId, "ORD01")
-    }
-
-    func test_cardTransaction_fromCardFormSubmitResult_withoutInstallments_usesGivenAmount() {
-        let sut = self.makePaymentSUT()
-        let result = self.makeCardFormSubmitResult(installmentsData: nil)
-
-        let transaction = sut.cardTransaction(from: result, amount: 250)
-
-        XCTAssertEqual(transaction.transactionAmount, 250)
-    }
-
-    func test_cardTransaction_fromCardFormSubmitResult_withInstallments_stillUsesGivenAmount() {
-        let sut = self.makePaymentSUT()
-        let result = self.makeCardFormSubmitResult(installmentsData: self.makeMPInstallmentsData())
-
-        let transaction = sut.cardTransaction(from: result, amount: 250)
-
-        XCTAssertEqual(transaction.transactionAmount, 250)
     }
 
     // MARK: - markScreenPresented / screensVisited
@@ -144,16 +123,6 @@ final class PaymentBrickViewModelTests: XCTestCase {
         XCTAssertEqual(result.orderStatus, "approved")
         XCTAssertEqual(result.paymentMethodId, "visa")
         XCTAssertEqual(result.paymentTypeId, "credit_card")
-    }
-
-    func test_processOrder_onSuccess_transactionAmountParsedFromServiceResponse() async throws {
-        let repository = MockOrderTransactionRepository()
-        let sut = self.makePaymentSUT(orderRepository: repository)
-        await repository.setResult(.success(self.makeProcessData(totalAmount: "250.00")))
-
-        let result = try await sut.processOrder(params: self.makeOrderParams())
-
-        XCTAssertEqual(result.transactionAmount, 250)
     }
 
     func test_processOrder_onRepositoryError_throws() async {
@@ -221,27 +190,22 @@ final class PaymentBrickViewModelTests: XCTestCase {
         XCTAssertEqual(result.orderStatusDetail, "waiting_payment")
         XCTAssertEqual(result.paymentMethodId, "rapipago")
         XCTAssertEqual(result.paymentTypeId, "ticket")
-        XCTAssertEqual(result.transactionAmount, Decimal(string: "250.50"))
     }
 
-    func test_processOrder_WhenPaymentHasOwnAmount_ShouldPreferItOverOrderTotal() async throws {
+    func test_processOrder_WhenPaymentHasOwnAmount_ShouldSucceed() async throws {
         let repository = MockOrderTransactionRepository()
         let sut = self.makePaymentSUT(orderRepository: repository)
         await repository.setResult(.success(self.makeProcessData(totalAmount: "100.00", paymentAmount: "42.75")))
 
-        let result = try await sut.processOrder(params: self.makeOrderParams())
-
-        XCTAssertEqual(result.transactionAmount, Decimal(string: "42.75"))
+        _ = try await sut.processOrder(params: self.makeOrderParams())
     }
 
-    func test_processOrder_WhenPaymentAmountMissing_ShouldUseOrderTotal() async throws {
+    func test_processOrder_WhenPaymentAmountMissing_ShouldSucceed() async throws {
         let repository = MockOrderTransactionRepository()
         let sut = self.makePaymentSUT(orderRepository: repository)
         await repository.setResult(.success(self.makeProcessData(totalAmount: "199.99", paymentAmount: nil)))
 
-        let result = try await sut.processOrder(params: self.makeOrderParams())
-
-        XCTAssertEqual(result.transactionAmount, Decimal(string: "199.99"))
+        _ = try await sut.processOrder(params: self.makeOrderParams())
     }
 
     func test_processOrder_WhenAmountIsInvalid_ShouldThrowServiceError() async {

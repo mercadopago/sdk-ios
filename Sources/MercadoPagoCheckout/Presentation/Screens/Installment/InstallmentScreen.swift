@@ -128,9 +128,11 @@ struct InstallmentScreen: View {
     private let onFinish: (InstallmentFinishContext) -> Void
     private let onContinue: (InstallmentFinishContext) -> Void
     @Binding private var paymentData: MPPaymentData.CardTransaction
+    private let transactionAmount: Decimal
 
     init(
         paymentData: Binding<MPPaymentData.CardTransaction>,
+        transactionAmount: Decimal,
         installmentsData: Binding<MPInstallmentsData>,
         checkoutType: String = "",
         style: (any InstallmentInteractionStyle)? = nil,
@@ -140,6 +142,7 @@ struct InstallmentScreen: View {
         onContinue: @escaping (InstallmentFinishContext) -> Void = { _ in }
     ) {
         self._paymentData = paymentData
+        self.transactionAmount = transactionAmount
         self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.defaultQuota)
         self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData, checkoutType: checkoutType)
         self.style = style ?? installmentsData.wrappedValue.installment.resolvedInteractionStyle
@@ -165,13 +168,11 @@ struct InstallmentScreen: View {
             }
         )
         .onAppear {
-            if let transactionAmount = paymentData.transactionAmount {
-                self.viewModel.trackInitialize(
-                    transactionAmount: transactionAmount,
-                    paymentMethodId: self.paymentData.paymentMethodId,
-                    orderId: self.paymentData.orderId
-                )
-            }
+            self.viewModel.trackInitialize(
+                transactionAmount: self.transactionAmount,
+                paymentMethodId: self.paymentData.paymentMethodId,
+                orderId: self.paymentData.orderId
+            )
         }
         .onDisappear {
             if !self.hasHandledDismiss {
@@ -271,11 +272,11 @@ struct InstallmentScreen: View {
         InstallmentScreen(
             paymentData: .constant(
                 MPPaymentData.CardTransaction(
-                    transactionAmount: 100,
                     paymentMethodId: "",
                     paymentTypeId: ""
                 )
             ),
+            transactionAmount: 100,
             installmentsData: .constant(InstallmentMock.visa),
             style: .radioButton,
             onBack: {},
@@ -285,9 +286,8 @@ struct InstallmentScreen: View {
 
     #Preview("Chevron") {
         InstallmentScreen(
-            paymentData: .constant(
-                MPPaymentData.CardTransaction(transactionAmount: 100)
-            ),
+            paymentData: .constant(MPPaymentData.CardTransaction()),
+            transactionAmount: 100,
             installmentsData: .constant(InstallmentMock.visa),
             style: .chevron,
             onBack: {},

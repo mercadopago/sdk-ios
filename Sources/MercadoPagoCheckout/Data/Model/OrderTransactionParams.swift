@@ -104,6 +104,7 @@ struct OrderTransactionParams: Encodable, Sendable {
 extension OrderTransactionParams {
     init?(
         cardTransaction: MPPaymentData.CardTransaction,
+        amount: Decimal,
         token: String,
         paymentMethodSource: PaymentMethodSource? = nil
     ) {
@@ -127,7 +128,7 @@ extension OrderTransactionParams {
             return nil
         }
         self.init(
-            amount: cardTransaction.transactionAmount ?? .zero,
+            amount: amount,
             paymentMethodType: paymentMethodType,
             paymentMethodSource: paymentMethodSource
         )

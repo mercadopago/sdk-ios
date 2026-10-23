@@ -16,7 +16,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         case ready(CardFormInitializationOutput, CardFormViewModel)
     }
 
-    private var transactionAmount: Decimal {
+    var transactionAmount: Decimal {
         return self.result?.amount ?? .zero
     }
 
@@ -152,6 +152,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
     ) async throws(MercadoPagoCheckoutError) -> (paymentData: MPPaymentData.CardTransaction, processData: OrderTransactionProcessData) {
         guard let params = OrderTransactionParams(
             cardTransaction: paymentData,
+            amount: self.transactionAmount,
             token: token,
             paymentMethodSource: .newCard
         ),
@@ -213,7 +214,6 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         switch self.configuration.type.kind {
         case let .cardTransaction(order, _):
             return MPPaymentData.CardTransaction(
-                transactionAmount: self.transactionAmount,
                 installment: 1,
                 paymentMethodId: output.paymentMethodId,
                 paymentTypeId: output.paymentTypeId,
@@ -248,6 +248,7 @@ final class CardFormBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
               case let .cardTransaction(order, sellerInfo) = self.configuration.type.kind,
               let params = OrderTransactionParams(
                   cardTransaction: paymentData,
+                  amount: self.transactionAmount,
                   token: token,
                   paymentMethodSource: .newCard
               )

@@ -65,8 +65,6 @@ public enum MPPaymentData {
     public struct CardTransaction: Kind, Equatable, Codable, Sendable {
         public typealias Cancellation = MPUserCancelledContext.CardTransaction
 
-        /// Amount charged for the transaction.
-        public var transactionAmount: Decimal?
         /// Number of installments the user selected.
         public var installment: Int?
         /// Payment method identifier (e.g. `"visa"`, `"master"`).
@@ -81,7 +79,6 @@ public enum MPPaymentData {
         public var orderStatus: String
 
         init(
-            transactionAmount: Decimal = .zero,
             installment: Int = 1,
             paymentMethodId: String = "",
             paymentTypeId: String = "",
@@ -89,7 +86,6 @@ public enum MPPaymentData {
             orderStatus: String = "",
             payer: Payer? = nil
         ) {
-            self.transactionAmount = transactionAmount
             self.installment = installment
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
@@ -109,8 +105,6 @@ public enum MPPaymentData {
         public var orderId: String
         /// Order status returned by the Orders API (e.g. `"approved"`, `"action_required"`).
         public var orderStatus: String
-        /// Amount charged for the transaction.
-        public var transactionAmount: Decimal
         /// Payment method identifier of the first payment (e.g. `"visa"`, `"rapipago"`).
         public var paymentMethodId: String
         /// Payment type identifier of the first payment (e.g. `"credit_card"`, `"ticket"`).
@@ -121,14 +115,12 @@ public enum MPPaymentData {
         init(
             orderId: String,
             orderStatus: String = "",
-            transactionAmount: Decimal,
             paymentMethodId: String = "",
             paymentTypeId: String = "",
             orderStatusDetail: String? = nil
         ) {
             self.orderId = orderId
             self.orderStatus = orderStatus
-            self.transactionAmount = transactionAmount
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
             self.orderStatusDetail = orderStatusDetail

@@ -19,7 +19,6 @@ final class CardFormBrickViewModelReviewConfirmTests: XCTestCase {
         installment: Int = 3
     ) -> MPPaymentData.CardTransaction {
         MPPaymentData.CardTransaction(
-            transactionAmount: 100,
             installment: installment,
             paymentMethodId: "visa",
             paymentTypeId: paymentTypeId,

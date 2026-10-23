@@ -38,6 +38,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     @State private var didCompleteCheckout = false
     @State private var statusScreenExitCoordinator = StatusScreenExitCoordinator()
     @State private var cardTransactionData = MPPaymentData.CardTransaction()
+    @State private var transactionAmount = Decimal.zero
     @State private var cardToken = String()
     @State private var installmentsData: MPInstallmentsData?
     @State private var isProcessingOrder = false
@@ -147,6 +148,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             self.selectedItem = item
             self.cardToken = String()
             self.cardTransactionData = MPPaymentData.CardTransaction()
+            self.transactionAmount = .zero
             self.installmentsData = nil
             if skipsSecurityCode {
                 self.isProcessingOrder = true
@@ -174,7 +176,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
             self.processingTask = Task {
                 await self.handlePaymentConfirmed(
                     OrderTransactionParams(
-                        amount: self.viewModel.paymentData?.transactionAmount ?? .zero,
+                        amount: .zero,
                         paymentMethodType: .ticket(paymentMethodId: item.id, paymentTypeId: item.route),
                         paymentMethodSource: .ticket
                     )
@@ -187,7 +189,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         self.selectedTicketName = option.name
         await self.handlePaymentConfirmed(
             OrderTransactionParams(
-                amount: self.viewModel.paymentData?.transactionAmount ?? .zero,
+                amount: .zero,
                 paymentMethodType: .ticket(
                     paymentMethodId: option.id,
                     paymentTypeId: self.selectedItem?.route ?? "ticket"
@@ -221,6 +223,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
         self.selectedItem = nil
         self.newCardResult = nil
         self.cardTransactionData = MPPaymentData.CardTransaction()
+        self.transactionAmount = .zero
         self.cardToken = String()
         self.installmentsData = nil
     }
@@ -335,6 +338,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
     private func installmentScreen() -> some View {
         InstallmentScreen(
             paymentData: self.$cardTransactionData,
+            transactionAmount: self.transactionAmount,
             installmentsData: Binding(
                 get: { self.installmentsData ?? .empty },
                 set: { self.installmentsData = $0 }
@@ -602,10 +606,12 @@ extension PaymentBrick {
         token: String? = nil
     ) {
         self.cardToken = token ?? String()
+        let amount = self.viewModel.amount(from: item)
         guard let installments = item.cardData?.installments else {
             guard let cardTransactionData = self.viewModel.cardTransaction(from: item),
                   let params = OrderTransactionParams(
                       cardTransaction: cardTransactionData,
+                      amount: amount,
                       token: self.cardToken,
                       paymentMethodSource: .savedCard
                   )
@@ -615,6 +621,7 @@ extension PaymentBrick {
             }
 
             self.cardTransactionData = cardTransactionData
+            self.transactionAmount = amount
             self.processingTask = Task { await self.handlePaymentConfirmed(params) }
 
             return
@@ -632,6 +639,7 @@ extension PaymentBrick {
         }
         self.installmentsData = installmentsData
         self.cardTransactionData = cardTransactionData
+        self.transactionAmount = amount
         self.installmentsPreviousRoute = self.route
         self.route = .installments
     }
@@ -647,6 +655,7 @@ extension PaymentBrick {
         guard !self.cardToken.isEmpty,
               let params = OrderTransactionParams(
                   cardTransaction: cardTransactionData,
+                  amount: self.transactionAmount,
                   token: self.cardToken,
                   paymentMethodSource: source
               )
@@ -807,8 +816,8 @@ extension PaymentBrick {
 
     private func handleCardFormSuccess(_ result: CardFormSubmitResult) {
         self.newCardResult = result
-        let amount = self.cardFormViewModel?.amount ?? .zero
-        self.cardTransactionData = self.viewModel.cardTransaction(from: result, amount: amount)
+        self.transactionAmount = self.cardFormViewModel?.amount ?? .zero
+        self.cardTransactionData = self.viewModel.cardTransaction(from: result)
         self.cardToken = result.token
 
         if let installmentsData = result.installmentsData {
@@ -820,6 +829,7 @@ extension PaymentBrick {
 
         guard let params = OrderTransactionParams(
             cardTransaction: self.cardTransactionData,
+            amount: self.transactionAmount,
             token: self.cardToken,
             paymentMethodSource: .newCard
         ) else {

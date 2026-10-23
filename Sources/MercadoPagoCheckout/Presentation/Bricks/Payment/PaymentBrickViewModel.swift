@@ -59,7 +59,7 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         self.securityCodeUseCase = securityCodeUseCase
 
         if case let .payment(order, _) = configuration.type.kind {
-            self.paymentData = .init(orderId: order.orderId, transactionAmount: .zero)
+            self.paymentData = .init(orderId: order.orderId)
         }
     }
 
@@ -181,10 +181,10 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
                 location: .orderProcess
             )
         }
-        guard let amount = Decimal(
+        guard Decimal(
             string: payment.amount ?? result.totalAmount,
             locale: Locale(identifier: "en_US_POSIX")
-        ) else {
+        ) != nil else {
             throw MercadoPagoCheckoutError(
                 code: .serviceError,
                 localizedDescription: "Invalid payment amount",
@@ -196,7 +196,6 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         let data = MPPaymentData.Payment(
             orderId: order.orderId,
             orderStatus: result.status,
-            transactionAmount: amount,
             paymentMethodId: payment.paymentMethodId,
             paymentTypeId: payment.paymentTypeId,
             orderStatusDetail: result.statusDetail
@@ -243,16 +242,19 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
         guard let cardData = item.cardData else { return nil }
 
         return MPPaymentData.CardTransaction(
-            transactionAmount: cardData.installments?.defaultQuota?.totalAmount ?? .zero,
             paymentMethodId: cardData.paymentMethodId,
             paymentTypeId: cardData.paymentTypeId,
             orderId: self.paymentData?.orderId ?? String()
         )
     }
 
-    func cardTransaction(from result: CardFormSubmitResult, amount: Decimal) -> MPPaymentData.CardTransaction {
+    /// Amount to charge for a saved card, taken from its default installment quota.
+    func amount(from item: PaymentInitializationOutput.Item) -> Decimal {
+        item.cardData?.installments?.defaultQuota?.totalAmount ?? .zero
+    }
+
+    func cardTransaction(from result: CardFormSubmitResult) -> MPPaymentData.CardTransaction {
         MPPaymentData.CardTransaction(
-            transactionAmount: amount,
             paymentMethodId: result.paymentMethodId,
             paymentTypeId: result.paymentTypeId,
             orderId: self.paymentData?.orderId ?? String()

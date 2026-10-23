@@ -22,7 +22,7 @@ import Foundation
 ///     switch result {
 ///     case let .success(payment):
 ///         // payment: MPPaymentData.CardTransaction
-///         print("Paid \(payment.transactionAmount ?? 0) in \(payment.installment ?? 1) installments")
+///         print("Paid in \(payment.installment ?? 1) installments")
 ///
 ///     case let .error(error):
 ///         // Something went wrong during the flow.

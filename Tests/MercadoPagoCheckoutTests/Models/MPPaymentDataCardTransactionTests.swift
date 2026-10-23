@@ -9,7 +9,6 @@ import XCTest
 final class MPPaymentDataCardTransactionTests: XCTestCase {
     func test_encoding_ShouldNotContainCardToken() throws {
         let transaction = MPPaymentData.CardTransaction(
-            transactionAmount: 100,
             installment: 3,
             paymentMethodId: "visa",
             paymentTypeId: "credit_card",
