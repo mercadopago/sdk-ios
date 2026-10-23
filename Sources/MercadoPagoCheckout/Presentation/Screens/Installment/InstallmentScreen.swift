@@ -114,17 +114,6 @@ extension CardPaymentBrickCardData.Installment {
 
 // MARK: - InstallmentScreen
 
-/// Helper extension to conditionally apply trailing style
-extension View {
-    func listItemTrailingStyleIfPresent(_ style: MPListItemTrailingStyle?) -> AnyView {
-        if let style {
-            return AnyView(self.listItemTrailingStyle(style))
-        } else {
-            return AnyView(self)
-        }
-    }
-}
-
 struct InstallmentScreen: View {
     @Environment(\.checkoutTheme) var theme: MPTheme
     @Environment(\.presentationMode) var presentationMode
@@ -139,9 +128,11 @@ struct InstallmentScreen: View {
     private let onFinish: (InstallmentFinishContext) -> Void
     private let onContinue: (InstallmentFinishContext) -> Void
     @Binding private var paymentData: MPPaymentData.CardTransaction
+    private let transactionAmount: Decimal
 
     init(
         paymentData: Binding<MPPaymentData.CardTransaction>,
+        transactionAmount: Decimal,
         installmentsData: Binding<MPInstallmentsData>,
         checkoutType: String = "",
         style: (any InstallmentInteractionStyle)? = nil,
@@ -151,7 +142,8 @@ struct InstallmentScreen: View {
         onContinue: @escaping (InstallmentFinishContext) -> Void = { _ in }
     ) {
         self._paymentData = paymentData
-        self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.quotas.first)
+        self.transactionAmount = transactionAmount
+        self._selectedQuota = State(initialValue: installmentsData.wrappedValue.installment.defaultQuota)
         self.viewModel = InstallmentsScreenViewModel(installmentsData: installmentsData, checkoutType: checkoutType)
         self.style = style ?? installmentsData.wrappedValue.installment.resolvedInteractionStyle
         self.onBack = onBack
@@ -176,13 +168,11 @@ struct InstallmentScreen: View {
             }
         )
         .onAppear {
-            if let transactionAmount = paymentData.transactionAmount {
-                self.viewModel.trackInitialize(
-                    transactionAmount: transactionAmount,
-                    paymentMethodId: self.paymentData.paymentMethodId,
-                    orderId: self.paymentData.orderId
-                )
-            }
+            self.viewModel.trackInitialize(
+                transactionAmount: self.transactionAmount,
+                paymentMethodId: self.paymentData.paymentMethodId,
+                orderId: self.paymentData.orderId
+            )
         }
         .onDisappear {
             if !self.hasHandledDismiss {
@@ -230,7 +220,12 @@ struct InstallmentScreen: View {
     private func finishWithSelectedQuota() {
         self.hasHandledDismiss = true
         self.viewModel.trackSubmit(self.selectedQuota)
-        self.onFinish(InstallmentFinishContext(installments: self.selectedQuota?.installments ?? 1))
+        self.onFinish(
+            InstallmentFinishContext(
+                installments: self.selectedQuota?.installments ?? 1,
+                installmentAmount: self.selectedQuota?.installmentAmount
+            )
+        )
     }
 
     // MARK: - Helper Methods
@@ -255,7 +250,12 @@ struct InstallmentScreen: View {
     private func continueWithSelectedQuota(for installment: CardPaymentBrickCardData.Installment.Quota) {
         self.hasHandledDismiss = true
         self.viewModel.trackSubmit(installment)
-        self.onContinue(InstallmentFinishContext(installments: installment.installments))
+        self.onContinue(
+            InstallmentFinishContext(
+                installments: installment.installments,
+                installmentAmount: installment.installmentAmount
+            )
+        )
     }
 
     private func handleBack() {
@@ -272,12 +272,11 @@ struct InstallmentScreen: View {
         InstallmentScreen(
             paymentData: .constant(
                 MPPaymentData.CardTransaction(
-                    transactionAmount: 100,
-                    token: "",
                     paymentMethodId: "",
                     paymentTypeId: ""
                 )
             ),
+            transactionAmount: 100,
             installmentsData: .constant(InstallmentMock.visa),
             style: .radioButton,
             onBack: {},
@@ -287,9 +286,8 @@ struct InstallmentScreen: View {
 
     #Preview("Chevron") {
         InstallmentScreen(
-            paymentData: .constant(
-                MPPaymentData.CardTransaction(transactionAmount: 100)
-            ),
+            paymentData: .constant(MPPaymentData.CardTransaction()),
+            transactionAmount: 100,
             installmentsData: .constant(InstallmentMock.visa),
             style: .chevron,
             onBack: {},

@@ -9,6 +9,7 @@ enum CheckoutAPIErrorCode: String {
     case installmentsUnavailable = "INSTALLMENTS_UNAVAILABLE"
     case identificationTypeUnavailable = "IDENTIFICATION_TYPE_UNAVAILABLE"
     case unsupportedSite = "UNSUPPORTED_SITE"
+    case waitingRetry = "WAITING_RETRY"
 
     static let binValidation: Set<Self> = [
         .emptyPaymentMethods,

@@ -24,7 +24,7 @@ import UIKit
 ///
 /// ```swift
 /// let checkout = MercadoPagoCheckout.Builder(
-///     checkoutType: .cardTransaction(order: .init(amount: 99.90, payer: .init(email: "..."))),
+///     checkoutType: .saveCard,
 ///     checkoutAppearance: .init()
 /// )
 /// .setPaymentMethodConfiguration([.card(excludedTypes: [.prepaid])])
@@ -32,7 +32,7 @@ import UIKit
 ///
 /// // SwiftUI
 /// checkout.show { result in
-///     // result: MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>
+///     // result: MercadoPagoCheckoutResult<MPPaymentData.CardSave>
 ///     print(result)
 /// }
 ///
