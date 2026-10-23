@@ -287,6 +287,6 @@ struct CardFormScreen: View {
     private func updateIdentificationTypes(_ identificationType: IdentificationType?) {
         guard let identificationType else { return }
         self.cardForm.setDocumentLength(identificationType.minLenght, identificationType.maxLenght)
-        self.cardForm.setDocumentType(isNumeric: identificationType.type != "string")
+        self.cardForm.setDocumentType(isNumeric: identificationType.isNumeric)
     }
 }
