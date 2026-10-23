@@ -284,7 +284,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     ///
     /// `T.Cancellation` is fixed by the configured ``MercadoPagoCheckout/CheckoutType``:
     /// `.cardTransaction(order:)` produces a ``MPUserCancelledContext/CardTransaction`` and
-    /// `.saveCard` produces a ``MPUserCancelledContext/CardSave``.
+    /// `.cardSave` produces a ``MPUserCancelledContext/CardSave``.
     private func emitUserCancelled(cardForm context: MPCardFormUserCancelledContext, screens: [MPScreen] = []) {
         let cancellation: (any MPUserCancelledContext.Kind)?
         if T.Cancellation.self == MPUserCancelledContext.CardSave.self {
@@ -307,7 +307,7 @@ struct CardFormBrick<T: MPPaymentData.Kind>: View {
     ///
     /// Uses the typed ``pendingResult`` built from the card form output, which always matches the
     /// configured ``MercadoPagoCheckout/CheckoutType``: `.cardTransaction(order:)` yields a
-    /// ``MPPaymentData/CardTransaction`` and `.saveCard` yields a ``MPPaymentData/CardSave``.
+    /// ``MPPaymentData/CardTransaction`` and `.cardSave` yields a ``MPPaymentData/CardSave``.
     private func completeCheckout() {
         guard let result = self.pendingResult else {
             assertionFailure("CardFormBrick has no payment data to complete the checkout.")

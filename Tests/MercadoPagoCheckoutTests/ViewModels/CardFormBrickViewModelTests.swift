@@ -22,7 +22,7 @@ final class CardFormBrickViewModelTests: XCTestCase {
         let repository = MockCardFormInitializationRepository()
         let useCase = InitializeCardFormUseCase(repository: repository)
         let configuration = MPCheckoutConfiguration<MPPaymentData.CardSave>(
-            type: .saveCard,
+            type: .cardSave,
             paymentMethod: [.card()]
         )
         let viewModel = CardFormBrickViewModel<MPPaymentData.CardSave>(

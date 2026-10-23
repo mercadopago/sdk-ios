@@ -9,14 +9,14 @@ public extension MercadoPagoCheckout {
     /// A fluent builder for constructing a ``MercadoPagoCheckout`` instance.
     ///
     /// Create a builder with the ``CheckoutType`` and appearance you want, chain optional
-    /// configuration such as ``withStatusScreen(onExit:)`` or, for `.saveCard` only,
+    /// configuration such as ``withStatusScreen(onExit:)`` or, for `.cardSave` only,
     /// ``setPaymentMethodConfiguration(_:)``, then call ``build()``. The
     /// checkout type you pass determines the type of ``MercadoPagoCheckoutResult`` the resulting
     /// checkout delivers, so you do not specify the generic parameter yourself.
     ///
     /// ```swift
     /// let checkout = MercadoPagoCheckout.Builder(
-    ///     checkoutType: .saveCard,
+    ///     checkoutType: .cardSave,
     ///     checkoutAppearance: .init()
     /// )
     /// .setPaymentMethodConfiguration([.card(excludedTypes: [.prepaid])])
@@ -93,7 +93,7 @@ extension MercadoPagoCheckout.Builder {
 public extension MercadoPagoCheckout.Builder where T == MPPaymentData.CardSave {
     /// Sets the payment method exclusion configuration for the save card flow.
     ///
-    /// Only available for `.saveCard`. The card transaction and payment flows do not accept it.
+    /// Only available for `.cardSave`. The card transaction and payment flows do not accept it.
     ///
     /// - Parameter paymentMethodConfigs: The payment method configurations to apply. Defaults to `[]` (no exclusions).
     /// - Returns: The builder instance for chaining.

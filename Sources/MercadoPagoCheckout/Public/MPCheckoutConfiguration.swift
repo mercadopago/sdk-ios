@@ -34,7 +34,7 @@ extension MPCheckoutConfiguration {
         switch self.type.kind {
         case let .payment(_, sellerInfo), let .cardTransaction(_, sellerInfo):
             return sellerInfo
-        case .saveCard:
+        case .cardSave:
             return nil
         }
     }

@@ -10,7 +10,7 @@ import Foundation
 ///
 /// The payment data type `T` matches the ``MercadoPagoCheckout/CheckoutType`` you chose when
 /// building the checkout: `.cardTransaction(order:)` produces an
-/// `MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>`, and `.saveCard` produces an
+/// `MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>`, and `.cardSave` produces an
 /// `MercadoPagoCheckoutResult<MPPaymentData.CardSave>`. Both the ``success(_:)`` payload and the
 /// ``userCancelled(_:)`` context are concretely typed for that flow, so you can read their fields
 /// directly without casting.

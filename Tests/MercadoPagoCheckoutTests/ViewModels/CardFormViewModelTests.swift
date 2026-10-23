@@ -355,7 +355,7 @@ final class CardFormViewModelTests: XCTestCase {
     }
 
     func test_onCardNumberChange_whenNoOrderId_shouldForwardNilToCardLookup() async {
-        // Arrange — e.g. .saveCard, which has no Order.
+        // Arrange — e.g. .cardSave, which has no Order.
         let sut = self.makeSUT()
         await sut.repository.setResult(.success(CardDataStub.visa))
 
@@ -844,7 +844,7 @@ final class CardFormViewModelTests: XCTestCase {
 
     // MARK: - submitCardData
 
-    func test_submitCardData_saveCard_whenServiceSucceeds_shouldProduceOutputWithToken() async {
+    func test_submitCardData_cardSave_whenServiceSucceeds_shouldProduceOutputWithToken() async {
         // Arrange
         let sut = self.makeSUT()
         await self.setupCardData(sut)

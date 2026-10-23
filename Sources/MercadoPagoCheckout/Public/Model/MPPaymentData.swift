@@ -18,7 +18,7 @@ import Foundation
 ///         // data is typed to the variant you configured:
 ///         //   .payment(order:)        → MPPaymentData.Payment
 ///         //   .cardTransaction(order:) → MPPaymentData.CardTransaction
-///         //   .saveCard               → MPPaymentData.CardSave
+///         //   .cardSave               → MPPaymentData.CardSave
 ///         break
 ///     case .userCancelled:
 ///         break
@@ -40,7 +40,7 @@ public enum MPPaymentData {
         associatedtype Cancellation: MPUserCancelledContext.Kind
     }
 
-    /// Result of a `.saveCard` checkout.
+    /// Result of a `.cardSave` checkout.
     ///
     /// Use the card `token` to charge the saved card later without requiring the user to re-enter
     /// their card details.
