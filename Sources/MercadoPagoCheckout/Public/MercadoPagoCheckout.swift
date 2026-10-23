@@ -24,7 +24,7 @@ import UIKit
 ///
 /// ```swift
 /// let checkout = MercadoPagoCheckout.Builder(
-///     checkoutType: .cardTransaction(order: .init(amount: 99.90, payer: .init(email: "..."))),
+///     checkoutType: .cardSave,
 ///     checkoutAppearance: .init()
 /// )
 /// .setPaymentMethodConfiguration([.card(excludedTypes: [.prepaid])])
@@ -32,7 +32,7 @@ import UIKit
 ///
 /// // SwiftUI
 /// checkout.show { result in
-///     // result: MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>
+///     // result: MercadoPagoCheckoutResult<MPPaymentData.CardSave>
 ///     print(result)
 /// }
 ///
@@ -95,7 +95,7 @@ public struct MercadoPagoCheckout<T: MPPaymentData.Kind>: Sendable, Identifiable
         onResult: @escaping (MercadoPagoCheckoutResult<T>) -> Void
     ) -> some View {
         switch self.configuration.type.kind {
-        case .saveCard, .cardTransaction:
+        case .cardSave, .cardTransaction:
             CardFormBrick<T>(
                 configuration: self.configuration,
                 appearance: self.theme,

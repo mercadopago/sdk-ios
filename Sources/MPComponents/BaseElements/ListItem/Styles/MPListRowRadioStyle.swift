@@ -11,15 +11,21 @@ import SwiftUI
 package struct MPListRowRadioStyle: MPListItemStyle {
     package var id: UUID = .init()
     @Environment(\.checkoutTheme) var theme: MPTheme
+    @Environment(\.mpListItemAlignment) private var alignmentOverride: VerticalAlignment?
 
     package init() {}
 
     @MainActor
     package func makeBody(configuration: MPListItemStyleConfiguration) -> some View {
         let hasDescription = configuration.description != nil
+        let alignment = self.alignmentOverride ?? (hasDescription ? .top : .center)
 
-        HStack(alignment: hasDescription ? .top : .center, spacing: self.theme.spacings.xtiny) {
+        HStack(alignment: alignment, spacing: self.theme.spacings.xtiny) {
             self.radioToggle(isSelected: configuration.isSelected)
+
+            if let leading = configuration.leading {
+                leading
+            }
 
             VStack(alignment: .leading, spacing: self.theme.spacings.xnano) {
                 if let header = configuration.header { header }

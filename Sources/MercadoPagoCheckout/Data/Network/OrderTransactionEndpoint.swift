@@ -44,7 +44,7 @@ extension OrderTransactionEndpoint: RequestEndpoint {
     }
 
     var urlParams: [String: any CustomStringConvertible] {
-        [:]
+        ["product_id": MPSDKProduct.id]
     }
 
     var body: Data? {
