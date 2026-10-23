@@ -22,8 +22,8 @@ import Foundation
 ///         break
 ///     case .userCancelled:
 ///         break
-///     case .failure(let error):
-///         break
+///     case .error(let error):
+///         print(error)
 ///     }
 /// }
 /// ```
@@ -82,11 +82,8 @@ public enum MPPaymentData {
         /// Order status returned by the Orders API.
         public var orderStatus: String
 
-        var token: String
-
         init(
             transactionAmount: Decimal = .zero,
-            token: String = "",
             installment: Int = 1,
             paymentMethodId: String = "",
             paymentTypeId: String = "",
@@ -96,7 +93,6 @@ public enum MPPaymentData {
             payer: Payer? = nil
         ) {
             self.transactionAmount = transactionAmount
-            self.token = token
             self.installment = installment
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
@@ -123,13 +119,23 @@ public enum MPPaymentData {
         public var paymentMethodId: String
         /// Payment type identifier of the first payment (e.g. `"credit_card"`, `"ticket"`).
         public var paymentTypeId: String
+        /// Additional detail about the order status, when available.
+        public var orderStatusDetail: String?
 
-        init(orderId: String, orderStatus: String = "", transactionAmount: Decimal, paymentMethodId: String = "", paymentTypeId: String = "") {
+        init(
+            orderId: String,
+            orderStatus: String = "",
+            transactionAmount: Decimal,
+            paymentMethodId: String = "",
+            paymentTypeId: String = "",
+            orderStatusDetail: String? = nil
+        ) {
             self.orderId = orderId
             self.orderStatus = orderStatus
             self.transactionAmount = transactionAmount
             self.paymentMethodId = paymentMethodId
             self.paymentTypeId = paymentTypeId
+            self.orderStatusDetail = orderStatusDetail
         }
     }
 

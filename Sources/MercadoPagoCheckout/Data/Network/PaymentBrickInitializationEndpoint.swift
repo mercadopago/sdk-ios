@@ -14,6 +14,7 @@ import Foundation
 struct PaymentBrickInitializationEndpoint: RequestEndpoint {
     let orderId: String
     let clientToken: String
+    let screens: String?
 
     var apiVersion: APIVersion {
         .v1
@@ -40,7 +41,11 @@ struct PaymentBrickInitializationEndpoint: RequestEndpoint {
     }
 
     var urlParams: [String: any CustomStringConvertible] {
-        ["order_id": self.orderId]
+        var params: [String: any CustomStringConvertible] = ["order_id": self.orderId]
+        if let screens = self.screens, !screens.isEmpty {
+            params["screens"] = screens
+        }
+        return params
     }
 
     var body: Data? {
