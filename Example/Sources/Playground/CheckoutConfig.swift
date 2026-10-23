@@ -235,7 +235,6 @@ final class CheckoutConfig: ObservableObject {
         }
 
         return builder
-            .setPaymentMethodConfiguration(self.paymentMethodConfigs)
             .build(withReviewAndConfirm: self.reviewAndConfirmEnabled)
     }
 
@@ -257,7 +256,6 @@ final class CheckoutConfig: ObservableObject {
         }
 
         return builder
-            .setPaymentMethodConfiguration(self.paymentMethodConfigs)
             .build(
                 withReviewAndConfirm: self.reviewAndConfirmEnabled,
                 emailChangeEnabled: self.emailChangeEnabled

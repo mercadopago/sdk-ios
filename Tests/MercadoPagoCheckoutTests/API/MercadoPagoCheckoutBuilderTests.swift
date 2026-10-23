@@ -54,7 +54,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
         ]
 
         let checkout = MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: .init(orderId: "", clientToken: "seller_client_token")),
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         )
         .setPaymentMethodConfiguration(customConfig)
@@ -71,7 +71,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_setPaymentMethodConfiguration_withNoArgument_shouldResetToEmpty() {
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: .init(orderId: "", clientToken: "seller_client_token")),
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         )
         builder.setPaymentMethodConfiguration([.card(excludedTypes: [.credit])])
@@ -83,7 +83,7 @@ final class MercadoPagoCheckoutBuilderTests: XCTestCase {
 
     func test_setPaymentMethodConfiguration_shouldBeDiscardableAndReturnSameBuilder() {
         let builder = MercadoPagoCheckout.Builder(
-            checkoutType: .cardTransaction(order: .init(orderId: "", clientToken: "seller_client_token")),
+            checkoutType: .saveCard,
             checkoutAppearance: .init()
         )
 
