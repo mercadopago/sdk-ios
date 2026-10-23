@@ -8,5 +8,6 @@ enum StatusScreenAnalyticsPath {
     static let render = "/checkout_api_native/checkout/status_screen/render"
     static let close = "/checkout_api_native/checkout/status_screen/close"
     static let receipt = "/checkout_api_native/checkout/status_screen/receipt"
+    static let contractViolation = "/checkout_api_native/checkout/status_screen/contract_violation"
     static let retry = "/checkout_api_native/checkout/status_screen/retry"
 }

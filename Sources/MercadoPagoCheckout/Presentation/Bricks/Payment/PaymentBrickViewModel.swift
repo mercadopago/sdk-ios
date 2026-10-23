@@ -78,12 +78,42 @@ final class PaymentBrickViewModel<T: MPPaymentData.Kind>: ObservableObject {
             return
         }
         self.screenState = .loading
-        let output = try await fetchInitializationUseCase.execute(
-            orderId: order.orderId,
-            clientToken: order.clientToken,
-            screens: self.configuration.screenConfigs.screensParameter
-        )
-        self.screenState = .ready(output)
+        do {
+            let output = try await fetchInitializationUseCase.execute(
+                orderId: order.orderId,
+                clientToken: order.clientToken,
+                screens: self.configuration.screenConfigs.screensParameter
+            )
+            self.screenState = .ready(output)
+            self.trackInitialize()
+        } catch {
+            self.trackInitializeError()
+            throw error
+        }
+    }
+
+    // MARK: - Analytics
+
+    func trackSelected() {
+        self.trackEvent(PaymentBrickAnalyticsPath.selected)
+    }
+
+    private func trackInitialize() {
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackView(PaymentBrickAnalyticsPath.initialize).send()
+        }
+    }
+
+    private func trackInitializeError() {
+        self.trackEvent(PaymentBrickAnalyticsPath.initializeError)
+    }
+
+    private func trackEvent(_ path: String) {
+        let analytics = self.analytics
+        Task(priority: .low) {
+            await analytics.trackEvent(path).send()
+        }
     }
 
     func loadCardForm(

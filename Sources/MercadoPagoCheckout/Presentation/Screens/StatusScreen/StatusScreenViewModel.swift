@@ -121,8 +121,16 @@ final class StatusScreenViewModel: ObservableObject {
             } else {
                 self.state = .unavailable
             }
-            self.trackEvent(path: StatusScreenAnalyticsPath.load, outcome: .failure)
+            if Self.isContractViolation(error) {
+                self.trackEvent(path: StatusScreenAnalyticsPath.contractViolation, outcome: .rejected)
+            } else {
+                self.trackEvent(path: StatusScreenAnalyticsPath.load, outcome: .failure)
+            }
         }
+    }
+
+    private static func isContractViolation(_ error: Error) -> Bool {
+        (error as? MercadoPagoCheckoutError)?.errorUserInfo["status_screen_reason"] as? String == "contract_violation"
     }
 
     private func fallbackOutput() -> StatusScreenOutput? {

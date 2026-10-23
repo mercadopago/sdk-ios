@@ -131,6 +131,7 @@ struct PaymentBrick<T: MPPaymentData.Kind>: View {
 
     /// Maps the selected item's backend route to the brick's internal navigation `Route`.
     private func handleSelection(of item: PaymentInitializationOutput.Item) {
+        self.viewModel.trackSelected()
         switch item.route {
         case "new_card":
             self.processingTask?.cancel()

@@ -12,6 +12,7 @@ struct StatusScreenEventData: AnalyticsEventData, Equatable, Sendable {
         case started
         case success
         case failure
+        case rejected
         case requested
         case dismissed
         case cancelled
