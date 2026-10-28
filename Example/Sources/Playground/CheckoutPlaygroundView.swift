@@ -39,8 +39,9 @@ struct CheckoutPlaygroundView: View {
         Form {
             self.sdkSection
             self.checkoutSection
-            if self.config.checkoutType == .cardTransaction {
+            if self.config.checkoutType == .cardTransaction || self.config.checkoutType == .payment {
                 self.orderSection
+                self.reviewAndConfirmSection
             }
             self.installmentsSection
             self.exclusionsSection
@@ -128,6 +129,31 @@ struct CheckoutPlaygroundView: View {
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
                 .accessibilityIdentifier("playground.clientToken")
+        }
+    }
+
+    private var reviewAndConfirmSection: some View {
+        Section("Optional screens") {
+            Toggle("Enable Review & Confirm", isOn: self.$config.reviewAndConfirmEnabled)
+                .accessibilityIdentifier("playground.reviewAndConfirm.enabled")
+            if self.config.checkoutType == .cardTransaction || self.config.checkoutType == .payment {
+                Toggle("Enable Status Screen", isOn: self.$config.statusScreenEnabled)
+                    .accessibilityIdentifier("playground.statusScreen.enabled")
+            }
+            if self.config.checkoutType == .payment, self.config.reviewAndConfirmEnabled {
+                Toggle("Enable email change", isOn: self.$config.emailChangeEnabled)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.emailChange")
+            }
+            Toggle("Include seller info", isOn: self.$config.sellerInfoEnabled)
+                .accessibilityIdentifier("playground.reviewAndConfirm.sellerInfo")
+            if self.config.sellerInfoEnabled {
+                TextField("Seller name", text: self.$config.sellerName)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.sellerName")
+                TextField("Seller logo URL", text: self.$config.sellerLogoUrl)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                    .accessibilityIdentifier("playground.reviewAndConfirm.sellerLogoUrl")
+            }
         }
     }
 
@@ -227,7 +253,17 @@ struct CheckoutPlaygroundView: View {
         case .saveCard:
             return AnyView(self.config.makeCardSaveCheckout().show(onResult: self.handleSaveResult))
         case .cardTransaction:
-            return AnyView(self.config.makeCardTransactionCheckout().show(onResult: self.handleTransactionResult))
+            return AnyView(
+                self.config
+                    .makeCardTransactionCheckout(statusScreenExit: { self.handleStatusScreenExit() })
+                    .show(onResult: self.handleTransactionResult)
+            )
+        case .payment:
+            return AnyView(
+                self.config
+                    .makePaymentCheckout(statusScreenExit: { self.handleStatusScreenExit() })
+                    .show(onResult: self.handlePaymentResult)
+            )
         }
     }
 
@@ -241,8 +277,17 @@ struct CheckoutPlaygroundView: View {
             ))
         case .cardTransaction:
             return AnyView(CheckoutPushRepresentable(
-                checkout: self.config.makeCardTransactionCheckout(),
+                checkout: self.config.makeCardTransactionCheckout(
+                    statusScreenExit: { self.handleStatusScreenExit() }
+                ),
                 onResult: self.handleTransactionResult
+            ))
+        case .payment:
+            return AnyView(CheckoutPushRepresentable(
+                checkout: self.config.makePaymentCheckout(
+                    statusScreenExit: { self.handleStatusScreenExit() }
+                ),
+                onResult: self.handlePaymentResult
             ))
         }
     }
@@ -253,7 +298,13 @@ struct CheckoutPlaygroundView: View {
         case .saveCard:
             self.config.makeCardSaveCheckout().present(from: topVC, onResult: self.handleSaveResult)
         case .cardTransaction:
-            self.config.makeCardTransactionCheckout().present(from: topVC, onResult: self.handleTransactionResult)
+            self.config
+                .makeCardTransactionCheckout(statusScreenExit: { self.handleStatusScreenExit() })
+                .present(from: topVC, onResult: self.handleTransactionResult)
+        case .payment:
+            self.config
+                .makePaymentCheckout(statusScreenExit: { self.handleStatusScreenExit() })
+                .present(from: topVC, onResult: self.handlePaymentResult)
         }
     }
 
@@ -291,8 +342,26 @@ struct CheckoutPlaygroundView: View {
         }
     }
 
+    /// With Status Screen enabled it opens after a processed order and after a failed `/process`; in both cases the
+    /// checkout stays open and `handleStatusScreenExit()` tears it down once the buyer leaves.
+    private func keepsCheckoutOpenForStatusScreen(_ result: MercadoPagoCheckoutResult<some MPPaymentData.Kind>) -> Bool {
+        guard self.config.statusScreenEnabled else { return false }
+        switch result {
+        case .success:
+            return true
+        case let .error(error):
+            return error.locationDescription == MercadoPagoCheckoutError.LocationDescription.orderProcess.rawValue
+        case .userCancelled:
+            return false
+        }
+    }
+
     private func handleTransactionResult(_ result: MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>) {
         Task { @MainActor in
+            if self.keepsCheckoutOpenForStatusScreen(result) {
+                print("result: \(result)")
+                return
+            }
             self.preparedCheckout = nil
             self.sheetCheckout = nil
             try? await Task.sleep(for: .seconds(0.6))
@@ -315,6 +384,10 @@ struct CheckoutPlaygroundView: View {
 
     private func handlePaymentResult(_ result: MercadoPagoCheckoutResult<MPPaymentData.Payment>) {
         Task { @MainActor in
+            if self.keepsCheckoutOpenForStatusScreen(result) {
+                print("result: \(result)")
+                return
+            }
             self.preparedCheckout = nil
             self.sheetCheckout = nil
             try? await Task.sleep(for: .seconds(0.6))
@@ -332,6 +405,19 @@ struct CheckoutPlaygroundView: View {
                 print("Contexto: ", context)
                 self.resultItem = ResultItem(title: "Cancelled", message: "User has cancelled.")
             }
+        }
+    }
+}
+
+private extension CheckoutPlaygroundView {
+    @MainActor
+    func handleStatusScreenExit() {
+        self.preparedCheckout = nil
+        self.sheetCheckout = nil
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(0.6))
+            guard self.preparedCheckout == nil, self.sheetCheckout == nil else { return }
+            self.resultItem = ResultItem(title: "Exit", message: "Status Screen closed.")
         }
     }
 }
