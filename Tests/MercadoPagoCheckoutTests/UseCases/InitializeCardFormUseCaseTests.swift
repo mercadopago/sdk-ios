@@ -36,7 +36,7 @@ final class InitializeCardFormUseCaseTests: XCTestCase {
     }
 
     private func makeConfig() -> MercadoPagoCheckout<MPPaymentData.CardSave>.CheckoutType {
-        return .saveCard
+        return .cardSave
     }
 
     // MARK: - Success Cases

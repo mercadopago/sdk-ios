@@ -87,6 +87,16 @@ extension MercadoPagoCheckoutError {
                 )
             }
         case let .apiError(error):
+            if error.errorCode.flatMap(CheckoutAPIErrorCode.init(rawValue:)) == .waitingRetry {
+                self.init(
+                    code: .paymentWaitingRetry,
+                    localizedDescription: error.message,
+                    userInfo: ["error_code": error.code, "message": error.message],
+                    location: location,
+                    serviceError: error
+                )
+                return
+            }
             self.init(
                 code: .serviceError,
                 localizedDescription: "An error occurred. Check the error_code for more details.",
