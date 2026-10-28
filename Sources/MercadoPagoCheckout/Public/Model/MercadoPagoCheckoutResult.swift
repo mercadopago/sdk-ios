@@ -10,7 +10,7 @@ import Foundation
 ///
 /// The payment data type `T` matches the ``MercadoPagoCheckout/CheckoutType`` you chose when
 /// building the checkout: `.cardTransaction(order:)` produces an
-/// `MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>`, and `.saveCard` produces an
+/// `MercadoPagoCheckoutResult<MPPaymentData.CardTransaction>`, and `.cardSave` produces an
 /// `MercadoPagoCheckoutResult<MPPaymentData.CardSave>`. Both the ``success(_:)`` payload and the
 /// ``userCancelled(_:)`` context are concretely typed for that flow, so you can read their fields
 /// directly without casting.
@@ -22,7 +22,7 @@ import Foundation
 ///     switch result {
 ///     case let .success(payment):
 ///         // payment: MPPaymentData.CardTransaction
-///         print("Paid with token \(payment.token), \(payment.installment ?? 1) installments")
+///         print("Paid in \(payment.installment ?? 1) installments")
 ///
 ///     case let .error(error):
 ///         // Something went wrong during the flow.
@@ -53,7 +53,8 @@ public enum MercadoPagoCheckoutResult<T: MPPaymentData.Kind>: Sendable {
     ///
     /// The associated value is the concrete ``MPPaymentData`` variant for the configured
     /// checkout type — for example ``MPPaymentData/CardTransaction`` or
-    /// ``MPPaymentData/CardSave`` — carrying the resulting token and payment details.
+    /// ``MPPaymentData/CardSave``. Only ``MPPaymentData/CardSave`` carries the card token; card
+    /// transactions and payments return the order and payment details without it.
     case success(T)
 
     /// The flow failed before completing.
