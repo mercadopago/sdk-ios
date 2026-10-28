@@ -1,3 +1,9 @@
+## [1.2.0] - 2026-10-28
+
+- fixed missing changes on playground (#276)
+- [CHOBK-5329](Feature-Branch): Payment Brick (#251)
+- docs(SMFINTECH-32897): add status-screen error and pending specs (#275)
+
 ## [1.0.1] - 2026-10-06
 
 ### Added
