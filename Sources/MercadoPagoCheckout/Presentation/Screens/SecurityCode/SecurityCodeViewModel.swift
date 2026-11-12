@@ -85,7 +85,7 @@ final class SecurityCodeViewModel: ObservableObject {
     // MARK: - Navigation
 
     func goBack() {
-        self.trackCanceledError(errorType: "back_pressed")
+        self.trackBack()
     }
 }
 
@@ -97,7 +97,7 @@ extension SecurityCodeViewModel {
         let eventData = SecurityCodeInitializeEventData(
             paymentMethodId: cardData.paymentMethodId,
             paymentTypeId: cardData.paymentTypeId,
-            issuerId: cardData.issuerId,
+            issuerId: String(cardData.issuerId),
             cardId: self.config.item.id
         )
         self.enqueueAnalytics { [analytics = self.analytics] in
@@ -121,10 +121,9 @@ extension SecurityCodeViewModel {
         }
     }
 
-    func trackCanceledError(errorType: String) {
+    private func trackBack() {
         self.enqueueAnalytics { [analytics = self.analytics] in
-            await analytics.trackEvent(SecurityCodeAnalyticsPath.userCanceledError)
-                .setError(errorType)
+            await analytics.trackEvent(SecurityCodeAnalyticsPath.back)
                 .send()
         }
     }
