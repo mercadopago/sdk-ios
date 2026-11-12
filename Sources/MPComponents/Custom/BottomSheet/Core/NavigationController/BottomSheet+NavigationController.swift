@@ -1,0 +1,241 @@
+//
+//  BottomSheet+NavigationController.swift
+//  MercadoPagoSDK
+//
+//  Created by Guilherme Prata Costa on 11/09/25.
+//
+import UIKit
+
+extension BottomSheet {
+
+    /// A custom `UINavigationController` subclass designed to be presented within a
+    /// `BottomSheet.PresentationController`.
+    ///
+    /// This navigation controller automatically updates its `preferredContentSize` to match
+    /// its `topViewController`'s `preferredContentSize`. This allows the bottom sheet
+    /// to dynamically resize as view controllers are pushed onto or popped from the navigation stack.
+    ///
+    /// It also provides custom transition animations for push and pop operations,
+    /// suitable for a bottom sheet context, via `BottomSheet.NavigationAnimatedTransitioning`.
+    final class NavigationController: UINavigationController {
+
+        // MARK: - Private Properties
+
+        /// A flag to indicate if the navigation stack is currently being updated (e.g., push, pop).
+        /// Used to prevent redundant or conflicting updates to `preferredContentSize`.
+        private var isUpdatingNavigationStack = false
+
+        /// A flag to control whether `preferredContentSize` updates should be animated.
+        /// Typically, the first update after the sheet is presented might not be animated,
+        /// while subsequent changes (e.g., due to content loading) can be.
+        private var canAnimatePreferredContentSizeUpdates = false
+
+        /// Stores a reference to the 'from' view controller during a transition,
+        /// used by the delegate to provide the correct interactive pop transition controller.
+        private weak var lastTransitionFromViewController: UIViewController?
+
+        /// The configuration for the bottom sheet presentation, passed down to transition animators.
+        private let sheetConfiguration: BottomSheet.Configuration
+
+        /// Keeps a reference to the initial top view controller so we can
+        /// apply a max-height cap only for the first screen presented inside
+        /// the navigation stack.
+        private weak var initialTopViewController: UIViewController?
+
+        // MARK: - Initialization
+
+        /// Initializes a `BottomSheet.NavigationController` with a root view controller and configuration.
+        /// - Parameters:
+        ///   - rootViewController: The root view controller of the navigation stack.
+        ///   - configuration: The `BottomSheet.Configuration` to be used for this navigation controller
+        ///                    and its transitions.
+        public init(rootViewController: UIViewController, configuration: BottomSheet.Configuration) {
+            self.sheetConfiguration = configuration
+            super.init(rootViewController: rootViewController)
+            self.initialTopViewController = rootViewController
+        }
+
+        /// Standard non-bottom-sheet initializer.
+        /// Uses a default configuration if initialized this way, though usage within a bottom sheet
+        /// typically involves the specific initializer above.
+        override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+            self.sheetConfiguration = .default
+            super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        }
+
+        @available(*, unavailable)
+        required init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented. Use init(rootViewController:configuration:)")
+        }
+
+        // MARK: - UIViewController Lifecycle
+
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+
+            delegate = self
+
+            view.clipsToBounds = true
+            
+            modalPresentationStyle = .custom
+        }
+
+        // MARK: - UINavigationController Overrides
+
+        override func setViewControllers(_ viewControllers: [UIViewController], animated: Bool) {
+            performNavigationStackUpdate(animated: animated) {
+                super.setViewControllers(viewControllers, animated: animated)
+            }
+        }
+
+        override func pushViewController(_ viewController: UIViewController, animated: Bool) {
+            performNavigationStackUpdate(animated: animated) {
+                super.pushViewController(viewController, animated: animated)
+            }
+        }
+
+        override func popViewController(animated: Bool) -> UIViewController? {
+            var poppedViewController: UIViewController?
+            performNavigationStackUpdate(animated: animated) {
+                poppedViewController = super.popViewController(animated: animated)
+            }
+            return poppedViewController
+        }
+
+        override func popToRootViewController(animated: Bool) -> [UIViewController]? {
+            var poppedViewControllers: [UIViewController]?
+            performNavigationStackUpdate(animated: animated) {
+                poppedViewControllers = super.popToRootViewController(animated: animated)
+            }
+            return poppedViewControllers
+        }
+
+        override func popToViewController(_ viewController: UIViewController, animated: Bool) -> [UIViewController]? {
+            var poppedViewControllers: [UIViewController]?
+            performNavigationStackUpdate(animated: animated) {
+                poppedViewControllers = super.popToViewController(viewController, animated: animated)
+            }
+            return poppedViewControllers
+        }
+
+        /// Called when the `preferredContentSize` of a child view controller changes.
+        /// This navigation controller updates its own `preferredContentSize` to reflect the change,
+        /// which in turn can cause the presenting `BottomSheet.PresentationController` to resize the sheet.
+        override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
+            super.preferredContentSizeDidChange(forChildContentContainer: container)
+
+            guard
+                let viewController = container as? UIViewController,
+                viewController === topViewController,
+                !isUpdatingNavigationStack
+            else { return }
+
+            let updateAction = { [weak self] in
+                self?.updateSelfPreferredContentSize()
+                self?.view.layoutIfNeeded()
+            }
+
+            if canAnimatePreferredContentSizeUpdates {
+                UIView.animate(withDuration: sheetConfiguration.animation.duration,
+                               animations: updateAction)
+            } else {
+                updateAction()
+            }
+
+            // Allow subsequent preferredContentSize changes to be animated.
+            // This is often set to true after the initial presentation animation is complete.
+            canAnimatePreferredContentSizeUpdates = true
+        }
+
+        // MARK: - Private Helper Methods
+
+        /// Wraps navigation stack changes (push, pop, set) to manage `preferredContentSize` updates
+        /// and animation states.
+        /// - Parameters:
+        ///   - animated: Whether the navigation change is animated.
+        ///   - changes: A closure containing the actual navigation operation (e.g., `super.pushViewController`).
+        private func performNavigationStackUpdate(animated: Bool, applyChanges: () -> Void) {
+            isUpdatingNavigationStack = true
+
+            applyChanges()
+
+            if let coordinator = transitionCoordinator, animated, coordinator.isAnimated {
+                coordinator.animate(
+                    alongsideTransition: { [weak self] _ in
+                        self?.updateSelfPreferredContentSize()
+                    },
+                    completion: { [weak self] _ in
+                        self?.isUpdatingNavigationStack = false
+                        self?.updateSelfPreferredContentSize()
+                        self?.canAnimatePreferredContentSizeUpdates = true
+                    }
+                )
+            } else {
+                isUpdatingNavigationStack = false
+                updateSelfPreferredContentSize()
+                // If not animated, likely means it's an immediate change or initial setup.
+                // Allow animations for subsequent changes.
+                canAnimatePreferredContentSizeUpdates = true
+            }
+        }
+
+        /// Updates this navigation controller's `preferredContentSize` based on its `topViewController`.
+        /// It includes `additionalSafeAreaInsets` to ensure content is not obscured.
+        private func updateSelfPreferredContentSize() {
+            guard let topVC = topViewController else {
+                if view.bounds.width > .zero {
+                    preferredContentSize = CGSize(width: view.bounds.width, height: .zero)
+                }
+                return
+            }
+            
+            var newHeight = topVC.preferredContentSize.height
+            newHeight += additionalSafeAreaInsets.top + additionalSafeAreaInsets.bottom
+
+            // Apply an initial height cap only for the very first screen.
+            if topVC === initialTopViewController {
+                newHeight = min(newHeight, sheetConfiguration.maxHeightInitial)
+            }
+
+            let newWidth = view.bounds.width > 0 ? view.bounds.width : UIScreen.main.bounds.width
+            
+            if preferredContentSize.width != newWidth || preferredContentSize.height != newHeight.pixelCeiled {
+                 preferredContentSize = CGSize(
+                     width: newWidth,
+                     height: newHeight.pixelCeiled
+                 )
+            }
+        }
+    }
+}
+
+// MARK: - UINavigationControllerDelegate Conformance
+extension BottomSheet.NavigationController: UINavigationControllerDelegate {
+    public func navigationController(
+        _ navigationController: UINavigationController,
+        animationControllerFor operation: UINavigationController.Operation,
+        from fromVC: UIViewController,
+        to toVC: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        
+        if operation == .push {
+            toVC.setupCustomInteractivePopTransition()
+        }
+
+        lastTransitionFromViewController = fromVC
+        
+        return SheetNavigationAnimatedTransitioning(
+            operation: operation,
+            configuration: sheetConfiguration
+        )
+    }
+
+    public func navigationController(
+        _ navigationController: UINavigationController,
+        interactionControllerFor animationController: UIViewControllerAnimatedTransitioning
+    ) -> UIViewControllerInteractiveTransitioning? {
+        // Use the custom interactive pop transition from the 'from' view controller.
+        // This relies on `setupCustomInteractivePopTransition()` having been called.
+        return lastTransitionFromViewController?.customInteractivePopTransitioning
+    }
+}
