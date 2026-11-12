@@ -192,7 +192,7 @@ final class SecurityCodeViewModelTests: XCTestCase {
         XCTAssertTrue(messages.contains(.setEventData([
             "payment_method_id": "master",
             "payment_type_id": "credit_card",
-            "issuer_id": 2,
+            "issuer_id": "2",
             "card_id": "card-9999"
         ])))
     }
@@ -255,9 +255,9 @@ final class SecurityCodeViewModelTests: XCTestCase {
         XCTAssertTrue(messages.contains(.send))
     }
 
-    // MARK: - trackCanceledError (via goBack())
+    // MARK: - trackBack (via goBack())
 
-    func test_goBack_shouldTrackUserCanceledErrorPath() async {
+    func test_goBack_shouldTrackNavigationWithoutErrorData() async {
         // Arrange
         let analytics = MockAnalytics()
         let sut = self.makeSUT(analytics: analytics)
@@ -268,9 +268,7 @@ final class SecurityCodeViewModelTests: XCTestCase {
 
         // Assert
         let messages = await analytics.mock.getMessages()
-        XCTAssertTrue(messages.contains(.track(path: SecurityCodeAnalyticsPath.userCanceledError)))
-        XCTAssertTrue(messages.contains(.setError("back_pressed")))
-        XCTAssertTrue(messages.contains(.send))
+        XCTAssertEqual(messages, [.track(path: SecurityCodeAnalyticsPath.back), .send])
     }
 
     // MARK: - Helpers

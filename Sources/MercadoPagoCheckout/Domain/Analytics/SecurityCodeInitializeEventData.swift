@@ -3,7 +3,7 @@ import MPAnalytics
 struct SecurityCodeInitializeEventData: AnalyticsEventData {
     let paymentMethodId: String
     let paymentTypeId: String
-    let issuerId: Int
+    let issuerId: String
     let cardId: String
 
     func toDictionary() -> [String: any Sendable] {

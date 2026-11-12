@@ -6,14 +6,15 @@ orbs:
 executors:
   default:
     macos:
-      xcode: 26.1.1
+      xcode: "26.4.1"
+    resource_class: m4pro.medium
 
 commands:
   setup_environment:
     steps:
       - macos/install-rosetta
       - macos/switch-ruby:
-          version: "3.4.7"
+          version: "3.4.8"
       - run:
           name: Install Dependencies
           command: make setup

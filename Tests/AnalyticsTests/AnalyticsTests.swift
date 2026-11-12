@@ -26,7 +26,7 @@ private extension AnalyticsTests {
     typealias SUT = MPAnalytics
 
     func makeSUT(file _: StaticString = #filePath, line _: UInt = #line) async -> SUT {
-        let sut = MPAnalytics()
+        let sut = MPAnalytics(sendRequest: { _ in })
         await sut.initialize(version: "1.0.0", siteID: "MLB")
 
         return sut
@@ -36,27 +36,29 @@ private extension AnalyticsTests {
 final class AnalyticsTests: XCTestCase {
     // MARK: - Event Tracking Tests
 
-    func test_trackEvent_ShouldSetCorrectPathAndType() async {
+    func test_trackEvent_ShouldSetCorrectPathAndType() async throws {
         let sut = await self.makeSUT()
         let eventPath = "payment/credit_card"
 
-        await sut.trackEvent(eventPath)
+        let trackedEvent = await sut.trackEvent(eventPath)
+        let event = try XCTUnwrap(trackedEvent as? MPAnalytics)
 
-        let path = await sut.track.getPath()
-        let type = await sut.track.getType()
+        let path = await event.track.getPath()
+        let type = await event.track.getType()
 
         XCTAssertEqual(path, eventPath)
         XCTAssertEqual(type, .event)
     }
 
-    func test_trackView_ShouldSetCorrectPathAndType() async {
+    func test_trackView_ShouldSetCorrectPathAndType() async throws {
         let sut = await self.makeSUT()
         let viewPath = "checkout/review"
 
-        await sut.trackView(viewPath)
+        let trackedEvent = await sut.trackView(viewPath)
+        let event = try XCTUnwrap(trackedEvent as? MPAnalytics)
 
-        let path = await sut.track.getPath()
-        let type = await sut.track.getType()
+        let path = await event.track.getPath()
+        let type = await event.track.getType()
 
         XCTAssertEqual(path, viewPath)
         XCTAssertEqual(type, .view)
@@ -78,13 +80,13 @@ final class AnalyticsTests: XCTestCase {
             return XCTFail("Event Data is not stored")
         }
         XCTAssertEqual(storedData.value, "test-123")
-        XCTAssertEqual(storedData.iosMinimium, "iOS 13.0")
-        XCTAssertEqual(storedData.deviceInfo, "arm64")
+        XCTAssertEqual(storedData.iosMinimium, mockData.iosMinimium)
+        XCTAssertEqual(storedData.deviceInfo, mockData.deviceInfo)
     }
 
     // MARK: - Method Chaining Tests
 
-    func test_methodChaining_ShouldReturnSelfAndUpdateValues() async {
+    func test_methodChaining_ShouldReturnIsolatedBuilderAndUpdateValues() async throws {
         let sut = await self.makeSUT()
         let eventPath = "payment/credit_card"
         let mockData = MockEventData(
@@ -93,14 +95,16 @@ final class AnalyticsTests: XCTestCase {
             deviceInfo: sut.buyerInfo.getDeviceInfo()
         )
 
-        await sut
+        let trackedEvent = await sut
             .trackEvent(eventPath)
             .setEventData(mockData)
+        let event = try XCTUnwrap(trackedEvent as? MPAnalytics)
 
-        let path = await sut.track.getPath()
-        let type = await sut.track.getType()
-        let resultEventData = await sut.track.getEventData() as? MockEventData
+        let path = await event.track.getPath()
+        let type = await event.track.getType()
+        let resultEventData = await event.track.getEventData() as? MockEventData
 
+        XCTAssertFalse(event === sut)
         XCTAssertEqual(path, eventPath)
         XCTAssertEqual(type, .event)
         XCTAssertEqual(resultEventData?.value, "test-123")
