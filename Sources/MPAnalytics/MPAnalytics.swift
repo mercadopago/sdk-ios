@@ -84,14 +84,20 @@ package protocol AnalyticsInterface: Sendable {
     /// - Parameter siteID: Site ID of the app.
     func initialize(version: String, siteID: String) async
 
-    /// Sets custom data for the next event.
+    /// Sets custom data on this event builder.
+    ///
+    /// Call this on the builder returned by `trackEvent(_:)` or `trackView(_:)`.
+    /// Data configured before starting a tracking chain is not copied to its builder.
     ///
     /// - Parameter data: Object implementing `AnalyticsEventData` containing event data.
     /// - Returns: Self instance for method chaining.
     @discardableResult
     func setEventData(_ data: AnalyticsEventData) async -> AnalyticsInterface
 
-    /// Sets error in event data for the next event.
+    /// Sets error data on this event builder.
+    ///
+    /// Call this on the builder returned by `trackEvent(_:)` or `trackView(_:)`.
+    /// Errors configured before starting a tracking chain are not copied to its builder.
     ///
     /// - Parameter error: String of error
     /// - Returns: Self instance for method chaining.
@@ -101,14 +107,14 @@ package protocol AnalyticsInterface: Sendable {
     /// Tracks a custom event.
     ///
     /// - Parameter path: Path identifying the event (e.g., "payment/credit_card").
-    /// - Returns: Self instance for method chaining.
+    /// - Returns: An isolated event builder for method chaining.
     @discardableResult
     func trackEvent(_ path: String) async -> AnalyticsInterface
 
     /// Tracks a screen view.
     ///
     /// - Parameter path: Path identifying the screen (e.g., "checkout/review").
-    /// - Returns: Self instance for method chaining.
+    /// - Returns: An isolated event builder for method chaining.
     @discardableResult
     func trackView(_ path: String) async -> AnalyticsInterface
 
@@ -131,7 +137,7 @@ package extension AnalyticsInterface {
 /// - Aggregating environment data
 /// - Formatting and sending analytics data
 ///
-/// Implemented as a Swift actor to ensure thread-safety in concurrent operations.
+/// Each tracking chain owns actor-isolated event state.
 ///
 /// Example:
 /// ```swift
@@ -143,6 +149,13 @@ package extension AnalyticsInterface {
 /// ```
 package final class MPAnalytics: AnalyticsInterface {
     actor TrackEvent {
+        struct Snapshot: Sendable {
+            let path: String
+            let type: TrackType
+            let eventData: AnalyticsEventData?
+            let error: String?
+        }
+
         /// Custom data for the current event.
         private var eventData: AnalyticsEventData?
 
@@ -153,6 +166,18 @@ package final class MPAnalytics: AnalyticsInterface {
         private var type: TrackType = .event
 
         private var error: String?
+
+        init(path: String = "", type: TrackType = .event) {
+            self.path = path
+            self.type = type
+        }
+
+        func consume() -> Snapshot {
+            let snapshot = Snapshot(path: self.path, type: self.type, eventData: self.eventData, error: self.error)
+            self.eventData = nil
+            self.error = nil
+            return snapshot
+        }
 
         func setError(_ error: String?) {
             self.error = error
@@ -187,18 +212,37 @@ package final class MPAnalytics: AnalyticsInterface {
         }
     }
 
-    let track = TrackEvent()
+    let track: TrackEvent
+    private let sendRequest: @Sendable (URLRequest) async throws -> Void
 
     /// Service providing seller information.
-    package let sellerInfo = MPSellerInfo()
+    package let sellerInfo: MPSellerInfo
 
     /// Service providing buyer and device information.
-    package let buyerInfo = MPBuyerInfo()
+    package let buyerInfo: MPBuyerInfo
 
     /// Initializes a new Analytics instance.
     ///
     /// Creates a new UUID session identifier.
-    package init() {}
+    package convenience init() {
+        self.init { request in
+            _ = try await URLSession.shared.data(for: request)
+        }
+    }
+
+    init(sendRequest: @escaping @Sendable (URLRequest) async throws -> Void) {
+        self.track = TrackEvent()
+        self.sellerInfo = MPSellerInfo()
+        self.buyerInfo = MPBuyerInfo()
+        self.sendRequest = sendRequest
+    }
+
+    private init(path: String, type: TrackType, analytics: MPAnalytics) {
+        self.track = TrackEvent(path: path, type: type)
+        self.sellerInfo = analytics.sellerInfo
+        self.buyerInfo = analytics.buyerInfo
+        self.sendRequest = analytics.sendRequest
+    }
 
     // MARK: - Interface Implementation
 
@@ -222,18 +266,12 @@ package final class MPAnalytics: AnalyticsInterface {
 
     @discardableResult
     package func trackEvent(_ path: String) async -> AnalyticsInterface {
-        await self.track.setType(.event)
-        await self.track.setPath(path)
-
-        return self
+        return MPAnalytics(path: path, type: .event, analytics: self)
     }
 
     @discardableResult
     package func trackView(_ path: String) async -> AnalyticsInterface {
-        await self.track.setType(.view)
-        await self.track.setPath(path)
-
-        return self
+        return MPAnalytics(path: path, type: .view, analytics: self)
     }
 
     /// Processes and sends the current event.
@@ -242,15 +280,14 @@ package final class MPAnalytics: AnalyticsInterface {
     /// 1. Collects user information,
     /// 2. Builds the payload with all required data,
     /// 3. Serializes to JSON,
-    /// 4. Sends the data (currently just prints to console).
-    ///
-    /// - Note: Actual data sending implementation should be added in the future.
+    /// 4. Sends the data without retaining mutable payload state.
     package func send(observabilityEventID: String?) async {
+        let snapshot = await self.track.consume()
         guard await !MPAnalyticsConfiguration.shared.version.isEmpty,
               await !MPAnalyticsConfiguration.shared.siteID.isEmpty else {
             return
         }
-        let payload = await buildPayload(observabilityEventID: observabilityEventID)
+        let payload = await buildPayload(snapshot: snapshot, observabilityEventID: observabilityEventID)
 
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
@@ -264,14 +301,11 @@ package final class MPAnalytics: AnalyticsInterface {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = jsonData
 
-            _ = try await URLSession.shared.data(for: request)
-
-            await self.track.setEventData(nil)
-
+            try await self.sendRequest(request)
         } catch {}
     }
 
-    private func buildPayload(observabilityEventID: String?) async -> [String: Any] {
+    private func buildPayload(snapshot: TrackEvent.Snapshot, observabilityEventID: String?) async -> [String: Any] {
         var identifierVendor = ""
 
         await MainActor.run {
@@ -279,15 +313,15 @@ package final class MPAnalytics: AnalyticsInterface {
         }
 
         let payload: [String: Any] = await [
-            "path": self.track.getPath(),
+            "path": snapshot.path,
             "user": [
                 "uid": identifierVendor,
                 "melidata_session_id": await MPAnalyticsConfiguration.shared.sessionID
             ],
-            "type": self.track.getType().rawValue,
+            "type": snapshot.type.rawValue,
             "id": UUID().uuidString,
             "user_time": Int64(Date().timeIntervalSince1970 * 1000),
-            "event_data": self.getEventData(observabilityEventID: observabilityEventID),
+            "event_data": self.getEventData(snapshot: snapshot, observabilityEventID: observabilityEventID),
             "application": [
                 "app_name": self.sellerInfo.getBundleIdentifier(),
                 "business": "mercadopago",
@@ -320,10 +354,10 @@ private extension MPAnalytics {
     /// Retrieves the current event data in JSON format.
     ///
     /// - Returns: Dictionary containing event data or an empty dictionary if no data is present.
-    func getEventData(observabilityEventID: String?) async -> [String: Any] {
-        var eventData = await track.getEventData()?.toDictionary() ?? [:]
+    func getEventData(snapshot: TrackEvent.Snapshot, observabilityEventID: String?) -> [String: Any] {
+        var eventData = snapshot.eventData?.toDictionary() ?? [:]
 
-        if let error = await track.getError() {
+        if let error = snapshot.error {
             eventData["error_type"] = error
         }
 
