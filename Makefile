@@ -1,5 +1,7 @@
 .PHONY: setup check-brew install-tools setup-git-hooks install-fastlane test format clean
 
+BUNDLER_VERSION ?= 2.7.2
+
 # Initial setup with all required tools
 setup: check-brew install-tools setup-git-hooks install-fastlane
 
@@ -37,11 +39,12 @@ install-fastlane:
 		echo "⚠️ Gemfile not found. Please add Fastlane to your project first."; \
 		exit 1; \
 	fi
-	@if ! command -v bundle >/dev/null 2>&1; then \
-		echo "Installing Bundler..." && \
-		gem install bundler; \
+	@if ! gem list --installed bundler --version "$(BUNDLER_VERSION)" >/dev/null 2>&1; then \
+		echo "Installing Bundler $(BUNDLER_VERSION)..." && \
+		gem install bundler --version "$(BUNDLER_VERSION)" --no-document; \
 	fi
-	@bundle install --path vendor/bundle
+	@bundle _$(BUNDLER_VERSION)_ config set --local path vendor/bundle
+	@bundle _$(BUNDLER_VERSION)_ install
 
 # Run tests using Fastlane
 test:

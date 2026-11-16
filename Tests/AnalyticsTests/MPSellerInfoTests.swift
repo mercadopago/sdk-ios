@@ -69,4 +69,10 @@ final class MPSellerInfoTests: XCTestCase {
 
         XCTAssertEqual(result, "iOS \(version)")
     }
+
+    func test_getTargetMinimum_whenVersionIsMissing_shouldReturnUnknown() {
+        let (sut, _) = self.makeSUT()
+
+        XCTAssertEqual(sut.getTargetMinimum(), "unknown")
+    }
 }

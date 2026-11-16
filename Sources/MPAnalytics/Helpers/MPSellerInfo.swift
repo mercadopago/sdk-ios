@@ -35,7 +35,7 @@ package final class MPSellerInfo: Sendable {
     /// - Returns: A `String` formatted as "iOS X.Y" representing the minimum OS version,
     ///            or an "unknown" if not specified.
     package func getTargetMinimum() -> String {
-        if let minimumVersion = Bundle.main.object(forInfoDictionaryKey: "MinimumOSVersion") as? String {
+        if let minimumVersion = self.bundle.object(forInfoDictionaryKey: "MinimumOSVersion") as? String {
             return "iOS \(minimumVersion)"
         }
 
