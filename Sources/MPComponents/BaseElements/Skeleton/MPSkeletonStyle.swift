@@ -20,6 +20,14 @@ package struct MPShimmerSkeletonStyle: MPSkeletonStyle {
     @Environment(\.checkoutTheme) var theme: MPTheme
     @State private var phase: CGFloat = -1
 
+    /// When set, the shimmer is drawn at this phase (-1...1) and does not animate.
+    /// Used to render deterministic frames (e.g. snapshot tests). `nil` keeps the animation.
+    private let fixedPhase: CGFloat?
+
+    package init(fixedPhase: CGFloat? = nil) {
+        self.fixedPhase = fixedPhase
+    }
+
     private var shimmerStops: [Gradient.Stop] {
         let color = self.theme.colors.background.primary
         return [
@@ -38,7 +46,7 @@ package struct MPShimmerSkeletonStyle: MPSkeletonStyle {
                 .overlay(
                     LinearGradient(stops: self.shimmerStops, startPoint: .leading, endPoint: .trailing)
                         .frame(width: geo.size.width * 3)
-                        .offset(x: self.phase * geo.size.width * 2)
+                        .offset(x: (self.fixedPhase ?? self.phase) * geo.size.width * 2)
                         .blur(radius: 17)
                 )
                 .clipped()
@@ -46,6 +54,7 @@ package struct MPShimmerSkeletonStyle: MPSkeletonStyle {
         .clipShape(self.clipShape(for: configuration.type))
         .accessibility(hidden: true)
         .mpTask {
+            guard self.fixedPhase == nil else { return }
             withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
                 self.phase = 1
             }

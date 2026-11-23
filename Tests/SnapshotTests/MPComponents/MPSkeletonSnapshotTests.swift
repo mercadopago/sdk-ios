@@ -71,36 +71,27 @@ final class MPSkeletonSnapshotTests: XCTestCase {
 
     // MARK: - Animation Moments
 
-    func test_shimmerMoments() async throws {
-        let view = self.makeTestView {
-            MPSkeletonView(type: .row)
-                .frame(width: 280, height: 24)
+    /// Renders fixed shimmer phases instead of sampling the running animation
+    /// with wall-clock sleeps, which made the captured frame depend on CI speed.
+    func test_shimmerMoments() {
+        let moments: [(name: String, phase: CGFloat)] = [
+            ("moment_1_start", -1),
+            ("moment_2_mid", -0.5),
+            ("moment_3_peak", 0)
+        ]
+
+        for moment in moments {
+            let view = self.makeTestView {
+                MPSkeletonView(type: .row)
+                    .frame(width: 280, height: 24)
+                    .skeletonStyle(MPShimmerSkeletonStyle(fixedPhase: moment.phase))
+            }
+            assertSnapshot(
+                of: UIHostingController(rootView: view),
+                as: .image(precision: 0.85, size: CGSize(width: 360, height: 80)),
+                named: moment.name
+            )
         }
-        let controller = UIHostingController(rootView: view)
-        let window = self.makeWindow(for: controller)
-
-        try await Task.sleep(nanoseconds: 50_000_000) // 0.05s — before animation
-        assertSnapshot(
-            of: controller,
-            as: .image(precision: 0.85, size: CGSize(width: 360, height: 80)),
-            named: "moment_1_start"
-        )
-
-        try await Task.sleep(nanoseconds: 400_000_000) // +0.4s — shimmer entering
-        assertSnapshot(
-            of: controller,
-            as: .image(precision: 0.85, size: CGSize(width: 360, height: 80)),
-            named: "moment_2_mid"
-        )
-
-        try await Task.sleep(nanoseconds: 700_000_000) // +0.7s — shimmer peak
-        assertSnapshot(
-            of: controller,
-            as: .image(precision: 0.85, size: CGSize(width: 360, height: 80)),
-            named: "moment_3_peak"
-        )
-
-        window.isHidden = true
     }
 
     // MARK: - Helpers
@@ -111,13 +102,5 @@ final class MPSkeletonSnapshotTests: XCTestCase {
                 .padding(24)
                 .background(Color.white)
         }
-    }
-
-    @discardableResult
-    private func makeWindow(for viewController: UIViewController) -> UIWindow {
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = viewController
-        window.makeKeyAndVisible()
-        return window
     }
 }
