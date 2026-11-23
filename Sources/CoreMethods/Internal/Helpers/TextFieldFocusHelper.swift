@@ -14,6 +14,7 @@ enum TextFieldFocusHelper {
         }
     }
 
+    @MainActor
     static func syncFocus(
         _ uiView: PCITextField,
         shouldBeFocused: Bool
