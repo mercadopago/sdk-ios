@@ -25,6 +25,7 @@ import UIKit
 /// let field = SecurityCodeTextField(style: style)
 ///    .setMaxLength(4)
 ///    .setPlaceholder("Insert security code")
+///    .setMasked(true) // Optional: shows "•••" instead of the digits
 ///
 /// field.onLengthChanged = { [weak self] bin in
 ///     // Handle length changes
@@ -88,9 +89,12 @@ public final class SecurityCodeTextField: PCITextField {
     /// - Parameters:
     ///   - style: The styling configuration for the text field
     ///   - maxLength: Sets the maximum length of the card number
+    ///   - isMasked: When `true`, the digits are shown as bullets (`•••`). Defaults to `false`.
+    ///     VoiceOver does not speak the digits of a masked field.
     public init(
         style: Style = TextFieldDefaultStyle(),
-        maxLength: Int = 3
+        maxLength: Int = 3,
+        isMasked: Bool = false
     ) {
         self.validation = SecurityCodeValidation(maxLength: maxLength)
         let configuration = PCIFieldState.Configuration(
@@ -107,6 +111,7 @@ public final class SecurityCodeTextField: PCITextField {
         }
 
         super.init(style: style, configuration: configuration, contentType: contentType)
+        self.input.isSecureEntry = isMasked
         buildLayout()
         self.setupCallbacks()
 
@@ -119,15 +124,17 @@ public final class SecurityCodeTextField: PCITextField {
     /// - Parameters:
     ///   - style: The styling configuration for the text field
     ///   - maxLength: Maximum length for the security code
+    ///   - isMasked: When `true`, the digits are shown as bullets
     ///   - dependencies: Custom dependency container for testing
     ///   - framework: UI framework type being used
     convenience init(
         style: Style = TextFieldDefaultStyle(),
         maxLength: Int = 3,
+        isMasked: Bool = false,
         dependencies: Dependency,
         framework: FrameworkType = .uikit
     ) {
-        self.init(style: style, maxLength: maxLength)
+        self.init(style: style, maxLength: maxLength, isMasked: isMasked)
 
         self.dependencies = dependencies
         self.framework = framework
@@ -195,6 +202,23 @@ extension SecurityCodeTextField {
     public func setMaxLength(_ length: Int) -> Self {
         self.input.setMaxLenght(length)
         self.validation.maxLength = length
+        return self
+    }
+
+    /// Whether the security code is shown as bullets (`•••`) instead of digits.
+    /// Defaults to `false`. Only the on-screen rendering changes.
+    /// - Note: Masking uses the system secure text entry. VoiceOver does not speak the digits of a masked field.
+    public var isMasked: Bool {
+        get { self.input.isSecureEntry }
+        set { self.input.isSecureEntry = newValue }
+    }
+
+    /// Shows the security code as bullets (`•••`) instead of digits.
+    /// - Parameter isMasked: `true` to hide the digits on screen
+    /// - Returns: Self for method chaining
+    @discardableResult
+    public func setMasked(_ isMasked: Bool) -> Self {
+        self.isMasked = isMasked
         return self
     }
 }

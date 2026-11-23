@@ -88,6 +88,17 @@ final class PCIFieldState: UIView {
         set { self.textField.keyboardAppearance = newValue }
     }
 
+    /// Hides the typed digits on screen (shows bullets instead).
+    /// Only the rendering changes: the real value stays in the text field and
+    /// is still read only through `getValue()`.
+    var isSecureEntry: Bool {
+        get { self.textField.isSecureTextEntry }
+        set {
+            guard self.textField.isSecureTextEntry != newValue else { return }
+            self.textField.isSecureTextEntry = newValue
+        }
+    }
+
     /// Indicates whether the underlying text field currently has focus
     override var isFocused: Bool {
         return self.textField.isFirstResponder

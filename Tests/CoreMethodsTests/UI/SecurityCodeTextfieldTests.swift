@@ -21,13 +21,14 @@ final class SecurityCodeTextFieldTests: XCTestCase {
 
     private func makeSUT(
         maxLength: Int = 3,
+        isMasked: Bool = false,
         file _: StaticString = #filePath,
         line _: UInt = #line
     ) -> SUT {
         let container = MockDependencyContainer()
         let analytics = container.mockAnalytics
 
-        let sut = SecurityCodeTextField(maxLength: maxLength, dependencies: container)
+        let sut = SecurityCodeTextField(maxLength: maxLength, isMasked: isMasked, dependencies: container)
         return (sut, sut.input, analytics)
     }
 
@@ -205,6 +206,70 @@ final class SecurityCodeTextFieldTests: XCTestCase {
         let result = sut.setRightImage(view: imageView)
 
         XCTAssertTrue(result === sut)
+    }
+
+    // MARK: - Masking Tests
+
+    func test_init_isNotMaskedByDefault() {
+        let (sut, input, _) = self.makeSUT()
+
+        XCTAssertFalse(sut.isMasked)
+        XCTAssertFalse(input.textField.isSecureTextEntry)
+    }
+
+    func test_init_withIsMasked_shouldEnableSecureTextEntry() {
+        let (sut, input, _) = self.makeSUT(isMasked: true)
+
+        XCTAssertTrue(sut.isMasked)
+        XCTAssertTrue(input.textField.isSecureTextEntry)
+    }
+
+    func test_publicInit_withIsMasked_shouldEnableSecureTextEntry() {
+        let sut = SecurityCodeTextField(isMasked: true)
+
+        XCTAssertTrue(sut.isMasked)
+        XCTAssertTrue(sut.input.textField.isSecureTextEntry)
+    }
+
+    func test_setMasked_shouldToggleSecureTextEntryAndReturnSelf() {
+        let (sut, input, _) = self.makeSUT()
+
+        let result = sut.setMasked(true)
+
+        XCTAssertTrue(result === sut)
+        XCTAssertTrue(input.textField.isSecureTextEntry)
+
+        sut.setMasked(false)
+
+        XCTAssertFalse(input.textField.isSecureTextEntry)
+    }
+
+    func test_masked_shouldKeepKeyboardConfiguration() {
+        let (_, input, _) = self.makeSUT(isMasked: true)
+
+        XCTAssertEqual(input.textField.keyboardType, .numberPad)
+        XCTAssertEqual(input.textField.autocorrectionType, .no)
+    }
+
+    func test_masked_shouldKeepRealValueForTokenization() {
+        let (sut, input, _) = self.makeSUT(isMasked: true)
+
+        simulateTextInput("123", input: input)
+
+        XCTAssertEqual(input.getValue(), "123")
+        XCTAssertEqual(sut.count, 3)
+        XCTAssertTrue(sut.isValid)
+    }
+
+    func test_masked_toggleAfterInput_shouldNotChangeValue() {
+        let (sut, input, _) = self.makeSUT()
+        simulateTextInput("456", input: input)
+
+        sut.setMasked(true)
+        XCTAssertEqual(input.getValue(), "456")
+
+        sut.setMasked(false)
+        XCTAssertEqual(input.getValue(), "456")
     }
 }
 
