@@ -22,6 +22,7 @@ import SwiftUI
 ///     style: myCustomStyle,
 ///     maxLength: 3,
 ///     placeholder: "CVV",
+///     isMasked: true, // Optional: shows "•••" instead of the digits
 ///     onInputFilled: {
 ///         proceedToNextStep()
 ///     }
@@ -39,6 +40,9 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
 
     /// Optional placeholder text to display when the field is empty.
     private var placeholder: String?
+
+    /// Whether the digits are shown as bullets (`•••`) instead of plain text.
+    private var isMasked: Bool
 
     /// Whether the text field is enabled for user interaction.
     @Binding private var isEnabled: Bool
@@ -78,6 +82,8 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     ///   - style: The styling configuration for the text field.
     ///   - maxLength: The maximum number of characters allowed in the security code.
     ///   - placeholder: Optional placeholder text to display when the field is empty.
+    ///   - isMasked: When `true`, the digits are shown as bullets (`•••`). Defaults to `false`.
+    ///     VoiceOver does not speak the digits of a masked field.
     ///   - isEnabled: Whether the text field is enabled for user interaction.
     ///   - keyboardAppearance: The appearance style of the keyboard.
     ///   - isFocused: Binding used to programmatically control focus.
@@ -92,6 +98,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         style: SecurityCodeTextField.Style = TextFieldDefaultStyle(),
         maxLength: Int = 3,
         placeholder: String? = nil,
+        isMasked: Bool = false,
         isEnabled: Binding<Bool> = .constant(true),
         isFocused: Binding<Bool> = .constant(false),
         keyboardAppearance: UIKeyboardAppearance = .default,
@@ -103,6 +110,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         self.style = style
         self.maxLength = maxLength
         self.placeholder = placeholder
+        self.isMasked = isMasked
         self._isEnabled = isEnabled
         self.focusState = isFocused
         self.keyboardAppearance = keyboardAppearance
@@ -118,7 +126,8 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
     public func makeUIView(context _: Context) -> SecurityCodeTextField {
         let textField = SecurityCodeTextField(
             style: style,
-            maxLength: maxLength
+            maxLength: maxLength,
+            isMasked: isMasked
         )
         textField.framework = .swiftui
 
@@ -155,6 +164,7 @@ public struct SecurityCodeTextFieldView: UIViewRepresentable {
         uiView.keyboardAppearance = self.keyboardAppearance
         uiView.setStyle(self.style)
         uiView.setMaxLength(self.maxLength)
+        uiView.isMasked = self.isMasked
 
         TextFieldFocusHelper.syncFocus(uiView, shouldBeFocused: self.shouldBeFocused)
     }
@@ -215,6 +225,23 @@ public extension SecurityCodeTextFieldView {
     func placeholder(_ text: String) -> SecurityCodeTextFieldView {
         var view = self
         view.placeholder = text
+        return view
+    }
+
+    /// Shows the security code as bullets (`•••`) instead of digits.
+    ///
+    /// - Parameter isMasked: `true` to hide the digits on screen. Defaults to `true`.
+    /// - Note: Masking uses the system secure text entry. VoiceOver does not speak the digits of a masked field.
+    /// - Returns: A modified view with the new masking state.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   SecurityCodeTextFieldView(...)
+    ///       .masked()
+    ///   ```
+    func masked(_ isMasked: Bool = true) -> SecurityCodeTextFieldView {
+        var view = self
+        view.isMasked = isMasked
         return view
     }
 
